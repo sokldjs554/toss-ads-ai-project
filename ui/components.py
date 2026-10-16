@@ -77,12 +77,13 @@ def render_copy(copy: AdCopy, findings: list[Finding] | None = None, title: str 
     c = _mark(copy.cta, spans_for("cta", copy.cta))
     disc_html = "".join(f'<div style="font-size:12px;color:#4E5968;margin-top:2px">· {_mark(d, spans_for(f"disc{i}", d))}</div>' for i, d in enumerate(copy.disclosures))
     tone = f'<div style="font-size:11px;color:#8B95A1;margin-bottom:6px">{html.escape(title or "")} {html.escape(copy.tone)}</div>' if (title or copy.tone) else ""
+    disc_block = f'<div style="margin-top:10px;border-top:1px dashed #E5E8EB;padding-top:6px">{disc_html}</div>' if disc_html else ""
     st.markdown(
         f'<div style="border:1px solid #E5E8EB;border-radius:14px;padding:14px 16px;background:#fff">{tone}'
         f'<div style="font-size:17px;font-weight:700;line-height:1.35">{h}</div>'
         f'<div style="font-size:14px;margin-top:6px;line-height:1.5">{b}</div>'
         f'<div style="margin-top:10px"><span style="background:#3182F6;color:#fff;border-radius:8px;padding:4px 12px;font-size:13px;font-weight:600">{c}</span></div>'
-        f'{("<div style=\"margin-top:10px;border-top:1px dashed #E5E8EB;padding-top:6px\">" + disc_html + "</div>") if disc_html else ""}</div>',
+        f'{disc_block}</div>',
         unsafe_allow_html=True,
     )
 
