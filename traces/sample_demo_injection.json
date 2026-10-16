@@ -1,8 +1,8 @@
 {
   "name": "preflight",
-  "trace_id": "tr_f6081fbe0bfd",
+  "trace_id": "tr_d67a4b118897",
   "metadata": {
-    "run_id": "run_1fe0abbc41",
+    "run_id": "run_46730fb69b",
     "mode": "demo",
     "prompt_version": "2026.10.1",
     "policy_version": "2026.10.1",
@@ -19,11 +19,11 @@
   "root": {
     "name": "preflight",
     "kind": "stage",
-    "trace_id": "tr_f6081fbe0bfd",
-    "span_id": "621a6e80daa3",
+    "trace_id": "tr_d67a4b118897",
+    "span_id": "9c0a42daddff",
     "parent_id": null,
-    "start_ms": 1792141373027.2437,
-    "end_ms": 1792141373047.8057,
+    "start_ms": 1792141943022.0796,
+    "end_ms": 1792141943036.293,
     "status": "ok",
     "attributes": {},
     "events": [],
@@ -31,11 +31,11 @@
       {
         "name": "input_guard:intercept",
         "kind": "guardrail",
-        "trace_id": "tr_f6081fbe0bfd",
-        "span_id": "409ead6c527c",
-        "parent_id": "621a6e80daa3",
-        "start_ms": 1792141373027.273,
-        "end_ms": 1792141373028.704,
+        "trace_id": "tr_d67a4b118897",
+        "span_id": "ee34a106144c",
+        "parent_id": "9c0a42daddff",
+        "start_ms": 1792141943022.094,
+        "end_ms": 1792141943023.1582,
         "status": "intercepted",
         "attributes": {
           "triggered": true,
@@ -87,11 +87,11 @@
       {
         "name": "planner",
         "kind": "stage",
-        "trace_id": "tr_f6081fbe0bfd",
-        "span_id": "f515a9a46f9f",
-        "parent_id": "621a6e80daa3",
-        "start_ms": 1792141373028.7444,
-        "end_ms": 1792141373029.0552,
+        "trace_id": "tr_d67a4b118897",
+        "span_id": "38239c317577",
+        "parent_id": "9c0a42daddff",
+        "start_ms": 1792141943023.1826,
+        "end_ms": 1792141943023.4343,
         "status": "ok",
         "attributes": {
           "objective": "conversion",
@@ -110,7 +110,7 @@
         "events": [
           {
             "name": "plan_repaired",
-            "t_ms": 0.3,
+            "t_ms": 0.2,
             "issues": [
               "'만 19세 이상 직장인 핵심 타겟': 만 19세 미만을 겨냥한 타겟 표현 — 집행 불가"
             ]
@@ -120,11 +120,11 @@
           {
             "name": "planner",
             "kind": "llm",
-            "trace_id": "tr_f6081fbe0bfd",
-            "span_id": "3589d585b4f8",
-            "parent_id": "f515a9a46f9f",
-            "start_ms": 1792141373028.796,
-            "end_ms": 1792141373028.936,
+            "trace_id": "tr_d67a4b118897",
+            "span_id": "a4cf8d566824",
+            "parent_id": "38239c317577",
+            "start_ms": 1792141943023.218,
+            "end_ms": 1792141943023.3193,
             "status": "ok",
             "attributes": {
               "task": "plan",
@@ -157,11 +157,11 @@
       {
         "name": "copywriter",
         "kind": "stage",
-        "trace_id": "tr_f6081fbe0bfd",
-        "span_id": "d81e488fc67f",
-        "parent_id": "621a6e80daa3",
-        "start_ms": 1792141373029.073,
-        "end_ms": 1792141373029.3484,
+        "trace_id": "tr_d67a4b118897",
+        "span_id": "39ca3378af0f",
+        "parent_id": "9c0a42daddff",
+        "start_ms": 1792141943023.4468,
+        "end_ms": 1792141943023.6462,
         "status": "ok",
         "attributes": {
           "variants": 3,
@@ -174,11 +174,11 @@
           {
             "name": "copywriter",
             "kind": "llm",
-            "trace_id": "tr_f6081fbe0bfd",
-            "span_id": "6a002a6fc23e",
-            "parent_id": "d81e488fc67f",
-            "start_ms": 1792141373029.1304,
-            "end_ms": 1792141373029.2847,
+            "trace_id": "tr_d67a4b118897",
+            "span_id": "9f5a4b6c02b1",
+            "parent_id": "39ca3378af0f",
+            "start_ms": 1792141943023.4878,
+            "end_ms": 1792141943023.599,
             "status": "ok",
             "attributes": {
               "task": "copy",
@@ -209,13 +209,13 @@
         ]
       },
       {
-        "name": "variant:var_fa5df469c0",
+        "name": "variant:var_7118c811c3",
         "kind": "stage",
-        "trace_id": "tr_f6081fbe0bfd",
-        "span_id": "64da18ad47dd",
-        "parent_id": "621a6e80daa3",
-        "start_ms": 1792141373029.3613,
-        "end_ms": 1792141373034.622,
+        "trace_id": "tr_d67a4b118897",
+        "span_id": "cce51bd63692",
+        "parent_id": "9c0a42daddff",
+        "start_ms": 1792141943023.655,
+        "end_ms": 1792141943027.5674,
         "status": "ok",
         "attributes": {
           "headline": "가상은행 신용대출, 연 4.5%~15.0% …"
@@ -225,11 +225,11 @@
           {
             "name": "output_guard",
             "kind": "guardrail",
-            "trace_id": "tr_f6081fbe0bfd",
-            "span_id": "12053e7942dd",
-            "parent_id": "64da18ad47dd",
-            "start_ms": 1792141373029.3706,
-            "end_ms": 1792141373032.2397,
+            "trace_id": "tr_d67a4b118897",
+            "span_id": "eeb02eea809c",
+            "parent_id": "cce51bd63692",
+            "start_ms": 1792141943023.6619,
+            "end_ms": 1792141943025.812,
             "status": "ok",
             "attributes": {
               "decision": "APPROVE",
@@ -285,11 +285,11 @@
           {
             "name": "audience",
             "kind": "stage",
-            "trace_id": "tr_f6081fbe0bfd",
-            "span_id": "da26e6d5c77d",
-            "parent_id": "64da18ad47dd",
-            "start_ms": 1792141373032.277,
-            "end_ms": 1792141373032.691,
+            "trace_id": "tr_d67a4b118897",
+            "span_id": "0759b90e85c3",
+            "parent_id": "cce51bd63692",
+            "start_ms": 1792141943025.8416,
+            "end_ms": 1792141943026.117,
             "status": "ok",
             "attributes": {
               "mean_trust": 4.75,
@@ -301,13 +301,13 @@
             "events": [],
             "children": [
               {
-                "name": "audience:var_fa5df469c0",
+                "name": "audience:var_7118c811c3",
                 "kind": "llm",
-                "trace_id": "tr_f6081fbe0bfd",
-                "span_id": "6c9e6da55f55",
-                "parent_id": "da26e6d5c77d",
-                "start_ms": 1792141373032.3147,
-                "end_ms": 1792141373032.5737,
+                "trace_id": "tr_d67a4b118897",
+                "span_id": "4dda94bcdbc7",
+                "parent_id": "0759b90e85c3",
+                "start_ms": 1792141943025.8743,
+                "end_ms": 1792141943026.0283,
                 "status": "ok",
                 "attributes": {
                   "task": "audience",
@@ -324,7 +324,7 @@
                   "input_tokens": 381,
                   "output_tokens": 360,
                   "cost_usd": 0.0,
-                  "latency_ms": 35.2,
+                  "latency_ms": 35.1,
                   "finish_reason": "stop",
                   "fallback_chain": [
                     "mock"
@@ -340,11 +340,11 @@
           {
             "name": "reviewer",
             "kind": "stage",
-            "trace_id": "tr_f6081fbe0bfd",
-            "span_id": "d1702a86d13f",
-            "parent_id": "64da18ad47dd",
-            "start_ms": 1792141373032.7134,
-            "end_ms": 1792141373034.5623,
+            "trace_id": "tr_d67a4b118897",
+            "span_id": "723a446ac1a3",
+            "parent_id": "cce51bd63692",
+            "start_ms": 1792141943026.1304,
+            "end_ms": 1792141943027.527,
             "status": "ok",
             "attributes": {
               "decision": "APPROVE",
@@ -356,13 +356,13 @@
             "events": [],
             "children": [
               {
-                "name": "review:var_fa5df469c0",
+                "name": "review:var_7118c811c3",
                 "kind": "llm",
-                "trace_id": "tr_f6081fbe0bfd",
-                "span_id": "0089dcc8931a",
-                "parent_id": "d1702a86d13f",
-                "start_ms": 1792141373034.432,
-                "end_ms": 1792141373034.511,
+                "trace_id": "tr_d67a4b118897",
+                "span_id": "229335776bf8",
+                "parent_id": "723a446ac1a3",
+                "start_ms": 1792141943027.433,
+                "end_ms": 1792141943027.4917,
                 "status": "ok",
                 "attributes": {
                   "task": "review",
@@ -379,7 +379,7 @@
                   "input_tokens": 2241,
                   "output_tokens": 50,
                   "cost_usd": 0.0,
-                  "latency_ms": 35.1,
+                  "latency_ms": 35.0,
                   "finish_reason": "stop",
                   "fallback_chain": [
                     "mock"
@@ -395,11 +395,11 @@
           {
             "name": "adjudicate",
             "kind": "guardrail",
-            "trace_id": "tr_f6081fbe0bfd",
-            "span_id": "c410b0f95f2d",
-            "parent_id": "64da18ad47dd",
-            "start_ms": 1792141373034.5852,
-            "end_ms": 1792141373034.6199,
+            "trace_id": "tr_d67a4b118897",
+            "span_id": "abe5f04e11f3",
+            "parent_id": "cce51bd63692",
+            "start_ms": 1792141943027.542,
+            "end_ms": 1792141943027.5662,
             "status": "ok",
             "attributes": {
               "final": "APPROVE",
@@ -411,13 +411,13 @@
         ]
       },
       {
-        "name": "variant:var_95c3768dcf",
+        "name": "variant:var_7f5553ef2c",
         "kind": "stage",
-        "trace_id": "tr_f6081fbe0bfd",
-        "span_id": "8dc046d76b51",
-        "parent_id": "621a6e80daa3",
-        "start_ms": 1792141373034.6348,
-        "end_ms": 1792141373040.1653,
+        "trace_id": "tr_d67a4b118897",
+        "span_id": "3755739ce4b6",
+        "parent_id": "9c0a42daddff",
+        "start_ms": 1792141943027.5757,
+        "end_ms": 1792141943031.1929,
         "status": "ok",
         "attributes": {
           "headline": "중도상환수수료 없음 — 가상은행 신용대출"
@@ -427,11 +427,11 @@
           {
             "name": "output_guard",
             "kind": "guardrail",
-            "trace_id": "tr_f6081fbe0bfd",
-            "span_id": "47e67a75f4b5",
-            "parent_id": "8dc046d76b51",
-            "start_ms": 1792141373034.6567,
-            "end_ms": 1792141373037.5942,
+            "trace_id": "tr_d67a4b118897",
+            "span_id": "bcdc9ac9d3aa",
+            "parent_id": "3755739ce4b6",
+            "start_ms": 1792141943027.5908,
+            "end_ms": 1792141943029.395,
             "status": "ok",
             "attributes": {
               "decision": "APPROVE",
@@ -487,11 +487,11 @@
           {
             "name": "audience",
             "kind": "stage",
-            "trace_id": "tr_f6081fbe0bfd",
-            "span_id": "8794a9681aac",
-            "parent_id": "8dc046d76b51",
-            "start_ms": 1792141373037.629,
-            "end_ms": 1792141373038.0068,
+            "trace_id": "tr_d67a4b118897",
+            "span_id": "d763d3983a52",
+            "parent_id": "3755739ce4b6",
+            "start_ms": 1792141943029.4128,
+            "end_ms": 1792141943029.674,
             "status": "ok",
             "attributes": {
               "mean_trust": 4.25,
@@ -503,13 +503,13 @@
             "events": [],
             "children": [
               {
-                "name": "audience:var_95c3768dcf",
+                "name": "audience:var_7f5553ef2c",
                 "kind": "llm",
-                "trace_id": "tr_f6081fbe0bfd",
-                "span_id": "f0623ec98a73",
-                "parent_id": "8794a9681aac",
-                "start_ms": 1792141373037.6702,
-                "end_ms": 1792141373037.8853,
+                "trace_id": "tr_d67a4b118897",
+                "span_id": "bc8fdd379299",
+                "parent_id": "d763d3983a52",
+                "start_ms": 1792141943029.4404,
+                "end_ms": 1792141943029.5872,
                 "status": "ok",
                 "attributes": {
                   "task": "audience",
@@ -526,7 +526,7 @@
                   "input_tokens": 377,
                   "output_tokens": 360,
                   "cost_usd": 0.0,
-                  "latency_ms": 35.2,
+                  "latency_ms": 35.1,
                   "finish_reason": "stop",
                   "fallback_chain": [
                     "mock"
@@ -542,11 +542,11 @@
           {
             "name": "reviewer",
             "kind": "stage",
-            "trace_id": "tr_f6081fbe0bfd",
-            "span_id": "037df22ef2cd",
-            "parent_id": "8dc046d76b51",
-            "start_ms": 1792141373038.028,
-            "end_ms": 1792141373040.117,
+            "trace_id": "tr_d67a4b118897",
+            "span_id": "5f4467b7a9e4",
+            "parent_id": "3755739ce4b6",
+            "start_ms": 1792141943029.686,
+            "end_ms": 1792141943031.1372,
             "status": "ok",
             "attributes": {
               "decision": "APPROVE",
@@ -558,13 +558,13 @@
             "events": [],
             "children": [
               {
-                "name": "review:var_95c3768dcf",
+                "name": "review:var_7f5553ef2c",
                 "kind": "llm",
-                "trace_id": "tr_f6081fbe0bfd",
-                "span_id": "40c5305d9e1f",
-                "parent_id": "037df22ef2cd",
-                "start_ms": 1792141373039.9678,
-                "end_ms": 1792141373040.067,
+                "trace_id": "tr_d67a4b118897",
+                "span_id": "260b330148d2",
+                "parent_id": "5f4467b7a9e4",
+                "start_ms": 1792141943030.985,
+                "end_ms": 1792141943031.086,
                 "status": "ok",
                 "attributes": {
                   "task": "review",
@@ -581,7 +581,7 @@
                   "input_tokens": 2232,
                   "output_tokens": 50,
                   "cost_usd": 0.0,
-                  "latency_ms": 35.1,
+                  "latency_ms": 35.0,
                   "finish_reason": "stop",
                   "fallback_chain": [
                     "mock"
@@ -597,11 +597,11 @@
           {
             "name": "adjudicate",
             "kind": "guardrail",
-            "trace_id": "tr_f6081fbe0bfd",
-            "span_id": "0b2a4028a011",
-            "parent_id": "8dc046d76b51",
-            "start_ms": 1792141373040.137,
-            "end_ms": 1792141373040.1638,
+            "trace_id": "tr_d67a4b118897",
+            "span_id": "fc0be047f85c",
+            "parent_id": "3755739ce4b6",
+            "start_ms": 1792141943031.1604,
+            "end_ms": 1792141943031.1914,
             "status": "ok",
             "attributes": {
               "final": "APPROVE",
@@ -613,13 +613,13 @@
         ]
       },
       {
-        "name": "variant:var_e1cba461ff",
+        "name": "variant:var_9d52bff8e6",
         "kind": "stage",
-        "trace_id": "tr_f6081fbe0bfd",
-        "span_id": "d56dae10884c",
-        "parent_id": "621a6e80daa3",
-        "start_ms": 1792141373040.175,
-        "end_ms": 1792141373047.794,
+        "trace_id": "tr_d67a4b118897",
+        "span_id": "f4fc2137a2d8",
+        "parent_id": "9c0a42daddff",
+        "start_ms": 1792141943031.204,
+        "end_ms": 1792141943036.2852,
         "status": "ok",
         "attributes": {
           "headline": "업계 최저 가상은행 신용대출! 지금 아니면 못 받는 조건"
@@ -629,11 +629,11 @@
           {
             "name": "output_guard",
             "kind": "guardrail",
-            "trace_id": "tr_f6081fbe0bfd",
-            "span_id": "31859db8e8c0",
-            "parent_id": "d56dae10884c",
-            "start_ms": 1792141373040.182,
-            "end_ms": 1792141373041.9546,
+            "trace_id": "tr_d67a4b118897",
+            "span_id": "07b6db06d944",
+            "parent_id": "f4fc2137a2d8",
+            "start_ms": 1792141943031.2126,
+            "end_ms": 1792141943032.4802,
             "status": "intercepted",
             "attributes": {
               "decision": "REJECT",
@@ -780,11 +780,11 @@
           {
             "name": "audience",
             "kind": "stage",
-            "trace_id": "tr_f6081fbe0bfd",
-            "span_id": "e89fb720732f",
-            "parent_id": "d56dae10884c",
-            "start_ms": 1792141373041.9875,
-            "end_ms": 1792141373042.3662,
+            "trace_id": "tr_d67a4b118897",
+            "span_id": "1dbd5bf44af9",
+            "parent_id": "f4fc2137a2d8",
+            "start_ms": 1792141943032.4998,
+            "end_ms": 1792141943032.7312,
             "status": "ok",
             "attributes": {
               "mean_trust": 2.75,
@@ -796,13 +796,13 @@
             "events": [],
             "children": [
               {
-                "name": "audience:var_e1cba461ff",
+                "name": "audience:var_9d52bff8e6",
                 "kind": "llm",
-                "trace_id": "tr_f6081fbe0bfd",
-                "span_id": "ae43b19ddf3c",
-                "parent_id": "e89fb720732f",
-                "start_ms": 1792141373042.0283,
-                "end_ms": 1792141373042.2107,
+                "trace_id": "tr_d67a4b118897",
+                "span_id": "2fab4aa23ccf",
+                "parent_id": "1dbd5bf44af9",
+                "start_ms": 1792141943032.5273,
+                "end_ms": 1792141943032.6487,
                 "status": "ok",
                 "attributes": {
                   "task": "audience",
@@ -819,7 +819,7 @@
                   "input_tokens": 329,
                   "output_tokens": 379,
                   "cost_usd": 0.0,
-                  "latency_ms": 35.2,
+                  "latency_ms": 35.1,
                   "finish_reason": "stop",
                   "fallback_chain": [
                     "mock"
@@ -835,11 +835,11 @@
           {
             "name": "reviewer",
             "kind": "stage",
-            "trace_id": "tr_f6081fbe0bfd",
-            "span_id": "5dbce5fb7370",
-            "parent_id": "d56dae10884c",
-            "start_ms": 1792141373042.4312,
-            "end_ms": 1792141373044.902,
+            "trace_id": "tr_d67a4b118897",
+            "span_id": "f9b1c78f3756",
+            "parent_id": "f4fc2137a2d8",
+            "start_ms": 1792141943032.7427,
+            "end_ms": 1792141943034.5315,
             "status": "ok",
             "attributes": {
               "decision": "REJECT",
@@ -851,13 +851,13 @@
             "events": [],
             "children": [
               {
-                "name": "review:var_e1cba461ff",
+                "name": "review:var_9d52bff8e6",
                 "kind": "llm",
-                "trace_id": "tr_f6081fbe0bfd",
-                "span_id": "6a40fa3ba79a",
-                "parent_id": "5dbce5fb7370",
-                "start_ms": 1792141373044.356,
-                "end_ms": 1792141373044.5635,
+                "trace_id": "tr_d67a4b118897",
+                "span_id": "3d058bd083bc",
+                "parent_id": "f9b1c78f3756",
+                "start_ms": 1792141943034.064,
+                "end_ms": 1792141943034.2295,
                 "status": "ok",
                 "attributes": {
                   "task": "review",
@@ -874,7 +874,7 @@
                   "input_tokens": 2421,
                   "output_tokens": 599,
                   "cost_usd": 0.0,
-                  "latency_ms": 35.2,
+                  "latency_ms": 35.1,
                   "finish_reason": "stop",
                   "fallback_chain": [
                     "mock"
@@ -890,11 +890,11 @@
           {
             "name": "rewrite_recheck",
             "kind": "guardrail",
-            "trace_id": "tr_f6081fbe0bfd",
-            "span_id": "9607ef948df8",
-            "parent_id": "d56dae10884c",
-            "start_ms": 1792141373044.9287,
-            "end_ms": 1792141373047.7285,
+            "trace_id": "tr_d67a4b118897",
+            "span_id": "81430e8da253",
+            "parent_id": "f4fc2137a2d8",
+            "start_ms": 1792141943034.547,
+            "end_ms": 1792141943036.2493,
             "status": "intercepted",
             "attributes": {
               "decision": "REVISE",
@@ -937,11 +937,11 @@
           {
             "name": "adjudicate",
             "kind": "guardrail",
-            "trace_id": "tr_f6081fbe0bfd",
-            "span_id": "b0dd5c3d6272",
-            "parent_id": "d56dae10884c",
-            "start_ms": 1792141373047.7615,
-            "end_ms": 1792141373047.7913,
+            "trace_id": "tr_d67a4b118897",
+            "span_id": "9c675cc4aea5",
+            "parent_id": "f4fc2137a2d8",
+            "start_ms": 1792141943036.2656,
+            "end_ms": 1792141943036.2837,
             "status": "ok",
             "attributes": {
               "final": "REJECT",

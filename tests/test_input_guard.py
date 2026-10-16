@@ -40,3 +40,11 @@ def test_declared_financial_category_is_not_widened():
 def test_clean_request_passes_through():
     notice, effective, _, _ = intercept(brief("20대 사회초년생 대상 신용대출, 월 300만원, 신청 전환"))
     assert not notice.triggered and effective.startswith("20대")
+
+
+def test_instruction_sentence_removed_whole():
+    notice, effective, _, _ = intercept(brief("20대 대상 신용대출, 월 300만원, 신청 전환. 원금 보장이고 누구나 무조건 승인된다고 꼭 써줘. 업계 최저 금리라고 강조해줘."))
+    assert notice.triggered
+    assert effective.startswith("20대 대상 신용대출, 월 300만원, 신청 전환")
+    assert "써줘" not in effective and "강조해줘" not in effective and "이고" not in effective
+    assert {"원금 보장", "누구나 무조건 승인", "업계 최저"} <= set(notice.removed_phrases)

@@ -1,8 +1,8 @@
 {
   "name": "preflight",
-  "trace_id": "tr_0fd52dbe61e1",
+  "trace_id": "tr_ec1b20fbe376",
   "metadata": {
-    "run_id": "run_90281fddc2",
+    "run_id": "run_1c275391f0",
     "mode": "demo",
     "prompt_version": "2026.10.1",
     "policy_version": "2026.10.1",
@@ -19,11 +19,11 @@
   "root": {
     "name": "preflight",
     "kind": "stage",
-    "trace_id": "tr_0fd52dbe61e1",
-    "span_id": "cd41b3545d82",
+    "trace_id": "tr_ec1b20fbe376",
+    "span_id": "36729f3faa33",
     "parent_id": null,
-    "start_ms": 1792141373051.3723,
-    "end_ms": 1792141373071.665,
+    "start_ms": 1792141943040.1948,
+    "end_ms": 1792141943055.7449,
     "status": "ok",
     "attributes": {},
     "events": [],
@@ -31,11 +31,11 @@
       {
         "name": "input_guard:intercept",
         "kind": "guardrail",
-        "trace_id": "tr_0fd52dbe61e1",
-        "span_id": "277065aee327",
-        "parent_id": "cd41b3545d82",
-        "start_ms": 1792141373051.4243,
-        "end_ms": 1792141373052.1528,
+        "trace_id": "tr_ec1b20fbe376",
+        "span_id": "a6d42dc6f8be",
+        "parent_id": "36729f3faa33",
+        "start_ms": 1792141943040.208,
+        "end_ms": 1792141943040.7583,
         "status": "ok",
         "attributes": {
           "triggered": false,
@@ -54,11 +54,11 @@
       {
         "name": "planner",
         "kind": "stage",
-        "trace_id": "tr_0fd52dbe61e1",
-        "span_id": "8f6cf286254a",
-        "parent_id": "cd41b3545d82",
-        "start_ms": 1792141373052.1848,
-        "end_ms": 1792141373052.5088,
+        "trace_id": "tr_ec1b20fbe376",
+        "span_id": "397173aef161",
+        "parent_id": "36729f3faa33",
+        "start_ms": 1792141943040.7764,
+        "end_ms": 1792141943040.9927,
         "status": "ok",
         "attributes": {
           "objective": "conversion",
@@ -77,7 +77,7 @@
         "events": [
           {
             "name": "plan_repaired",
-            "t_ms": 0.3,
+            "t_ms": 0.2,
             "issues": [
               "'만 19세 이상 전체 핵심 타겟': 만 19세 미만을 겨냥한 타겟 표현 — 집행 불가"
             ]
@@ -87,11 +87,11 @@
           {
             "name": "planner",
             "kind": "llm",
-            "trace_id": "tr_0fd52dbe61e1",
-            "span_id": "ffaf4ce29968",
-            "parent_id": "8f6cf286254a",
-            "start_ms": 1792141373052.2295,
-            "end_ms": 1792141373052.3577,
+            "trace_id": "tr_ec1b20fbe376",
+            "span_id": "2085d7d03968",
+            "parent_id": "397173aef161",
+            "start_ms": 1792141943040.8076,
+            "end_ms": 1792141943040.907,
             "status": "ok",
             "attributes": {
               "task": "plan",
@@ -124,11 +124,11 @@
       {
         "name": "copywriter",
         "kind": "stage",
-        "trace_id": "tr_0fd52dbe61e1",
-        "span_id": "a1ec70f5fd40",
-        "parent_id": "cd41b3545d82",
-        "start_ms": 1792141373052.5286,
-        "end_ms": 1792141373052.783,
+        "trace_id": "tr_ec1b20fbe376",
+        "span_id": "eb8ec83f61cf",
+        "parent_id": "36729f3faa33",
+        "start_ms": 1792141943041.0034,
+        "end_ms": 1792141943041.2168,
         "status": "ok",
         "attributes": {
           "variants": 3,
@@ -141,11 +141,11 @@
           {
             "name": "copywriter",
             "kind": "llm",
-            "trace_id": "tr_0fd52dbe61e1",
-            "span_id": "9cab4f3d94ef",
-            "parent_id": "a1ec70f5fd40",
-            "start_ms": 1792141373052.5793,
-            "end_ms": 1792141373052.724,
+            "trace_id": "tr_ec1b20fbe376",
+            "span_id": "1ae55674bdda",
+            "parent_id": "eb8ec83f61cf",
+            "start_ms": 1792141943041.0396,
+            "end_ms": 1792141943041.1602,
             "status": "ok",
             "attributes": {
               "task": "copy",
@@ -176,13 +176,13 @@
         ]
       },
       {
-        "name": "variant:var_cf29ea18d9",
+        "name": "variant:var_ec997736a1",
         "kind": "stage",
-        "trace_id": "tr_0fd52dbe61e1",
-        "span_id": "1be2302c0276",
-        "parent_id": "cd41b3545d82",
-        "start_ms": 1792141373052.795,
-        "end_ms": 1792141373059.197,
+        "trace_id": "tr_ec1b20fbe376",
+        "span_id": "7f939e2b8911",
+        "parent_id": "36729f3faa33",
+        "start_ms": 1792141943041.2268,
+        "end_ms": 1792141943046.3538,
         "status": "ok",
         "attributes": {
           "headline": "OO몰 가을 쿠폰, 전 상품 10% 할인 쿠…"
@@ -192,11 +192,11 @@
           {
             "name": "output_guard",
             "kind": "guardrail",
-            "trace_id": "tr_0fd52dbe61e1",
-            "span_id": "13286a445087",
-            "parent_id": "1be2302c0276",
-            "start_ms": 1792141373052.8047,
-            "end_ms": 1792141373053.783,
+            "trace_id": "tr_ec1b20fbe376",
+            "span_id": "9c4ee5607578",
+            "parent_id": "7f939e2b8911",
+            "start_ms": 1792141943041.234,
+            "end_ms": 1792141943042.0383,
             "status": "intercepted",
             "attributes": {
               "decision": "REVISE",
@@ -283,11 +283,11 @@
           {
             "name": "audience",
             "kind": "stage",
-            "trace_id": "tr_0fd52dbe61e1",
-            "span_id": "bc6a7a905eac",
-            "parent_id": "1be2302c0276",
-            "start_ms": 1792141373053.8088,
-            "end_ms": 1792141373054.0803,
+            "trace_id": "tr_ec1b20fbe376",
+            "span_id": "e9ed01ca0d09",
+            "parent_id": "7f939e2b8911",
+            "start_ms": 1792141943042.0547,
+            "end_ms": 1792141943042.3345,
             "status": "ok",
             "attributes": {
               "mean_trust": 2.25,
@@ -305,13 +305,13 @@
             ],
             "children": [
               {
-                "name": "audience:var_cf29ea18d9",
+                "name": "audience:var_ec997736a1",
                 "kind": "llm",
-                "trace_id": "tr_0fd52dbe61e1",
-                "span_id": "24fb46c8582e",
-                "parent_id": "bc6a7a905eac",
-                "start_ms": 1792141373053.8381,
-                "end_ms": 1792141373053.9543,
+                "trace_id": "tr_ec1b20fbe376",
+                "span_id": "3f49a34653ce",
+                "parent_id": "e9ed01ca0d09",
+                "start_ms": 1792141943042.0835,
+                "end_ms": 1792141943042.2004,
                 "status": "ok",
                 "attributes": {
                   "task": "audience",
@@ -344,11 +344,11 @@
           {
             "name": "reviewer",
             "kind": "stage",
-            "trace_id": "tr_0fd52dbe61e1",
-            "span_id": "b3a54ac9da07",
-            "parent_id": "1be2302c0276",
-            "start_ms": 1792141373054.0952,
-            "end_ms": 1792141373056.0852,
+            "trace_id": "tr_ec1b20fbe376",
+            "span_id": "492ac3c03965",
+            "parent_id": "7f939e2b8911",
+            "start_ms": 1792141943042.3496,
+            "end_ms": 1792141943043.9697,
             "status": "ok",
             "attributes": {
               "decision": "REVISE",
@@ -360,13 +360,13 @@
             "events": [],
             "children": [
               {
-                "name": "review:var_cf29ea18d9",
+                "name": "review:var_ec997736a1",
                 "kind": "llm",
-                "trace_id": "tr_0fd52dbe61e1",
-                "span_id": "5d049f89bd98",
-                "parent_id": "b3a54ac9da07",
-                "start_ms": 1792141373055.7825,
-                "end_ms": 1792141373055.9312,
+                "trace_id": "tr_ec1b20fbe376",
+                "span_id": "8aaba8fa0aa5",
+                "parent_id": "492ac3c03965",
+                "start_ms": 1792141943043.6245,
+                "end_ms": 1792141943043.7253,
                 "status": "ok",
                 "attributes": {
                   "task": "review",
@@ -399,11 +399,11 @@
           {
             "name": "second_opinion",
             "kind": "stage",
-            "trace_id": "tr_0fd52dbe61e1",
-            "span_id": "a50494993484",
-            "parent_id": "1be2302c0276",
-            "start_ms": 1792141373056.0984,
-            "end_ms": 1792141373058.0093,
+            "trace_id": "tr_ec1b20fbe376",
+            "span_id": "380d82797171",
+            "parent_id": "7f939e2b8911",
+            "start_ms": 1792141943043.9863,
+            "end_ms": 1792141943045.517,
             "status": "ok",
             "attributes": {
               "decision": "REVISE",
@@ -413,13 +413,13 @@
             "events": [],
             "children": [
               {
-                "name": "second_opinion:var_cf29ea18d9",
+                "name": "second_opinion:var_ec997736a1",
                 "kind": "llm",
-                "trace_id": "tr_0fd52dbe61e1",
-                "span_id": "8c9b240a375f",
-                "parent_id": "a50494993484",
-                "start_ms": 1792141373057.6714,
-                "end_ms": 1792141373057.7935,
+                "trace_id": "tr_ec1b20fbe376",
+                "span_id": "582f02b3e193",
+                "parent_id": "380d82797171",
+                "start_ms": 1792141943045.203,
+                "end_ms": 1792141943045.302,
                 "status": "ok",
                 "attributes": {
                   "task": "second_opinion",
@@ -452,11 +452,11 @@
           {
             "name": "rewrite_recheck",
             "kind": "guardrail",
-            "trace_id": "tr_0fd52dbe61e1",
-            "span_id": "594da3b2f960",
-            "parent_id": "1be2302c0276",
-            "start_ms": 1792141373058.0242,
-            "end_ms": 1792141373059.1108,
+            "trace_id": "tr_ec1b20fbe376",
+            "span_id": "df903ddd7459",
+            "parent_id": "7f939e2b8911",
+            "start_ms": 1792141943045.529,
+            "end_ms": 1792141943046.2788,
             "status": "intercepted",
             "attributes": {
               "decision": "REVISE",
@@ -499,11 +499,11 @@
           {
             "name": "adjudicate",
             "kind": "guardrail",
-            "trace_id": "tr_0fd52dbe61e1",
-            "span_id": "98b96b608f24",
-            "parent_id": "1be2302c0276",
-            "start_ms": 1792141373059.138,
-            "end_ms": 1792141373059.1943,
+            "trace_id": "tr_ec1b20fbe376",
+            "span_id": "a8d578ae8472",
+            "parent_id": "7f939e2b8911",
+            "start_ms": 1792141943046.3025,
+            "end_ms": 1792141943046.3513,
             "status": "ok",
             "attributes": {
               "final": "REVISE",
@@ -515,13 +515,13 @@
         ]
       },
       {
-        "name": "variant:var_5b939eb04e",
+        "name": "variant:var_b8c7a56bd1",
         "kind": "stage",
-        "trace_id": "tr_0fd52dbe61e1",
-        "span_id": "050a99219eae",
-        "parent_id": "cd41b3545d82",
-        "start_ms": 1792141373059.212,
-        "end_ms": 1792141373066.5835,
+        "trace_id": "tr_ec1b20fbe376",
+        "span_id": "5e94df0ca214",
+        "parent_id": "36729f3faa33",
+        "start_ms": 1792141943046.391,
+        "end_ms": 1792141943051.503,
         "status": "ok",
         "attributes": {
           "headline": "5만원 이상 무료 배송 — OO몰 가을 쿠폰"
@@ -531,11 +531,11 @@
           {
             "name": "output_guard",
             "kind": "guardrail",
-            "trace_id": "tr_0fd52dbe61e1",
-            "span_id": "fe2de8dec822",
-            "parent_id": "050a99219eae",
-            "start_ms": 1792141373059.223,
-            "end_ms": 1792141373060.5586,
+            "trace_id": "tr_ec1b20fbe376",
+            "span_id": "2b9a38e2ed8b",
+            "parent_id": "5e94df0ca214",
+            "start_ms": 1792141943046.4014,
+            "end_ms": 1792141943047.1777,
             "status": "intercepted",
             "attributes": {
               "decision": "REVISE",
@@ -642,11 +642,11 @@
           {
             "name": "audience",
             "kind": "stage",
-            "trace_id": "tr_0fd52dbe61e1",
-            "span_id": "89873da265a3",
-            "parent_id": "050a99219eae",
-            "start_ms": 1792141373060.5867,
-            "end_ms": 1792141373060.9045,
+            "trace_id": "tr_ec1b20fbe376",
+            "span_id": "492ab5f28d3c",
+            "parent_id": "5e94df0ca214",
+            "start_ms": 1792141943047.192,
+            "end_ms": 1792141943047.5,
             "status": "ok",
             "attributes": {
               "mean_trust": 2.75,
@@ -658,13 +658,13 @@
             "events": [],
             "children": [
               {
-                "name": "audience:var_5b939eb04e",
+                "name": "audience:var_b8c7a56bd1",
                 "kind": "llm",
-                "trace_id": "tr_0fd52dbe61e1",
-                "span_id": "16530fb4ff21",
-                "parent_id": "89873da265a3",
-                "start_ms": 1792141373060.6248,
-                "end_ms": 1792141373060.7935,
+                "trace_id": "tr_ec1b20fbe376",
+                "span_id": "2a6bbd620b12",
+                "parent_id": "492ab5f28d3c",
+                "start_ms": 1792141943047.2207,
+                "end_ms": 1792141943047.4006,
                 "status": "ok",
                 "attributes": {
                   "task": "audience",
@@ -681,7 +681,7 @@
                   "input_tokens": 325,
                   "output_tokens": 377,
                   "cost_usd": 0.0,
-                  "latency_ms": 35.1,
+                  "latency_ms": 35.2,
                   "finish_reason": "stop",
                   "fallback_chain": [
                     "mock"
@@ -697,11 +697,11 @@
           {
             "name": "reviewer",
             "kind": "stage",
-            "trace_id": "tr_0fd52dbe61e1",
-            "span_id": "350066307ce7",
-            "parent_id": "050a99219eae",
-            "start_ms": 1792141373060.924,
-            "end_ms": 1792141373063.009,
+            "trace_id": "tr_ec1b20fbe376",
+            "span_id": "069b0a7c23af",
+            "parent_id": "5e94df0ca214",
+            "start_ms": 1792141943047.5166,
+            "end_ms": 1792141943049.0618,
             "status": "ok",
             "attributes": {
               "decision": "REVISE",
@@ -713,13 +713,13 @@
             "events": [],
             "children": [
               {
-                "name": "review:var_5b939eb04e",
+                "name": "review:var_b8c7a56bd1",
                 "kind": "llm",
-                "trace_id": "tr_0fd52dbe61e1",
-                "span_id": "d2bbd1853dc1",
-                "parent_id": "350066307ce7",
-                "start_ms": 1792141373062.642,
-                "end_ms": 1792141373062.7727,
+                "trace_id": "tr_ec1b20fbe376",
+                "span_id": "1d886bf523f2",
+                "parent_id": "069b0a7c23af",
+                "start_ms": 1792141943048.801,
+                "end_ms": 1792141943048.902,
                 "status": "ok",
                 "attributes": {
                   "task": "review",
@@ -752,11 +752,11 @@
           {
             "name": "second_opinion",
             "kind": "stage",
-            "trace_id": "tr_0fd52dbe61e1",
-            "span_id": "057db05afa1b",
-            "parent_id": "050a99219eae",
-            "start_ms": 1792141373063.0288,
-            "end_ms": 1792141373065.1428,
+            "trace_id": "tr_ec1b20fbe376",
+            "span_id": "5f80fcef7ce5",
+            "parent_id": "5e94df0ca214",
+            "start_ms": 1792141943049.0771,
+            "end_ms": 1792141943050.6584,
             "status": "ok",
             "attributes": {
               "decision": "REVISE",
@@ -766,13 +766,13 @@
             "events": [],
             "children": [
               {
-                "name": "second_opinion:var_5b939eb04e",
+                "name": "second_opinion:var_b8c7a56bd1",
                 "kind": "llm",
-                "trace_id": "tr_0fd52dbe61e1",
-                "span_id": "ef12d9f3cfa9",
-                "parent_id": "057db05afa1b",
-                "start_ms": 1792141373064.7837,
-                "end_ms": 1792141373064.9128,
+                "trace_id": "tr_ec1b20fbe376",
+                "span_id": "62f1b94f9467",
+                "parent_id": "5f80fcef7ce5",
+                "start_ms": 1792141943050.3433,
+                "end_ms": 1792141943050.481,
                 "status": "ok",
                 "attributes": {
                   "task": "second_opinion",
@@ -805,11 +805,11 @@
           {
             "name": "rewrite_recheck",
             "kind": "guardrail",
-            "trace_id": "tr_0fd52dbe61e1",
-            "span_id": "d4e04215abc7",
-            "parent_id": "050a99219eae",
-            "start_ms": 1792141373065.1624,
-            "end_ms": 1792141373066.4966,
+            "trace_id": "tr_ec1b20fbe376",
+            "span_id": "3627da9d251a",
+            "parent_id": "5e94df0ca214",
+            "start_ms": 1792141943050.674,
+            "end_ms": 1792141943051.4585,
             "status": "intercepted",
             "attributes": {
               "decision": "REVISE",
@@ -872,11 +872,11 @@
           {
             "name": "adjudicate",
             "kind": "guardrail",
-            "trace_id": "tr_0fd52dbe61e1",
-            "span_id": "a0e3068738c4",
-            "parent_id": "050a99219eae",
-            "start_ms": 1792141373066.5283,
-            "end_ms": 1792141373066.5798,
+            "trace_id": "tr_ec1b20fbe376",
+            "span_id": "8e418aaa70dd",
+            "parent_id": "5e94df0ca214",
+            "start_ms": 1792141943051.4746,
+            "end_ms": 1792141943051.501,
             "status": "ok",
             "attributes": {
               "final": "REVISE",
@@ -888,13 +888,13 @@
         ]
       },
       {
-        "name": "variant:var_aaa1e22042",
+        "name": "variant:var_456d10d94a",
         "kind": "stage",
-        "trace_id": "tr_0fd52dbe61e1",
-        "span_id": "2bda49418fe2",
-        "parent_id": "cd41b3545d82",
-        "start_ms": 1792141373066.6,
-        "end_ms": 1792141373071.6492,
+        "trace_id": "tr_ec1b20fbe376",
+        "span_id": "5ddc0c46360f",
+        "parent_id": "36729f3faa33",
+        "start_ms": 1792141943051.5117,
+        "end_ms": 1792141943055.7346,
         "status": "ok",
         "attributes": {
           "headline": "업계 최저 OO몰 가을 쿠폰! 지금 아니면 못 받는 조건"
@@ -904,11 +904,11 @@
           {
             "name": "output_guard",
             "kind": "guardrail",
-            "trace_id": "tr_0fd52dbe61e1",
-            "span_id": "6c47beaf0019",
-            "parent_id": "2bda49418fe2",
-            "start_ms": 1792141373066.6104,
-            "end_ms": 1792141373067.9187,
+            "trace_id": "tr_ec1b20fbe376",
+            "span_id": "e51028c158ce",
+            "parent_id": "5ddc0c46360f",
+            "start_ms": 1792141943051.5188,
+            "end_ms": 1792141943052.5022,
             "status": "intercepted",
             "attributes": {
               "decision": "REJECT",
@@ -1065,11 +1065,11 @@
           {
             "name": "audience",
             "kind": "stage",
-            "trace_id": "tr_0fd52dbe61e1",
-            "span_id": "55e6b4219bca",
-            "parent_id": "2bda49418fe2",
-            "start_ms": 1792141373067.9482,
-            "end_ms": 1792141373068.283,
+            "trace_id": "tr_ec1b20fbe376",
+            "span_id": "43fe01737ea4",
+            "parent_id": "5ddc0c46360f",
+            "start_ms": 1792141943052.5186,
+            "end_ms": 1792141943052.7544,
             "status": "ok",
             "attributes": {
               "mean_trust": 2.25,
@@ -1081,13 +1081,13 @@
             "events": [],
             "children": [
               {
-                "name": "audience:var_aaa1e22042",
+                "name": "audience:var_456d10d94a",
                 "kind": "llm",
-                "trace_id": "tr_0fd52dbe61e1",
-                "span_id": "04a83225a3f5",
-                "parent_id": "55e6b4219bca",
-                "start_ms": 1792141373067.9868,
-                "end_ms": 1792141373068.161,
+                "trace_id": "tr_ec1b20fbe376",
+                "span_id": "8707e4f9e5f8",
+                "parent_id": "43fe01737ea4",
+                "start_ms": 1792141943052.5461,
+                "end_ms": 1792141943052.6682,
                 "status": "ok",
                 "attributes": {
                   "task": "audience",
@@ -1120,11 +1120,11 @@
           {
             "name": "reviewer",
             "kind": "stage",
-            "trace_id": "tr_0fd52dbe61e1",
-            "span_id": "1581c6439292",
-            "parent_id": "2bda49418fe2",
-            "start_ms": 1792141373068.3008,
-            "end_ms": 1792141373070.528,
+            "trace_id": "tr_ec1b20fbe376",
+            "span_id": "c3eb0eb78ee1",
+            "parent_id": "5ddc0c46360f",
+            "start_ms": 1792141943052.7664,
+            "end_ms": 1792141943054.9412,
             "status": "ok",
             "attributes": {
               "decision": "REJECT",
@@ -1136,13 +1136,13 @@
             "events": [],
             "children": [
               {
-                "name": "review:var_aaa1e22042",
+                "name": "review:var_456d10d94a",
                 "kind": "llm",
-                "trace_id": "tr_0fd52dbe61e1",
-                "span_id": "b2a589332b69",
-                "parent_id": "1581c6439292",
-                "start_ms": 1792141373070.0144,
-                "end_ms": 1792141373070.1975,
+                "trace_id": "tr_ec1b20fbe376",
+                "span_id": "356503e9b7c9",
+                "parent_id": "c3eb0eb78ee1",
+                "start_ms": 1792141943054.4558,
+                "end_ms": 1792141943054.647,
                 "status": "ok",
                 "attributes": {
                   "task": "review",
@@ -1159,7 +1159,7 @@
                   "input_tokens": 2129,
                   "output_tokens": 565,
                   "cost_usd": 0.0,
-                  "latency_ms": 35.2,
+                  "latency_ms": 35.1,
                   "finish_reason": "stop",
                   "fallback_chain": [
                     "mock"
@@ -1175,11 +1175,11 @@
           {
             "name": "rewrite_recheck",
             "kind": "guardrail",
-            "trace_id": "tr_0fd52dbe61e1",
-            "span_id": "e5d5c00f0540",
-            "parent_id": "2bda49418fe2",
-            "start_ms": 1792141373070.5547,
-            "end_ms": 1792141373071.5913,
+            "trace_id": "tr_ec1b20fbe376",
+            "span_id": "551dbf014523",
+            "parent_id": "5ddc0c46360f",
+            "start_ms": 1792141943054.961,
+            "end_ms": 1792141943055.6978,
             "status": "intercepted",
             "attributes": {
               "decision": "REVISE",
@@ -1242,11 +1242,11 @@
           {
             "name": "adjudicate",
             "kind": "guardrail",
-            "trace_id": "tr_0fd52dbe61e1",
-            "span_id": "21d2e4309f91",
-            "parent_id": "2bda49418fe2",
-            "start_ms": 1792141373071.6196,
-            "end_ms": 1792141373071.6467,
+            "trace_id": "tr_ec1b20fbe376",
+            "span_id": "b232ccaaa9f3",
+            "parent_id": "5ddc0c46360f",
+            "start_ms": 1792141943055.713,
+            "end_ms": 1792141943055.733,
             "status": "ok",
             "attributes": {
               "final": "REJECT",

@@ -8,6 +8,7 @@
 """
 from __future__ import annotations
 
+import re
 from typing import Optional
 
 from core.llm_schemas import RedirectOut
@@ -17,6 +18,36 @@ from guardrails.lexical import scan, strip_spans
 from guardrails.policy import PolicyCatalog, get_catalog
 
 HARD_BLOCK_RULES = {"TA-RESTRICTED-01", "FIN-UNREGISTERED-01", "FIN-ADVICE-01", "FIN-CRYPTO-01", "LOAN-SLANG-01", "FIN-GOV-01", "TA-GAMBLING-01"}
+
+
+_SENT = re.compile(r"(?<=[.!?。])\s+|\n+")
+_WRITE_VERB = re.compile(r"(써|넣|적|강조|표현|포함|말해|언급|홍보)[가-힣]*\s*(줘|주세요|주시고|해\s*줘|할\s*것|라고)?")
+
+
+def _clean_intent(text: str, findings: list[Finding]) -> tuple[str, list[str]]:
+    """위반 구절을 걷어낸다. '…라고 써 줘' 처럼 구절을 쓰라고 지시하는 문장은 문장째 지운다 (조각이 남지 않게)."""
+    removed = [text[f.start:f.end] for f in findings if f.start >= 0 and f.end > f.start]
+    kept: list[str] = []
+    cursor = 0
+    for sent in [x for x in _SENT.split(text) if x and x.strip()]:
+        idx = text.find(sent, cursor)
+        if idx < 0:
+            kept.append(sent)
+            continue
+        s_start, s_end = idx, idx + len(sent)
+        cursor = s_end
+        hits = [f for f in findings if f.start >= 0 and f.start < s_end and f.end > s_start]
+        if not hits:
+            kept.append(sent)
+        elif _WRITE_VERB.search(sent):
+            continue  # 지시 문장 전체 삭제
+        else:
+            local = [Finding(rule_id=f.rule_id, severity=f.severity, layer=f.layer, quote=f.quote, start=f.start - s_start, end=f.end - s_start) for f in hits]
+            stripped, _ = strip_spans(sent, local)
+            if stripped:
+                kept.append(stripped)
+    out = " ".join(k.strip() for k in kept).strip(" ,.")
+    return out, removed
 
 
 def _guidance(findings: list[Finding], catalog: PolicyCatalog) -> str:
@@ -73,7 +104,7 @@ def intercept(brief: CampaignBrief, catalog: Optional[PolicyCatalog] = None, rou
         notice.triggered = True
         notice.kind = notice.kind or InterceptKind.POLICY_INTENT
         notice.findings.extend(intent)
-        stripped, removed = strip_spans(text, intent)
+        stripped, removed = _clean_intent(text, intent)
         notice.removed_phrases.extend(removed)
         guidance = _guidance(intent, catalog)
         notice.suggested_input = (stripped or "같은 상품·예산·목표로 캠페인 구성") + f" (가이드: {guidance})"
