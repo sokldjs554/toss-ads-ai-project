@@ -36,9 +36,15 @@ def _coverage(curve: list[dict]) -> go.Figure:
 
 def render(settings: Settings, router_factory) -> None:
     st.caption("라벨은 '코드가 내야 할 판정'. 같은 저자가 규칙과 라벨을 썼다는 한계가 있어 `benign_scary`(무섭지만 괜찮음)·`evasion`·`injection` 슬라이스를 따로 봅니다.")
+    from evals.runner import REPORTS
+
+    baselines = sorted(p.stem.replace("baseline_", "") for p in REPORTS.glob("baseline_*.json") if "redteam" not in p.stem)
+    # 실제 모델 결과(live/partial)가 있으면 앞에 둔다
+    baselines.sort(key=lambda m: (m in ("demo", "deterministic_only"), m))
+    options = ["세션에서 실행한 결과"] + [f"저장된 기준선 ({m})" for m in baselines]
     c1, c2, c3 = st.columns([2, 1, 1])
     with c1:
-        source = st.radio("결과", ["세션에서 실행한 결과", "저장된 기준선 (demo)", "저장된 기준선 (deterministic_only)"], horizontal=True)
+        source = st.radio("결과", options, horizontal=True, index=1 if len(options) > 1 else 0)
     with c2:
         use_llm = st.toggle("심사 모델 포함", value=True, help="끄면 결정론 가드레일만 (네트워크 없음)")
     with c3:
@@ -57,10 +63,8 @@ def render(settings: Settings, router_factory) -> None:
     rep = None
     if source == "세션에서 실행한 결과":
         rep = st.session_state.get("eval_report")
-    elif source == "저장된 기준선 (demo)":
-        rep = load_report("baseline_demo.json")
     else:
-        rep = load_report("baseline_deterministic_only.json")
+        rep = load_report(f"baseline_{source[len('저장된 기준선 ('):-1]}.json")
     if rep is None:
         st.info("아직 결과가 없습니다. 평가를 실행하거나 저장된 기준선을 선택하세요.")
         return

@@ -76,7 +76,7 @@ def main() -> int:
             page.get_by_role("tab", name="📊 평가").click()
             time.sleep(2.5)
             try:
-                page.locator("label", has_text="저장된 기준선 (demo)").first.click(force=True, timeout=10_000)
+                page.locator("label", has_text="저장된 기준선").first.click(force=True, timeout=10_000)
             except Exception:  # noqa: BLE001 — 라디오 클릭이 불안정하면 기본 화면이라도 찍는다
                 pass
             time.sleep(2.5)

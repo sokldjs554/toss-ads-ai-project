@@ -25,7 +25,12 @@ def render(settings: Settings, router_factory) -> None:
         save_report(rep, "redteam_latest.json")
         st.session_state.redteam_report = rep
         prog.empty()
-    rep = st.session_state.get("redteam_report") or load_report("redteam_latest.json") or load_report("baseline_redteam_demo.json")
+    rep = st.session_state.get("redteam_report") or load_report("redteam_latest.json")
+    if rep is None:
+        for mode in ("live", "partial", "demo"):
+            rep = load_report(f"baseline_redteam_{mode}.json")
+            if rep is not None:
+                break
     if rep is None:
         st.info("아직 결과가 없습니다.")
         return

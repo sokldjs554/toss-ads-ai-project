@@ -50,6 +50,9 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  {s:12s} n={m['n']} evaded={m['evaded']} human_review={m['human_review']} rate={m['evasion_rate']}")
         if args.harvest:
             print("harvested:", harvest(rep))
+        if args.save_baseline:
+            save_report(rep, f"baseline_redteam_{rep['mode']}.json")
+            print("redteam baseline saved")
         return 0
     report = run_eval(args.dataset, settings, use_llm=not args.no_llm, limit=args.limit)
     mode_tag = report["mode"]

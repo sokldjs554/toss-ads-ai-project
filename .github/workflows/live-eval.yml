@@ -1,0 +1,77 @@
+name: live-eval
+# 실제 모델로 평가·레드팀·트레이스를 기록하고 결과를 저장소에 커밋한다.
+# 수동 실행(Actions 탭 → live-eval → Run workflow). 저장소 Secrets: OPENAI_API_KEY (필수), ANTHROPIC_API_KEY (선택 — 있으면 하이브리드 LIVE).
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "골든셋 사례 수 제한 (비우면 전부)"
+        required: false
+        default: ""
+      redteam:
+        description: "레드팀 실행 + 돌파 사례 수확"
+        type: boolean
+        default: true
+      traces:
+        description: "시나리오 5개 실제 트레이스 기록"
+        type: boolean
+        default: true
+permissions:
+  contents: write
+concurrency:
+  group: live-eval
+  cancel-in-progress: false
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-4o' }}
+      ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL || 'claude-sonnet-5-5' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - name: 키 확인 (키가 없으면 DEMO 로 돌아가 버리므로 여기서 멈춘다)
+        run: |
+          if [ -z "$OPENAI_API_KEY" ] && [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "::error::Secrets 에 OPENAI_API_KEY 또는 ANTHROPIC_API_KEY 가 없습니다. Settings → Secrets and variables → Actions 에 추가하세요."; exit 1; fi
+          python -c "from core.config import Settings; s=Settings.from_env(); print('mode =', s.mode.value, '| openai:', s.has_openai, s.openai_model, '| anthropic:', s.has_anthropic, s.anthropic_model)"
+      - name: 골든셋 평가 (실제 심사 모델) → baseline_<mode>.json
+        run: |
+          ARGS=""; if [ -n "${{ github.event.inputs.limit }}" ]; then ARGS="--limit ${{ github.event.inputs.limit }}"; fi
+          python -m evals.run --dataset golden --save-baseline $ARGS
+      - name: 레드팀 → 돌파 사례 수확
+        if: ${{ github.event.inputs.redteam == 'true' }}
+        run: python -m evals.run --redteam --harvest --save-baseline
+      - name: 실제 트레이스 기록
+        if: ${{ github.event.inputs.traces == 'true' }}
+        run: python scripts/record_traces.py
+      - name: 결과 요약
+        run: |
+          python - <<'PY'
+          import json, glob
+          for p in sorted(glob.glob("evals/reports/baseline_*.json")):
+              d = json.load(open(p, encoding="utf-8"))
+              if "summary" in d:
+                  s = d["summary"]; print(p, "| mode", d["mode"], "| coverage", s["coverage"]["rate"], "| unsafe", s["unsafe_approve"]["rate"], "| false_flag", s["false_flag"]["rate"], "| ECE", s["calibration"]["ece"], "| cost $", s["cost_usd"])
+              elif "evasion_rate" in d:
+                  print(p, "| mode", d["mode"], "| attacks", len(d["attacks"]), "| evasion", d["evasion_rate"], "| cost $", d["cost_usd"])
+          PY
+      - name: 결과 커밋
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add evals/reports/baseline_*.json evals/datasets/adversarial.jsonl traces/sample_*.json
+          if git diff --cached --quiet; then echo "변경 없음"; exit 0; fi
+          git commit -m "live-eval: 실제 모델 기준선·레드팀·트레이스 기록 (run ${{ github.run_id }})"
+          git push
+      - uses: actions/upload-artifact@v4
+        with:
+          name: live-eval-reports
+          path: |
+            evals/reports/*.json
+            traces/*.json
