@@ -1,0 +1,30 @@
+name: ci
+on:
+  push:
+  pull_request:
+jobs:
+  test-and-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - name: unit tests (no network)
+        run: python -m pytest -q
+      - name: regression gate — deterministic layer vs committed baseline
+        env:
+          PREFLIGHT_FORCE_DEMO: "1"
+        run: python -m evals.run --dataset golden --no-llm --gate
+      - name: regression gate — demo-mode pipeline (mock reviewer) vs committed baseline
+        env:
+          PREFLIGHT_FORCE_DEMO: "1"
+        run: python -m evals.run --dataset golden --gate
+      - name: app smoke (import + headless start)
+        env:
+          PREFLIGHT_FORCE_DEMO: "1"
+        run: |
+          python -c "import app"  # 모듈 임포트가 되어야 한다
+          timeout 25 streamlit run app.py --server.headless true --server.port 8599 > /tmp/st.log 2>&1 || true
+          grep -q "Network URL\|You can now view" /tmp/st.log && echo "streamlit started" || (cat /tmp/st.log; exit 1)

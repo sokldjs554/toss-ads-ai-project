@@ -1,0 +1,703 @@
+# 광고 심사 규칙 카탈로그
+#
+# 출처: 토스애즈 공개 광고주 가이드(공통 심사 정책 · 소재별 심사 정책 · 업종별 심사 정책 · 광고 불가 업종 안내)와
+#       금융소비자보호법 제22조 · 대부업법 제9조 · 표시광고법의 공개 조문을 읽고 이 프로젝트가 '실행 가능한 규칙' 으로 재구성한 것.
+#       실제 플랫폼의 심사 기준·내부 정책이 아니며 법률 자문도 아니다. section 은 가이드의 어느 항목을 보고 적었는지 표시한다.
+#
+# 필드
+#   severity : block(반려) | fix(수정 후 재심사) | warn(주의, 승인 가능)
+#   layer    : lexical(정규화 후 패턴) | disclosure(필수 고지) | grounding(근거) | injection | semantic(LLM 만 판단) | structural
+#   applies  : 적용 업종. all 또는 ProductCategory 값 목록
+#   patterns : 정규화된 표면(loose/tight)에 적용하는 정규식. 한글 조사·어미는 패턴 안에서 허용
+#   negation_aware : true 면 매치 직후 부정 표현이 있으면 warn 으로 내리고 의미 심사로 넘긴다
+#   exceptions : 이 정규식에 걸리는 매치는 무시 (예: 상품 자체의 금리 범위 '최저 연 4.5%')
+version: "2026.10.1"
+rules:
+  # ───────────────────────────── 토스애즈 공통 · 소재별 ─────────────────────────────
+  - id: TA-SUPERLATIVE-01
+    title: 근거 없는 최상급·절대 표현
+    section: "공통 심사 정책 › 허위/과장/기만 7 (최상급 표현은 객관적 증빙 제출 시에만)"
+    severity: fix
+    layer: lexical
+    applies: [all]
+    patterns:
+      - "(업계|국내|시장|세계|대한민국|전국)\\s*(최저|최고|최대|최다|최초|1\\s*위|유일|넘버\\s*원|no\\.?\\s*1)"
+      - "(?<![가-힣])(최저|최고|최대|최다)\\s*(금리|한도|혜택|조건|수익|보장|할인|가격|품질|성능)"
+      - "(?<![가-힣])(1\\s*위|넘버\\s*원|no\\.?\\s*1|유일한?|독보적|완벽한?|100\\s*%)"
+    exceptions:
+      - "(최저|최고)\\s*(금리|이자|이율)?\\s*(연|월)?\\s*\\d"   # 상품 자체의 금리 범위 표기 (최저 연 4.5% ~ 최고 연 15%)
+      - "최대\\s*(한도\\s*)?\\d"                   # 최대 한도 5,000만원 — 수치 있는 상품 조건 (근거는 grounding 이 본다)
+    explanation: "비교 대상·근거가 없는 최상급 표현. 증빙 자료가 있으면 사용 가능하므로 반려가 아니라 수정 요청."
+    fix_hint: "증빙 가능한 사실(숫자·조건)로 바꾸거나 삭제"
+
+  - id: TA-URGENCY-01
+    title: 허위 긴급성·기간 한정 암시
+    section: "공통 심사 정책 › 허위/과장/기만 2 (특정 시점까지만 제공하는 것처럼 표기)"
+    severity: fix
+    layer: lexical
+    applies: [all]
+    patterns:
+      - "지금\\s*아니면"
+      - "오늘\\s*(만|까지|하루)"
+      - "마감\\s*(임박|직전)"
+      - "선착순"
+      - "(곧|금방)\\s*(종료|마감|사라)"
+      - "놓치면\\s*(후회|끝|손해)"
+      - "(절판|마지막\\s*기회|이번이\\s*마지막)"
+    explanation: "집행 기간 이후에도 제공되는 조건을 한정된 것처럼 보이게 하는 표현. 실제 종료일이 사실 목록에 있으면 그 날짜를 명시해야 한다."
+    fix_hint: "실제 기간이 있으면 날짜를 명시, 없으면 삭제"
+
+  - id: TA-OMISSION-01
+    title: 혜택·할인의 조건 생략
+    section: "공통 심사 정책 › 허위/과장/기만 3·6·11 (조건 미표기, 기준 상품 미표시)"
+    severity: fix
+    layer: semantic
+    applies: [all]
+    patterns: []
+    explanation: "캐시백·할인·무료 등 혜택을 말하면서 적용 조건(대상·기간·한도·기준 상품)을 보여 주지 않는 경우."
+    fix_hint: "조건을 같은 소재 안에 읽을 수 있는 크기로 표기"
+
+  - id: TA-COMPARE-01
+    title: 타사 비교·비방
+    section: "공통 심사 정책 › 비교/비방 1~3"
+    severity: block
+    layer: lexical
+    applies: [all]
+    patterns:
+      - "(타사|타\\s*은행|타\\s*카드사|경쟁사|다른\\s*(앱|은행|회사|서비스|플랫폼))\\s*(보다|대비|와\\s*달리|과\\s*달리|는\\s*다르)"
+      - "[A-Z가-힣]{1,6}(사|은행|카드|페이|뱅크)\\s*보다\\s*(저렴|싸|낮|높|좋|빠)"
+    explanation: "비교 대상·기준이 명시되지 않은 우위 표현, 또는 타사 비방으로 의심되는 표현."
+    fix_hint: "자사 상품의 사실만 서술"
+
+  - id: TA-ENDORSE-01
+    title: 추천·보증 콘텐츠의 이해관계 미표시
+    section: "공통 심사 정책 › 비교/비방 4 (추천·보증 심사지침)"
+    severity: warn
+    layer: lexical
+    applies: [all]
+    patterns:
+      - "(실제|진짜)\\s*(후기|리뷰|사용기)"
+      - "(인플루언서|유튜버|전문가|의사|약사|변호사)\\s*(추천|보증|인증|극찬)"
+      - "(만족도|추천율)\\s*\\d+\\s*%"
+      - "#?\\s*(sponsored|유료\\s*AD|partner|thanks\\s*to|collaboration)(?![가-힣a-z])"
+    explanation: "경험적 사실 근거와 경제적 이해관계 표시가 필요한 추천·보증 표현. 광고 표시 문구가 함께 있어야 한다."
+    fix_hint: "'광고' 표시와 이해관계를 명시하거나 삭제"
+
+  - id: TA-SENSITIVE-01
+    title: 민감정보·개인정보 추정 표현
+    section: "소재별 심사 정책 › 문구 4 (건강·종교·정치 등 민감정보, 개인정보 추정 표현)"
+    severity: block
+    layer: lexical
+    applies: [all]
+    patterns:
+      - "(신용\\s*(점수|등급)|연체|연봉|소득|부채|빚)\\s*(이|가)?\\s*(낮|높|많|적|있|없)[가-힣]*\\s*(분|고객|회원|당신|님)"
+      - "(회원님|고객님|당신)(의|이|께서)?\\s*(한도|신용|대출|보험료|점수)(가|이|는|을)?\\s*(올랐|나왔|조회|확인|승인)"
+      - "(질병|암|당뇨|우울증|불면증|탈모|비만)\\s*(있으신|있는|겪는|앓는)\\s*(분|고객|회원)"
+      - "(종교|정치\\s*성향|성적\\s*지향|장애)\\s*(가|이|를|에)?"
+    explanation: "특정 이용자의 신용·건강·종교·정치 성향 등을 암시하거나 개인정보를 알고 있는 것처럼 보이는 표현."
+    fix_hint: "불특정 다수를 향한 일반 서술로 변경"
+
+  - id: TA-NOTICE-MIMIC-01
+    title: 토스 공지·알림 오인 문장
+    section: "소재별 심사 정책 › 문구 5-3, 공통 › 토스 서비스 보호 2 (알림 형태 오인)"
+    severity: block
+    layer: lexical
+    applies: [all]
+    patterns:
+      - "\\[\\s*(토스|알림|안내|공지|긴급|필독|web발신)\\s*\\]"
+      - "(입금|출금|송금|결제)\\s*(되었|됐)습니다"
+      - "(본인\\s*확인|인증)\\s*(이|가)\\s*필요(합니다|해요)"
+      - "(미확인|확인하지\\s*않은|미수령|수령하지\\s*않은)\\s*(혜택|포인트|머니|송금|알림)"
+      - "토스\\s*(에서|가)\\s*(보낸|드리는)\\s*(알림|안내|공지)"
+    explanation: "플랫폼 공지·시스템 알림처럼 보이게 구성한 문장. 유저가 광고임을 인지하지 못하게 한다."
+    fix_hint: "광고주 명의의 일반 광고 문장으로 변경"
+
+  - id: TA-BRAND-01
+    title: 플랫폼 브랜드 무단 사용
+    section: "공통 심사 정책 › 토스 서비스 보호 1·6 (사전 협의 필요)"
+    severity: fix
+    layer: lexical
+    applies: [all]
+    patterns:
+      - "(토스|toss)\\s*(공식|제휴|인증|추천|선정|파트너)"
+      - "(토스|toss)(와|과|에서)\\s*(함께|제공|보증)"
+    explanation: "광고주가 플랫폼과 제휴·인증 관계인 것처럼 보이는 표현. 사전 협의 문구 없이는 사용 불가."
+    fix_hint: "협의된 경우 지정 문구 기재, 아니면 삭제"
+
+  - id: TA-SPECIAL-01
+    title: 특수문자·이모지 과다
+    section: "소재별 심사 정책 › 문구 5-2"
+    severity: fix
+    layer: lexical
+    applies: [all]
+    patterns:
+      - "[!?]{2,}"
+      - "[★☆♥♡♪♬◆◇■□▶▷●○◎※☞☜✔✓✨💰🔥🎉🎁❗❕‼]{2,}"
+      - "([!?★☆♥♡◆■▶●※✔✨💰🔥🎉🎁❗‼])(?:\\s*\\1){2,}"
+    explanation: "의미 전달에 불필요한 특수문자·이모지의 반복."
+    fix_hint: "특수문자는 의미 전달에 필요한 1개 이내로"
+
+  - id: TA-LANG-01
+    title: 한글 표기 원칙 위반
+    section: "소재별 심사 정책 › 문구 1-1·1-3 (한글 표기, 외래어 남용)"
+    severity: fix
+    layer: structural
+    applies: [all]
+    patterns: []
+    explanation: "광고 문구의 한글 비율이 낮거나 영어 문장으로만 구성됨."
+    fix_hint: "한글로 다시 쓰기 (브랜드명 등 고유명사는 예외)"
+
+  - id: TA-LENGTH-01
+    title: 글자 수 초과
+    section: "소재별 심사 정책 › 문구 6 (띄어쓰기 포함 1자 계산) · 광고 상품별 소재 가이드"
+    severity: fix
+    layer: structural
+    applies: [all]
+    patterns: []
+    explanation: "헤드라인·본문 길이가 지면 제한을 넘음 (프로젝트 기본값: 헤드라인 30자, 본문 90자, CTA 12자)."
+    fix_hint: "지면 제한 안으로 줄이기"
+
+  - id: TA-SLANG-01
+    title: 비속어·반말·불쾌 표현
+    section: "소재별 심사 정책 › 문구 2-2·2-5, 정보입력 양식 가이드 (평어체 불가)"
+    severity: block
+    layer: lexical
+    applies: [all]
+    patterns:
+      - "(?<![가-힣])(씨발|시발|존나|졸라|개같|병신|미친|꺼져|닥쳐|호구|빡치)"
+      - "(해라|해봐|받아라|사라|써라|눌러라|가입해|신청해|클릭해)(?![가-힣])"
+    explanation: "비속어·은어, 유저를 하대하는 평어체."
+    fix_hint: "~해요체 또는 명사형으로"
+
+  - id: TA-GAMBLING-01
+    title: 사행심 조장
+    section: "공통 심사 정책 › 보편적 사회정서 침해 4, 청소년 보호 7, 토스애즈 청소년 보호정책 6"
+    severity: block
+    layer: lexical
+    applies: [all]
+    patterns:
+      - "(대박|한\\s*방|인생\\s*역전|떼돈|일확천금|로또|잭팟|카지노|토토|바카라|슬롯|홀덤)"
+      - "(무조건|100\\s*%|전원)\\s*(당첨|적중|수익)"
+      - "(당첨|적중)\\s*(보장|확률\\s*100)"
+      - "(베팅|배팅)\\s*(하|해|하세요|추천)"
+    explanation: "도박·사행심을 조장하거나 요행으로 큰 이익을 얻는다는 인상을 주는 표현."
+    fix_hint: "삭제. 경품 이벤트라면 조건·확률·기간을 명시"
+
+  - id: TA-FEAR-01
+    title: 불안·손실 공포 조성
+    section: "소재별 심사 정책 › 문구 2-5 (부정적인 감정), 공통 › 폭력/혐오/공포 1"
+    severity: fix
+    layer: lexical
+    applies: [all]
+    patterns:
+      - "(안\\s*하면|않으면|모르면)\\s*(손해|큰일|후회|망)"
+      - "(지금\\s*)?(안\\s*보면|모르면)\\s*(나만\\s*)?(손해|호구)"
+      - "(위험|큰일)\\s*(합니다|해요|납니다|나요)\\s*$"
+    explanation: "행동하지 않으면 손해·위험하다는 공포 소구."
+    fix_hint: "혜택의 사실만 서술"
+
+  - id: TA-HEALTH-01
+    title: 검증되지 않은 건강·효능 표현
+    section: "공통 심사 정책 › 사회정서 6, 업종별 › 건강기능식품·의료 (질병 예방·치료 효능 오인 표현 금지)"
+    severity: block
+    layer: lexical
+    applies: [health, ecommerce, app, other]
+    patterns:
+      - "(완치|치료|예방|근본\\s*치료|부작용\\s*(없|제로|0))"
+      - "(살|체중|지방)\\s*(이|을)?\\s*\\d+\\s*(kg|킬로)\\s*(감량|빠)"
+      - "(효과|효능)\\s*(보장|확실|100)"
+      - "(암|당뇨|고혈압|치매|탈모|불면증)\\s*(에|을)?\\s*(좋|효과|도움|낫)"
+    explanation: "질병의 예방·치료 효능, 확정적 효과를 암시하는 표현. 의료·건기식은 사전 심의 내용과 동일해야 한다."
+    fix_hint: "심의받은 기능성 문구만 사용, '개인차가 있을 수 있음' 명시"
+
+  - id: TA-RESTRICTED-01
+    title: 광고 불가 업종·내용
+    section: "광고 불가 업종 안내 (유사투자자문·미등록 가상자산·유사수신·P2P·대부업·다단계·도박·채권추심 등), 토스애즈 청소년 보호정책"
+    severity: block
+    layer: lexical
+    applies: [all]
+    patterns:
+      - "(리딩방|주식\\s*리딩|종목\\s*추천방|VIP\\s*방|비공개\\s*방|텔레그램\\s*방)"
+      - "(유사수신|다단계|네트워크\\s*마케팅|피라미드|폰지)"
+      - "(사설\\s*(토토|카지노|경마)|불법\\s*도박|도박\\s*사이트)"
+      - "(채권\\s*추심|빚\\s*독촉\\s*대행|신용\\s*조사\\s*대행)"
+      - "(P2P|피투피)\\s*(대출|투자)"
+      - "(대부업체|사금융|일수|급전\\s*대출|무등록\\s*대출)"
+      - "(성인\\s*(채팅|화상|용품)|애인\\s*대행|조건\\s*만남|랜덤\\s*채팅)"
+    explanation: "플랫폼에서 집행할 수 없는 업종·행위. 입력 단계에서 바로 중단(hard block)."
+    fix_hint: "집행 불가 — 다른 상품·업종으로만 가능"
+
+  - id: TA-DUP-01
+    title: 반려 소재의 유사 변형 재등록
+    section: "공통 심사 정책 › 토스 서비스 보호 4-5, 광고주 어뷰징 행위 제한 정책 1·2"
+    severity: block
+    layer: structural
+    applies: [all]
+    patterns: []
+    explanation: "반려된 소재와 문자 n-gram 유사도가 높은 소재를 다시 제출. 어뷰징 제재 대상."
+    fix_hint: "반려 사유를 실제로 해소한 뒤 재심사 신청"
+
+  - id: TA-LANDING-01
+    title: 소재↔랜딩 페이지 표현 불일치
+    section: "소재별 심사 정책 › 랜딩 페이지 콘텐츠 규정 1, 공통 › 유저의 사용성 보호 (혜택·랜딩 일치) — 플랫폼이 밝힌 1위 반려 사유"
+    severity: fix
+    layer: grounding
+    applies: [all]
+    patterns: []
+    explanation: "소재의 숫자·혜택·조건이 랜딩 페이지 텍스트에서 확인되지 않음. 의미가 같아도 표현이 다르면 반려될 수 있다."
+    fix_hint: "랜딩 페이지에 있는 표현·숫자 그대로 사용"
+
+  - id: TA-AI-01
+    title: AI 생성 가상 인물·전문가의 추천·보증
+    section: "소재별 심사 정책 › AI를 활용한 광고 2 (가상의 전문가가 추천·보장)"
+    severity: fix
+    layer: lexical
+    applies: [all]
+    patterns:
+      - "(AI|인공지능|가상)\\s*(전문가|의사|상담사|애널리스트)\\s*(가|이)?\\s*(추천|보장|보증|분석)"
+      - "(전문가|의사|약사|변호사|세무사)\\s*(가|이)\\s*(보장|보증|장담)"
+    explanation: "실제 인물·사실이 아님을 안내하지 않은 AI 생성 보증, 또는 전문가 보증 표현."
+    fix_hint: "AI 활용 사실을 고지하거나 보증 표현 삭제"
+
+  - id: TA-DISCLOSURE-SLOT-01
+    title: 고지 문구란에 광고 문구 입력
+    section: "업종별 심사 정책 › 광고 고지 문구(심의필): 광고 문구·단순 정보 전달 문구 입력 시 승인 불가"
+    severity: fix
+    layer: structural
+    applies: [all]
+    patterns: []
+    explanation: "법적 고지 문구 자리에 혜택·CTA 성격의 문장이 들어 있음."
+    fix_hint: "고지란에는 법령상 필요한 문구만"
+
+  # ───────────────────────────── 금융 (금소법 제22조 · 대부업법 제9조 · 표시광고법) ─────────────────────────────
+  - id: FIN-GUARANTEE-01
+    title: 원금 보장·손실 없음 표현
+    section: "금융소비자보호법 제22조 제3항 (손실보전·이익보장 오인 표현 금지) · 광고 불가 업종 12 (유사수신·원금보장)"
+    severity: block
+    layer: lexical
+    applies: [all]
+    negation_aware: true
+    patterns:
+      - "원금\\s*(을|이|은)?\\s*(보장|보전|보호|지켜|안전)"
+      - "(손실|손해|리스크|위험)\\s*(이|은|가|도)?\\s*(없|제로|0\\s*%|전혀\\s*없|걱정\\s*없|볼\\s*일\\s*없)"
+      - "(잃을|손해\\s*볼)\\s*(걱정|염려|일)\\s*(없|제로|zero)"
+      - "(무위험|무손실|노리스크|안전\\s*자산\\s*보장)"
+    explanation: "투자·예치 상품에서 원금이 보장되거나 손실이 없다는 인상을 주는 표현. 예금자보호 한도 안내는 별도 고지로만 가능."
+    fix_hint: "삭제 후 '원금 손실 가능성' 고지 추가"
+
+  - id: FIN-RETURN-01
+    title: 수익률 보장·확정 수익
+    section: "금융소비자보호법 제22조 제3항 · 자본시장법 제55조 (손실보전·이익보장 금지)"
+    severity: block
+    layer: lexical
+    applies: [all]
+    negation_aware: true
+    patterns:
+      - "(수익|수익률|이익|이자|배당|성과)\\s*(을|이|은|를)?\\s*(보장|보증|확정|약속|장담)"
+      - "(확정|보장|보증|고정)\\s*(수익|수익률|이익|배당)"
+      - "(월|연|매달|매월|하루)\\s*\\d+(\\.\\d+)?\\s*%\\s*(수익|이익|확정|보장)"
+      - "(무조건|반드시|100\\s*%)\\s*(수익|오른다|오릅니다|번다|법니다)"
+    explanation: "미래 수익을 확정적으로 제시하는 표현."
+    fix_hint: "과거 실적은 기간·기준을 명시하고 '미래 수익률을 보장하지 않습니다' 고지"
+
+  - id: FIN-APPROVAL-01
+    title: 무조건·무심사·누구나 승인
+    section: "대부업법 제9조의2 (대부광고 금지 표현: 누구나·무조건·무심사 등 오인 표현) · 금소법 제22조 제3항 (대출 조건 오인)"
+    severity: block
+    layer: lexical
+    applies: [loan, card, insurance, other, app]
+    patterns:
+      - "(누구나|무조건|무심사|심사\\s*없이|서류\\s*없이|신분증\\s*만|100\\s*%)\\s*([가-힣]{1,4}\\s*)?(승인|대출|가능|통과|발급|개설|OK)"
+      - "(누구나\\s*무조건|무조건\\s*누구나|무조건\\s*무심사)"
+      - "(신용\\s*불량|연체\\s*중|무직|소득\\s*없|신불자|회생|파산)[가-힣]*\\s*(도|이라도|여도)\\s*(가능|승인|대출|OK)"
+      - "(승인률|승인율)\\s*(100|99)\\s*%"
+      - "(거절|거부)\\s*(없|제로|0\\s*%|걱정\\s*없)"
+    explanation: "심사 없이 또는 누구나 승인된다는 인상을 주는 표현. 대출은 심사 결과에 따라 거절될 수 있다."
+    fix_hint: "'심사 결과에 따라 한도·금리가 달라지며 거절될 수 있음' 으로"
+
+  - id: FIN-SPEED-01
+    title: 즉시·당일 실행 단정
+    section: "대부업법 제9조의2 (즉시 등 신속성으로 무심사를 암시하는 표현) · 토스애즈 공통 › 허위/과장 3"
+    severity: fix
+    layer: lexical
+    applies: [loan, card]
+    patterns:
+      - "(즉시|당일|\\d+\\s*(분|초)|바로)\\s*(만에|안에|내에?)?\\s*(대출|입금|송금|실행|승인|발급|조회|완료)"
+      - "(대출|입금|송금)\\s*(즉시|당일|바로)"
+    exceptions:
+      - "(영업일|심사\\s*(완료|통과|결과))"   # 조건이 함께 있으면 허용
+    explanation: "실행 속도를 단정해 심사가 없다는 인상을 줌. 조건(심사 완료 후, 영업일 기준)을 함께 표기해야 한다."
+    fix_hint: "'심사 완료 시 영업일 기준 당일 입금 가능' 처럼 조건 명시"
+
+  - id: FIN-RATE-01
+    title: 금리 오인 표기
+    section: "금융소비자보호법 제22조 제3항 · 시행령 (이자율 범위 미표시, 최저만 강조) · 대부업법 제9조"
+    severity: fix
+    layer: lexical
+    applies: [loan, card, savings]
+    patterns:
+      - "(?<![~\\-–])\\s*(연|월)?\\s*\\d+(\\.\\d+)?\\s*%\\s*(부터|~|대|의)?\\s*(금리|이자|이율)(?!\\s*(~|부터|에서))"
+      - "(0\\s*%|제로)\\s*(금리|이자)"
+      - "(금리|이자)\\s*(0\\s*%|제로|없음|무이자)"
+    exceptions:
+      - "\\d+(\\.\\d+)?\\s*%\\s*(~|부터|에서)\\s*(연|월)?\\s*\\d+(\\.\\d+)?\\s*%"   # 범위 표기면 통과
+      - "(최저|최고)\\s*(연|월)\\s*\\d"                                           # 범위 서술
+    explanation: "단일 금리(특히 최저)만 제시하거나 무이자처럼 보이게 함. 적용 범위·기준·조건을 함께 표기해야 한다."
+    fix_hint: "'연 X.X% ~ Y.Y% (심사 결과에 따라 다름)' 형태로"
+
+  - id: FIN-LIMIT-01
+    title: 한도 단정 표기
+    section: "금융소비자보호법 제22조 제3항 (한도 오인) · 토스애즈 공통 › 허위/과장 3 (조건 생략)"
+    severity: fix
+    layer: lexical
+    applies: [loan]
+    patterns:
+      - "(한도|대출)\\s*(최대|최고)?\\s*\\d[\\d,\\.]*\\s*(억|만\\s*원|천만)"
+      - "(최대|최고)\\s*한도\\s*\\d[\\d,\\.]*\\s*(억|만\\s*원|천만)"
+    exception_scope: text   # 조건 문구가 소재 어디에든 있으면 통과
+    exceptions:
+      - "(심사|신용|조건|상품)\\s*(결과|에|별로)?\\s*(에\\s*)?(따라|다름|상이)"
+    explanation: "최대 한도를 모든 유저가 받을 수 있는 것처럼 보이게 함."
+    fix_hint: "'최대 X원 (심사 결과에 따라 다름)' 로 조건 병기"
+
+  - id: FIN-DISCLOSE-LOAN-01
+    title: 대출 광고 필수 고지 누락
+    section: "금융소비자보호법 제22조 제2항·시행령 제20조 (이자율 범위·연체이자율·상환방식·심사 안내) · 대부업법 제9조 (경고 문구)"
+    severity: fix
+    layer: disclosure
+    applies: [loan]
+    patterns: []
+    explanation: "대출 광고에는 이자율(범위), 연체이자율, 상환 방식·기간, 심사에 따른 조건 변동, 경고 문구가 있어야 한다."
+    fix_hint: "고지 문구란에 필수 항목 추가"
+
+  - id: FIN-DISCLOSE-INV-01
+    title: 투자 광고 필수 고지 누락
+    section: "금융소비자보호법 제22조 제2항 (원금 손실 가능성, 과거 운용실적이 미래 수익을 보장하지 않음) · 금융투자협회 광고 규정"
+    severity: fix
+    layer: disclosure
+    applies: [investment, crypto]
+    patterns: []
+    explanation: "원금 손실 가능성, 과거 실적 ≠ 미래 수익, 수수료·세금 안내가 있어야 한다."
+    fix_hint: "고지 문구란에 필수 항목 추가"
+
+  - id: FIN-DISCLOSE-INS-01
+    title: 보험 광고 필수 고지 누락
+    section: "금융소비자보호법 제22조 제2항 (보장 내용·면책·보험료 변동) · 보험업법 광고 규정 (기존 계약 해지 불이익, 심의필)"
+    severity: fix
+    layer: disclosure
+    applies: [insurance]
+    patterns: []
+    explanation: "보장 내용·면책 사항 약관 참조, 기존 계약 해지 후 신규 가입 시 불이익, 보험료 변동 가능, 준법감시인 심의필."
+    fix_hint: "고지 문구란에 필수 항목 추가"
+
+  - id: FIN-DISCLOSE-SAV-01
+    title: 예·적금 광고 고지 누락
+    section: "금융소비자보호법 제22조 제2항 (금리 기준일·변동 가능, 우대 조건) · 예금자보호법"
+    severity: warn
+    layer: disclosure
+    applies: [savings]
+    patterns: []
+    explanation: "금리 기준 시점·변동 가능성, 우대 조건, 예금자보호 한도 안내."
+    fix_hint: "고지 문구란에 추가"
+
+  - id: FIN-DISCLOSE-EDU-01
+    title: 부업·재테크 교육 필수 안내 누락
+    section: "토스애즈 업종별 심사 정책 › 부업·재테크 온라인 교육 (필수 안내 문구, 원금·수익 보장 금지)"
+    severity: fix
+    layer: disclosure
+    applies: [education]
+    patterns: []
+    explanation: "'개인의 성과는 노력에 따라 달라질 수 있습니다' 류 안내가 있어야 하며 수익을 보장할 수 없다."
+    fix_hint: "필수 안내 문구 추가"
+
+  - id: FIN-UNREGISTERED-01
+    title: 미등록 금융 서비스 암시
+    section: "토스애즈 업종별 심사 정책 › 금융 (금감원 미조회 서비스 불가, 대부업·다단계 불가) · 광고 불가 업종 5"
+    severity: block
+    layer: lexical
+    applies: [all]
+    patterns:
+      - "(미등록|무등록|비인가|무허가)\\s*(투자|금융|자문|대출|거래소)"
+      - "(해외|역외)\\s*(선물|FX|마진)\\s*(거래|투자)\\s*(대행|계좌)"
+      - "(개인|사채|지인)\\s*(돈|자금)\\s*(빌려|대출)\\s*드"
+    explanation: "제도권 밖 금융 서비스로 보이는 표현."
+    fix_hint: "집행 불가"
+
+  - id: FIN-CRYPTO-01
+    title: 가상자산 수익 유도
+    section: "가상자산이용자보호법 · 토스애즈 광고 불가 업종 5 (미등록 가상자산) · 청소년 보호정책 10 (원금 손실 금융상품)"
+    severity: block
+    layer: lexical
+    applies: [all]
+    patterns:
+      - "(코인|토큰|비트|알트|가상\\s*자산|암호\\s*화폐)\\s*(이|가|으로|로)?\\s*(급등|떡상|폭등|\\d+\\s*배|무조건)"
+      - "(에어드랍|에어드롭|프리세일|ICO|IDO)\\s*(보장|확정|무료\\s*지급)"
+      - "(채굴|스테이킹)\\s*(수익|이자)\\s*(보장|확정|\\d+\\s*%)"
+    explanation: "가상자산의 가격 상승이나 수익을 단정·유도하는 표현."
+    fix_hint: "삭제"
+
+  - id: FIN-ADVICE-01
+    title: 종목 추천·수익 인증
+    section: "자본시장법 (미등록 투자자문) · 토스애즈 광고 불가 업종 5 (유사투자자문)"
+    severity: block
+    layer: lexical
+    applies: [all]
+    patterns:
+      - "(종목|급등주|테마주|작전주)\\s*(추천|찍어|알려|공개)"
+      - "(수익|수익률)\\s*(인증|자랑|공개)\\s*(샷|사진|내역)?"
+      - "(따라\\s*사|따라\\s*매수|복사\\s*매매|카피\\s*트레이딩)"
+    explanation: "특정 종목 매매를 권유하거나 수익 인증으로 가입을 유도하는 유사투자자문 표현."
+    fix_hint: "집행 불가"
+
+  - id: FIN-DAILY-01
+    title: 일(日) 단위 비용 표시
+    section: "금융소비자보호법 제22조 제4항 · 시행령 제20조 제1항 2호 (보험료·이자를 일 단위로 표시해 부담이 작아 보이게 하는 행위)"
+    severity: fix
+    layer: lexical
+    applies: [loan, card, insurance, savings, investment]
+    patterns:
+      - "(하루|일|1일)\\s*(에\\s*)?(커피|담배|밥|점심)\\s*(한\\s*잔|값|한\\s*갑|한\\s*끼)"
+      - "(하루|1일|일)\\s*(이자|보험료|비용|부담)\\s*\\d"
+      - "(하루|1일)\\s*(단돈\\s*)?\\d[\\d,]*\\s*원"
+    explanation: "비용을 하루 단위로 쪼개 작아 보이게 하는 표현. 월·연 단위 총비용으로 표시해야 한다."
+    fix_hint: "월/연 단위와 총 비용으로 표기"
+
+  - id: FIN-INS-UNLIMITED-01
+    title: 보험 무제한·무조건 보장
+    section: "금융소비자보호법 제22조 제4항 1호 (보장한도·면책·감액 누락으로 제한 없이 보장받는 것처럼 오인) · 금감원 온라인 보험광고 점검(2025)"
+    severity: block
+    layer: lexical
+    applies: [insurance, all]
+    patterns:
+      - "(무제한|평생|무조건|묻지도\\s*따지지도)\\s*(보장|보상|지급)"
+      - "(매년|매달|매월)\\s*\\d[\\d,]*\\s*(만\\s*원|억)\\s*(보상|지급|보장)"
+      - "(진단|사고)\\s*(만\\s*)?(되면|나면|시)\\s*(무조건|즉시|바로)\\s*\\d[\\d,]*\\s*(만\\s*원|억)"
+    explanation: "면책·감액·한도 없이 보장되는 것처럼 보이는 표현."
+    fix_hint: "'약관상 지급 사유 해당 시 최대 X원(면책기간·감액 조건 적용)' 형태로"
+
+  - id: FIN-REVOLVING-01
+    title: 리볼빙을 최소결제·일부결제로 표현
+    section: "금감원 리볼빙 광고 개선(2024.2): '최소결제·일부결제' 표현 금지, 리볼빙이 고금리 대출성 상품임을 명시"
+    severity: block
+    layer: lexical
+    applies: [card]
+    patterns:
+      - "(최소\\s*결제|일부\\s*결제|일부만\\s*결제)\\s*(로|으로|하고|하면)?\\s*(부담\\s*없|편하|가볍)"
+      - "리볼빙.{0,20}(부담\\s*없|편하게|가볍게)"
+    explanation: "일부결제금액이월약정(리볼빙)을 가벼운 편의 기능처럼 보이게 하는 표현."
+    fix_hint: "'리볼빙은 고금리 대출성 상품이며 수수료율 연 X~Y%' 명시"
+
+  - id: LOAN-SLANG-01
+    title: 불법 금융 은어
+    section: "금융감독원 불법 대부광고 식별 기준 (급한불·지각비·내구제·카드깡·대리입금·통장매매)"
+    severity: block
+    layer: lexical
+    applies: [all]
+    patterns:
+      - "(급한\\s*불|지각비|내구제|카드\\s*깡|대리\\s*입금|통장\\s*(매매|매입|삽니다)|휴대폰\\s*(깡|내구제))"
+    explanation: "불법 사금융에서 쓰는 은어. 광고주 적격 확인 전까지 집행 불가."
+    fix_hint: "집행 불가"
+
+  - id: FIN-GOV-01
+    title: 정부·공공기관·제도권 사칭
+    section: "대부업법 제9조의2 · 금융감독원 불법 대부광고 식별 기준 (정부지원·서민금융 사칭)"
+    severity: block
+    layer: lexical
+    applies: [all]
+    patterns:
+      - "(정부|국가|공공기관|금융위|금감원|서민금융진흥원|한국은행)\\s*(지원|인증|보증|추천|승인|공식)\\s*(대출|상품|업체|자금)"
+      - "(햇살론|사잇돌|새희망홀씨|버팀목)\\s*(보다|대신|급|수준|같은)"
+    exceptions:
+      - "(공식\\s*판매|취급\\s*기관|제도권)"
+    explanation: "정부·공공기관의 지원·보증을 받는 것처럼 오인하게 하는 표현. 광고주 검증 전까지 집행 불가."
+    fix_hint: "실제 취급 기관명으로, 정책 상품은 공식 명칭과 조건만"
+
+  # ───────────────────────────── 입력 보호 · 근거 · 구조 ─────────────────────────────
+  - id: INJ-INSTR-01
+    title: 프롬프트 인젝션 — 지시문 삽입
+    section: "프로젝트 규칙 (입력 신뢰 경계). 상품 설명·요청문은 데이터이지 지시가 아니다"
+    severity: block
+    layer: injection
+    applies: [all]
+    patterns:
+      - "(이전|위의|앞의|기존)\\s*(지시|명령|규칙|프롬프트)(을|를|은|는)?\\s*(무시|잊|해제|취소)"
+      - "ignore\\s+(all\\s+)?(previous|prior|above)\\s+(instructions?|rules?|prompts?)"
+      - "(system\\s*prompt|시스템\\s*프롬프트)(을|를)?\\s*(출력|보여|공개|무시|변경|reveal|print|show)"
+      - "you\\s+are\\s+now\\s+|(이제|지금)부터\\s*(너는|당신은|넌)\\s*"
+      - "(개발자|관리자|운영자)\\s*모드|developer\\s*mode|jailbreak|DAN\\s*mode"
+    explanation: "모델에게 역할·규칙 변경을 지시하는 문장이 데이터 입력에 섞여 있음."
+    fix_hint: "해당 문장을 제거하고 데이터로만 처리"
+
+  - id: INJ-APPROVE-01
+    title: 프롬프트 인젝션 — 심사 조작
+    section: "프로젝트 규칙 (심사 조작 시도). 토스애즈 공통 › 광고 금지 4 (성과·심사 부정 조작) 의 취지"
+    severity: block
+    layer: injection
+    applies: [all]
+    patterns:
+      - "(APPROVE|승인)\\s*(으로|로)\\s*(판정|처리|응답|출력)"
+      - "(심사|검수|리뷰)\\s*(를|을)?\\s*(통과|승인)\\s*(시켜|해\\s*줘|처리|하라|하세요|할\\s*것)"
+      - "(이|본|해당)\\s*(광고|소재)(는|은)\\s*(이미|사전)\\s*(승인|검수\\s*완료|심의\\s*통과)"
+      - "(반려|거절)\\s*(하지\\s*마|금지|불가)"
+      - "(findings?|위반\\s*사항)(을|를|은|는)?\\s*(비워|빈\\s*배열|없다고|empty)"
+    explanation: "심사 모델의 판정을 직접 지정하려는 문장."
+    fix_hint: "해당 문장을 제거하고 소재를 HUMAN_REVIEW 로"
+
+  - id: GRND-NUM-01
+    title: 근거 없는 숫자
+    section: "프로젝트 규칙 (근거 결합) · 토스애즈 공통 › 허위/과장 1·2 · 랜딩 불일치"
+    severity: fix
+    layer: grounding
+    applies: [all]
+    patterns: []
+    explanation: "소재의 숫자(%, 원, 명, 배, 일)가 광고주 사실 목록과 랜딩 텍스트 어디에도 없음."
+    fix_hint: "사실 목록에 있는 숫자만 사용하거나 사실을 추가"
+
+  - id: GRND-CLAIM-01
+    title: 근거(fact_id) 없는 주장
+    section: "프로젝트 규칙 (모든 주장은 사실 id 를 가리킨다)"
+    severity: fix
+    layer: grounding
+    applies: [all]
+    patterns: []
+    explanation: "생성 모델이 fact_id 를 비워 둔 주장, 또는 존재하지 않는 fact_id 를 가리키는 주장."
+    fix_hint: "사실 목록에 근거를 추가하거나 주장 삭제"
+
+  - id: CAT-MISMATCH-01
+    title: 선언 업종과 문구 단서 불일치
+    section: "토스애즈 공통 › 광고 심사 6 (광고주 입력 정보와 실제 일치 여부) · 업종별 심사 정책"
+    severity: warn
+    layer: structural
+    applies: [all]
+    patterns: []
+    explanation: "'app/other' 로 등록했지만 대출·금리·수익률 등 금융 단서가 있어 금융 규칙이 함께 적용됨."
+    fix_hint: "업종을 실제에 맞게 등록"
+
+# ───────────────────────────── 업종별 필수 고지 체크리스트 ─────────────────────────────
+# 각 항목: 소재 본문 또는 고지 문구에서 any_of 정규식 중 하나라도 보이면 충족. canonical 은 수정안에 넣을 기본 문장.
+disclosures:
+  loan:
+    rule: FIN-DISCLOSE-LOAN-01
+    items:
+      - key: rate_range
+        label: 이자율(범위)
+        any_of: ["\\d+(\\.\\d+)?\\s*%\\s*(~|부터|에서)\\s*(연|월)?\\s*\\d+(\\.\\d+)?\\s*%", "(최저|최고)\\s*(연|월)\\s*\\d", "금리.{0,12}(심사|신용).{0,6}(따라|다름)"]
+        canonical: "금리·한도는 심사 결과에 따라 다르며, 적용 금리 범위는 상품 설명서를 확인하세요."
+      - key: overdue_rate
+        label: 연체이자율
+        any_of: ["연체\\s*(이자율|이율|금리|시)"]
+        canonical: "연체 시 약정 금리에 연체 가산 이자율이 적용됩니다."
+      - key: repayment
+        label: 상환 방식·기간
+        any_of: ["상환\\s*(방식|기간|조건)", "(만기|원리금|원금균등|분할)\\s*(일시|균등|상환)"]
+        canonical: "상환 방식·기간은 상품 설명서를 참고하세요."
+      - key: warning
+        label: 경고 문구
+        any_of: ["과도한\\s*(빚|대출|채무)", "큰\\s*불행", "(신용\\s*(점수|등급)|개인\\s*신용\\s*평점)\\s*(가|이)?\\s*(하락|낮아질)"]
+        canonical: "상환 능력에 비해 대출금이 과도할 경우 개인신용평점이 하락할 수 있습니다."
+      - key: read_terms
+        label: 설명서·약관 확인 권유
+        any_of: ["(설명서|약관).{0,12}(읽어|확인|참조|참고)"]
+        canonical: "계약 체결 전 상품 설명서와 약관을 반드시 읽어 보시기 바랍니다."
+      - key: review_no
+        label: 준법감시인 심의필
+        any_of: ["심의\\s*(필|번호)", "준법\\s*감시인", "심사\\s*필"]
+        canonical: "준법감시인 심의필 제0000-000호 (광고주가 실제 번호로 교체)"
+  investment:
+    rule: FIN-DISCLOSE-INV-01
+    items:
+      - key: principal_loss
+        label: 원금 손실 가능성
+        any_of: ["원금\\s*손실", "손실\\s*(이|가)?\\s*(발생|날)\\s*수"]
+        canonical: "투자에는 원금 손실 가능성이 있습니다."
+      - key: past_performance
+        label: 과거 실적 ≠ 미래 수익
+        any_of: ["과거\\s*(수익률|실적|운용).{0,20}(미래|보장하지)", "미래\\s*(수익|수익률)(을|를)?\\s*보장하지"]
+        canonical: "과거 수익률이 미래 수익률을 보장하지 않습니다."
+      - key: no_deposit_insurance
+        label: 예금자보호 미적용 안내
+        any_of: ["예금자\\s*보호.{0,10}(않|되지\\s*않|아닙|제외)"]
+        canonical: "금융투자상품은 예금자보호법에 따라 보호되지 않습니다."
+      - key: read_terms
+        label: 설명서·약관 확인 권유
+        any_of: ["(설명서|약관|투자설명서).{0,12}(읽어|확인|참조|참고)"]
+        canonical: "투자 전 투자설명서와 약관을 반드시 읽어 보시기 바랍니다."
+  crypto:
+    rule: FIN-DISCLOSE-INV-01
+    items:
+      - key: principal_loss
+        label: 원금 손실 가능성
+        any_of: ["원금\\s*손실", "가격\\s*변동", "손실\\s*(이|가)?\\s*(발생|날)\\s*수"]
+        canonical: "가상자산은 가격 변동성이 크며 원금 손실 가능성이 있습니다."
+  card:
+    rule: FIN-DISCLOSE-LOAN-01
+    items:
+      - key: card_warning
+        label: 카드 경고 문구
+        any_of: ["(사용액|이용\\s*금액).{0,12}과도.{0,20}(신용\\s*평점|신용\\s*점수|신용\\s*등급)", "개인\\s*신용\\s*평점.{0,6}하락"]
+        canonical: "상환 능력에 비해 신용카드 사용액이 과도할 경우 귀하의 개인신용평점이 하락할 수 있습니다."
+      - key: fee
+        label: 연회비·조건 안내
+        any_of: ["연회비", "(전월|전\\s*월)\\s*실적", "(조건|기준).{0,8}(상세|참조|확인)"]
+        canonical: "연회비 및 혜택 조건은 상품 안내를 확인하세요."
+      - key: review_no
+        label: 심의필
+        any_of: ["심의\\s*(필|번호)", "준법\\s*감시인"]
+        canonical: "여신금융협회 심의필 제0000-000호 (광고주가 실제 번호로 교체)"
+  insurance:
+    rule: FIN-DISCLOSE-INS-01
+    items:
+      - key: terms
+        label: 보장 내용·면책 약관 참조
+        any_of: ["약관", "(보장|면책)\\s*(내용|사항|범위)"]
+        canonical: "보장 내용·면책 사항은 약관을 참조하세요."
+      - key: replacement
+        label: 기존 계약 해지 불이익
+        any_of: ["기존\\s*(계약|보험).{0,10}(해지|해약)", "해지\\s*(후|시).{0,10}불이익"]
+        canonical: "기존 계약을 해지하고 새로 가입하면 불이익이 있을 수 있습니다."
+      - key: review_no
+        label: 준법감시인 심의필
+        any_of: ["심의\\s*(필|번호)", "준법\\s*감시인"]
+        canonical: "준법감시인 심의필 제0000-000호"
+  savings:
+    rule: FIN-DISCLOSE-SAV-01
+    items:
+      - key: rate_basis
+        label: 금리 기준·변동 가능
+        any_of: ["(기준|시점|가입일)\\s*(금리|기준)", "변동\\s*(될|할)\\s*수", "우대\\s*(조건|금리)"]
+        canonical: "금리는 가입 시점 기준이며 변동될 수 있습니다."
+      - key: deposit_insurance
+        label: 예금자보호 안내
+        any_of: ["예금자\\s*보호"]
+        canonical: "예금자보호법에 따라 보호됩니다."
+  education:
+    rule: FIN-DISCLOSE-EDU-01
+    items:
+      - key: effort_notice
+        label: 성과 개인차 안내
+        any_of: ["개인의?\\s*(성과|결과).{0,10}(노력|다를)", "개인차"]
+        canonical: "개인의 성과는 노력에 따라 달라질 수 있습니다."
+  health:
+    rule: TA-HEALTH-01
+    items:
+      - key: individual
+        label: 개인차 안내
+        any_of: ["개인차"]
+        canonical: "개인차가 있을 수 있음"
+
+# 광고 고지 문구란에 들어가면 안 되는 '광고성' 단서 (TA-DISCLOSURE-SLOT-01)
+disclosure_slot_marketing_cues: ["지금", "바로", "신청", "클릭", "혜택", "할인", "이벤트", "무료", "특가", "!"]
+
+# 업종 단서 (CAT-MISMATCH-01): 선언 업종이 금융이 아닌데 아래 단서가 보이면 금융 규칙을 함께 적용
+category_cues:
+  loan: ["대출", "대환", "(연|월)\\s*\\d+(\\.\\d+)?\\s*%\\s*(금리|이자)", "한도\\s*\\d", "상환\\s*(방식|기간)", "신용\\s*점수"]
+  investment: ["투자", "수익률", "펀드", "ETF", "주식", "채권", "배당"]
+  crypto: ["코인", "가상\\s*자산", "암호\\s*화폐", "비트코인", "토큰"]
+  insurance: ["보험", "보험료", "특약", "보장\\s*(내용|한도|금액|범위)"]
+  savings: ["예금", "적금", "파킹\\s*통장", "예치"]
+
+# 지면 길이 기본값 (TA-LENGTH-01)
+length_limits:
+  headline: 30
+  body: 90
+  cta: 12

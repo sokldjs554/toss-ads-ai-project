@@ -1,0 +1,93 @@
+{
+  "name": "preflight",
+  "trace_id": "tr_345f7c18a3c7",
+  "metadata": {
+    "run_id": "run_f9622c4e7a",
+    "mode": "demo",
+    "prompt_version": "2026.10.1",
+    "policy_version": "2026.10.1",
+    "product": "OO투자클럽",
+    "category": "investment",
+    "preset": "prohibited",
+    "final_decisions": [],
+    "halted": true
+  },
+  "root": {
+    "name": "preflight",
+    "kind": "stage",
+    "trace_id": "tr_345f7c18a3c7",
+    "span_id": "43be770431f1",
+    "parent_id": null,
+    "start_ms": 1792141373049.875,
+    "end_ms": 1792141373050.872,
+    "status": "ok",
+    "attributes": {},
+    "events": [],
+    "children": [
+      {
+        "name": "input_guard:intercept",
+        "kind": "guardrail",
+        "trace_id": "tr_345f7c18a3c7",
+        "span_id": "2fd883e1f942",
+        "parent_id": "43be770431f1",
+        "start_ms": 1792141373049.8894,
+        "end_ms": 1792141373050.866,
+        "status": "intercepted",
+        "attributes": {
+          "triggered": true,
+          "kind": "prohibited_category",
+          "hard_block": true,
+          "findings": [
+            {
+              "rule_id": "TA-RESTRICTED-01",
+              "severity": "block",
+              "layer": "lexical",
+              "quote": "리딩방",
+              "start": 4,
+              "end": 7,
+              "explanation": "플랫폼에서 집행할 수 없는 업종·행위. 입력 단계에서 바로 중단(hard block).",
+              "verified_quote": true
+            },
+            {
+              "rule_id": "FIN-ADVICE-01",
+              "severity": "block",
+              "layer": "lexical",
+              "quote": "급등주 추천",
+              "start": 29,
+              "end": 35,
+              "explanation": "특정 종목 매매를 권유하거나 수익 인증으로 가입을 유도하는 유사투자자문 표현.",
+              "verified_quote": true
+            },
+            {
+              "rule_id": "FIN-ADVICE-01",
+              "severity": "block",
+              "layer": "lexical",
+              "quote": "수익 인증 ",
+              "start": 37,
+              "end": 43,
+              "explanation": "특정 종목 매매를 권유하거나 수익 인증으로 가입을 유도하는 유사투자자문 표현.",
+              "verified_quote": true
+            },
+            {
+              "rule_id": "TA-RESTRICTED-01",
+              "severity": "block",
+              "layer": "lexical",
+              "quote": "텔레그램 방",
+              "start": 0,
+              "end": 6,
+              "explanation": "플랫폼에서 집행할 수 없는 업종·행위. 입력 단계에서 바로 중단(hard block).",
+              "verified_quote": true
+            }
+          ],
+          "categories": [
+            "investment"
+          ],
+          "removed": [],
+          "suggested_input": ""
+        },
+        "events": [],
+        "children": []
+      }
+    ]
+  }
+}

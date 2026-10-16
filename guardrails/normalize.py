@@ -1,0 +1,121 @@
+"""표기 변형 우회(FM-11)를 접는 정규화. 원문 위치로 되돌릴 수 있도록 인덱스 맵을 유지한다.
+
+두 표면(surface)을 만든다.
+- loose: NFKC → 제로폭·방향 제어 문자 제거 → 한자/유사 문자 접기 → 공백 1개로 축약. 구두점은 유지(금리 범위 '4.5%~15%' 등).
+- tight: loose 에서 한글 음절 사이의 공백·장식 기호('원 금 보 장', '원.금.보.장', '원*금*보*장')를 제거.
+각 표면의 i 번째 문자가 원문의 어느 인덱스에서 왔는지 `src[i]` 로 알 수 있다.
+"""
+from __future__ import annotations
+
+import re
+import unicodedata
+from dataclasses import dataclass
+
+ZERO_WIDTH = set("​‌‍⁠﻿­᠎‎‏‪‫‬‭‮⁦⁧⁨⁩")
+
+# 우회에 흔히 쓰이는 한자·기호 → 한글. 일반 텍스트의 한자를 전부 번역하려는 것이 아니라 '정책 어휘' 만 접는다.
+FOLD_MAP: dict[str, str] = {
+    "元": "원", "金": "금", "保": "보", "障": "장", "證": "증", "收": "수", "益": "익", "確": "확", "定": "정",
+    "最": "최", "低": "저", "高": "고", "無": "무", "條": "조", "件": "건", "貸": "대", "出": "출", "利": "이",
+    "子": "자", "損": "손", "失": "실", "當": "당", "日": "일", "即": "즉", "時": "시", "承": "승", "認": "인",
+    "審": "심", "査": "사", "投": "투", "資": "자", "安": "안", "全": "전", "大": "대", "博": "박", "一": "일",
+    "位": "위", "唯": "유", "完": "완", "璧": "벽", "免": "면", "責": "책",
+    # 특수 문자 숫자/기호 유사체
+    "％": "%", "～": "~", "〜": "~", "－": "-", "‐": "-", "–": "-", "—": "-", "ㅇ": "ㅇ",
+}
+
+_DECOR = set(" \t\r\n.·•・∙‧,|/\\-_*~^'\"`“”‘’()[]{}<>!?:;")
+_HANGUL = re.compile(r"[가-힣]")
+
+
+@dataclass
+class Surface:
+    name: str
+    text: str
+    src: list[int]  # text[i] 가 원문 original[src[i]] 에서 왔다
+
+    def to_original(self, start: int, end: int) -> tuple[int, int]:
+        """표면 구간 [start, end) → 원문 구간 [o_start, o_end)."""
+        if end <= start or not self.src:
+            return (0, 0)
+        start = max(0, min(start, len(self.src) - 1))
+        end = max(1, min(end, len(self.src)))
+        return (self.src[start], self.src[end - 1] + 1)
+
+
+@dataclass
+class Normalized:
+    original: str
+    loose: Surface
+    tight: Surface
+    zero_width_count: int
+    folded_count: int
+
+    def surfaces(self) -> list[Surface]:
+        return [self.loose, self.tight]
+
+    def had_evasion_in(self, o_start: int, o_end: int) -> bool:
+        """원문 구간 안에 제로폭 문자나 접힌 한자가 있었는가 (= 표기 우회 흔적)."""
+        seg = self.original[o_start:o_end]
+        return any(ch in ZERO_WIDTH for ch in seg) or any(ch in FOLD_MAP and FOLD_MAP[ch] != ch for ch in seg)
+
+
+def normalize(original: str) -> Normalized:
+    chars: list[str] = []
+    src: list[int] = []
+    zero_width = 0
+    folded = 0
+    for i, ch in enumerate(original):
+        if ch in ZERO_WIDTH:
+            zero_width += 1
+            continue
+        nf = unicodedata.normalize("NFKC", ch)
+        for c in nf:
+            if c in FOLD_MAP:
+                if FOLD_MAP[c] != c:
+                    folded += 1
+                c = FOLD_MAP[c]
+            if c in ZERO_WIDTH:
+                zero_width += 1
+                continue
+            chars.append(c)
+            src.append(i)
+    # 공백 축약
+    l_chars: list[str] = []
+    l_src: list[int] = []
+    prev_space = False
+    for c, s in zip(chars, src):
+        if c.isspace():
+            if prev_space:
+                continue
+            c = " "
+            prev_space = True
+        else:
+            prev_space = False
+        l_chars.append(c)
+        l_src.append(s)
+    loose = Surface("loose", "".join(l_chars), l_src)
+
+    # tight: 한글 사이의 공백·장식 제거
+    t_chars: list[str] = []
+    t_src: list[int] = []
+    n = len(l_chars)
+    for idx, (c, s) in enumerate(zip(l_chars, l_src)):
+        if c in _DECOR:
+            # 왼쪽의 마지막 비장식 문자와 오른쪽의 첫 비장식 문자가 모두 한글이면 버린다
+            j = idx - 1
+            while j >= 0 and l_chars[j] in _DECOR:
+                j -= 1
+            k = idx + 1
+            while k < n and l_chars[k] in _DECOR:
+                k += 1
+            if j >= 0 and k < n and _HANGUL.match(l_chars[j]) and _HANGUL.match(l_chars[k]):
+                continue
+        t_chars.append(c)
+        t_src.append(s)
+    tight = Surface("tight", "".join(t_chars), t_src)
+    return Normalized(original=original, loose=loose, tight=tight, zero_width_count=zero_width, folded_count=folded)
+
+
+def loose_text(s: str) -> str:
+    return normalize(s).loose.text
