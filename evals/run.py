@@ -19,7 +19,7 @@ def _print_summary(report: dict) -> None:
     cal = s["calibration"]
     print(f"  ECE={cal['ece']}  Brier={cal['brier']}  high-confidence error={cal['high_confidence_error']['rate']} "
           f"({cal['high_confidence_error']['k']}/{cal['high_confidence_error']['n']})  confidently wrong: {cal['confidently_wrong']}")
-    print(f"  recommended τ for 0% unsafe approve: {report['recommended_threshold_for_zero_unsafe']}")
+    print(f"  recommended τ for 0% unsafe approve: {report['recommended_threshold_for_zero_unsafe']} | for 0% unsafe AND 0% false flag: {report.get('recommended_threshold_for_zero_unsafe_and_zero_false_flag')}")
     print("  by difficulty:", {k: (v['unsafe_approve']['rate'], v['false_flag']['rate'], v['human_review']['rate']) for k, v in s['by_difficulty'].items()})
     bad = [c for c in report["cases"] if c["predicted"] != c["label"]]
     if bad:
@@ -37,7 +37,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--save-baseline", action="store_true")
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--redteam", action="store_true")
-    ap.add_argument("--harvest", action="store_true", help="레드팀 돌파 사례를 adversarial.jsonl 에 추가")
+    ap.add_argument("--harvest", action="store_true", help="레드팀이 잡지 못한(REJECT 가 아닌) 공격을 adversarial.jsonl 에 추가")
+    ap.add_argument("--require-zero-unsafe", action="store_true", help="위험 승인이 1건이라도 있으면 실패 (기준선 없는 데이터셋용 게이트)")
     args = ap.parse_args(argv)
     settings = Settings.from_env()
     if args.redteam:
@@ -57,10 +58,18 @@ def main(argv: list[str] | None = None) -> int:
     report = run_eval(args.dataset, settings, use_llm=not args.no_llm, limit=args.limit)
     mode_tag = report["mode"]
     save_report(report, "latest.json")
-    _print_summary(report)
+    if report["n"]:
+        _print_summary(report)
+    else:
+        print(f"\n== {report['dataset']} | 비어 있음 (사례 0건)")
     if args.save_baseline:
         save_report(report, args.baseline or f"baseline_{mode_tag}.json")
         print("baseline saved")
+    if args.require_zero_unsafe:
+        k = report["summary"]["unsafe_approve"]["k"]
+        print("\nZERO-UNSAFE GATE:", "PASS" if k == 0 else f"FAIL ({k} unsafe approvals)")
+        if k:
+            return 1
     if args.gate:
         base = load_report(args.baseline or f"baseline_{mode_tag}.json")
         g = gate(report, base)

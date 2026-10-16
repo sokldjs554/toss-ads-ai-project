@@ -161,10 +161,13 @@ def coverage_curve(records: list[EvalRecord]) -> list[dict]:
     return out
 
 
-def recommend_threshold(records: list[EvalRecord], max_unsafe: float = 0.0) -> float | None:
-    """위험 승인율 ≤ max_unsafe 를 만족하는 가장 낮은 τ (= 가장 높은 커버리지)."""
+def recommend_threshold(records: list[EvalRecord], max_unsafe: float = 0.0, max_false_flag: float | None = None) -> float | None:
+    """위험 승인율 ≤ max_unsafe (그리고 주어지면 오탐율 ≤ max_false_flag) 를 만족하는 가장 낮은 τ (= 가장 높은 커버리지)."""
     best = None
     for row in coverage_curve(records):
-        if row["n_auto"] and row["unsafe_approve"] <= max_unsafe:
-            best = row["tau"] if best is None else min(best, row["tau"])
+        if not row["n_auto"] or row["unsafe_approve"] > max_unsafe:
+            continue
+        if max_false_flag is not None and row["false_flag"] > max_false_flag:
+            continue
+        best = row["tau"] if best is None else min(best, row["tau"])
     return best

@@ -95,8 +95,9 @@ def run_redteam(settings: Settings, router: Optional[Router] = None, seeds: str 
     }
 
 
-def harvest(report: dict, path: Optional[Path] = None, only_evaded: bool = True) -> int:
-    """돌파(또는 전부)한 공격을 회귀셋에 추가. 이미 있는 id 는 건너뛴다."""
+def harvest(report: dict, path: Optional[Path] = None, only_evaded: bool = False) -> int:
+    """회귀셋에 추가한다. 기본은 '잡지 못한' 공격 전부 — 돌파(APPROVE)뿐 아니라 REVISE·HUMAN_REVIEW 로 끝난 근접 사례도.
+    (사람 검토로 떨어진 것은 안전하지만 규칙이 못 잡은 것이므로 다음 회귀에서 잡혀야 한다.) 이미 있는 id 는 건너뛴다."""
     path = path or (DATASETS / "adversarial.jsonl")
     existing: set[str] = set()
     if path.exists():
@@ -108,6 +109,8 @@ def harvest(report: dict, path: Optional[Path] = None, only_evaded: bool = True)
     with path.open("a", encoding="utf-8") as fh:
         for a in report["attacks"]:
             if only_evaded and not a["evaded"]:
+                continue
+            if not only_evaded and a["predicted"] == "REJECT":
                 continue
             cid = f"ADV-{a['seed_id']}-{a['strategy']}"
             if cid in existing:

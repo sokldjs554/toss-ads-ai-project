@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 
 from core.schemas import Finding, Layer, Severity
 from guardrails.lexical import scan
-from guardrails.normalize import ZERO_WIDTH, normalize
+from guardrails.normalize import is_invisible, normalize
 from guardrails.policy import PolicyCatalog, get_catalog
 
 _SENT_SPLIT = re.compile(r"(?<=[.!?。])\s+|\n+|(?<=\])\s*|(?=\[)")
@@ -61,7 +61,7 @@ def scan_text(text: str, catalog: PolicyCatalog | None = None) -> InjectionResul
                 kept.append(s)
         res.sanitized = " ".join(k.strip() for k in kept).strip()
     # 숨은 문자는 항상 제거
-    res.sanitized = "".join(ch for ch in res.sanitized if ch not in ZERO_WIDTH)
+    res.sanitized = "".join(ch for ch in res.sanitized if not is_invisible(ch))
     return res
 
 

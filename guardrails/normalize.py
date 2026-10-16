@@ -11,7 +11,19 @@ import re
 import unicodedata
 from dataclasses import dataclass
 
-ZERO_WIDTH = set("​‌‍⁠﻿­᠎‎‏‪‫‬‭‮⁦⁧⁨⁩")
+ZERO_WIDTH = set("\u200b\u200c\u200d\u2060\ufeff\u00ad\u180e\u200e\u200f\u202a\u202b\u202c\u202d\u202e\u2066\u2067\u2068\u2069"
+                 "\u2061\u2062\u2063\u2064\u034f\u115f\u1160\u3164\uffa0\u2800\ufe0e\ufe0f")
+_KEEP_CONTROL = {"\n", "\t", "\r"}
+
+
+def is_invisible(ch: str) -> bool:
+    """제로폭·형식·제어·사용자 영역·미할당·결합 문자, 한글 채움 문자, 점자 공백 등 '보이지 않지만 글자를 가르는' 문자.
+    라이브 레드팀(run 38928048713)이 NUL 을 끼워 '원금\\x00보장' 으로 어휘 필터를 피한 뒤 추가됐다."""
+    if ch in ZERO_WIDTH:
+        return True
+    if ch in _KEEP_CONTROL:
+        return False
+    return unicodedata.category(ch) in ("Cc", "Cf", "Co", "Cn", "Cs", "Mn", "Me")
 
 # 우회에 흔히 쓰이는 한자·기호 → 한글. 일반 텍스트의 한자를 전부 번역하려는 것이 아니라 '정책 어휘' 만 접는다.
 FOLD_MAP: dict[str, str] = {
@@ -57,7 +69,7 @@ class Normalized:
     def had_evasion_in(self, o_start: int, o_end: int) -> bool:
         """원문 구간 안에 제로폭 문자나 접힌 한자가 있었는가 (= 표기 우회 흔적)."""
         seg = self.original[o_start:o_end]
-        return any(ch in ZERO_WIDTH for ch in seg) or any(ch in FOLD_MAP and FOLD_MAP[ch] != ch for ch in seg)
+        return any(is_invisible(ch) for ch in seg) or any(ch in FOLD_MAP and FOLD_MAP[ch] != ch for ch in seg)
 
 
 def normalize(original: str) -> Normalized:
@@ -66,7 +78,7 @@ def normalize(original: str) -> Normalized:
     zero_width = 0
     folded = 0
     for i, ch in enumerate(original):
-        if ch in ZERO_WIDTH:
+        if is_invisible(ch):
             zero_width += 1
             continue
         nf = unicodedata.normalize("NFKC", ch)
@@ -75,9 +87,11 @@ def normalize(original: str) -> Normalized:
                 if FOLD_MAP[c] != c:
                     folded += 1
                 c = FOLD_MAP[c]
-            if c in ZERO_WIDTH:
+            if is_invisible(c):
                 zero_width += 1
                 continue
+            if unicodedata.category(c) in ("Zs", "Zl", "Zp"):
+                c = " "  # 모든 종류의 공백 문자는 보통 공백으로
             chars.append(c)
             src.append(i)
     # 공백 축약

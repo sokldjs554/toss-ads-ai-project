@@ -17,6 +17,10 @@ jobs:
         env:
           PREFLIGHT_FORCE_DEMO: "1"
         run: python -m evals.run --dataset golden --no-llm --gate
+      - name: adversarial regression set (harvested by red team) — deterministic layer must approve none
+        env:
+          PREFLIGHT_FORCE_DEMO: "1"
+        run: python -m evals.run --dataset adversarial --no-llm --require-zero-unsafe
       - name: regression gate — demo-mode pipeline (mock reviewer) vs committed baseline
         env:
           PREFLIGHT_FORCE_DEMO: "1"

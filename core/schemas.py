@@ -210,6 +210,8 @@ class ReviewVerdict(BaseModel):
     provider: str = ""
     model: str = ""
     second_opinion: Optional[Decision] = None   # 교차 검증(다른 제공자) 결과
+    second_opinion_provider: str = ""
+    second_opinion_independent: bool = True      # False 면 같은 제공자가 두 번 본 것 — 상관 오류를 줄이지 못한다 (PARTIAL 모드)
     disagreement: bool = False                   # 두 모델 계열의 판정 불일치 → HUMAN_REVIEW 근거
 
 

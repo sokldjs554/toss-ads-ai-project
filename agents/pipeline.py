@@ -143,8 +143,13 @@ def _run_stages(run: PipelineRun, brief: CampaignBrief, settings: Settings, rout
                     with failsafe(run, stage="second_opinion", fallback="2차 의견 없이 진행") as g:
                         so = reviewer.review(copy, det, categories, facts_text, options.landing_text, catalog, router, task=Task.SECOND_OPINION)
                         verdict.second_opinion = so.verdict.decision
+                        verdict.second_opinion_provider = so.verdict.provider
+                        verdict.second_opinion_independent = so.verdict.provider != verdict.provider
                         verdict.disagreement = so.verdict.decision != verdict.decision
-                        span.set(decision=so.verdict.decision.value, disagreement=verdict.disagreement, provider=so.verdict.provider)
+                        span.set(decision=so.verdict.decision.value, disagreement=verdict.disagreement, provider=so.verdict.provider,
+                                 independent=verdict.second_opinion_independent)
+                        if not verdict.second_opinion_independent:
+                            span.event("same_provider_second_opinion", provider=so.verdict.provider)
                         if verdict.disagreement:
                             span.event("disagreement")
                             run.failures.append(_fm17(copy.variant_id))

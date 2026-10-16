@@ -128,7 +128,15 @@ def run_eval(dataset: str, settings: Settings, use_llm: bool = True, router: Opt
     records = [EvalRecord(case_id=r.case.id, label=r.case.label, predicted=r.predicted, confidence=r.confidence,
                           label_rules=set(r.case.rule_ids), predicted_rules=set(r.predicted_rules), difficulty=r.case.difficulty,
                           category=r.case.category, latency_ms=r.latency_ms, cost_usd=r.cost_usd) for r in results]
-    summary = summarize(records)
+    summary = summarize(records) if records else {"n": 0, "coverage": {"k": 0, "n": 0, "rate": None, "wilson95": (0.0, 0.0)},
+                                                  "unsafe_approve": {"k": 0, "n": 0, "rate": None, "wilson95": (0.0, 0.0)},
+                                                  "false_flag": {"k": 0, "n": 0, "rate": None, "wilson95": (0.0, 0.0)},
+                                                  "human_review": {"k": 0, "n": 0, "rate": None, "wilson95": (0.0, 0.0)},
+                                                  "accuracy_decided": {"k": 0, "n": 0, "rate": None, "wilson95": (0.0, 0.0)},
+                                                  "catch_rate_decided": {"k": 0, "n": 0, "rate": None, "wilson95": (0.0, 0.0)},
+                                                  "by_difficulty": {}, "by_category": {}, "rules": {},
+                                                  "calibration": {"n": 0, "ece": None, "brier": None, "bins": [], "high_confidence_error": {"k": 0, "n": 0, "rate": None, "wilson95": (0.0, 0.0)}, "confidently_wrong": []},
+                                                  "coverage_curve": [], "cost_usd": 0.0, "latency_ms_mean": 0.0}
     return {
         "dataset": str(dataset), "n": len(cases), "generated_at": datetime.now(timezone.utc).isoformat(),
         "mode": settings.mode.value if use_llm else "deterministic_only",
@@ -137,6 +145,7 @@ def run_eval(dataset: str, settings: Settings, use_llm: bool = True, router: Opt
         "prompt_version": PROMPT_VERSION, "policy_version": catalog.version,
         "threshold": settings.auto_decision_confidence,
         "recommended_threshold_for_zero_unsafe": recommend_threshold(records, 0.0),
+        "recommended_threshold_for_zero_unsafe_and_zero_false_flag": recommend_threshold(records, 0.0, 0.0),
         "summary": summary,
         "cases": [{"id": r.case.id, "label": r.case.label, "predicted": r.predicted, "confidence": r.confidence,
                    "label_rules": r.case.rule_ids, "predicted_rules": r.predicted_rules, "difficulty": r.case.difficulty,

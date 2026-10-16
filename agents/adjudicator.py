@@ -61,7 +61,8 @@ def adjudicate(copy: AdCopy, det: OutputGuardResult, verdict: Optional[ReviewVer
                                        detail=f"{verdict.decision.value} · 신뢰도 {verdict.confidence:.2f} · {verdict.provider}/{verdict.model}"))
         if verdict.second_opinion is not None:
             checklist.append(ChecklistItem(name="교차 검증 (다른 모델 계열)", passed=not verdict.disagreement, layer=Layer.SEMANTIC,
-                                           detail=f"2차 의견 {verdict.second_opinion.value}"))
+                                           detail=f"2차 의견 {verdict.second_opinion.value} · {verdict.second_opinion_provider}"
+                                           + ("" if verdict.second_opinion_independent else " · ⚠️ 같은 제공자 — 독립성 없음 (키 하나뿐인 PARTIAL 모드)")))
     checklist.append(ChecklistItem(name="최종 판정", passed=adj.decision == Decision.APPROVE, layer=Layer.STRUCTURAL, detail=adj.reason))
     if verdict is None:
         verdict = ReviewVerdict(variant_id=copy.variant_id, decision=Decision.HUMAN_REVIEW, confidence=0.0, findings=det.findings,

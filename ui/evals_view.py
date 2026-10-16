@@ -88,6 +88,7 @@ def render(settings: Settings, router_factory) -> None:
     st.caption(f"분모 · 커버리지 {_frac(s['coverage'])} · 위험 승인 {_frac(s['unsafe_approve'])} · 오탐 {_frac(s['false_flag'])} · 정확도 {_frac(s['accuracy_decided'])} · "
                f"사람 검토 {_frac(s['human_review'])} · 고신뢰 오류 {_frac(cal['high_confidence_error'])} · Wilson 95% 는 사례별 표 참고")
     st.caption(f"ECE={cal['ece']} · Brier={cal['brier']} · 위험 승인 0% 를 만족하는 최소 τ = {rep['recommended_threshold_for_zero_unsafe']}"
+               f" · 위험 승인 0% 와 오탐 0% 를 동시에 만족하는 최소 τ = {rep.get('recommended_threshold_for_zero_unsafe_and_zero_false_flag', '—')}"
                + (f" · 자신 있게 틀린 사례: {', '.join(cal['confidently_wrong'])}" if cal["confidently_wrong"] else ""))
     g1, g2 = st.columns(2)
     with g1:
