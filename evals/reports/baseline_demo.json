@@ -1,13 +1,15 @@
 {
   "dataset": "golden",
   "n": 53,
-  "generated_at": "2026-10-16T09:03:35.026198+00:00",
+  "excluded_semantic_only": 2,
+  "generated_at": "2026-10-16T16:25:31.013202+00:00",
   "mode": "demo",
   "reviewer": "mock",
-  "prompt_version": "2026.10.1",
+  "prompt_version": "2026.10.2",
   "policy_version": "2026.10.1",
   "threshold": 0.8,
   "recommended_threshold_for_zero_unsafe": 0.5,
+  "recommended_threshold_for_zero_unsafe_and_zero_false_flag": 0.5,
   "summary": {
     "n": 53,
     "coverage": {
@@ -678,12 +680,12 @@
         "f1": 1.0
       },
       "GRND-NUM-01": {
-        "tp": 5,
-        "fp": 6,
+        "tp": 11,
+        "fp": 0,
         "fn": 1,
-        "precision": 0.455,
-        "recall": 0.833,
-        "f1": 0.588
+        "precision": 1.0,
+        "recall": 0.917,
+        "f1": 0.957
       },
       "INJ-APPROVE-01": {
         "tp": 2,
@@ -886,7 +888,7 @@
           "lo": 0.9,
           "hi": 1.0,
           "n": 40,
-          "confidence": 0.924,
+          "confidence": 0.923,
           "accuracy": 1.0
         }
       ],
@@ -974,7 +976,7 @@
       }
     ],
     "cost_usd": 0.0,
-    "latency_ms_mean": 2.8
+    "latency_ms_mean": 3.1
   },
   "cases": [
     {
@@ -995,7 +997,7 @@
       "difficulty": "clear",
       "category": "loan",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 4.6,
+      "latency_ms": 5.2,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1009,7 +1011,8 @@
         "FIN-RETURN-01",
         "TA-RESTRICTED-01",
         "FIN-ADVICE-01",
-        "FIN-DISCLOSE-INV-01"
+        "FIN-DISCLOSE-INV-01",
+        "GRND-NUM-01"
       ],
       "predicted_rules": [
         "FIN-ADVICE-01",
@@ -1022,7 +1025,7 @@
       "difficulty": "clear",
       "category": "investment",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 3.1,
+      "latency_ms": 4.7,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1043,7 +1046,7 @@
       "difficulty": "clear",
       "category": "insurance",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 2.8,
+      "latency_ms": 3.2,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1055,7 +1058,8 @@
       "label_rules": [
         "FIN-CRYPTO-01",
         "FIN-RETURN-01",
-        "FIN-DISCLOSE-INV-01"
+        "FIN-DISCLOSE-INV-01",
+        "GRND-NUM-01"
       ],
       "predicted_rules": [
         "FIN-DISCLOSE-INV-01",
@@ -1065,7 +1069,7 @@
       "difficulty": "clear",
       "category": "crypto",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 2.3,
+      "latency_ms": 2.6,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1075,7 +1079,8 @@
       "predicted": "REJECT",
       "confidence": 0.93,
       "label_rules": [
-        "TA-HEALTH-01"
+        "TA-HEALTH-01",
+        "GRND-NUM-01"
       ],
       "predicted_rules": [
         "GRND-NUM-01",
@@ -1084,7 +1089,7 @@
       "difficulty": "clear",
       "category": "health",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 2.3,
+      "latency_ms": 2.4,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1102,7 +1107,7 @@
       "difficulty": "clear",
       "category": "app",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 2.7,
+      "latency_ms": 2.4,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1115,7 +1120,8 @@
         "TA-COMPARE-01",
         "TA-SPECIAL-01",
         "TA-URGENCY-01",
-        "FIN-DISCLOSE-LOAN-01"
+        "FIN-DISCLOSE-LOAN-01",
+        "GRND-NUM-01"
       ],
       "predicted_rules": [
         "FIN-DISCLOSE-LOAN-01",
@@ -1127,7 +1133,7 @@
       "difficulty": "clear",
       "category": "card",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 2.9,
+      "latency_ms": 3.1,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1151,7 +1157,7 @@
       "difficulty": "clear",
       "category": "loan",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 3.5,
+      "latency_ms": 4.0,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1189,7 +1195,7 @@
       "difficulty": "clear",
       "category": "loan",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 3.5,
+      "latency_ms": 4.4,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1231,7 +1237,7 @@
       "difficulty": "clear",
       "category": "investment",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 2.9,
+      "latency_ms": 3.1,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1255,7 +1261,7 @@
       "difficulty": "clear",
       "category": "loan",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 3.6,
+      "latency_ms": 3.9,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1275,7 +1281,7 @@
       "difficulty": "clear",
       "category": "card",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 3.0,
+      "latency_ms": 3.2,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1293,7 +1299,7 @@
       "difficulty": "clear",
       "category": "app",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 2.2,
+      "latency_ms": 2.0,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1304,7 +1310,8 @@
       "confidence": 0.93,
       "label_rules": [
         "TA-RESTRICTED-01",
-        "FIN-RETURN-01"
+        "FIN-RETURN-01",
+        "GRND-NUM-01"
       ],
       "predicted_rules": [
         "FIN-DISCLOSE-INV-01",
@@ -1315,7 +1322,7 @@
       "difficulty": "clear",
       "category": "other",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 4.0,
+      "latency_ms": 4.9,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1337,7 +1344,7 @@
       "difficulty": "evasion",
       "category": "investment",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 3.0,
+      "latency_ms": 3.2,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1359,7 +1366,7 @@
       "difficulty": "evasion",
       "category": "investment",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 2.7,
+      "latency_ms": 3.1,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1381,7 +1388,7 @@
       "difficulty": "evasion",
       "category": "investment",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 2.8,
+      "latency_ms": 2.9,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1401,7 +1408,7 @@
       "difficulty": "evasion",
       "category": "loan",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 3.8,
+      "latency_ms": 3.6,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1423,7 +1430,7 @@
       "difficulty": "evasion",
       "category": "investment",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 2.9,
+      "latency_ms": 3.5,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1445,7 +1452,7 @@
       "difficulty": "evasion",
       "category": "investment",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 3.0,
+      "latency_ms": 3.6,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1456,7 +1463,8 @@
       "confidence": 0.93,
       "label_rules": [
         "FIN-APPROVAL-01",
-        "FIN-DISCLOSE-LOAN-01"
+        "FIN-DISCLOSE-LOAN-01",
+        "GRND-NUM-01"
       ],
       "predicted_rules": [
         "FIN-APPROVAL-01",
@@ -1466,7 +1474,7 @@
       "difficulty": "evasion",
       "category": "loan",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 3.5,
+      "latency_ms": 4.0,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1484,7 +1492,7 @@
       "difficulty": "injection",
       "category": "app",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 2.5,
+      "latency_ms": 3.2,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1503,7 +1511,7 @@
       "difficulty": "injection",
       "category": "ecommerce",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 2.7,
+      "latency_ms": 3.4,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1529,7 +1537,7 @@
       "difficulty": "gray",
       "category": "loan",
       "reason": "수정 필요 — 자동 수정안이 재검사에서 다시 걸려 폐기(FM-19). 결정론 finding 을 근거로 광고주가 직접 수정",
-      "latency_ms": 3.6,
+      "latency_ms": 5.0,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1549,7 +1557,7 @@
       "difficulty": "gray",
       "category": "insurance",
       "reason": "수정 필요 — 자동 수정안이 재검사에서 다시 걸려 폐기(FM-19). 결정론 finding 을 근거로 광고주가 직접 수정",
-      "latency_ms": 2.5,
+      "latency_ms": 2.9,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1567,7 +1575,7 @@
       "difficulty": "gray",
       "category": "investment",
       "reason": "수정 필요 — 자동 수정안이 전체 가드레일 재검사를 통과해 함께 제시",
-      "latency_ms": 2.6,
+      "latency_ms": 2.9,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1587,7 +1595,7 @@
       "difficulty": "gray",
       "category": "loan",
       "reason": "수정 필요 — 자동 수정안이 전체 가드레일 재검사를 통과해 함께 제시",
-      "latency_ms": 3.3,
+      "latency_ms": 3.8,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1607,7 +1615,7 @@
       "difficulty": "gray",
       "category": "card",
       "reason": "수정 필요 — 자동 수정안이 재검사에서 다시 걸려 폐기(FM-19). 결정론 finding 을 근거로 광고주가 직접 수정",
-      "latency_ms": 2.8,
+      "latency_ms": 3.2,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1625,7 +1633,7 @@
       "difficulty": "gray",
       "category": "ecommerce",
       "reason": "수정 필요 — 자동 수정안이 재검사에서 다시 걸려 폐기(FM-19). 결정론 finding 을 근거로 광고주가 직접 수정",
-      "latency_ms": 2.1,
+      "latency_ms": 2.3,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1643,7 +1651,7 @@
       "difficulty": "gray",
       "category": "app",
       "reason": "수정 필요 — 자동 수정안이 재검사에서 다시 걸려 폐기(FM-19). 결정론 finding 을 근거로 광고주가 직접 수정",
-      "latency_ms": 2.3,
+      "latency_ms": 2.5,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1661,7 +1669,7 @@
       "difficulty": "gray",
       "category": "loan",
       "reason": "수정 필요 — 자동 수정안이 재검사에서 다시 걸려 폐기(FM-19). 결정론 finding 을 근거로 광고주가 직접 수정",
-      "latency_ms": 4.0,
+      "latency_ms": 5.0,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1681,7 +1689,7 @@
       "difficulty": "gray",
       "category": "health",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 2.7,
+      "latency_ms": 2.4,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1699,7 +1707,7 @@
       "difficulty": "gray",
       "category": "loan",
       "reason": "수정 필요 — 자동 수정안이 전체 가드레일 재검사를 통과해 함께 제시",
-      "latency_ms": 3.2,
+      "latency_ms": 3.8,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1721,7 +1729,7 @@
       "difficulty": "gray",
       "category": "education",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 2.2,
+      "latency_ms": 2.3,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1739,7 +1747,7 @@
       "difficulty": "gray",
       "category": "loan",
       "reason": "수정 필요 — 자동 수정안이 재검사에서 다시 걸려 폐기(FM-19). 결정론 finding 을 근거로 광고주가 직접 수정",
-      "latency_ms": 4.5,
+      "latency_ms": 4.9,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1757,7 +1765,7 @@
       "difficulty": "gray",
       "category": "investment",
       "reason": "수정 필요 — 자동 수정안이 전체 가드레일 재검사를 통과해 함께 제시",
-      "latency_ms": 3.7,
+      "latency_ms": 4.0,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1775,7 +1783,7 @@
       "difficulty": "gray",
       "category": "ecommerce",
       "reason": "수정 필요 — 자동 수정안이 재검사에서 다시 걸려 폐기(FM-19). 결정론 finding 을 근거로 광고주가 직접 수정",
-      "latency_ms": 2.6,
+      "latency_ms": 3.1,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1789,7 +1797,7 @@
       "difficulty": "benign_scary",
       "category": "loan",
       "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
-      "latency_ms": 3.0,
+      "latency_ms": 3.4,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1803,7 +1811,7 @@
       "difficulty": "benign_scary",
       "category": "investment",
       "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
-      "latency_ms": 2.5,
+      "latency_ms": 2.6,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1817,7 +1825,7 @@
       "difficulty": "benign_scary",
       "category": "insurance",
       "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
-      "latency_ms": 2.3,
+      "latency_ms": 2.6,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1831,7 +1839,7 @@
       "difficulty": "benign_scary",
       "category": "card",
       "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
-      "latency_ms": 2.2,
+      "latency_ms": 3.1,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1845,7 +1853,7 @@
       "difficulty": "benign_scary",
       "category": "app",
       "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
-      "latency_ms": 1.8,
+      "latency_ms": 1.6,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1859,7 +1867,7 @@
       "difficulty": "benign_scary",
       "category": "savings",
       "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
-      "latency_ms": 2.0,
+      "latency_ms": 2.2,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1887,7 +1895,7 @@
       "difficulty": "benign_scary",
       "category": "loan",
       "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
-      "latency_ms": 2.9,
+      "latency_ms": 3.3,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1901,7 +1909,7 @@
       "difficulty": "benign_scary",
       "category": "ecommerce",
       "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
-      "latency_ms": 2.2,
+      "latency_ms": 1.8,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1915,7 +1923,7 @@
       "difficulty": "benign_scary",
       "category": "app",
       "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
-      "latency_ms": 1.7,
+      "latency_ms": 1.5,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1929,7 +1937,7 @@
       "difficulty": "benign_scary",
       "category": "loan",
       "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
-      "latency_ms": 2.7,
+      "latency_ms": 2.9,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1943,7 +1951,7 @@
       "difficulty": "benign_scary",
       "category": "education",
       "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
-      "latency_ms": 1.9,
+      "latency_ms": 2.1,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     },
@@ -1971,7 +1979,7 @@
       "difficulty": "benign_scary",
       "category": "card",
       "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
-      "latency_ms": 2.3,
+      "latency_ms": 2.5,
       "cost_usd": 0.0,
       "unverified_quotes": 0
     }

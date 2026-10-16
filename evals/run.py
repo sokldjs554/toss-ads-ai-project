@@ -12,7 +12,8 @@ from .runner import load_report, run_eval, save_report
 
 def _print_summary(report: dict) -> None:
     s = report["summary"]
-    print(f"\n== {report['dataset']} | n={report['n']} | mode={report['mode']} | reviewer={report['reviewer']} | policy {report['policy_version']} / prompt {report['prompt_version']}")
+    print(f"\n== {report['dataset']} | n={report['n']} | mode={report['mode']} | reviewer={report['reviewer']} | policy {report['policy_version']} / prompt {report['prompt_version']}"
+          + (f" | semantic_only 제외 {report['excluded_semantic_only']}건" if report.get("excluded_semantic_only") else "")),
     for key in ("coverage", "accuracy_decided", "catch_rate_decided", "unsafe_approve", "false_flag", "human_review"):
         m = s[key]
         print(f"  {key:22s} {m['k']:3d}/{m['n']:<3d} = {m['rate'] if m['rate'] is not None else '-'}  wilson95={m['wilson95']}")

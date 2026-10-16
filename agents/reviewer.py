@@ -17,6 +17,9 @@ from .prompts import reviewer_system
 
 
 _SEVERITY_ORDER = {Decision.APPROVE: 0, Decision.HUMAN_REVIEW: 0, Decision.REVISE: 1, Decision.REJECT: 2}
+# 이 계층들은 코드가 완전하게 판정한다 (체크리스트·숫자 대조·길이). 모델이 여기서 '누락·근거 없음' 을 새로 만들면 틀린 것이다 —
+# 라이브 run 38928048713/38930364792 에서 gpt-4o 는 고지가 전부 있는 대출 소재에 FIN-DISCLOSE-LOAN-01 을, 근거가 있는 주장에 GRND-CLAIM-01 을 냈다.
+DET_AUTHORITATIVE_LAYERS = {Layer.DISCLOSURE, Layer.GROUNDING, Layer.STRUCTURAL}
 
 
 @dataclass
@@ -24,6 +27,7 @@ class ReviewOutcome:
     verdict: ReviewVerdict
     unverified_quotes: int = 0
     unknown_rule_ids: int = 0
+    overruled_by_det: int = 0  # 결정론이 '충족' 으로 판정한 계층에서 모델이 만든 finding 을 버린 수 (FM-23)
     raw: dict = field(default_factory=dict)
 
 
@@ -47,6 +51,8 @@ def _to_verdict(copy: AdCopy, parsed, det: OutputGuardResult, catalog: PolicyCat
     findings: list[Finding] = []
     unverified = 0
     unknown = 0
+    overruled = 0
+    det_rule_ids = {f.rule_id for f in det.findings}
     det_keys = {(f.rule_id, loose_text(f.quote)) for f in det.findings}
     for f in parsed.findings:
         rule = catalog.get(f.rule_id)
@@ -55,6 +61,9 @@ def _to_verdict(copy: AdCopy, parsed, det: OutputGuardResult, catalog: PolicyCat
             continue
         if (rule.id, loose_text(f.quote)) in det_keys:
             continue  # 결정론 finding 의 반복
+        if rule.layer in DET_AUTHORITATIVE_LAYERS and rule.id not in det_rule_ids:
+            overruled += 1  # 코드가 '충족' 이라고 확인한 것을 모델이 '누락' 이라 함 → 모델이 틀렸다
+            continue
         ok = _quote_verified(f.quote, text)
         if not ok:
             unverified += 1
@@ -78,7 +87,8 @@ def _to_verdict(copy: AdCopy, parsed, det: OutputGuardResult, catalog: PolicyCat
         conf = min(conf, 0.6)  # 환각 인용이 있으면 과신을 막는다
     verdict = ReviewVerdict(variant_id=copy.variant_id, decision=decision, confidence=conf, findings=all_findings,
                             rationale=parsed.rationale.strip(), compliant_rewrite=rewrite, provider=provider, model=model)
-    return ReviewOutcome(verdict=verdict, unverified_quotes=unverified, unknown_rule_ids=unknown, raw=parsed.model_dump())
+    return ReviewOutcome(verdict=verdict, unverified_quotes=unverified, unknown_rule_ids=unknown, overruled_by_det=overruled,
+                         raw=parsed.model_dump())
 
 
 def review(copy: AdCopy, det: OutputGuardResult, categories: set[str], facts: str, landing_text: str,

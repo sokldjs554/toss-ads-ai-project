@@ -113,6 +113,12 @@ def run_eval(dataset: str, settings: Settings, use_llm: bool = True, router: Opt
              limit: Optional[int] = None) -> dict:
     catalog = catalog or get_catalog()
     cases = load_dataset(dataset)
+    excluded_semantic_only = 0
+    if not use_llm or settings.mode.value == "demo":
+        # 의미 심사가 없으면(결정론만 / 대역) 구조적으로 잡을 수 없는 사례는 평가에서 빼고 그 수를 기록한다 — 숨기는 게 아니라 분모를 정직하게
+        keep = [c for c in cases if c.difficulty != "semantic_only"]
+        excluded_semantic_only = len(cases) - len(keep)
+        cases = keep
     if limit:
         cases = cases[:limit]
     if use_llm:
@@ -138,7 +144,8 @@ def run_eval(dataset: str, settings: Settings, use_llm: bool = True, router: Opt
                                                   "calibration": {"n": 0, "ece": None, "brier": None, "bins": [], "high_confidence_error": {"k": 0, "n": 0, "rate": None, "wilson95": (0.0, 0.0)}, "confidently_wrong": []},
                                                   "coverage_curve": [], "cost_usd": 0.0, "latency_ms_mean": 0.0}
     return {
-        "dataset": str(dataset), "n": len(cases), "generated_at": datetime.now(timezone.utc).isoformat(),
+        "dataset": str(dataset), "n": len(cases), "excluded_semantic_only": excluded_semantic_only,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
         "mode": settings.mode.value if use_llm else "deterministic_only",
         "reviewer": (f"{settings.openai_model} (structured) / fallback {settings.anthropic_model}" if use_llm and settings.mode.value != "demo"
                      else ("mock" if use_llm else "none")),

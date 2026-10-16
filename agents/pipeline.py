@@ -136,6 +136,9 @@ def _run_stages(run: PipelineRun, brief: CampaignBrief, settings: Settings, rout
                         run.failures.append(_fm04(copy.variant_id, ro.unverified_quotes))
                     if ro.unknown_rule_ids:
                         run.failures.append(_fm03(copy.variant_id, ro.unknown_rule_ids))
+                    if ro.overruled_by_det:
+                        span.event("det_authoritative_overrule", count=ro.overruled_by_det)
+                        run.failures.append(_fm23(copy.variant_id, ro.overruled_by_det))
 
             # 교차 검증: 경계 사례만 (비용을 아끼면서 상관 오류를 줄인다)
             if verdict is not None and options.enable_second_opinion and _is_borderline(verdict, settings, options):
@@ -191,6 +194,10 @@ def _fm03(v: str, n: int) -> FailureEvent:
 
 def _fm04(v: str, n: int) -> FailureEvent:
     return FailureEvent(code="FM-04", stage="reviewer", message=f"{v}: 원문에 없는 인용 {n}건 → warn 강등·신뢰도 상한", fallback="HUMAN_REVIEW 후보")
+
+
+def _fm23(v: str, n: int) -> FailureEvent:
+    return FailureEvent(code="FM-23", stage="reviewer", message=f"{v}: 코드가 충족으로 확인한 고지·근거·구조를 모델이 위반이라 함 {n}건 → 버림", fallback="finding dropped")
 
 
 def _fm15(v: str, d: float) -> FailureEvent:

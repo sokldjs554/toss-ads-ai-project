@@ -33,8 +33,20 @@ with st.sidebar:
         an_model = st.text_input("Anthropic 모델 (창의·패널)", value=os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-5-5"))
         st.caption("둘 다 비우면 DEMO 모드. gpt-4o 는 2027-01-14 API 종료 예정 — 그 뒤엔 gpt-5 계열로 바꾸세요.")
     st.markdown("### 판정·실행 옵션")
-    threshold = st.slider("자동 판정 최소 신뢰도 τ", 0.5, 0.99, float(os.environ.get("PREFLIGHT_AUTO_DECISION_CONFIDENCE", "0.80")), 0.01,
+    _provisional = Settings.from_env(openai_api_key=oa_key.strip(), anthropic_api_key=an_key.strip())
+    _rec = None
+    try:
+        from evals.runner import load_report
+
+        _base = load_report(f"baseline_{_provisional.mode.value}.json")
+        _rec = (_base or {}).get("recommended_threshold_for_zero_unsafe_and_zero_false_flag")
+    except Exception:  # noqa: BLE001
+        _rec = None
+    _default_tau = float(_rec) if _rec else float(os.environ.get("PREFLIGHT_AUTO_DECISION_CONFIDENCE", "0.80"))
+    threshold = st.slider("자동 판정 최소 신뢰도 τ", 0.5, 0.99, _default_tau, 0.01,
                           help="심사 신뢰도가 이 값보다 낮으면 사람 검토. 평가 탭의 커버리지 곡선으로 정합니다.")
+    if _rec:
+        st.caption(f"기본값 {_rec} 은 `{_provisional.mode.value}` 모드 기준선에서 '위험 승인 0%·오탐 0%' 를 만족하는 최소 τ 입니다.")
     st.session_state.opt_n_variants = st.slider("소재 변형 수", 1, 5, 3)
     st.session_state.opt_audience = st.toggle("가상 유저 패널", value=True)
     st.session_state.opt_second = st.toggle("경계 사례 교차 검증 (다른 모델 계열)", value=True)
