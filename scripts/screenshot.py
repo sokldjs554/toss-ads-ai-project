@@ -73,9 +73,18 @@ def main() -> int:
                 page.screenshot(path=str(OUT / file), full_page=full)
 
             tab("🔍 관측 (Trace)", "03_trace.png")
-            page.get_by_text("저장된 기준선 (demo)").click()
+            page.get_by_role("tab", name="📊 평가").click()
             time.sleep(2.5)
-            page.screenshot(path=str(OUT / "04_evals.png"), full_page=True)
+            try:
+                page.locator("label", has_text="저장된 기준선 (demo)").first.click(force=True, timeout=10_000)
+            except Exception:  # noqa: BLE001 — 라디오 클릭이 불안정하면 기본 화면이라도 찍는다
+                pass
+            time.sleep(2.5)
+            page.set_viewport_size({"width": 1440, "height": 1900})
+            time.sleep(1.5)
+            page.screenshot(path=str(OUT / "04_evals.png"), full_page=False)
+            page.set_viewport_size({"width": 1440, "height": 1000})
+            time.sleep(1.0)
             tab("🧨 레드팀", "05_redteam.png")
             tab("⚠️ 실패 모드", "06_failure_modes.png", full=False)
             tab("📜 정책 규칙", "07_policy.png", full=False)
