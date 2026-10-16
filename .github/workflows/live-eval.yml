@@ -1,6 +1,6 @@
 name: live-eval
 # 실제 모델로 평가·레드팀·트레이스를 기록하고 결과를 저장소에 커밋한다.
-# 수동 실행(Actions 탭 → live-eval → Run workflow). 저장소 Secrets: OPENAI_API_KEY (필수), ANTHROPIC_API_KEY (선택 — 있으면 하이브리드 LIVE).
+# 수동 실행(Actions 탭 → live-eval → Run workflow). 저장소 Secrets: OPENAI_API_KEY 또는 OPEN_API_KEY (필수), ANTHROPIC_API_KEY (선택 — 있으면 하이브리드 LIVE).
 on:
   workflow_dispatch:
     inputs:
@@ -25,7 +25,7 @@ jobs:
   live:
     runs-on: ubuntu-latest
     env:
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || secrets.OPEN_API_KEY }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-4o' }}
       ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL || 'claude-sonnet-5-5' }}
