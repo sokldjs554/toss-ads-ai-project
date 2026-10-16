@@ -4,6 +4,7 @@
 1. 결정론 BLOCK 이 하나라도 있으면 REJECT — 모델은 이를 뒤집을 수 없다.
 2. 심사 모델이 실패했으면 HUMAN_REVIEW.
 3. 모델이 REJECT 라 했지만 검증된 block 인용이 없으면 HUMAN_REVIEW (증거 없는 반려는 자동화하지 않는다).
+   모델이 REVISE/REJECT 를 말했는데 근거 finding 이 하나도 남지 않았어도(인용 없음, 또는 코드가 반증·FM-23) HUMAN_REVIEW — 근거 없는 판정은 어느 방향으로도 자동화하지 않는다.
 4. 신뢰도 < 임계값(보정으로 정함) 이면 HUMAN_REVIEW.
 5. 2차 의견(다른 모델 계열)이 있고 판정이 다르면 HUMAN_REVIEW.
 6. FIX 가 있으면 REVISE — 단, 자동 수정안은 전체 가드레일을 다시 통과한 것만 붙인다. 통과 못 하면 수정안을 폐기하고 finding 만 돌려준다 (FM-19).
@@ -41,6 +42,8 @@ def adjudicate(copy: AdCopy, det: OutputGuardResult, verdict: Optional[ReviewVer
             adj = Adjudication(Decision.REJECT, "의미 심사에서 검증된 인용과 함께 반려 사유 확인")
         elif unverified:
             adj = Adjudication(Decision.HUMAN_REVIEW, f"모델 finding {len(unverified)}건의 인용이 원문에 없음(환각 의심) → 사람 검토")
+        elif verdict.unsupported_decision:
+            adj = Adjudication(Decision.HUMAN_REVIEW, "모델이 수정/반려를 제안했지만 남은 근거 finding 이 없음(인용 없음 또는 코드가 반증) → 사람 검토")
         elif verdict.confidence < threshold:
             adj = Adjudication(Decision.HUMAN_REVIEW, f"심사 신뢰도 {verdict.confidence:.2f} < 자동 판정 임계값 {threshold:.2f}")
         elif verdict.disagreement:

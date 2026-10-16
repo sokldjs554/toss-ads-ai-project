@@ -62,3 +62,9 @@ def test_det_authoritative_layers_overrule_model():
     assert not [f for f in out.verdict.findings if f.rule_id in ("FIN-DISCLOSE-LOAN-01", "GRND-CLAIM-01")]
     # 모델이 REVISE 라 했지만 남은 finding 이 없으므로 결정론 판정(APPROVE)보다 엄격한 모델 판정이 유지된다 — 임계값·교차 검증이 다음 방어선
     assert out.verdict.decision == Decision.REVISE
+
+
+def test_revise_with_all_findings_overruled_is_unsupported():
+    copy = AdCopy(headline="전 상품 10% 할인", body="좋은 상품", cta="보기")
+    out = _to_verdict(copy, parsed(decision="REVISE", confidence=0.85, findings=[("GRND-CLAIM-01", "좋은 상품")]), det_for(copy), CAT, "p", "m")
+    assert out.overruled_by_det == 1 and out.verdict.unsupported_decision

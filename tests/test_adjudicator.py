@@ -55,3 +55,11 @@ def test_rewrite_recheck_failure_drops_rewrite_but_keeps_revise():
 def test_clean_copy_approved():
     r = adjudicate(CLEAN, det(), verdict(conf=0.9), 0.8)
     assert r.final_decision == Decision.APPROVE and r.checklist[-1].passed
+
+
+def test_unsupported_revise_routes_to_human():
+    """모델이 REVISE 라 했지만 남은 근거 finding 이 없으면(코드가 반증) 자동 REVISE 하지 않고 사람 검토."""
+    v = verdict(Decision.REVISE, 0.85)
+    v.unsupported_decision = True
+    r = adjudicate(CLEAN, det(), v, 0.8)
+    assert r.final_decision == Decision.HUMAN_REVIEW and "근거" in r.decision_reason

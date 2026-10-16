@@ -85,8 +85,11 @@ def _to_verdict(copy: AdCopy, parsed, det: OutputGuardResult, catalog: PolicyCat
     conf = max(0.0, min(1.0, float(parsed.confidence)))
     if unverified:
         conf = min(conf, 0.6)  # 환각 인용이 있으면 과신을 막는다
+    surviving = [f for f in all_findings if f.verified_quote or f.layer != Layer.SEMANTIC]
+    unsupported = model_decision in (Decision.REVISE, Decision.REJECT) and not surviving
     verdict = ReviewVerdict(variant_id=copy.variant_id, decision=decision, confidence=conf, findings=all_findings,
-                            rationale=parsed.rationale.strip(), compliant_rewrite=rewrite, provider=provider, model=model)
+                            rationale=parsed.rationale.strip(), compliant_rewrite=rewrite, provider=provider, model=model,
+                            unsupported_decision=unsupported)
     return ReviewOutcome(verdict=verdict, unverified_quotes=unverified, unknown_rule_ids=unknown, overruled_by_det=overruled,
                          raw=parsed.model_dump())
 

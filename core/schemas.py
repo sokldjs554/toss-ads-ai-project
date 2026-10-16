@@ -209,6 +209,7 @@ class ReviewVerdict(BaseModel):
     compliant_rewrite: Optional[AdCopy] = None
     provider: str = ""
     model: str = ""
+    unsupported_decision: bool = False           # 모델이 REVISE/REJECT 를 말했지만 남은 근거 finding 이 하나도 없음 → 자동 판정 금지
     second_opinion: Optional[Decision] = None   # 교차 검증(다른 제공자) 결과
     second_opinion_provider: str = ""
     second_opinion_independent: bool = True      # False 면 같은 제공자가 두 번 본 것 — 상관 오류를 줄이지 못한다 (PARTIAL 모드)
