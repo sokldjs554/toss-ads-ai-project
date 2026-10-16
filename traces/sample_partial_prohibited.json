@@ -1,8 +1,8 @@
 {
   "name": "preflight",
-  "trace_id": "tr_d5a73bc4a8e9",
+  "trace_id": "tr_45dfb74d5cdd",
   "metadata": {
-    "run_id": "run_81215c82a6",
+    "run_id": "run_678c56a60a",
     "mode": "partial",
     "prompt_version": "2026.10.2",
     "policy_version": "2026.10.1",
@@ -15,11 +15,11 @@
   "root": {
     "name": "preflight",
     "kind": "stage",
-    "trace_id": "tr_d5a73bc4a8e9",
-    "span_id": "424c14d8fb26",
+    "trace_id": "tr_45dfb74d5cdd",
+    "span_id": "bd3e89aeb9e1",
     "parent_id": null,
-    "start_ms": 1792168381088.8525,
-    "end_ms": 1792168381089.8042,
+    "start_ms": 1792168956782.297,
+    "end_ms": 1792168956783.1167,
     "status": "ok",
     "attributes": {},
     "events": [],
@@ -27,11 +27,11 @@
       {
         "name": "input_guard:intercept",
         "kind": "guardrail",
-        "trace_id": "tr_d5a73bc4a8e9",
-        "span_id": "b9f7a70d6bb5",
-        "parent_id": "424c14d8fb26",
-        "start_ms": 1792168381088.8662,
-        "end_ms": 1792168381089.7983,
+        "trace_id": "tr_45dfb74d5cdd",
+        "span_id": "dd1dd2cb41c3",
+        "parent_id": "bd3e89aeb9e1",
+        "start_ms": 1792168956782.3096,
+        "end_ms": 1792168956783.1113,
         "status": "intercepted",
         "attributes": {
           "triggered": true,
