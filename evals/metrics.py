@@ -1,12 +1,18 @@
-"""평가 지표. 모두 순수 함수 — 입력은 EvalRecord 목록."""
+"""평가 지표. 모두 순수 함수 — 입력은 EvalRecord 목록.
+
+임계값(τ)별 분석은 실제 판정 함수(`agents.adjudicator.decide`)를 저장된 원본 입력으로 다시 부른다.
+그래서 같은 τ 에서 서비스가 내는 판정과 평가 곡선의 판정이 같다 (신뢰도만 보고 일괄 제외하지 않는다).
+원본 입력이 없는 옛 결과는 '신뢰도 필터' 방식으로만 계산하고 그 사실을 method 에 적는다.
+"""
 from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from typing import Iterable
+from typing import Iterable, Optional
 
 UNSAFE_LABELS = {"REJECT", "REVISE"}
 FLAG_PREDS = {"REJECT", "REVISE"}
+TAUS = [i / 20 for i in range(10, 20)]  # 0.50 .. 0.95
 
 
 @dataclass
@@ -21,6 +27,7 @@ class EvalRecord:
     category: str = "other"
     latency_ms: float = 0.0
     cost_usd: float = 0.0
+    inputs: Optional[dict] = None   # agents.adjudicator.DecisionInputs 의 dict — 있으면 τ 별로 실제 판정을 재생한다
 
     @property
     def abstained(self) -> bool:
@@ -47,6 +54,16 @@ class EvalRecord:
             return self.predicted == "APPROVE"
         return self.predicted in FLAG_PREDS
 
+    def predicted_at(self, tau: float) -> str:
+        """임계값 τ 에서의 판정. 원본 입력이 있으면 실제 판정 함수로, 없으면 신뢰도 필터로."""
+        if self.inputs is not None:
+            from agents.adjudicator import DecisionInputs, decide
+
+            return decide(DecisionInputs.from_dict(self.inputs), tau).decision.value
+        if self.abstained or self.confidence < tau:
+            return "HUMAN_REVIEW"
+        return self.predicted
+
 
 def wilson(k: int, n: int, z: float = 1.96) -> tuple[float, float]:
     if n == 0:
@@ -69,17 +86,20 @@ def summarize(records: list[EvalRecord]) -> dict:
     benign_pool = [r for r in records if r.label == "APPROVE"]
     out = {
         "n": n,
-        "coverage": rate(len(decided), n),                                    # 자동 판정 비율 (1 - 사람 검토율)
+        "coverage": rate(len(decided), n),                                    # 담당자 확인 없이 판단한 비율 (통과·수정·게재 불가 모두 포함)
         "accuracy_decided": rate(sum(r.correct for r in decided), len(decided)),  # 자동 판정 중 정확히 같은 등급
         "catch_rate_decided": rate(sum(r.severity_ok for r in decided), len(decided)),
         "unsafe_approve": rate(sum(r.unsafe_approve for r in unsafe_pool), len(unsafe_pool)),   # 낮을수록 좋음
         "false_flag": rate(sum(r.false_flag for r in benign_pool), len(benign_pool)),           # 낮을수록 좋음
         "human_review": rate(sum(r.abstained for r in records), n),
+        "benign_correct_pass": rate(sum(r.predicted == "APPROVE" for r in benign_pool), len(benign_pool)),   # 문제없는 광고를 올바르게 통과
+        "benign_human_review": rate(sum(r.abstained for r in benign_pool), len(benign_pool)),               # 문제없는 광고를 담당자 확인으로
         "by_difficulty": {},
         "by_category": {},
         "rules": rule_prf(records),
         "calibration": calibration(records),
         "coverage_curve": coverage_curve(records),
+        "curve_method": curve_method(records),
         "cost_usd": round(sum(r.cost_usd for r in records), 4),
         "latency_ms_mean": round(sum(r.latency_ms for r in records) / n, 1) if n else 0.0,
     }
@@ -121,10 +141,10 @@ def rule_prf(records: Iterable[EvalRecord]) -> dict:
 
 def calibration(records: list[EvalRecord], bins: int = 10, high_conf: float = 0.8) -> dict:
     """confidence = P(판정이 맞음) 으로 보고 reliability diagram / ECE / Brier / 고신뢰 오류율을 계산한다.
-    사람 검토(abstain)는 판정이 아니므로 제외."""
+    사람 검토(abstain)는 판정이 아니므로 제외. 이 값은 '모델이 말한 확신' 의 보정 정도이지 검증된 정답 확률이 아니다."""
     decided = [r for r in records if not r.abstained]
     if not decided:
-        return {"n": 0, "ece": None, "brier": None, "bins": [], "high_confidence_error": rate(0, 0)}
+        return {"n": 0, "ece": None, "brier": None, "bins": [], "high_confidence_error": rate(0, 0), "confidently_wrong": []}
     edges = [i / bins for i in range(bins + 1)]
     rows = []
     ece = 0.0
@@ -145,19 +165,26 @@ def calibration(records: list[EvalRecord], bins: int = 10, high_conf: float = 0.
             "confidently_wrong": [r.case_id for r in hc if not r.correct]}
 
 
+def curve_method(records: list[EvalRecord]) -> str:
+    if records and all(r.inputs is not None for r in records):
+        return "replay_decide"          # 저장된 원본 입력으로 실제 판정 함수를 다시 부름
+    return "legacy_confidence_filter"   # 옛 결과: 신뢰도 < τ 인 판정을 일괄 사람 검토로 간주 (실제 판정과 다를 수 있음)
+
+
 def coverage_curve(records: list[EvalRecord]) -> list[dict]:
-    """임계값 τ 를 바꿔 가며: conf ≥ τ 만 자동 판정, 나머지는 사람 검토. 각 τ 에서 커버리지와 위험 승인율.
-    '위험 승인율 0% 를 유지하면서 몇 % 를 자동 처리할 수 있나' 를 읽는 표."""
+    """임계값 τ 별 (커버리지, 위험 승인율, 오탐율). 각 τ 에서 '실제 판정 함수' 가 내는 결과다 (원본 입력이 있을 때).
+    2차 의견 호출 여부가 τ 에 따라 달라지는 Studio 경로는 재생 범위 밖이다 — 평가 경로는 2차 의견 없이 1차 심사만 쓴다."""
     out = []
-    for i in range(10, 20):
-        tau = i / 20  # 0.50 .. 0.95
-        auto = [r for r in records if not r.abstained and r.confidence >= tau]
-        unsafe_pool = [r for r in auto if r.label in UNSAFE_LABELS]
-        benign_pool = [r for r in auto if r.label == "APPROVE"]
+    for tau in TAUS:
+        preds = [(r, r.predicted_at(tau)) for r in records]
+        auto = [(r, p) for r, p in preds if p != "HUMAN_REVIEW"]
+        unsafe_pool = [(r, p) for r, p in auto if r.label in UNSAFE_LABELS]
+        benign_pool = [(r, p) for r, p in auto if r.label == "APPROVE"]
         out.append({"tau": tau, "coverage": round(len(auto) / len(records), 3) if records else 0.0,
-                    "unsafe_approve": round(sum(r.unsafe_approve for r in unsafe_pool) / len(unsafe_pool), 3) if unsafe_pool else 0.0,
-                    "false_flag": round(sum(r.false_flag for r in benign_pool) / len(benign_pool), 3) if benign_pool else 0.0,
-                    "n_auto": len(auto)})
+                    "unsafe_approve": round(sum(p == "APPROVE" for _, p in unsafe_pool) / len(unsafe_pool), 3) if unsafe_pool else 0.0,
+                    "false_flag": round(sum(p in FLAG_PREDS for _, p in benign_pool) / len(benign_pool), 3) if benign_pool else 0.0,
+                    "n_auto": len(auto), "n_unsafe_pool": len(unsafe_pool), "n_benign_pool": len(benign_pool),
+                    "k_unsafe": sum(p == "APPROVE" for _, p in unsafe_pool), "k_false_flag": sum(p in FLAG_PREDS for _, p in benign_pool)})
     return out
 
 

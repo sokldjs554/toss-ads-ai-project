@@ -206,7 +206,7 @@ class ReviewVerdict(BaseModel):
     confidence: float = Field(ge=0.0, le=1.0)
     findings: list[Finding] = Field(default_factory=list)
     rationale: str = ""
-    compliant_rewrite: Optional[AdCopy] = None
+    proposed_rewrite: Optional[AdCopy] = None       # 모델이 '제안' 한 수정안. 재검사 전이므로 그 자체로는 신뢰하지 않는다 (PreflightReport.rewrite_status 참조)
     provider: str = ""
     model: str = ""
     unsupported_decision: bool = False           # 모델이 REVISE/REJECT 를 말했지만 남은 근거 finding 이 하나도 없음 → 자동 판정 금지
@@ -241,6 +241,15 @@ class ChecklistItem(BaseModel):
     layer: Layer
 
 
+class RewriteStatus(str, Enum):
+    """자동 수정안의 상태. 원래 광고의 판정(final_decision)과는 별개로 관리한다."""
+
+    NONE = "none"                      # 모델이 수정안을 내지 않음
+    VERIFIED = "verified"              # 전체 가드레일 재검사를 통과 → 제시 가능
+    FAILED_RECHECK = "failed_recheck"  # 재검사에서 다시 걸림 → 폐기, 제시하지 않음
+    UNCHECKED = "unchecked"            # 재검사를 하지 못함 → 제시하지 않음
+
+
 class PreflightReport(BaseModel):
     """소재 하나의 최종 사전점검 결과."""
 
@@ -251,6 +260,12 @@ class PreflightReport(BaseModel):
     final_decision: Decision
     checklist: list[ChecklistItem] = Field(default_factory=list)
     decision_reason: str = ""
+    # 수정안은 재검사를 통과한 것만 verified_rewrite 에 들어간다. 어떤 final_decision 에서도 실패한 수정안은 여기 오지 않는다.
+    rewrite_status: RewriteStatus = RewriteStatus.NONE
+    verified_rewrite: Optional[AdCopy] = None
+    rewrite_recheck_decision: Optional[Decision] = None
+    rewrite_recheck_findings: list[Finding] = Field(default_factory=list)
+    rewrite_note: str = ""
 
 
 class FailureEvent(BaseModel):

@@ -1,51 +1,53 @@
-"""레드팀 — 공격자 모델이 위반 소재를 변형해 방어선을 시험하고, 뚫린 사례를 회귀셋에 수확한다."""
+"""우회 표현 검사 — 저장된 결과 요약과 (원하면) 다시 실행."""
 from __future__ import annotations
 
 import streamlit as st
 
-from core.config import Settings
-from evals.redteam import STRATEGIES, harvest, run_redteam
 from evals.runner import load_report, save_report
 
+STRATEGY = {"spacing": "띄어쓰기 분해", "zero_width": "보이지 않는 문자", "hanja": "한자 치환", "paraphrase": "같은 뜻 다른 말", "negation": "부정문 뒤에 같은 주장",
+            "bury": "면책 문구 뒤에 숨기기", "injection": "심사 조작 문장", "implicature": "직접 말하지 않고 암시"}
 
-def render(settings: Settings, router_factory) -> None:
-    st.caption("‘우리 시스템은 어떻게 뚫리는가’ 를 기능으로 만든 페이지. 돌파율이 0 이어야 좋은 게 아니라, 돌파한 사례가 회귀셋에 쌓여야 좋은 것.")
-    strategies = st.multiselect("공격 전략", STRATEGIES, default=STRATEGIES)
-    seeds = st.number_input("시드 수", min_value=1, max_value=20, value=4)
-    if st.button("🧨 레드팀 실행", type="primary"):
-        router = router_factory()
-        prog = st.progress(0.0, text="공격 생성·심사 중…")
-        count = {"i": 0}
 
-        def cb(seed_id, atk):
-            count["i"] += 1
-            prog.progress(min(1.0, count["i"] / (seeds * len(strategies))), text=f"{seed_id} · {atk.strategy} → {atk.predicted}")
+def _table(rep: dict) -> None:
+    rows = []
+    for s, m in rep.get("by_strategy", {}).items():
+        rows.append({"변형 방식": STRATEGY.get(s, s), "공격 수": m["n"], "뚫림(통과)": m["evaded"], "담당자 확인": m["human_review"]})
+    st.dataframe(rows, width="stretch", hide_index=True)
 
-        rep = run_redteam(settings, router=router, strategies=strategies, progress=cb, limit_seeds=int(seeds))
-        save_report(rep, "redteam_latest.json")
-        st.session_state.redteam_report = rep
-        prog.empty()
-    rep = st.session_state.get("redteam_report") or load_report("redteam_latest.json")
-    if rep is None:
-        for mode in ("live", "partial", "demo"):
-            rep = load_report(f"baseline_redteam_{mode}.json")
-            if rep is not None:
-                break
-    if rep is None:
-        st.info("아직 결과가 없습니다.")
+
+def render_summary() -> None:
+    options = {}
+    for label, name in (("저장된 실제 모델 결과 (4차, gpt-4o)", "baseline_redteam_partial.json"), ("예시 실행 (실제 AI 호출 없음)", "baseline_redteam_demo.json"),
+                        ("이 세션에서 실행한 결과", "redteam_latest.json")):
+        if load_report(name) is not None:
+            options[label] = name
+    if not options:
+        st.caption("저장된 우회 표현 검사 결과가 없습니다.")
         return
-    c = st.columns(4)
-    c[0].metric("모드", rep["mode"])
-    c[1].metric("공격 수", len(rep["attacks"]))
-    c[2].metric("돌파율 (APPROVE)", f"{rep['evasion_rate']:.1%}")
-    c[3].metric("비용", f"${rep['cost_usd']:.4f}")
-    st.dataframe([{"전략": k, "n": v["n"], "돌파": v["evaded"], "사람 검토": v["human_review"], "돌파율": f"{v['evasion_rate']:.0%}"} for k, v in rep["by_strategy"].items()],
-                 width="stretch", hide_index=True)
-    with st.expander("공격 목록", expanded=True):
-        st.dataframe([{"시드": a["seed_id"], "전략": a["strategy"], "헤드라인": a["headline"], "본문": a["body"], "판정": a["predicted"], "신뢰도": a["confidence"],
-                       "잡힌 규칙": ", ".join(a["predicted_rules"]), "돌파": "💥" if a["evaded"] else ""} for a in rep["attacks"]],
-                     width="stretch", hide_index=True)
-    only_evaded = st.toggle("돌파한 것만 수확", value=True)
-    if st.button("회귀셋(adversarial.jsonl)에 수확"):
-        n = harvest(rep, only_evaded=only_evaded)
-        st.success(f"{n}건 추가 — 다음 평가부터 회귀 대상이 됩니다.")
+    pick = st.selectbox("결과 선택", list(options.keys()), key="redteam_pick")
+    rep = load_report(options[pick])
+    n = len(rep.get("attacks", []))
+    evaded = sum(1 for a in rep.get("attacks", []) if a.get("evaded"))
+    hr = sum(1 for a in rep.get("attacks", []) if a.get("predicted") == "HUMAN_REVIEW")
+    st.markdown(f"- 변형 {n}건 중 검사를 통과한(뚫린) 변형 {evaded}건, 담당자 확인으로 넘어간 변형 {hr}건. 실행 방식 `{rep.get('mode')}` · 비용 ${rep.get('cost_usd', 0)}")
+    _table(rep)
+    with st.expander("변형별 결과"):
+        from core.schemas import Decision
+        from ui.labels import DECISION_LABEL
+
+        st.dataframe([{"시드": a.get("seed_id"), "변형 방식": STRATEGY.get(a.get("strategy"), a.get("strategy")), "제목": a.get("headline"), "판정": DECISION_LABEL.get(Decision(a["predicted"]), a["predicted"]) if a.get("predicted") in Decision.__members__ else a.get("predicted"),
+                       "뚫림": "예" if a.get("evaded") else "", "잡은 규칙": ", ".join(a.get("predicted_rules", []))} for a in rep.get("attacks", [])], width="stretch", hide_index=True)
+
+
+def render(settings, router_factory) -> None:
+    """(기존 호환) 다시 실행 + 요약."""
+    from evals.redteam import harvest, run_redteam
+
+    if st.button("우회 표현 검사 실행 (현재 설정)"):
+        with st.spinner("변형을 만들고 검사하는 중…"):
+            rep = run_redteam(settings, router=router_factory(settings))
+            save_report(rep, "redteam_latest.json")
+            harvest(rep)
+        st.rerun()
+    render_summary()

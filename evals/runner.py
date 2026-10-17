@@ -1,7 +1,9 @@
 """평가 실행기. 데이터셋의 각 사례를 실제 심사 경로(결정론 가드레일 → 심사 모델 → 판정)로 돌린다."""
 from __future__ import annotations
 
+import hashlib
 import json
+import re
 import time
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
@@ -39,6 +41,8 @@ class EvalCase:
     difficulty: str = "clear"
     notes: str = ""
     source: str = "authored"
+    split: str = "dev"                                   # dev: 규칙·프롬프트 수정에 쓴 사례 | holdout: 최종 확인용
+    label_history: list[dict] = field(default_factory=list)  # 라벨 변경 이력 (버전·이전 라벨·이유)
 
     def to_copy(self) -> AdCopy:
         return AdCopy(variant_id=self.id, headline=self.headline, body=self.body, cta=self.cta,
@@ -49,10 +53,22 @@ class EvalCase:
         return ProductFacts(name=self.id, category=cat, facts=[Fact(**f) for f in self.facts])
 
 
-def load_dataset(name_or_path: str | Path) -> list[EvalCase]:
+def dataset_path(name_or_path: str | Path) -> Path:
     path = Path(name_or_path)
-    if not path.exists():
-        path = DATASETS / f"{name_or_path}.jsonl"
+    return path if path.exists() else DATASETS / f"{name_or_path}.jsonl"
+
+
+def dataset_fingerprint(name_or_path: str | Path) -> dict:
+    """데이터셋의 버전(첫 줄 주석의 'v1.x')과 내용 해시 — 추천 임계값이 어떤 데이터로 나온 것인지 묶어 둔다."""
+    path = dataset_path(name_or_path)
+    text = path.read_text(encoding="utf-8")
+    first = text.splitlines()[0] if text else ""
+    m = re.search(r"v(\d+(?:\.\d+)*)", first)
+    return {"dataset_version": m.group(1) if m else "", "dataset_sha256": hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]}
+
+
+def load_dataset(name_or_path: str | Path) -> list[EvalCase]:
+    path = dataset_path(name_or_path)
     cases: list[EvalCase] = []
     for line in path.read_text(encoding="utf-8").splitlines():
         line = line.strip()
@@ -73,6 +89,10 @@ class CaseResult:
     latency_ms: float
     cost_usd: float
     unverified_quotes: int = 0
+    inputs: dict = field(default_factory=dict)   # 판정 원본 (DecisionInputs) — 다른 τ 로 그대로 재생 가능
+    rewrite_status: str = "none"
+    model_decision: str = ""
+    cost_estimated: bool = False
 
 
 def evaluate_case(case: EvalCase, settings: Settings, router: Optional[Router], catalog: PolicyCatalog,
@@ -98,14 +118,18 @@ def evaluate_case(case: EvalCase, settings: Settings, router: Optional[Router], 
         verdict = ReviewVerdict(variant_id=copy.variant_id, decision=det.decision, confidence=0.95 if det.findings else 0.7,
                                 findings=det.findings, rationale="결정론 계층만 (의미 심사 없음)", provider="none", model="none")
     recheck = None
-    if verdict is not None and verdict.compliant_rewrite is not None:
-        recheck = output_guard.check(verdict.compliant_rewrite, product, categories, case.landing_text, [], catalog)
+    if verdict is not None and verdict.proposed_rewrite is not None:
+        recheck = output_guard.check(verdict.proposed_rewrite, product, categories, case.landing_text, [], catalog)
     report = adjudicator.adjudicate(copy, det, verdict, settings.auto_decision_confidence, recheck, None)
+    inputs = adjudicator.inputs_from(det, verdict, recheck)
     pred_rules = sorted({f.rule_id for f in report.verdict.findings if f.severity != Severity.WARN and f.verified_quote})
     conf = report.verdict.confidence if verdict is not None else 0.0
     return CaseResult(case=case, predicted=report.final_decision.value, confidence=conf, predicted_rules=pred_rules,
                       reason=report.decision_reason, latency_ms=round((time.perf_counter() - t0) * 1000, 1),
-                      cost_usd=round((router.budget.spent_usd - cost_before) if router else 0.0, 6), unverified_quotes=unverified)
+                      cost_usd=round((router.budget.spent_usd - cost_before) if router else 0.0, 6), unverified_quotes=unverified,
+                      inputs=inputs.to_dict(), rewrite_status=report.rewrite_status.value,
+                      model_decision=verdict.decision.value if verdict is not None else "",
+                      cost_estimated=bool(router and router.budget.estimated))
 
 
 def run_eval(dataset: str, settings: Settings, use_llm: bool = True, router: Optional[Router] = None,
@@ -133,7 +157,7 @@ def run_eval(dataset: str, settings: Settings, use_llm: bool = True, router: Opt
             progress(i + 1, len(cases), r)
     records = [EvalRecord(case_id=r.case.id, label=r.case.label, predicted=r.predicted, confidence=r.confidence,
                           label_rules=set(r.case.rule_ids), predicted_rules=set(r.predicted_rules), difficulty=r.case.difficulty,
-                          category=r.case.category, latency_ms=r.latency_ms, cost_usd=r.cost_usd) for r in results]
+                          category=r.case.category, latency_ms=r.latency_ms, cost_usd=r.cost_usd, inputs=r.inputs or None) for r in results]
     summary = summarize(records) if records else {"n": 0, "coverage": {"k": 0, "n": 0, "rate": None, "wilson95": (0.0, 0.0)},
                                                   "unsafe_approve": {"k": 0, "n": 0, "rate": None, "wilson95": (0.0, 0.0)},
                                                   "false_flag": {"k": 0, "n": 0, "rate": None, "wilson95": (0.0, 0.0)},
@@ -142,23 +166,62 @@ def run_eval(dataset: str, settings: Settings, use_llm: bool = True, router: Opt
                                                   "catch_rate_decided": {"k": 0, "n": 0, "rate": None, "wilson95": (0.0, 0.0)},
                                                   "by_difficulty": {}, "by_category": {}, "rules": {},
                                                   "calibration": {"n": 0, "ece": None, "brier": None, "bins": [], "high_confidence_error": {"k": 0, "n": 0, "rate": None, "wilson95": (0.0, 0.0)}, "confidently_wrong": []},
-                                                  "coverage_curve": [], "cost_usd": 0.0, "latency_ms_mean": 0.0}
+                                                  "coverage_curve": [], "curve_method": "replay_decide", "cost_usd": 0.0, "latency_ms_mean": 0.0}
+    mode = settings.mode.value if use_llm else "deterministic_only"
     return {
         "dataset": str(dataset), "n": len(cases), "excluded_semantic_only": excluded_semantic_only,
+        **dataset_fingerprint(dataset),
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "mode": settings.mode.value if use_llm else "deterministic_only",
+        "mode": mode,
         "reviewer": (f"{settings.openai_model} (structured) / fallback {settings.anthropic_model}" if use_llm and settings.mode.value != "demo"
                      else ("mock" if use_llm else "none")),
+        "provider": ("none" if not use_llm else ("mock" if settings.mode.value == "demo" else ("openai" if settings.has_openai else "anthropic"))),
+        "model": ("none" if not use_llm else ("mock" if settings.mode.value == "demo" else (settings.openai_model if settings.has_openai else settings.anthropic_model))),
         "prompt_version": PROMPT_VERSION, "policy_version": catalog.version,
         "threshold": settings.auto_decision_confidence,
+        # 평가 경로의 범위: 결정론 가드레일 → 1차 심사 → 수정안 재검사 → 판정. 2차 의견·가상 유저는 포함하지 않는다 (Studio 와 다른 점).
+        "scope": {"second_opinion": False, "audience": False, "stages": "output_guard → reviewer → rewrite_recheck → adjudicate"},
+        "curve_method": summary.get("curve_method", "replay_decide"),
         "recommended_threshold_for_zero_unsafe": recommend_threshold(records, 0.0),
         "recommended_threshold_for_zero_unsafe_and_zero_false_flag": recommend_threshold(records, 0.0, 0.0),
+        "cost_estimated": any(r.cost_estimated for r in results),
         "summary": summary,
         "cases": [{"id": r.case.id, "label": r.case.label, "predicted": r.predicted, "confidence": r.confidence,
                    "label_rules": r.case.rule_ids, "predicted_rules": r.predicted_rules, "difficulty": r.case.difficulty,
                    "category": r.case.category, "reason": r.reason, "latency_ms": r.latency_ms, "cost_usd": r.cost_usd,
-                   "unverified_quotes": r.unverified_quotes} for r in results],
+                   "unverified_quotes": r.unverified_quotes, "inputs": r.inputs, "rewrite_status": r.rewrite_status,
+                   "model_decision": r.model_decision} for r in results],
     }
+
+
+def records_from_report(report: dict) -> list[EvalRecord]:
+    """저장된 리포트를 EvalRecord 로 되살린다 (원본 입력이 있으면 τ 재생 가능)."""
+    return [EvalRecord(case_id=c["id"], label=c["label"], predicted=c["predicted"], confidence=c["confidence"],
+                       label_rules=set(c.get("label_rules", [])), predicted_rules=set(c.get("predicted_rules", [])),
+                       difficulty=c.get("difficulty", "clear"), category=c.get("category", "other"),
+                       latency_ms=c.get("latency_ms", 0.0), cost_usd=c.get("cost_usd", 0.0), inputs=c.get("inputs")) for c in report.get("cases", [])]
+
+
+def recommendation_for(settings: Settings, catalog: Optional[PolicyCatalog] = None, dataset: str = "golden") -> dict:
+    """현재 설정(제공자·모델·프롬프트·정책·데이터셋)과 '같은 조건에서 평가된' 추천 임계값만 돌려준다.
+    조건이 하나라도 다르면 tau=None 과 그 이유를 돌려준다 — 다른 조건의 추천값을 빌려 쓰지 않는다."""
+    catalog = catalog or get_catalog()
+    base = load_report(f"baseline_{settings.mode.value}.json")
+    if base is None:
+        return {"tau": None, "reason": "이 모드의 저장된 평가 결과 없음", "report": None, "mismatches": []}
+    want = {
+        "provider": ("mock" if settings.mode.value == "demo" else ("openai" if settings.has_openai else "anthropic")),
+        "model": ("mock" if settings.mode.value == "demo" else (settings.openai_model if settings.has_openai else settings.anthropic_model)),
+        "prompt_version": PROMPT_VERSION, "policy_version": catalog.version,
+        "dataset_sha256": dataset_fingerprint(dataset)["dataset_sha256"],
+    }
+    mismatches = [f"{k}: 평가 {base.get(k)!r} ≠ 현재 {v!r}" for k, v in want.items() if base.get(k) != v]
+    if base.get("curve_method") != "replay_decide":
+        mismatches.append("곡선이 실제 판정 재생이 아닌 옛 방식(신뢰도 필터)으로 계산됨")
+    tau = base.get("recommended_threshold_for_zero_unsafe_and_zero_false_flag")
+    if mismatches or tau is None:
+        return {"tau": None, "reason": "이 설정의 검증된 추천값 없음", "report": base, "mismatches": mismatches}
+    return {"tau": float(tau), "reason": "같은 제공자·모델·프롬프트·정책·데이터셋에서 평가됨", "report": base, "mismatches": []}
 
 
 def save_report(report: dict, name: str = "latest.json") -> Path:

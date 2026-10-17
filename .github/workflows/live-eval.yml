@@ -44,6 +44,11 @@ jobs:
         run: |
           ARGS=""; if [ -n "${{ github.event.inputs.limit }}" ]; then ARGS="--limit ${{ github.event.inputs.limit }}"; fi
           python -m evals.run --dataset golden --save-baseline $ARGS
+      - name: 최종 확인용 holdout · G-069 대조 사례 (실제 심사 모델) → holdout_<mode>.json · contrast_g069_<mode>.json
+        run: |
+          MODE=$(python -c "from core.config import Settings; print(Settings.from_env().mode.value)")
+          python -m evals.run --dataset holdout --baseline holdout_$MODE.json --save-baseline
+          python -m evals.run --dataset contrast_g069 --baseline contrast_g069_$MODE.json --save-baseline
       - name: 레드팀 → 돌파 사례 수확
         if: ${{ github.event.inputs.redteam == 'true' }}
         run: python -m evals.run --redteam --harvest --save-baseline
@@ -65,7 +70,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add evals/reports/baseline_*.json evals/datasets/adversarial.jsonl traces/sample_*.json
+          git add evals/reports/baseline_*.json evals/reports/holdout_*.json evals/reports/contrast_*.json evals/datasets/adversarial.jsonl traces/sample_*.json
           if git diff --cached --quiet; then echo "변경 없음"; exit 0; fi
           git commit -m "live-eval: 실제 모델 기준선·레드팀·트레이스 기록 (run ${{ github.run_id }})"
           git push

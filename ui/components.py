@@ -1,53 +1,20 @@
-"""공통 위젯: 판정 배지, 인용 하이라이트, 모드 배너."""
+"""공통 위젯: 광고 카드(확인이 필요한 구절 강조), 이유 문장, 근거 목록, 담당자 확인 요청문. 화면 문구는 ui/labels 를 쓴다."""
 from __future__ import annotations
 
 import html
+from typing import Optional
 
 import streamlit as st
 
-from core.config import IN_BROWSER
-from core.schemas import AdCopy, Decision, Finding, Severity
+from core.schemas import AdCopy, Decision, Finding, Layer, PipelineRun, PreflightReport, ProductFacts, RewriteStatus, Severity
+from ui.labels import DECISION_LABEL, LAYER_LABEL, SEVERITY_LABEL, SEVERITY_STYLE, check_name
 
-DECISION_STYLE = {
-    Decision.APPROVE: ("#0B7A3B", "#E6F6EC", "승인 가능"),
-    Decision.REVISE: ("#9A6700", "#FFF4D6", "수정 후 재심사"),
-    Decision.REJECT: ("#B42318", "#FDE8E6", "반려"),
-    Decision.HUMAN_REVIEW: ("#3B4B5E", "#EAEFF5", "사람 검토"),
-}
-SEVERITY_STYLE = {Severity.BLOCK: "#B42318", Severity.FIX: "#9A6700", Severity.WARN: "#3B4B5E"}
 STATUS_COLOR = {"ok": "#2E7D32", "error": "#B42318", "intercepted": "#E8590C", "fallback": "#9A6700", "running": "#999"}
 KIND_COLOR = {"stage": "#3182F6", "llm": "#7C3AED", "guardrail": "#E8590C", "tool": "#0B7A3B"}
 
 
-def decision_badge(d: Decision, big: bool = False) -> str:
-    fg, bg, label = DECISION_STYLE[d]
-    size = "15px" if big else "12px"
-    return (f'<span style="background:{bg};color:{fg};border:1px solid {fg};border-radius:999px;'
-            f'padding:2px 10px;font-weight:700;font-size:{size};white-space:nowrap">{label} · {d.value}</span>')
-
-
-def severity_chip(s: Severity) -> str:
-    c = SEVERITY_STYLE[s]
-    return f'<span style="color:{c};border:1px solid {c};border-radius:6px;padding:0 6px;font-size:11px;font-weight:700">{s.value}</span>'
-
-
-def mode_banner(mode: str, openai_model: str, anthropic_model: str) -> None:
-    if mode == "demo" and IN_BROWSER:
-        st.warning("**브라우저 실행판 (WebAssembly · DEMO 모드)** — 이 페이지는 서버 없이 브라우저 안에서 파이썬이 돌아갑니다. "
-                   "LLM 단계(플래너·카피·패널·심사)는 결정론적 **대역(mock)** 이 수행하고, 가드레일·관측·평가·판정 로직은 실제 코드가 그대로 돕니다. "
-                   "실제 모델(GPT-4o · Claude)로 보려면 로컬 실행 또는 Render 배포에서 키를 넣으세요. 실제 모델 결과는 '재생' 페이지에 기록돼 있습니다.", icon="🧪")
-    elif mode == "demo":
-        st.warning("**DEMO 모드** — API 키가 없어 LLM 단계(플래너·카피·패널·심사)는 결정론적 **대역(mock)** 이 수행합니다. "
-                   "가드레일·관측·평가·판정 로직은 실제 코드가 그대로 돕니다. 결과는 모델 성능이 아닙니다 (FM-22). "
-                   "왼쪽 사이드바에 키를 넣으면 LIVE 로 바뀝니다.", icon="🧪")
-    elif mode == "partial":
-        st.info(f"**PARTIAL 모드** — 한 제공자 키만 있어 그 제공자가 모든 작업을 맡습니다 (교차 fallback 없음). OpenAI={openai_model}, Anthropic={anthropic_model}", icon="🔌")
-    else:
-        st.success(f"**LIVE 모드** — 구조화 작업 → OpenAI `{openai_model}` (Structured Outputs), 창의·정성 작업 → Anthropic `{anthropic_model}`. 서로가 서로의 fallback.", icon="🛫")
-
-
-def _mark(text: str, spans: list[tuple[int, int, Finding]]) -> str:
-    """text 안의 [start,end) 구간을 <mark> 로 감싼다 (겹치면 앞의 것 우선)."""
+# --- 광고 카드 -----------------------------------------------------------------
+def _mark(text: str, spans: list[tuple[int, int, Finding]], catalog=None) -> str:
     spans = sorted(spans, key=lambda x: (x[0], -(x[1] - x[0])))
     out = []
     cursor = 0
@@ -56,51 +23,156 @@ def _mark(text: str, spans: list[tuple[int, int, Finding]]) -> str:
             continue
         out.append(html.escape(text[cursor:s]))
         color = SEVERITY_STYLE[f.severity]
-        out.append(f'<mark style="background:{color}22;border-bottom:2px solid {color};padding:0 2px" title="{html.escape(f.rule_id)}: {html.escape(f.explanation)}">{html.escape(text[s:e])}</mark>')
+        tip = finding_sentence(f, catalog, with_quote=False)
+        out.append(f'<mark class="pf-mark" style="background:{color}1F;border-bottom:2px solid {color}" title="{html.escape(tip)}">{html.escape(text[s:e])}</mark>')
         cursor = e
     out.append(html.escape(text[cursor:]))
     return "".join(out)
 
 
-def render_copy(copy: AdCopy, findings: list[Finding] | None = None, title: str | None = None) -> None:
-    """소재를 카드로 그린다. finding 의 인용 구간은 하이라이트."""
+def render_ad(copy: AdCopy, findings: Optional[list[Finding]] = None, title: str | None = None, catalog=None) -> None:
+    """광고를 카드로 그린다. 확인이 필요한 구절은 색과 밑줄로 강조하고, 마우스를 올리면 이유가 보인다."""
     findings = [f for f in (findings or []) if f.start >= 0 and f.end > f.start and f.verified_quote]
-    full = copy.full_text()
-    # full_text 의 필드별 오프셋
     fields = [("headline", copy.headline), ("body", copy.body), ("cta", copy.cta)] + [(f"disc{i}", d) for i, d in enumerate(copy.disclosures)]
     offsets: dict[str, int] = {}
     pos = 0
     for name, value in fields:
         offsets[name] = pos
         pos += len(value) + 1
+
     def spans_for(name: str, value: str):
         base = offsets[name]
         return [(f.start - base, f.end - base, f) for f in findings if base <= f.start and f.end <= base + len(value)]
-    # 필드 밖에 걸친 인용은 전체에서 찾아 표시
-    h = _mark(copy.headline, spans_for("headline", copy.headline))
-    b = _mark(copy.body, spans_for("body", copy.body))
-    c = _mark(copy.cta, spans_for("cta", copy.cta))
-    disc_html = "".join(f'<div style="font-size:12px;color:#4E5968;margin-top:2px">· {_mark(d, spans_for(f"disc{i}", d))}</div>' for i, d in enumerate(copy.disclosures))
-    tone = f'<div style="font-size:11px;color:#8B95A1;margin-bottom:6px">{html.escape(title or "")} {html.escape(copy.tone)}</div>' if (title or copy.tone) else ""
-    disc_block = f'<div style="margin-top:10px;border-top:1px dashed #E5E8EB;padding-top:6px">{disc_html}</div>' if disc_html else ""
-    st.markdown(
-        f'<div style="border:1px solid #E5E8EB;border-radius:14px;padding:14px 16px;background:#fff">{tone}'
-        f'<div style="font-size:17px;font-weight:700;line-height:1.35">{h}</div>'
-        f'<div style="font-size:14px;margin-top:6px;line-height:1.5">{b}</div>'
-        f'<div style="margin-top:10px"><span style="background:#3182F6;color:#fff;border-radius:8px;padding:4px 12px;font-size:13px;font-weight:600">{c}</span></div>'
-        f'{disc_block}</div>',
-        unsafe_allow_html=True,
-    )
+
+    h = _mark(copy.headline, spans_for("headline", copy.headline), catalog)
+    b = _mark(copy.body, spans_for("body", copy.body), catalog)
+    c = _mark(copy.cta, spans_for("cta", copy.cta), catalog)
+    disc_html = "".join(f'<div>· {_mark(d, spans_for(f"disc{i}", d), catalog)}</div>' for i, d in enumerate(copy.disclosures))
+    t = f'<div class="t">{html.escape(title or "")}</div>' if title else ""
+    d = f'<div class="d">{disc_html}</div>' if disc_html else ""
+    st.markdown(f'<div class="pf-ad">{t}<div class="h">{h}</div><div class="b">{b}</div><div><span class="c">{c}</span></div>{d}</div>',
+                unsafe_allow_html=True)
 
 
-def findings_table(findings: list[Finding], catalog) -> None:
-    if not findings:
-        st.caption("finding 없음")
-        return
-    rows = []
-    for f in findings:
-        rule = catalog.get(f.rule_id)
-        rows.append({"규칙": f.rule_id, "심각도": f.severity.value, "계층": f.layer.value, "인용": f.quote or "—",
-                     "인용 검증": "✓" if f.verified_quote else "✗ (원문에 없음)", "설명": f.explanation,
-                     "출처": rule.section if rule else ""})
-    st.dataframe(rows, width="stretch", hide_index=True)
+# --- 이유·근거 문장 --------------------------------------------------------------
+def rule_title(rule_id: str, catalog) -> str:
+    r = catalog.get(rule_id) if catalog else None
+    return r.title if r else rule_id
+
+
+def finding_sentence(f: Finding, catalog, with_quote: bool = True) -> str:
+    """내부 코드 없이 읽히는 한 문장."""
+    title = rule_title(f.rule_id, catalog)
+    expl = (f.explanation or "").strip()
+    body = title if (not expl or expl == title) else f"{title} — {expl}"
+    if with_quote and f.quote:
+        body = f"“{f.quote}” · {body}"
+    if not f.verified_quote:
+        body += " (검토 모델이 원문에 없는 내용을 근거로 제시해 참고로만 둡니다)"
+    return body
+
+
+def plain_reason(rep: PreflightReport, catalog) -> str:
+    """가장 중요한 이유 한 문장."""
+    d = rep.final_decision
+    fs = [f for f in rep.verdict.findings if f.verified_quote]
+    blocks = [f for f in fs if f.severity == Severity.BLOCK]
+    fixes = [f for f in fs if f.severity == Severity.FIX]
+    if d == Decision.REJECT and blocks:
+        f = blocks[0]
+        return f"“{f.quote}” 은(는) 검사 기준상 쓸 수 없는 표현입니다 ({rule_title(f.rule_id, catalog)})." if f.quote else f"{rule_title(f.rule_id, catalog)} 사유가 확인됐습니다."
+    if d == Decision.REVISE and fixes:
+        f = fixes[0]
+        return f"“{f.quote}” 부분을 고쳐야 합니다 ({rule_title(f.rule_id, catalog)})." if f.quote else f"{rule_title(f.rule_id, catalog)} — {f.explanation}"
+    if d == Decision.HUMAN_REVIEW:
+        return human_review_reason(rep)
+    if d == Decision.APPROVE:
+        warns = [f for f in fs if f.severity == Severity.WARN]
+        if warns:
+            return f"검사 기준에서 문제는 없고, 참고 사항 {len(warns)}건이 있습니다."
+        return "검사 기준의 모든 항목을 통과했습니다."
+    return rep.decision_reason
+
+
+def human_review_reason(rep: PreflightReport) -> str:
+    r = rep.decision_reason
+    if "실패" in r:
+        return "검토 모델 단계가 실패해 자동으로 확정하지 않았습니다."
+    if "검증된 반려 근거가 없음" in r:
+        return "검토 모델이 게재 불가를 제안했지만 그 근거를 원문에서 확인하지 못했습니다."
+    if "원문에 없음" in r:
+        return "검토 모델이 원문에 없는 내용을 근거로 제시해 그 판단을 그대로 쓰지 않았습니다."
+    if "남은 근거 finding 이 없음" in r:
+        return "검토 모델이 수정을 제안했지만 남은 근거가 없어 자동으로 확정하지 않았습니다."
+    if "임계값" in r:
+        return "검토 모델의 확신이 자동 판정 기준보다 낮았습니다."
+    if "불일치" in r:
+        return "두 모델 계열의 판단이 서로 달랐습니다."
+    return r
+
+
+def what_to_check(rep: PreflightReport, catalog) -> list[str]:
+    """담당자가 확인할 것."""
+    items: list[str] = []
+    r = rep.decision_reason
+    for f in rep.verdict.findings:
+        if f.layer == Layer.SEMANTIC:
+            tag = "원문에 없는 내용을 근거로 제시 — 실제로 그런 문제가 있는지" if not f.verified_quote else "실제로 문제가 되는 표현인지"
+            items.append(f"“{f.quote}” — {rule_title(f.rule_id, catalog)}: {tag}")
+    if "불일치" in r:
+        items.append(f"검토 모델 판정 {DECISION_LABEL[rep.verdict.decision]} vs 교차 확인 {DECISION_LABEL[rep.verdict.second_opinion] if rep.verdict.second_opinion else '?'} — 어느 쪽이 맞는지")
+    if "임계값" in r:
+        items.append(f"검토 모델의 확신 {rep.verdict.confidence:.2f} — 모델이 든 이유가 타당한지")
+    if "실패" in r:
+        items.append("검토 모델 호출이 실패했습니다. 다시 실행하거나 표현 규칙·안내 문구 검사 결과만으로 판단할지")
+    if rep.rewrite_status == RewriteStatus.FAILED_RECHECK:
+        items.append("자동 수정안이 재검사를 통과하지 못했습니다. 직접 수정이 필요한지")
+    if not items:
+        items.append("검토 모델의 이유(상세 보기)가 타당한지")
+    return items
+
+
+def evidence_lines(rep: PreflightReport, product: ProductFacts, catalog) -> list[str]:
+    """어떤 상품 정보·검사 기준을 근거로 판단했는지."""
+    lines: list[str] = []
+    by_id = {f.id: f for f in product.facts}
+    used = sorted({c.fact_id for c in rep.ad_copy.claims if c.fact_id in by_id})
+    for fid in used:
+        lines.append(f"상품 정보 {fid}: {by_id[fid].text}")
+    rules = []
+    for f in rep.verdict.findings:
+        if f.verified_quote or f.layer != Layer.SEMANTIC:
+            t = f"{rule_title(f.rule_id, catalog)} ({LAYER_LABEL[f.layer]})"
+            if t not in rules:
+                rules.append(t)
+    lines.extend(f"검사 기준: {t}" for t in rules)
+    if not lines:
+        lines.append("표현 규칙·필수 안내 문구·상품 정보 일치·형식 검사와 검토 모델의 의미 검사를 모두 거쳤습니다.")
+    return lines
+
+
+def checklist_rows(rep: PreflightReport) -> list[dict]:
+    return [{"항목": check_name(c.name), "결과": "통과" if c.passed else "확인 필요", "내용": c.detail} for c in rep.checklist]
+
+
+def human_review_request_text(rep: PreflightReport, run: PipelineRun, catalog) -> str:
+    """담당자에게 전달할 확인 요청문 (복사·내려받기용). 실제 검토 대기열은 없다 — 전달은 사용자가 한다."""
+    lines = [
+        f"[담당자 확인 요청] 광고안 {rep.variant_id}",
+        f"실행 ID: {run.run_id} · 처리 기록: {run.trace_id} · 실행 방식: {run.mode}",
+        "",
+        "광고 원문",
+        f"  제목: {rep.ad_copy.headline}",
+        f"  본문: {rep.ad_copy.body}",
+        f"  버튼: {rep.ad_copy.cta}",
+    ]
+    if rep.ad_copy.disclosures:
+        lines.append("  안내 문구: " + " / ".join(rep.ad_copy.disclosures))
+    lines += ["", f"확정하지 못한 이유: {human_review_reason(rep)}", "", "확인해 주실 것"]
+    lines += [f"  - {x}" for x in what_to_check(rep, catalog)]
+    fs = [f for f in rep.verdict.findings]
+    if fs:
+        lines += ["", "검사에서 나온 항목"]
+        lines += [f"  - [{SEVERITY_LABEL[f.severity]}] {finding_sentence(f, catalog)} (규칙 {f.rule_id})" for f in fs]
+    lines += ["", "진행 가능 여부: 담당자 확인 전에는 게재할 수 없습니다."]
+    return "\n".join(lines)

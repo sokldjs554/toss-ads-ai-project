@@ -1,5 +1,5 @@
 from agents.pipeline import RunOptions, run_pipeline
-from core.schemas import CampaignBrief, Decision, Fact, ProductCategory, ProductFacts
+from core.schemas import CampaignBrief, Decision, Fact, ProductCategory, ProductFacts, RewriteStatus
 from llm.router import Router
 
 FACTS = [Fact(id="F1", text="연 4.5%~15.0% (심사 결과에 따라 다름)"), Fact(id="F2", text="최대 한도 5,000만원 (심사 결과에 따라 다름)"), Fact(id="F3", text="중도상환수수료 없음")]
@@ -21,8 +21,57 @@ def test_rewrite_is_rechecked(demo_settings, tracer):
     names = [s.name for s in tracer.latest().spans()]
     assert "rewrite_recheck" in names  # 공격적 변형의 수정안이 재검사됨
     for r in run.reports:
-        if r.verdict.compliant_rewrite is not None:
-            assert r.final_decision in (Decision.REVISE, Decision.REJECT)
+        if r.rewrite_status == RewriteStatus.VERIFIED:
+            assert r.verified_rewrite is not None and r.rewrite_recheck_decision == Decision.APPROVE
+        else:
+            assert r.verified_rewrite is None
+        if r.rewrite_status == RewriteStatus.FAILED_RECHECK:
+            # 실패 기록(FM-19)의 조치와 실제 처리 결과가 일치한다: 수정안 폐기, 원문 판정 유지
+            ev = [f for f in run.failures if f.code == "FM-19" and f.message.startswith(r.variant_id)]
+            assert ev and r.final_decision.value in ev[0].fallback and "폐기" in ev[0].fallback
+
+
+def test_failed_rewrite_not_shown_on_reject_and_revise_paths(demo_settings, tracer, monkeypatch):
+    """리뷰에서 확인된 사례(기본 신용대출 예시): 수정안이 재검사에 걸려 FM-19 가 기록되는데도 REJECT 판정 소재에 수정안이 남아 화면에 보였다.
+    대역의 수정안이 항상 block 표현을 품도록 바꿔, 모든 판정 경로에서 verified_rewrite 가 비고 FM-19 의 조치와 처리 결과가 일치하는지 본다."""
+    from llm import mock_provider
+    from ui.presets import PRESETS, build_brief
+
+    original = mock_provider.MockProvider._review
+
+    def bad_review(self, req):
+        out = original(self, req)
+        if out.get("rewrite"):
+            out["rewrite"]["headline"] = "타사보다 2배 좋은 조건"  # TA-COMPARE-01 (block) → 재검사 실패
+        return out
+
+    monkeypatch.setattr(mock_provider.MockProvider, "_review", bad_review)
+    p = PRESETS["commerce_landing"]
+    run = run_pipeline(build_brief(p), demo_settings, options=RunOptions(landing_text=p["landing_text"]), tracer=tracer)
+    with_rewrite = [r for r in run.reports if r.verdict.proposed_rewrite is not None]
+    assert with_rewrite and {r.final_decision for r in with_rewrite} >= {Decision.REVISE, Decision.REJECT}
+    for r in with_rewrite:
+        assert r.rewrite_status == RewriteStatus.FAILED_RECHECK and r.verified_rewrite is None
+        ev = [f for f in run.failures if f.code == "FM-19" and f.message.startswith(r.variant_id)]
+        assert ev and "폐기" in ev[0].fallback and r.final_decision.value in ev[0].fallback
+
+
+def test_demo_loan_preset_rewrite_status_consistent(demo_settings, tracer):
+    """기본 예시: 수정안이 있으면 재검사 결과(verified/failed)와 verified_rewrite 유무가 항상 일치한다."""
+    from ui.presets import PRESETS, build_brief
+
+    p = PRESETS["loan_ok"]
+    run = run_pipeline(build_brief(p), demo_settings, options=RunOptions(landing_text=p["landing_text"]), tracer=tracer)
+    for r in run.reports:
+        assert (r.verified_rewrite is not None) == (r.rewrite_status == RewriteStatus.VERIFIED)
+        if r.rewrite_status == RewriteStatus.VERIFIED:
+            assert r.rewrite_recheck_decision == Decision.APPROVE and not r.rewrite_recheck_findings
+
+
+def test_progress_callback_reports_real_stages(demo_settings, tracer):
+    seen = []
+    run_pipeline(brief("신용대출, 월 300만원"), demo_settings, options=RunOptions(on_progress=lambda k, l: seen.append(k)), tracer=tracer)
+    assert seen[:3] == ["intercept", "planner", "copywriter"] and "review" in seen
 
 
 def test_hard_block_halts_before_generation(demo_settings, tracer):

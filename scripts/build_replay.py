@@ -187,7 +187,7 @@ def build_scenario(key):
                                  "checklist": [{"name": c.name, "passed": c.passed, "detail": c.detail, "layer": c.layer.value} for c in det.checklist]},
                          "audience": aud, "review": review, "second": second, "recheck": rc["attributes"].get("decision") if rc else None,
                          "final": final, "reason": adj["attributes"].get("reason"),
-                         "rewrite_shown": bool(review and review["rewrite"] and rc and rc["attributes"].get("decision") == "APPROVE" and final == "REVISE")})
+                         "rewrite_shown": bool(review and review["rewrite"] and rc and rc["attributes"].get("decision") == "APPROVE")})
     sc["variants"] = variants
     return sc
 

@@ -25,6 +25,14 @@ jobs:
         env:
           PREFLIGHT_FORCE_DEMO: "1"
         run: python -m evals.run --dataset golden --gate
+      - name: holdout (final-check set, not used for tuning) — deterministic layer must approve none
+        env:
+          PREFLIGHT_FORCE_DEMO: "1"
+        run: python -m evals.run --dataset holdout --no-llm --require-zero-unsafe
+      - name: G-069 contrast cases — deterministic layer must approve none
+        env:
+          PREFLIGHT_FORCE_DEMO: "1"
+        run: python -m evals.run --dataset contrast_g069 --no-llm --require-zero-unsafe
       - name: app smoke (import + headless start)
         env:
           PREFLIGHT_FORCE_DEMO: "1"

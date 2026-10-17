@@ -8,7 +8,7 @@ from __future__ import annotations
 import time
 from typing import Optional
 
-from llm.base import LLMRequest, LLMResponse
+from llm.base import LLMRequest, LLMResponse, estimate_tokens
 from llm.errors import ModelRefusal, ProviderError, RateLimited, SchemaMismatch, Timeout, TruncatedOutput
 from llm.json_utils import extract_json
 from observability.pricing import estimate_cost_usd
@@ -80,10 +80,14 @@ class OpenAIProvider:
             except Exception as e:  # noqa: BLE001
                 raise SchemaMismatch(str(e), provider=self.name, raw_text=text) from e
         usage = completion.usage
-        itok = getattr(usage, "prompt_tokens", 0) or 0
-        otok = getattr(usage, "completion_tokens", 0) or 0
+        itok = getattr(usage, "prompt_tokens", None) if usage is not None else None
+        otok = getattr(usage, "completion_tokens", None) if usage is not None else None
+        estimated = itok is None or otok is None
+        if estimated:  # 사용량을 못 받으면 글자 수로 보수적으로 추정하고 '추정' 으로 표시한다 (0원 확정 금지)
+            itok = estimate_tokens(req.system + req.user) if itok is None else itok
+            otok = estimate_tokens(text) if otok is None else otok
         return LLMResponse(
             text=text, parsed=parsed, provider=self.name, model=self.model,
             input_tokens=itok, output_tokens=otok, latency_ms=round(latency, 1),
-            cost_usd=estimate_cost_usd(self.model, itok, otok), finish_reason=choice.finish_reason or "",
+            cost_usd=estimate_cost_usd(self.model, itok, otok), finish_reason=choice.finish_reason or "", cost_estimated=estimated,
         )

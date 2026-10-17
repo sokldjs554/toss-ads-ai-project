@@ -126,3 +126,55 @@ def test_breaker_half_open_after_cooldown():
     b = CircuitBreaker(threshold=1, cooldown_s=0.0)
     b.failure()
     assert not b.is_open  # cooldown 0 → 바로 반개방
+
+
+def test_call_limit_counts_retry_requests(tracer):
+    """상한 1회: 잘림 재시도는 두 번째 요청이므로 보내기 전에 막혀야 한다 (리뷰 재현: 전에는 2회 요청이 나갔다)."""
+    seen = []
+
+    def behave(r: LLMRequest) -> LLMResponse:
+        seen.append(r.max_tokens)
+        return LLMResponse(text='{"ok": true}', parsed=Out(ok=True), provider="openai", model="fake")
+
+    oa = FakeProvider("openai", behavior=behave, errors=[TruncatedOutput("len", provider="openai")])
+    r = router(oa, FakeProvider("anthropic"), tracer)
+    r.budget.max_calls = 1
+    with tracer.trace("t"):
+        with pytest.raises(BudgetExceeded):
+            r.complete(LLMRequest(task=Task.REVIEW, system="s", user="u", schema=Out, max_tokens=100))
+    assert oa.calls == 1 and seen == [] and r.budget.attempts == 1
+
+
+def test_failed_attempts_are_counted_and_cost_marked_estimated(tracer):
+    oa = FakeProvider("openai", errors=[Timeout("t", provider="openai")])
+    an = FakeProvider("anthropic")
+    r = router(oa, an, tracer)
+    with tracer.trace("t"):
+        r.complete(req())
+    assert r.budget.attempts == 2 and r.budget.calls == 1 and r.budget.failed_attempts == 1
+    assert r.budget.estimated  # 실패한 요청의 비용은 확인되지 않았으므로 0원으로 확정하지 않는다
+
+
+def test_call_limit_applies_to_failed_attempts(tracer):
+    oa = FakeProvider("openai", errors=[Timeout("t", provider="openai")])
+    an = FakeProvider("anthropic")
+    r = router(oa, an, tracer)
+    r.budget.max_calls = 1
+    with tracer.trace("t"):
+        with pytest.raises(BudgetExceeded):
+            r.complete(req())
+    assert oa.calls == 1 and an.calls == 0
+
+
+def test_unknown_usage_is_estimated_not_zero(tracer):
+    def behave(r: LLMRequest) -> LLMResponse:
+        return LLMResponse(text='{"ok": true}', parsed=Out(ok=True), provider="openai", model="fake", input_tokens=50, output_tokens=5,
+                           cost_usd=0.0004, cost_estimated=True)
+
+    oa = FakeProvider("openai", behavior=behave)
+    r = router(oa, FakeProvider("anthropic"), tracer)
+    with tracer.trace("t"):
+        resp = r.complete(req())
+    assert resp.cost_estimated and r.budget.estimated and r.budget.spent_usd > 0
+    span = tracer.latest().llm_spans()[0]
+    assert span.attributes.get("cost_estimated") is True

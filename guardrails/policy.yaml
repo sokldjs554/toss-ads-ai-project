@@ -11,7 +11,7 @@
 #   patterns : 정규화된 표면(loose/tight)에 적용하는 정규식. 한글 조사·어미는 패턴 안에서 허용
 #   negation_aware : true 면 매치 직후 부정 표현이 있으면 warn 으로 내리고 의미 심사로 넘긴다
 #   exceptions : 이 정규식에 걸리는 매치는 무시 (예: 상품 자체의 금리 범위 '최저 연 4.5%')
-version: "2026.10.1"
+version: "2026.10.2"
 rules:
   # ───────────────────────────── 토스애즈 공통 · 소재별 ─────────────────────────────
   - id: TA-SUPERLATIVE-01
@@ -554,14 +554,24 @@ rules:
     fix_hint: "사실 목록에 있는 숫자만 사용하거나 사실을 추가"
 
   - id: GRND-CLAIM-01
-    title: 근거(fact_id) 없는 주장
-    section: "프로젝트 규칙 (모든 주장은 사실 id 를 가리킨다)"
+    title: 근거(fact_id)가 없거나 주장을 뒷받침하지 않음
+    section: "프로젝트 규칙 (모든 주장은 사실 id 를 가리키고, 그 사실이 주장을 실제로 뒷받침해야 한다)"
     severity: fix
     layer: grounding
     applies: [all]
     patterns: []
-    explanation: "생성 모델이 fact_id 를 비워 둔 주장, 또는 존재하지 않는 fact_id 를 가리키는 주장."
-    fix_hint: "사실 목록에 근거를 추가하거나 주장 삭제"
+    explanation: "생성 모델이 fact_id 를 비워 둔 주장, 존재하지 않는 fact_id 를 가리키는 주장, 또는 가리킨 사실의 수치·어휘가 주장과 맞지 않는 경우 (예: '배송 15일' 사실로 '5% 할인' 을 근거 삼음)."
+    fix_hint: "주장을 실제로 뒷받침하는 사실을 가리키거나, 사실 목록에 근거를 추가하거나, 주장을 삭제"
+
+  - id: GRND-COND-01
+    title: 근거 사실의 조건이 광고에서 빠짐
+    section: "프로젝트 규칙 (근거 결합) · 공통 심사 정책 › 허위/과장/기만 3·6 (조건 미표기)"
+    severity: fix
+    layer: grounding
+    applies: [all]
+    patterns: []
+    explanation: "광고가 근거로 쓴 사실에 '~후 자동결제', '심사 결과에 따라', '~원 이상', '~까지', '1인 1회', '제외' 같은 조건이 있는데 광고 문구·고지 어디에도 그 조건이 없음. 코드가 보는 조건 표식은 이 여섯 종류뿐이다."
+    fix_hint: "조건을 같은 소재 안에 표기 (예: '7일 무료 체험 후 월 19,900원 자동결제')"
 
   - id: CAT-MISMATCH-01
     title: 선언 업종과 문구 단서 불일치

@@ -1,64 +1,130 @@
 """최종 판정은 모델이 아니라 이 코드가 한다. 승인으로 가는 길은 좁고, 사람 검토로 가는 길은 넓다 (fail-closed).
 
-규칙 (위에서부터 먼저 맞는 것):
+판정 규칙 (위에서부터 먼저 맞는 것) — `decide()` 하나에만 있다. 실제 서비스(pipeline)와 평가(evals)가 같은 함수를 쓰므로
+같은 입력·같은 모델 응답·같은 임계값이면 같은 판정이 나온다. 평가의 임계값별 분석도 이 함수를 다시 부른다.
 1. 결정론 BLOCK 이 하나라도 있으면 REJECT — 모델은 이를 뒤집을 수 없다.
 2. 심사 모델이 실패했으면 HUMAN_REVIEW.
 3. 모델이 REJECT 라 했지만 검증된 block 인용이 없으면 HUMAN_REVIEW (증거 없는 반려는 자동화하지 않는다).
-   모델이 REVISE/REJECT 를 말했는데 근거 finding 이 하나도 남지 않았어도(인용 없음, 또는 코드가 반증·FM-23) HUMAN_REVIEW — 근거 없는 판정은 어느 방향으로도 자동화하지 않는다.
+   모델이 REVISE/REJECT 를 말했는데 근거 finding 이 하나도 남지 않았어도(인용 없음, 또는 코드가 반증·FM-23) HUMAN_REVIEW.
 4. 신뢰도 < 임계값(보정으로 정함) 이면 HUMAN_REVIEW.
 5. 2차 의견(다른 모델 계열)이 있고 판정이 다르면 HUMAN_REVIEW.
-6. FIX 가 있으면 REVISE — 단, 자동 수정안은 전체 가드레일을 다시 통과한 것만 붙인다. 통과 못 하면 수정안을 폐기하고 finding 만 돌려준다 (FM-19).
+6. FIX 가 있으면 REVISE.
 7. 그 외 APPROVE.
+
+수정안은 판정과 '따로' 관리한다 (RewriteStatus). 재검사를 통과한 수정안만 verified_rewrite 로 돌려주고, 통과하지 못한 수정안은
+final_decision 이 무엇이든(REVISE·REJECT·HUMAN_REVIEW) 절대 제시하지 않는다 (FM-19).
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from typing import Optional
 
-from core.schemas import AdCopy, AudienceReport, ChecklistItem, Decision, Layer, PreflightReport, ReviewVerdict, Severity
+from core.schemas import (
+    AdCopy,
+    AudienceReport,
+    ChecklistItem,
+    Decision,
+    Layer,
+    PreflightReport,
+    ReviewVerdict,
+    RewriteStatus,
+    Severity,
+)
 from guardrails.output_guard import OutputGuardResult
+
+
+@dataclass
+class DecisionInputs:
+    """판정에 필요한 원본 — 저장해 두면 다른 임계값으로 그대로 재생할 수 있다."""
+
+    det_block: bool = False
+    det_fix: bool = False
+    verdict_available: bool = False
+    model_decision: Optional[str] = None        # APPROVE | REVISE | REJECT (모델이 말한, 완화 불가 규칙 적용 후)
+    confidence: float = 0.0
+    sem_block_verified: bool = False            # 검증된 인용을 가진 semantic block finding 이 있는가
+    unverified_quotes: int = 0                  # 원문에 없는 인용(환각) 수
+    unsupported_decision: bool = False          # 모델이 수정/반려를 말했지만 남은 근거 finding 이 없음
+    disagreement: bool = False                  # 2차 의견 불일치
+    second_opinion: Optional[str] = None
+    has_rewrite: bool = False
+    rewrite_passed: Optional[bool] = None       # None = 재검사 없음/불가
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "DecisionInputs":
+        return cls(**{k: v for k, v in d.items() if k in cls.__dataclass_fields__})
 
 
 @dataclass
 class Adjudication:
     decision: Decision
     reason: str
-    rewrite_kept: bool = False
+    rewrite_status: RewriteStatus = RewriteStatus.NONE
+    rewrite_note: str = ""
+
+
+def inputs_from(det: OutputGuardResult, verdict: Optional[ReviewVerdict],
+                rewrite_recheck: Optional[OutputGuardResult] = None) -> DecisionInputs:
+    inp = DecisionInputs(det_block=any(f.severity == Severity.BLOCK for f in det.findings),
+                         det_fix=any(f.severity == Severity.FIX for f in det.findings))
+    if verdict is None:
+        return inp
+    inp.verdict_available = True
+    inp.model_decision = verdict.decision.value
+    inp.confidence = float(verdict.confidence)
+    inp.sem_block_verified = any(f.layer == Layer.SEMANTIC and f.severity == Severity.BLOCK and f.verified_quote for f in verdict.findings)
+    inp.unverified_quotes = sum(1 for f in verdict.findings if not f.verified_quote)
+    inp.unsupported_decision = bool(verdict.unsupported_decision)
+    inp.disagreement = bool(verdict.disagreement)
+    inp.second_opinion = verdict.second_opinion.value if verdict.second_opinion else None
+    inp.has_rewrite = verdict.proposed_rewrite is not None
+    if inp.has_rewrite:
+        inp.rewrite_passed = None if rewrite_recheck is None else rewrite_recheck.decision == Decision.APPROVE
+    return inp
+
+
+def decide(inp: DecisionInputs, threshold: float) -> Adjudication:
+    """순수 함수. 같은 입력·같은 임계값 → 같은 판정."""
+    if inp.det_block:
+        adj = Adjudication(Decision.REJECT, "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려")
+    elif not inp.verdict_available:
+        adj = Adjudication(Decision.HUMAN_REVIEW, "심사 모델 단계가 실패해 자동 판정을 하지 않음 (fail-closed)")
+    elif inp.model_decision == Decision.REJECT.value and not inp.sem_block_verified:
+        adj = Adjudication(Decision.HUMAN_REVIEW, "모델이 반려를 제안했지만 원문에서 검증된 반려 근거가 없음 → 사람 검토")
+    elif inp.model_decision == Decision.REJECT.value:
+        adj = Adjudication(Decision.REJECT, "의미 심사에서 검증된 인용과 함께 반려 사유 확인")
+    elif inp.unverified_quotes:
+        adj = Adjudication(Decision.HUMAN_REVIEW, f"모델 finding {inp.unverified_quotes}건의 인용이 원문에 없음(환각 의심) → 사람 검토")
+    elif inp.unsupported_decision:
+        adj = Adjudication(Decision.HUMAN_REVIEW, "모델이 수정/반려를 제안했지만 남은 근거 finding 이 없음(인용 없음 또는 코드가 반증) → 사람 검토")
+    elif inp.confidence < threshold:
+        adj = Adjudication(Decision.HUMAN_REVIEW, f"심사 신뢰도 {inp.confidence:.2f} < 자동 판정 임계값 {threshold:.2f}")
+    elif inp.disagreement:
+        adj = Adjudication(Decision.HUMAN_REVIEW, f"두 모델 계열의 판정 불일치 ({inp.model_decision} vs {inp.second_opinion or '?'})")
+    elif inp.model_decision == Decision.REVISE.value or inp.det_fix:
+        adj = Adjudication(Decision.REVISE, "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급")
+    else:
+        adj = Adjudication(Decision.APPROVE, f"모든 가드레일 통과, 심사 신뢰도 {inp.confidence:.2f} ≥ {threshold:.2f}")
+    # 수정안 상태는 판정과 독립이다. 어떤 판정 경로에서도 재검사 실패/미실시 수정안은 '검증됨' 이 될 수 없다.
+    if not inp.has_rewrite:
+        adj.rewrite_status, adj.rewrite_note = RewriteStatus.NONE, "자동 수정안 없음"
+    elif inp.rewrite_passed is True:
+        adj.rewrite_status, adj.rewrite_note = RewriteStatus.VERIFIED, "자동 수정안이 전체 가드레일 재검사를 통과해 함께 제시"
+    elif inp.rewrite_passed is False:
+        adj.rewrite_status, adj.rewrite_note = RewriteStatus.FAILED_RECHECK, "자동 수정안이 재검사에서 다시 걸려 폐기(FM-19) — 제시하지 않음"
+    else:
+        adj.rewrite_status, adj.rewrite_note = RewriteStatus.UNCHECKED, "자동 수정안을 재검사하지 못해 제시하지 않음"
+    return adj
 
 
 def adjudicate(copy: AdCopy, det: OutputGuardResult, verdict: Optional[ReviewVerdict], threshold: float,
                rewrite_recheck: Optional[OutputGuardResult] = None, audience: Optional[AudienceReport] = None) -> PreflightReport:
+    inp = inputs_from(det, verdict, rewrite_recheck)
+    adj = decide(inp, threshold)
     checklist = list(det.checklist)
-    if any(f.severity == Severity.BLOCK for f in det.findings):
-        adj = Adjudication(Decision.REJECT, "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려")
-    elif verdict is None:
-        adj = Adjudication(Decision.HUMAN_REVIEW, "심사 모델 단계가 실패해 자동 판정을 하지 않음 (fail-closed)")
-    else:
-        sem_block_verified = any(f.layer == Layer.SEMANTIC and f.severity == Severity.BLOCK and f.verified_quote for f in verdict.findings)
-        unverified = [f for f in verdict.findings if not f.verified_quote]
-        if verdict.decision == Decision.REJECT and not sem_block_verified:
-            adj = Adjudication(Decision.HUMAN_REVIEW, "모델이 반려를 제안했지만 원문에서 검증된 반려 근거가 없음 → 사람 검토")
-        elif verdict.decision == Decision.REJECT:
-            adj = Adjudication(Decision.REJECT, "의미 심사에서 검증된 인용과 함께 반려 사유 확인")
-        elif unverified:
-            adj = Adjudication(Decision.HUMAN_REVIEW, f"모델 finding {len(unverified)}건의 인용이 원문에 없음(환각 의심) → 사람 검토")
-        elif verdict.unsupported_decision:
-            adj = Adjudication(Decision.HUMAN_REVIEW, "모델이 수정/반려를 제안했지만 남은 근거 finding 이 없음(인용 없음 또는 코드가 반증) → 사람 검토")
-        elif verdict.confidence < threshold:
-            adj = Adjudication(Decision.HUMAN_REVIEW, f"심사 신뢰도 {verdict.confidence:.2f} < 자동 판정 임계값 {threshold:.2f}")
-        elif verdict.disagreement:
-            adj = Adjudication(Decision.HUMAN_REVIEW, f"두 모델 계열의 판정 불일치 ({verdict.decision.value} vs {verdict.second_opinion.value if verdict.second_opinion else '?'})")
-        elif verdict.decision == Decision.REVISE or any(f.severity == Severity.FIX for f in det.findings):
-            if verdict.compliant_rewrite is not None and rewrite_recheck is not None:
-                if rewrite_recheck.decision == Decision.APPROVE:
-                    adj = Adjudication(Decision.REVISE, "수정 필요 — 자동 수정안이 전체 가드레일 재검사를 통과해 함께 제시", rewrite_kept=True)
-                else:
-                    adj = Adjudication(Decision.REVISE, "수정 필요 — 자동 수정안이 재검사에서 다시 걸려 폐기(FM-19). 결정론 finding 을 근거로 광고주가 직접 수정")
-                    verdict.compliant_rewrite = None
-            else:
-                adj = Adjudication(Decision.REVISE, "수정 필요 — 자동 수정안 없음")
-        else:
-            adj = Adjudication(Decision.APPROVE, f"모든 가드레일 통과, 심사 신뢰도 {verdict.confidence:.2f} ≥ {threshold:.2f}")
     if verdict is not None:
         checklist.append(ChecklistItem(name="의미 심사 (LLM)", passed=verdict.decision == Decision.APPROVE, layer=Layer.SEMANTIC,
                                        detail=f"{verdict.decision.value} · 신뢰도 {verdict.confidence:.2f} · {verdict.provider}/{verdict.model}"))
@@ -66,9 +132,19 @@ def adjudicate(copy: AdCopy, det: OutputGuardResult, verdict: Optional[ReviewVer
             checklist.append(ChecklistItem(name="교차 검증 (다른 모델 계열)", passed=not verdict.disagreement, layer=Layer.SEMANTIC,
                                            detail=f"2차 의견 {verdict.second_opinion.value} · {verdict.second_opinion_provider}"
                                            + ("" if verdict.second_opinion_independent else " · ⚠️ 같은 제공자 — 독립성 없음 (키 하나뿐인 PARTIAL 모드)")))
+    if inp.has_rewrite:
+        checklist.append(ChecklistItem(name="자동 수정안 재검사", passed=adj.rewrite_status == RewriteStatus.VERIFIED, layer=Layer.STRUCTURAL,
+                                       detail=adj.rewrite_note))
     checklist.append(ChecklistItem(name="최종 판정", passed=adj.decision == Decision.APPROVE, layer=Layer.STRUCTURAL, detail=adj.reason))
     if verdict is None:
         verdict = ReviewVerdict(variant_id=copy.variant_id, decision=Decision.HUMAN_REVIEW, confidence=0.0, findings=det.findings,
                                 rationale="심사 단계 실패 (failsafe)")
-    return PreflightReport(variant_id=copy.variant_id, ad_copy=copy, audience=audience, verdict=verdict,
-                           final_decision=adj.decision, checklist=checklist, decision_reason=adj.reason)
+    verified = verdict.proposed_rewrite if adj.rewrite_status == RewriteStatus.VERIFIED else None
+    return PreflightReport(
+        variant_id=copy.variant_id, ad_copy=copy, audience=audience, verdict=verdict,
+        final_decision=adj.decision, checklist=checklist, decision_reason=adj.reason,
+        rewrite_status=adj.rewrite_status, verified_rewrite=verified,
+        rewrite_recheck_decision=rewrite_recheck.decision if (inp.has_rewrite and rewrite_recheck is not None) else None,
+        rewrite_recheck_findings=list(rewrite_recheck.findings) if (inp.has_rewrite and rewrite_recheck is not None) else [],
+        rewrite_note=adj.rewrite_note,
+    )

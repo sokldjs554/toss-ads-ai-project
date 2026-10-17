@@ -1,74 +1,103 @@
 {
   "dataset": "golden",
-  "n": 53,
-  "excluded_semantic_only": 2,
-  "generated_at": "2026-10-16T16:25:31.013202+00:00",
+  "n": 54,
+  "excluded_semantic_only": 1,
+  "dataset_version": "1.2",
+  "dataset_sha256": "9b45c5d5d708a150",
+  "generated_at": "2026-10-17T08:21:32.123349+00:00",
   "mode": "demo",
   "reviewer": "mock",
-  "prompt_version": "2026.10.2",
-  "policy_version": "2026.10.1",
+  "provider": "mock",
+  "model": "mock",
+  "prompt_version": "2026.10.3",
+  "policy_version": "2026.10.2",
   "threshold": 0.8,
+  "scope": {
+    "second_opinion": false,
+    "audience": false,
+    "stages": "output_guard → reviewer → rewrite_recheck → adjudicate"
+  },
+  "curve_method": "replay_decide",
   "recommended_threshold_for_zero_unsafe": 0.5,
   "recommended_threshold_for_zero_unsafe_and_zero_false_flag": 0.5,
+  "cost_estimated": false,
   "summary": {
-    "n": 53,
+    "n": 54,
     "coverage": {
-      "k": 52,
-      "n": 53,
-      "rate": 0.9811,
+      "k": 53,
+      "n": 54,
+      "rate": 0.9815,
       "wilson95": [
-        0.9006,
+        0.9023,
         0.9967
       ]
     },
     "accuracy_decided": {
-      "k": 52,
-      "n": 52,
+      "k": 53,
+      "n": 53,
       "rate": 1.0,
       "wilson95": [
-        0.9312,
+        0.9324,
         1.0
       ]
     },
     "catch_rate_decided": {
-      "k": 52,
-      "n": 52,
+      "k": 53,
+      "n": 53,
       "rate": 1.0,
       "wilson95": [
-        0.9312,
+        0.9324,
         1.0
       ]
     },
     "unsafe_approve": {
       "k": 0,
-      "n": 39,
+      "n": 41,
       "rate": 0.0,
       "wilson95": [
         0.0,
-        0.0897
+        0.0857
       ]
     },
     "false_flag": {
       "k": 0,
-      "n": 14,
+      "n": 13,
       "rate": 0.0,
       "wilson95": [
         0.0,
-        0.2153
+        0.2281
       ]
     },
     "human_review": {
       "k": 1,
-      "n": 53,
-      "rate": 0.0189,
+      "n": 54,
+      "rate": 0.0185,
       "wilson95": [
         0.0033,
-        0.0994
+        0.0977
+      ]
+    },
+    "benign_correct_pass": {
+      "k": 12,
+      "n": 13,
+      "rate": 0.9231,
+      "wilson95": [
+        0.6669,
+        0.9863
+      ]
+    },
+    "benign_human_review": {
+      "k": 1,
+      "n": 13,
+      "rate": 0.0769,
+      "wilson95": [
+        0.0137,
+        0.3331
       ]
     },
     "by_difficulty": {
       "benign_scary": {
-        "n": 14,
+        "n": 13,
         "unsafe_approve": {
           "k": 0,
           "n": 0,
@@ -80,20 +109,20 @@
         },
         "false_flag": {
           "k": 0,
-          "n": 14,
+          "n": 13,
           "rate": 0.0,
           "wilson95": [
             0.0,
-            0.2153
+            0.2281
           ]
         },
         "human_review": {
           "k": 1,
-          "n": 14,
-          "rate": 0.0714,
+          "n": 13,
+          "rate": 0.0769,
           "wilson95": [
-            0.0127,
-            0.3147
+            0.0137,
+            0.3331
           ]
         }
       },
@@ -158,14 +187,14 @@
         }
       },
       "gray": {
-        "n": 14,
+        "n": 16,
         "unsafe_approve": {
           "k": 0,
-          "n": 14,
+          "n": 16,
           "rate": 0.0,
           "wilson95": [
             0.0,
-            0.2153
+            0.1936
           ]
         },
         "false_flag": {
@@ -179,11 +208,11 @@
         },
         "human_review": {
           "k": 0,
-          "n": 14,
+          "n": 16,
           "rate": 0.0,
           "wilson95": [
             0.0,
-            0.2153
+            0.1936
           ]
         }
       },
@@ -223,20 +252,20 @@
         "n": 7,
         "unsafe_approve": {
           "k": 0,
-          "n": 5,
+          "n": 6,
           "rate": 0.0,
           "wilson95": [
             0.0,
-            0.4345
+            0.3903
           ]
         },
         "false_flag": {
           "k": 0,
-          "n": 2,
+          "n": 1,
           "rate": 0.0,
           "wilson95": [
             0.0,
-            0.6576
+            0.7935
           ]
         },
         "human_review": {
@@ -310,14 +339,14 @@
         }
       },
       "ecommerce": {
-        "n": 5,
+        "n": 6,
         "unsafe_approve": {
           "k": 0,
-          "n": 4,
+          "n": 5,
           "rate": 0.0,
           "wilson95": [
             0.0,
-            0.4899
+            0.4345
           ]
         },
         "false_flag": {
@@ -331,11 +360,11 @@
         },
         "human_review": {
           "k": 0,
-          "n": 5,
+          "n": 6,
           "rate": 0.0,
           "wilson95": [
             0.0,
-            0.4345
+            0.3903
           ]
         }
       },
@@ -679,13 +708,21 @@
         "recall": 1.0,
         "f1": 1.0
       },
+      "GRND-COND-01": {
+        "tp": 2,
+        "fp": 5,
+        "fn": 0,
+        "precision": 0.286,
+        "recall": 1.0,
+        "f1": 0.444
+      },
       "GRND-NUM-01": {
-        "tp": 11,
-        "fp": 0,
-        "fn": 1,
-        "precision": 1.0,
-        "recall": 0.917,
-        "f1": 0.957
+        "tp": 12,
+        "fp": 5,
+        "fn": 0,
+        "precision": 0.706,
+        "recall": 1.0,
+        "f1": 0.828
       },
       "INJ-APPROVE-01": {
         "tp": 2,
@@ -817,9 +854,9 @@
       }
     },
     "calibration": {
-      "n": 52,
-      "ece": 0.0912,
-      "brier": 0.0091,
+      "n": 53,
+      "ece": 0.093,
+      "brier": 0.0095,
       "bins": [
         {
           "lo": 0.0,
@@ -880,25 +917,25 @@
         {
           "lo": 0.8,
           "hi": 0.9,
-          "n": 12,
+          "n": 14,
           "confidence": 0.86,
           "accuracy": 1.0
         },
         {
           "lo": 0.9,
           "hi": 1.0,
-          "n": 40,
-          "confidence": 0.923,
+          "n": 39,
+          "confidence": 0.924,
           "accuracy": 1.0
         }
       ],
       "high_confidence_error": {
         "k": 0,
-        "n": 52,
+        "n": 53,
         "rate": 0.0,
         "wilson95": [
           0.0,
-          0.0688
+          0.0676
         ]
       },
       "confidently_wrong": []
@@ -906,77 +943,118 @@
     "coverage_curve": [
       {
         "tau": 0.5,
-        "coverage": 0.981,
+        "coverage": 1.0,
         "unsafe_approve": 0.0,
         "false_flag": 0.0,
-        "n_auto": 52
+        "n_auto": 54,
+        "n_unsafe_pool": 41,
+        "n_benign_pool": 13,
+        "k_unsafe": 0,
+        "k_false_flag": 0
       },
       {
         "tau": 0.55,
-        "coverage": 0.981,
+        "coverage": 1.0,
         "unsafe_approve": 0.0,
         "false_flag": 0.0,
-        "n_auto": 52
+        "n_auto": 54,
+        "n_unsafe_pool": 41,
+        "n_benign_pool": 13,
+        "k_unsafe": 0,
+        "k_false_flag": 0
       },
       {
         "tau": 0.6,
-        "coverage": 0.981,
+        "coverage": 1.0,
         "unsafe_approve": 0.0,
         "false_flag": 0.0,
-        "n_auto": 52
+        "n_auto": 54,
+        "n_unsafe_pool": 41,
+        "n_benign_pool": 13,
+        "k_unsafe": 0,
+        "k_false_flag": 0
       },
       {
         "tau": 0.65,
-        "coverage": 0.981,
+        "coverage": 1.0,
         "unsafe_approve": 0.0,
         "false_flag": 0.0,
-        "n_auto": 52
+        "n_auto": 54,
+        "n_unsafe_pool": 41,
+        "n_benign_pool": 13,
+        "k_unsafe": 0,
+        "k_false_flag": 0
       },
       {
         "tau": 0.7,
-        "coverage": 0.981,
+        "coverage": 1.0,
         "unsafe_approve": 0.0,
         "false_flag": 0.0,
-        "n_auto": 52
+        "n_auto": 54,
+        "n_unsafe_pool": 41,
+        "n_benign_pool": 13,
+        "k_unsafe": 0,
+        "k_false_flag": 0
       },
       {
         "tau": 0.75,
         "coverage": 0.981,
         "unsafe_approve": 0.0,
         "false_flag": 0.0,
-        "n_auto": 52
+        "n_auto": 53,
+        "n_unsafe_pool": 41,
+        "n_benign_pool": 12,
+        "k_unsafe": 0,
+        "k_false_flag": 0
       },
       {
         "tau": 0.8,
         "coverage": 0.981,
         "unsafe_approve": 0.0,
         "false_flag": 0.0,
-        "n_auto": 52
+        "n_auto": 53,
+        "n_unsafe_pool": 41,
+        "n_benign_pool": 12,
+        "k_unsafe": 0,
+        "k_false_flag": 0
       },
       {
         "tau": 0.85,
         "coverage": 0.981,
         "unsafe_approve": 0.0,
         "false_flag": 0.0,
-        "n_auto": 52
+        "n_auto": 53,
+        "n_unsafe_pool": 41,
+        "n_benign_pool": 12,
+        "k_unsafe": 0,
+        "k_false_flag": 0
       },
       {
         "tau": 0.9,
-        "coverage": 0.755,
+        "coverage": 0.722,
         "unsafe_approve": 0.0,
         "false_flag": 0.0,
-        "n_auto": 40
+        "n_auto": 39,
+        "n_unsafe_pool": 27,
+        "n_benign_pool": 12,
+        "k_unsafe": 0,
+        "k_false_flag": 0
       },
       {
         "tau": 0.95,
-        "coverage": 0.0,
+        "coverage": 0.5,
         "unsafe_approve": 0.0,
         "false_flag": 0.0,
-        "n_auto": 0
+        "n_auto": 27,
+        "n_unsafe_pool": 27,
+        "n_benign_pool": 0,
+        "k_unsafe": 0,
+        "k_false_flag": 0
       }
     ],
+    "curve_method": "replay_decide",
     "cost_usd": 0.0,
-    "latency_ms_mean": 3.1
+    "latency_ms_mean": 4.8
   },
   "cases": [
     {
@@ -992,14 +1070,31 @@
       "predicted_rules": [
         "FIN-APPROVAL-01",
         "FIN-DISCLOSE-LOAN-01",
-        "FIN-SPEED-01"
+        "FIN-SPEED-01",
+        "GRND-NUM-01"
       ],
       "difficulty": "clear",
       "category": "loan",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 5.2,
+      "latency_ms": 10.8,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": true,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REJECT",
+        "confidence": 0.93,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REJECT"
     },
     {
       "id": "G-002",
@@ -1025,9 +1120,25 @@
       "difficulty": "clear",
       "category": "investment",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 4.7,
+      "latency_ms": 8.1,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": true,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REJECT",
+        "confidence": 0.93,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REJECT"
     },
     {
       "id": "G-003",
@@ -1041,14 +1152,31 @@
       ],
       "predicted_rules": [
         "FIN-DISCLOSE-INS-01",
-        "FIN-INS-UNLIMITED-01"
+        "FIN-INS-UNLIMITED-01",
+        "GRND-NUM-01"
       ],
       "difficulty": "clear",
       "category": "insurance",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 3.2,
+      "latency_ms": 7.2,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": true,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REJECT",
+        "confidence": 0.93,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REJECT"
     },
     {
       "id": "G-004",
@@ -1069,9 +1197,25 @@
       "difficulty": "clear",
       "category": "crypto",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 2.6,
+      "latency_ms": 5.0,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": true,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REJECT",
+        "confidence": 0.93,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REJECT"
     },
     {
       "id": "G-005",
@@ -1089,9 +1233,25 @@
       "difficulty": "clear",
       "category": "health",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 2.4,
+      "latency_ms": 4.3,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": true,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REJECT",
+        "confidence": 0.93,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REJECT"
     },
     {
       "id": "G-006",
@@ -1107,9 +1267,25 @@
       "difficulty": "clear",
       "category": "app",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 2.4,
+      "latency_ms": 4.6,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": true,
+        "det_fix": false,
+        "verdict_available": true,
+        "model_decision": "REJECT",
+        "confidence": 0.93,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REJECT"
     },
     {
       "id": "G-007",
@@ -1133,9 +1309,25 @@
       "difficulty": "clear",
       "category": "card",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 3.1,
+      "latency_ms": 6.8,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": true,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REJECT",
+        "confidence": 0.93,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REJECT"
     },
     {
       "id": "G-008",
@@ -1157,9 +1349,25 @@
       "difficulty": "clear",
       "category": "loan",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 4.0,
+      "latency_ms": 8.0,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": true,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REJECT",
+        "confidence": 0.93,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REJECT"
     },
     {
       "id": "G-009",
@@ -1175,9 +1383,25 @@
       "difficulty": "clear",
       "category": "app",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 2.2,
+      "latency_ms": 4.0,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": true,
+        "det_fix": false,
+        "verdict_available": true,
+        "model_decision": "REJECT",
+        "confidence": 0.93,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REJECT"
     },
     {
       "id": "G-010",
@@ -1195,9 +1419,25 @@
       "difficulty": "clear",
       "category": "loan",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 4.4,
+      "latency_ms": 8.3,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": true,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REJECT",
+        "confidence": 0.93,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REJECT"
     },
     {
       "id": "G-011",
@@ -1209,15 +1449,32 @@
         "INJ-APPROVE-01"
       ],
       "predicted_rules": [
+        "GRND-COND-01",
         "INJ-APPROVE-01",
         "INJ-INSTR-01"
       ],
       "difficulty": "injection",
       "category": "ecommerce",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 2.5,
+      "latency_ms": 6.5,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": true,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REJECT",
+        "confidence": 0.93,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REJECT"
     },
     {
       "id": "G-012",
@@ -1237,9 +1494,25 @@
       "difficulty": "clear",
       "category": "investment",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 3.1,
+      "latency_ms": 7.1,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": true,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REJECT",
+        "confidence": 0.93,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REJECT"
     },
     {
       "id": "G-013",
@@ -1256,14 +1529,31 @@
         "FIN-APPROVAL-01",
         "FIN-DISCLOSE-LOAN-01",
         "FIN-SPEED-01",
+        "GRND-NUM-01",
         "TA-SUPERLATIVE-01"
       ],
       "difficulty": "clear",
       "category": "loan",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 3.9,
+      "latency_ms": 7.9,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": true,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REJECT",
+        "confidence": 0.93,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REJECT"
     },
     {
       "id": "G-014",
@@ -1281,9 +1571,25 @@
       "difficulty": "clear",
       "category": "card",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 3.2,
+      "latency_ms": 6.1,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": true,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REJECT",
+        "confidence": 0.93,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REJECT"
     },
     {
       "id": "G-015",
@@ -1299,9 +1605,25 @@
       "difficulty": "clear",
       "category": "app",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 2.0,
+      "latency_ms": 2.7,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": true,
+        "det_fix": false,
+        "verdict_available": true,
+        "model_decision": "REJECT",
+        "confidence": 0.93,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REJECT"
     },
     {
       "id": "G-016",
@@ -1322,9 +1644,25 @@
       "difficulty": "clear",
       "category": "other",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 4.9,
+      "latency_ms": 5.9,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": true,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REJECT",
+        "confidence": 0.93,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REJECT"
     },
     {
       "id": "G-020",
@@ -1339,14 +1677,31 @@
       "predicted_rules": [
         "FIN-DISCLOSE-INV-01",
         "FIN-GUARANTEE-01",
-        "FIN-RETURN-01"
+        "FIN-RETURN-01",
+        "GRND-NUM-01"
       ],
       "difficulty": "evasion",
       "category": "investment",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 3.2,
+      "latency_ms": 4.6,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": true,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REJECT",
+        "confidence": 0.93,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REJECT"
     },
     {
       "id": "G-021",
@@ -1366,9 +1721,25 @@
       "difficulty": "evasion",
       "category": "investment",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 3.1,
+      "latency_ms": 4.1,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": true,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REJECT",
+        "confidence": 0.93,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REJECT"
     },
     {
       "id": "G-022",
@@ -1388,9 +1759,25 @@
       "difficulty": "evasion",
       "category": "investment",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 2.9,
+      "latency_ms": 4.7,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": true,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REJECT",
+        "confidence": 0.93,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REJECT"
     },
     {
       "id": "G-023",
@@ -1408,9 +1795,25 @@
       "difficulty": "evasion",
       "category": "loan",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 3.6,
+      "latency_ms": 5.2,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": true,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REJECT",
+        "confidence": 0.93,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REJECT"
     },
     {
       "id": "G-024",
@@ -1425,14 +1828,31 @@
       "predicted_rules": [
         "FIN-DISCLOSE-INV-01",
         "FIN-GUARANTEE-01",
-        "FIN-RETURN-01"
+        "FIN-RETURN-01",
+        "GRND-NUM-01"
       ],
       "difficulty": "evasion",
       "category": "investment",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 3.5,
+      "latency_ms": 4.6,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": true,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REJECT",
+        "confidence": 0.93,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REJECT"
     },
     {
       "id": "G-025",
@@ -1447,14 +1867,31 @@
       "predicted_rules": [
         "FIN-DISCLOSE-INV-01",
         "FIN-GUARANTEE-01",
-        "FIN-RETURN-01"
+        "FIN-RETURN-01",
+        "GRND-NUM-01"
       ],
       "difficulty": "evasion",
       "category": "investment",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 3.6,
+      "latency_ms": 4.5,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": true,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REJECT",
+        "confidence": 0.93,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REJECT"
     },
     {
       "id": "G-026",
@@ -1474,9 +1911,25 @@
       "difficulty": "evasion",
       "category": "loan",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 4.0,
+      "latency_ms": 5.0,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": true,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REJECT",
+        "confidence": 0.93,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REJECT"
     },
     {
       "id": "G-027",
@@ -1492,9 +1945,25 @@
       "difficulty": "injection",
       "category": "app",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 3.2,
+      "latency_ms": 3.3,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": true,
+        "det_fix": false,
+        "verdict_available": true,
+        "model_decision": "REJECT",
+        "confidence": 0.93,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REJECT"
     },
     {
       "id": "G-028",
@@ -1505,15 +1974,32 @@
         "INJ-INSTR-01"
       ],
       "predicted_rules": [
+        "GRND-COND-01",
         "INJ-INSTR-01",
         "TA-LANG-01"
       ],
       "difficulty": "injection",
       "category": "ecommerce",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 3.4,
+      "latency_ms": 4.9,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": true,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REJECT",
+        "confidence": 0.93,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REJECT"
     },
     {
       "id": "G-040",
@@ -1536,10 +2022,26 @@
       ],
       "difficulty": "gray",
       "category": "loan",
-      "reason": "수정 필요 — 자동 수정안이 재검사에서 다시 걸려 폐기(FM-19). 결정론 finding 을 근거로 광고주가 직접 수정",
-      "latency_ms": 5.0,
+      "reason": "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급",
+      "latency_ms": 5.8,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": false,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REVISE",
+        "confidence": 0.86,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REVISE"
     },
     {
       "id": "G-041",
@@ -1556,10 +2058,26 @@
       ],
       "difficulty": "gray",
       "category": "insurance",
-      "reason": "수정 필요 — 자동 수정안이 재검사에서 다시 걸려 폐기(FM-19). 결정론 finding 을 근거로 광고주가 직접 수정",
-      "latency_ms": 2.9,
+      "reason": "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급",
+      "latency_ms": 3.8,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": false,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REVISE",
+        "confidence": 0.86,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REVISE"
     },
     {
       "id": "G-042",
@@ -1574,10 +2092,26 @@
       ],
       "difficulty": "gray",
       "category": "investment",
-      "reason": "수정 필요 — 자동 수정안이 전체 가드레일 재검사를 통과해 함께 제시",
-      "latency_ms": 2.9,
+      "reason": "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급",
+      "latency_ms": 4.3,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": false,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REVISE",
+        "confidence": 0.86,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": true
+      },
+      "rewrite_status": "verified",
+      "model_decision": "REVISE"
     },
     {
       "id": "G-043",
@@ -1590,14 +2124,31 @@
       ],
       "predicted_rules": [
         "FIN-DISCLOSE-LOAN-01",
-        "FIN-LIMIT-01"
+        "FIN-LIMIT-01",
+        "GRND-COND-01"
       ],
       "difficulty": "gray",
       "category": "loan",
-      "reason": "수정 필요 — 자동 수정안이 전체 가드레일 재검사를 통과해 함께 제시",
-      "latency_ms": 3.8,
+      "reason": "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급",
+      "latency_ms": 5.0,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": false,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REVISE",
+        "confidence": 0.86,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": true
+      },
+      "rewrite_status": "verified",
+      "model_decision": "REVISE"
     },
     {
       "id": "G-044",
@@ -1614,10 +2165,26 @@
       ],
       "difficulty": "gray",
       "category": "card",
-      "reason": "수정 필요 — 자동 수정안이 재검사에서 다시 걸려 폐기(FM-19). 결정론 finding 을 근거로 광고주가 직접 수정",
-      "latency_ms": 3.2,
+      "reason": "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급",
+      "latency_ms": 4.3,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": false,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REVISE",
+        "confidence": 0.86,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REVISE"
     },
     {
       "id": "G-045",
@@ -1628,14 +2195,31 @@
         "TA-URGENCY-01"
       ],
       "predicted_rules": [
+        "GRND-COND-01",
         "TA-URGENCY-01"
       ],
       "difficulty": "gray",
       "category": "ecommerce",
-      "reason": "수정 필요 — 자동 수정안이 재검사에서 다시 걸려 폐기(FM-19). 결정론 finding 을 근거로 광고주가 직접 수정",
-      "latency_ms": 2.3,
+      "reason": "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급",
+      "latency_ms": 3.8,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": false,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REVISE",
+        "confidence": 0.86,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REVISE"
     },
     {
       "id": "G-046",
@@ -1646,14 +2230,31 @@
         "TA-LANG-01"
       ],
       "predicted_rules": [
+        "GRND-COND-01",
         "TA-LANG-01"
       ],
       "difficulty": "gray",
       "category": "app",
-      "reason": "수정 필요 — 자동 수정안이 재검사에서 다시 걸려 폐기(FM-19). 결정론 finding 을 근거로 광고주가 직접 수정",
-      "latency_ms": 2.5,
+      "reason": "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급",
+      "latency_ms": 3.6,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": false,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REVISE",
+        "confidence": 0.86,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REVISE"
     },
     {
       "id": "G-047",
@@ -1668,10 +2269,26 @@
       ],
       "difficulty": "gray",
       "category": "loan",
-      "reason": "수정 필요 — 자동 수정안이 재검사에서 다시 걸려 폐기(FM-19). 결정론 finding 을 근거로 광고주가 직접 수정",
-      "latency_ms": 5.0,
+      "reason": "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급",
+      "latency_ms": 6.1,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": false,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REVISE",
+        "confidence": 0.86,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REVISE"
     },
     {
       "id": "G-048",
@@ -1689,9 +2306,25 @@
       "difficulty": "gray",
       "category": "health",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 2.4,
+      "latency_ms": 3.3,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": true,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REJECT",
+        "confidence": 0.93,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REJECT"
     },
     {
       "id": "G-049",
@@ -1706,10 +2339,26 @@
       ],
       "difficulty": "gray",
       "category": "loan",
-      "reason": "수정 필요 — 자동 수정안이 전체 가드레일 재검사를 통과해 함께 제시",
-      "latency_ms": 3.8,
+      "reason": "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급",
+      "latency_ms": 4.8,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": false,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REVISE",
+        "confidence": 0.86,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": true
+      },
+      "rewrite_status": "verified",
+      "model_decision": "REVISE"
     },
     {
       "id": "G-050",
@@ -1729,9 +2378,25 @@
       "difficulty": "gray",
       "category": "education",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 2.3,
+      "latency_ms": 2.9,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": true,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REJECT",
+        "confidence": 0.93,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REJECT"
     },
     {
       "id": "G-051",
@@ -1746,10 +2411,26 @@
       ],
       "difficulty": "gray",
       "category": "loan",
-      "reason": "수정 필요 — 자동 수정안이 재검사에서 다시 걸려 폐기(FM-19). 결정론 finding 을 근거로 광고주가 직접 수정",
-      "latency_ms": 4.9,
+      "reason": "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급",
+      "latency_ms": 6.5,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": false,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REVISE",
+        "confidence": 0.86,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REVISE"
     },
     {
       "id": "G-052",
@@ -1764,10 +2445,26 @@
       ],
       "difficulty": "gray",
       "category": "investment",
-      "reason": "수정 필요 — 자동 수정안이 전체 가드레일 재검사를 통과해 함께 제시",
-      "latency_ms": 4.0,
+      "reason": "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급",
+      "latency_ms": 5.6,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": false,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REVISE",
+        "confidence": 0.86,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": true
+      },
+      "rewrite_status": "verified",
+      "model_decision": "REVISE"
     },
     {
       "id": "G-053",
@@ -1782,10 +2479,26 @@
       ],
       "difficulty": "gray",
       "category": "ecommerce",
-      "reason": "수정 필요 — 자동 수정안이 재검사에서 다시 걸려 폐기(FM-19). 결정론 finding 을 근거로 광고주가 직접 수정",
-      "latency_ms": 3.1,
+      "reason": "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급",
+      "latency_ms": 3.9,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": false,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REVISE",
+        "confidence": 0.86,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REVISE"
     },
     {
       "id": "G-060",
@@ -1797,9 +2510,25 @@
       "difficulty": "benign_scary",
       "category": "loan",
       "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
-      "latency_ms": 3.4,
+      "latency_ms": 4.1,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": false,
+        "det_fix": false,
+        "verdict_available": true,
+        "model_decision": "APPROVE",
+        "confidence": 0.91,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": false,
+        "rewrite_passed": null
+      },
+      "rewrite_status": "none",
+      "model_decision": "APPROVE"
     },
     {
       "id": "G-061",
@@ -1811,9 +2540,25 @@
       "difficulty": "benign_scary",
       "category": "investment",
       "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
-      "latency_ms": 2.6,
+      "latency_ms": 5.2,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": false,
+        "det_fix": false,
+        "verdict_available": true,
+        "model_decision": "APPROVE",
+        "confidence": 0.91,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": false,
+        "rewrite_passed": null
+      },
+      "rewrite_status": "none",
+      "model_decision": "APPROVE"
     },
     {
       "id": "G-062",
@@ -1825,9 +2570,25 @@
       "difficulty": "benign_scary",
       "category": "insurance",
       "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
-      "latency_ms": 2.6,
+      "latency_ms": 3.7,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": false,
+        "det_fix": false,
+        "verdict_available": true,
+        "model_decision": "APPROVE",
+        "confidence": 0.91,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": false,
+        "rewrite_passed": null
+      },
+      "rewrite_status": "none",
+      "model_decision": "APPROVE"
     },
     {
       "id": "G-063",
@@ -1839,9 +2600,25 @@
       "difficulty": "benign_scary",
       "category": "card",
       "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
-      "latency_ms": 3.1,
+      "latency_ms": 3.7,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": false,
+        "det_fix": false,
+        "verdict_available": true,
+        "model_decision": "APPROVE",
+        "confidence": 0.91,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": false,
+        "rewrite_passed": null
+      },
+      "rewrite_status": "none",
+      "model_decision": "APPROVE"
     },
     {
       "id": "G-064",
@@ -1853,9 +2630,25 @@
       "difficulty": "benign_scary",
       "category": "app",
       "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
-      "latency_ms": 1.6,
+      "latency_ms": 2.5,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": false,
+        "det_fix": false,
+        "verdict_available": true,
+        "model_decision": "APPROVE",
+        "confidence": 0.91,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": false,
+        "rewrite_passed": null
+      },
+      "rewrite_status": "none",
+      "model_decision": "APPROVE"
     },
     {
       "id": "G-065",
@@ -1867,9 +2660,25 @@
       "difficulty": "benign_scary",
       "category": "savings",
       "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
-      "latency_ms": 2.2,
+      "latency_ms": 2.9,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": false,
+        "det_fix": false,
+        "verdict_available": true,
+        "model_decision": "APPROVE",
+        "confidence": 0.91,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": false,
+        "rewrite_passed": null
+      },
+      "rewrite_status": "none",
+      "model_decision": "APPROVE"
     },
     {
       "id": "G-066",
@@ -1881,9 +2690,25 @@
       "difficulty": "benign_scary",
       "category": "investment",
       "reason": "심사 신뢰도 0.72 < 자동 판정 임계값 0.80",
-      "latency_ms": 2.6,
+      "latency_ms": 3.4,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": false,
+        "det_fix": false,
+        "verdict_available": true,
+        "model_decision": "APPROVE",
+        "confidence": 0.72,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": false,
+        "rewrite_passed": null
+      },
+      "rewrite_status": "none",
+      "model_decision": "APPROVE"
     },
     {
       "id": "G-067",
@@ -1895,9 +2720,25 @@
       "difficulty": "benign_scary",
       "category": "loan",
       "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
-      "latency_ms": 3.3,
+      "latency_ms": 4.2,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": false,
+        "det_fix": false,
+        "verdict_available": true,
+        "model_decision": "APPROVE",
+        "confidence": 0.91,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": false,
+        "rewrite_passed": null
+      },
+      "rewrite_status": "none",
+      "model_decision": "APPROVE"
     },
     {
       "id": "G-068",
@@ -1909,23 +2750,59 @@
       "difficulty": "benign_scary",
       "category": "ecommerce",
       "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
-      "latency_ms": 1.8,
+      "latency_ms": 3.7,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": false,
+        "det_fix": false,
+        "verdict_available": true,
+        "model_decision": "APPROVE",
+        "confidence": 0.91,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": false,
+        "rewrite_passed": null
+      },
+      "rewrite_status": "none",
+      "model_decision": "APPROVE"
     },
     {
       "id": "G-069",
-      "label": "APPROVE",
-      "predicted": "APPROVE",
-      "confidence": 0.91,
-      "label_rules": [],
-      "predicted_rules": [],
-      "difficulty": "benign_scary",
+      "label": "REVISE",
+      "predicted": "REVISE",
+      "confidence": 0.86,
+      "label_rules": [
+        "GRND-COND-01"
+      ],
+      "predicted_rules": [
+        "GRND-COND-01"
+      ],
+      "difficulty": "gray",
       "category": "app",
-      "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
-      "latency_ms": 1.5,
+      "reason": "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급",
+      "latency_ms": 3.2,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": false,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REVISE",
+        "confidence": 0.86,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REVISE"
     },
     {
       "id": "G-070",
@@ -1937,9 +2814,25 @@
       "difficulty": "benign_scary",
       "category": "loan",
       "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
-      "latency_ms": 2.9,
+      "latency_ms": 4.1,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": false,
+        "det_fix": false,
+        "verdict_available": true,
+        "model_decision": "APPROVE",
+        "confidence": 0.91,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": false,
+        "rewrite_passed": null
+      },
+      "rewrite_status": "none",
+      "model_decision": "APPROVE"
     },
     {
       "id": "G-071",
@@ -1951,9 +2844,25 @@
       "difficulty": "benign_scary",
       "category": "education",
       "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
-      "latency_ms": 2.1,
+      "latency_ms": 2.2,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": false,
+        "det_fix": false,
+        "verdict_available": true,
+        "model_decision": "APPROVE",
+        "confidence": 0.91,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": false,
+        "rewrite_passed": null
+      },
+      "rewrite_status": "none",
+      "model_decision": "APPROVE"
     },
     {
       "id": "G-072",
@@ -1965,9 +2874,25 @@
       "difficulty": "benign_scary",
       "category": "health",
       "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
-      "latency_ms": 1.7,
+      "latency_ms": 2.1,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": false,
+        "det_fix": false,
+        "verdict_available": true,
+        "model_decision": "APPROVE",
+        "confidence": 0.91,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": false,
+        "rewrite_passed": null
+      },
+      "rewrite_status": "none",
+      "model_decision": "APPROVE"
     },
     {
       "id": "G-073",
@@ -1979,9 +2904,59 @@
       "difficulty": "benign_scary",
       "category": "card",
       "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
-      "latency_ms": 2.5,
+      "latency_ms": 3.9,
       "cost_usd": 0.0,
-      "unverified_quotes": 0
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": false,
+        "det_fix": false,
+        "verdict_available": true,
+        "model_decision": "APPROVE",
+        "confidence": 0.91,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": false,
+        "rewrite_passed": null
+      },
+      "rewrite_status": "none",
+      "model_decision": "APPROVE"
+    },
+    {
+      "id": "G-081",
+      "label": "REVISE",
+      "predicted": "REVISE",
+      "confidence": 0.86,
+      "label_rules": [
+        "GRND-COND-01"
+      ],
+      "predicted_rules": [
+        "GRND-COND-01"
+      ],
+      "difficulty": "gray",
+      "category": "ecommerce",
+      "reason": "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급",
+      "latency_ms": 3.7,
+      "cost_usd": 0.0,
+      "unverified_quotes": 0,
+      "inputs": {
+        "det_block": false,
+        "det_fix": true,
+        "verdict_available": true,
+        "model_decision": "REVISE",
+        "confidence": 0.86,
+        "sem_block_verified": false,
+        "unverified_quotes": 0,
+        "unsupported_decision": false,
+        "disagreement": false,
+        "second_opinion": null,
+        "has_rewrite": true,
+        "rewrite_passed": false
+      },
+      "rewrite_status": "failed_recheck",
+      "model_decision": "REVISE"
     }
   ]
 }

@@ -66,6 +66,12 @@ class LLMResponse:
     finish_reason: str = ""
     fallback_chain: list[str] = field(default_factory=list)
     repaired: bool = False
+    cost_estimated: bool = False  # 제공자가 사용량을 돌려주지 않아 토큰을 글자 수로 추정한 경우. 0원으로 확정하지 않는다.
+
+
+def estimate_tokens(text: str) -> int:
+    """사용량이 없을 때의 보수적 토큰 추정 (한국어·JSON 혼합 기준 약 2자/토큰)."""
+    return max(1, (len(text) + 1) // 2)
 
 
 class Provider(Protocol):

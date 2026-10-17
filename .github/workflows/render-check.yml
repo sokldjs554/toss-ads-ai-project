@@ -1,4 +1,5 @@
-# Render 공개 서버가 살아 있는지 확인한다 (수동 실행). 무료 인스턴스는 잠들어 있으면 깨는 데 1~2분 걸리므로 재시도한다.
+# Render 공개 서버가 살아 있고 '이 저장소의 현재 화면' 을 서빙하는지 확인한다 (수동 실행).
+# 무료 인스턴스는 잠들어 있으면 깨는 데 1~2분 걸리므로 재시도한다. 화면 확인은 헤드리스 브라우저로 첫 화면 문구를 읽는다.
 name: render-check
 
 on:
@@ -8,6 +9,10 @@ on:
         description: "Render 서비스 주소"
         required: false
         default: "https://preflight-toss-ads.onrender.com"
+      expect:
+        description: "첫 화면에 있어야 하는 문구"
+        required: false
+        default: "광고 만들기"
 
 permissions:
   contents: read
@@ -16,7 +21,7 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - name: health + first page
+      - name: health
         env:
           URL: ${{ inputs.url }}
         run: |
@@ -25,14 +30,38 @@ jobs:
           for i in $(seq 1 24); do
             code=$(curl -sS -o /tmp/health -m 30 -w "%{http_code}" "$base/_stcore/health" || true)
             echo "try $i: /_stcore/health -> $code $(head -c 40 /tmp/health 2>/dev/null)"
-            if [ "$code" = "200" ]; then
-              page=$(curl -sS -o /tmp/page -m 30 -w "%{http_code}" "$base/" || true)
-              echo "GET / -> $page, bytes=$(wc -c </tmp/page)"
-              grep -o "<title>[^<]*</title>" /tmp/page || true
-              echo "RESULT: OK $base"
-              exit 0
-            fi
+            if [ "$code" = "200" ]; then echo "RESULT: OK $base"; exit 0; fi
             sleep 10
           done
-          echo "RESULT: FAIL $base"
-          exit 1
+          echo "RESULT: FAIL $base"; exit 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: 첫 화면 문구 확인 (헤드리스 브라우저)
+        env:
+          URL: ${{ inputs.url }}
+          EXPECT: ${{ inputs.expect }}
+        run: |
+          pip install -q playwright && python -m playwright install --with-deps chromium
+          python - <<'PY'
+          import os, sys, time
+          from playwright.sync_api import sync_playwright
+          url, expect = os.environ["URL"].rstrip("/"), os.environ["EXPECT"]
+          with sync_playwright() as p:
+              b = p.chromium.launch()
+              pg = b.new_page(viewport={"width": 1280, "height": 900})
+              pg.goto(url, wait_until="load", timeout=120_000)
+              pg.get_by_text(expect, exact=False).first.wait_for(timeout=180_000)
+              body = pg.inner_text("body")
+              print("TITLE:", pg.title())
+              print("FOUND:", expect in body)
+              foot = [l for l in body.splitlines() if "개인 프로젝트" in l]
+              print("FOOTER:", foot[:1])
+              print("EXCEPTIONS:", pg.locator('[data-testid="stException"]').count())
+              pg.screenshot(path="render_home.png")
+              b.close()
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: render-home
+          path: render_home.png

@@ -24,3 +24,24 @@ def test_coverage_curve_and_threshold():
 def test_wilson_bounds():
     lo, hi = wilson(0, 10)
     assert lo == 0.0 and 0.2 < hi < 0.35
+
+
+def test_curve_replays_real_decision_rules():
+    """결정론 block 으로 REJECT 된 사례(신뢰도 0.6)는 τ 를 올려도 자동 판정에 남는다 — 신뢰도 필터만 쓰면 빠진다 (리뷰 재현: 52 vs 51)."""
+    from agents.adjudicator import DecisionInputs
+
+    det_reject = DecisionInputs(det_block=True, verdict_available=True, model_decision="REJECT", confidence=0.6, sem_block_verified=False).to_dict()
+    clean = DecisionInputs(verdict_available=True, model_decision="APPROVE", confidence=0.9).to_dict()
+    rs = [EvalRecord(case_id="a", label="REJECT", predicted="REJECT", confidence=0.6, inputs=det_reject),
+          EvalRecord(case_id="b", label="APPROVE", predicted="APPROVE", confidence=0.9, inputs=clean)]
+    curve = coverage_curve(rs)
+    at80 = next(r for r in curve if r["tau"] == 0.8)
+    assert at80["n_auto"] == 2
+    legacy = [EvalRecord(case_id="a", label="REJECT", predicted="REJECT", confidence=0.6), EvalRecord(case_id="b", label="APPROVE", predicted="APPROVE", confidence=0.9)]
+    assert next(r for r in coverage_curve(legacy) if r["tau"] == 0.8)["n_auto"] == 1
+    assert summarize(rs)["curve_method"] == "replay_decide" and summarize(legacy)["curve_method"] == "legacy_confidence_filter"
+
+
+def test_zero_denominator_rates_are_none():
+    s = summarize([rec(1, "REJECT", "REJECT", 0.9)])
+    assert s["false_flag"]["n"] == 0 and s["false_flag"]["rate"] is None

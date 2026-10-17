@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%233182F6%27/%3E%3Cpath d=%27M18 34l10 10 18-22%27 fill=%27none%27 stroke=%27%23fff%27 stroke-width=%277%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
 <title>Preflight 공개 데모</title>
-<meta name="description" content="광고가 뜨기 전에 LLM 이 틀릴 곳을 먼저 보는 가드레일 스튜디오 — 브라우저 실행판과 실제 GPT-4o 트레이스 재생">
+<meta name="description" content="Preflight — 광고가 올라가기 전에 확인이 필요한 구절을 먼저 찾는 광고 검사 도구. 브라우저 실행판과 실제 GPT-4o 실행 기록 재생">
 <style>
   :root { --bg:#F2F4F6; --card:#FFFFFF; --ink:#191F28; --ink2:#4E5968; --ink3:#8B95A1; --line:#E5E8EB; --blue:#3182F6; --blue-weak:#E8F3FF; --green:#0B7A3B; --green-weak:#E6F6EC; --amber:#9A6700; --amber-weak:#FFF4D6; }
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#101418; --card:#171C22; --ink:#E9EDF2; --ink2:#AEB7C2; --ink3:#7C8794; --line:#2A313A; --blue:#6DA8FF; --blue-weak:#1B2A42; --green:#55CB8C; --green-weak:#12321F; --amber:#F2BA52; --amber-weak:#392C0C; } }
@@ -34,26 +34,26 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>🛫 Preflight — 광고가 뜨기 전에, LLM 이 틀릴 곳을 먼저 본다</h1>
-  <p class="sub">토스 광고 운영 플로우(캠페인 셋업 → 소재 생성 → 가상 유저 → 심사 → 판정)를 두 모델 계열에 나눠 맡기고, 모든 단계를 가드레일·트레이스·평가로 감싼 데모입니다.</p>
+  <h1>✅ Preflight — 광고가 올라가기 전에 확인이 필요한 구절을 먼저 찾습니다</h1>
+  <p class="sub">상품 정보로 광고안을 만들고, 확인이 필요한 구절을 이유와 함께 보여 주고, 수정 제안을 다시 검사하며, 판단이 어려우면 담당자 확인으로 넘깁니다. 개인 프로젝트이며 어느 회사의 실제 심사도 아닙니다.</p>
 
   <div class="grid">
     <a class="card" href="./app/">
       <span class="tag blue">직접 써보기 · 브라우저에서 실행</span>
-      <h2>Preflight Studio</h2>
-      <p>서버 없이 브라우저(WebAssembly) 안에서 전체 Streamlit 앱이 돕니다. 악의적 요청·프롬프트 인젝션·금지 업종 프리셋을 눌러 Safety Intercept, 심사, 판정, 트레이스를 확인하세요. 처음 로딩 20~60초.</p>
+      <h2>광고 작업 (브라우저 실행판)</h2>
+      <p>서버 없이 브라우저(WebAssembly) 안에서 전체 앱이 돕니다. 예시를 골라 광고안 생성 → 검사 결과 → 수정 제안 → 직접 고쳐서 다시 검사까지 해 보세요. 예시 실행이라 실제 AI 호출은 없습니다. 처음 로딩 20~60초.</p>
       <span class="go">열기 →</span>
     </a>
     <a class="card" href="./replay/">
-      <span class="tag green">실제 모델 결과 · GPT-4o 트레이스 재생</span>
-      <h2>Replay — 실제 실행 기록</h2>
-      <p>GitHub Actions 에서 실제 GPT-4o 로 돌린 5개 시나리오의 트레이스(스팬·비용·판정 근거)와 1차→4차 평가 결과(위험 승인 0/41, 오탐 5→1, ECE 0.14→0.06)를 그대로 재생합니다.</p>
+      <span class="tag green">실제 모델 결과 · GPT-4o 실행 기록 재생</span>
+      <h2>실제 실행 기록</h2>
+      <p>GitHub Actions 에서 실제 GPT-4o 로 돌린 5개 사례의 처리 기록(단계·비용·판정 근거)과 1차→4차 평가 결과(문제 있는 광고 통과 0/41, 문제없는 광고에 수정 요청 5→1건, 확신 보정 오차 0.14→0.06)를 그대로 보여 줍니다.</p>
       <span class="go">열기 →</span>
     </a>
   </div>
 
   <div class="note">
-    <b>브라우저 실행판은 DEMO 모드입니다.</b> LLM 단계는 결정적 대역(mock)이 맡고 가드레일·관측·평가·판정 코드는 실제 그대로 돕니다. 실제 모델로 보려면
+    <b>브라우저 실행판은 예시 실행입니다.</b> 모델 단계는 정해진 규칙대로 움직이는 대역이 맡고, 검사·판정·평가 코드는 실제 그대로 돕니다. 실제 모델로 보려면
     <a href="https://preflight-toss-ads.onrender.com">Render 서버</a>(무료 플랜이라 첫 접속에 30초~1분)에서 같은 앱을 서버로 쓰거나,
     <code>pip install -r requirements.txt &amp;&amp; streamlit run app.py</code> 로 로컬 실행하세요. 직접 띄우려면
     <a href="https://render.com/deploy?repo=https://github.com/sokldjs554/toss-ads-ai-project">Deploy to Render</a>.

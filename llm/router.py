@@ -56,20 +56,41 @@ class CircuitBreaker:
 
 @dataclass
 class RunBudget:
+    """실행 하나의 비용·호출 상한.
+
+    - attempts: 실제로 제공자에게 보낸 요청 수 (실패·재시도·수리 포함). 호출 상한은 이 수에 건다.
+    - calls: 성공 응답 수.
+    - failed_attempts: 응답(사용량)을 받지 못한 요청 수 — 비용을 알 수 없으므로 0원으로 확정하지 않고 '추정' 으로 표시한다.
+    """
+
     cap_usd: float
     spent_usd: float = 0.0
     calls: int = 0
+    attempts: int = 0
+    failed_attempts: int = 0
     max_calls: int = 60
+    estimated: bool = False
 
     def check(self) -> None:
         if self.spent_usd >= self.cap_usd:
             raise BudgetExceeded(f"실행 예산 초과: ${self.spent_usd:.4f} ≥ ${self.cap_usd:.2f}")
-        if self.calls >= self.max_calls:
-            raise BudgetExceeded(f"호출 횟수 상한 초과: {self.calls} ≥ {self.max_calls}")
+        if self.attempts >= self.max_calls:
+            raise BudgetExceeded(f"호출 횟수 상한 초과: 요청 {self.attempts}회 ≥ {self.max_calls}회")
 
-    def add(self, cost: float) -> None:
-        self.spent_usd += cost
+    def attempt(self) -> None:
+        """제공자에게 요청을 보내기 '직전' 에 부른다 — 재시도·수리 요청도 예외 없이."""
+        self.check()
+        self.attempts += 1
+
+    def add(self, resp: "LLMResponse") -> None:
+        self.spent_usd += float(resp.cost_usd)
         self.calls += 1
+        if resp.cost_estimated:
+            self.estimated = True
+
+    def failed(self) -> None:
+        self.failed_attempts += 1
+        self.estimated = True
 
 
 class Router:
@@ -128,7 +149,6 @@ class Router:
                     continue
                 tried.append(name)
                 try:
-                    self.budget.check()
                     resp = self._call(provider, req, span)
                     breaker.success()
                     resp.fallback_chain = tried
@@ -184,14 +204,24 @@ class Router:
                 raise ModelRefusal("simulated refusal", provider=provider.name)
             if kind == "schema":
                 raise SchemaMismatch("simulated invalid json", provider=provider.name, raw_text="{not json")
+        self.budget.attempt()
         try:
-            resp = provider.complete(req)
-        except TruncatedOutput:
-            span.event("truncation_retry", provider=provider.name, max_tokens=req.max_tokens * 2)
-            bigger = LLMRequest(task=req.task, system=req.system, user=req.user, schema=req.schema,
-                                max_tokens=req.max_tokens * 2, temperature=req.temperature, context=req.context, label=req.label)
-            resp = provider.complete(bigger)
-        self.budget.add(resp.cost_usd)
+            try:
+                resp = provider.complete(req)
+            except TruncatedOutput:
+                # 재시도도 요청 1회다 — 상한을 다시 확인하고 센다
+                self.budget.attempt()
+                span.event("truncation_retry", provider=provider.name, max_tokens=req.max_tokens * 2)
+                bigger = LLMRequest(task=req.task, system=req.system, user=req.user, schema=req.schema,
+                                    max_tokens=req.max_tokens * 2, temperature=req.temperature, context=req.context, label=req.label)
+                resp = provider.complete(bigger)
+        except BudgetExceeded:
+            raise
+        except LLMError:
+            self.budget.failed()  # 응답을 못 받은 요청: 비용 미확인 → 추정으로 표시
+            raise
+        self.budget.add(resp)
+        span.set(budget_attempts=self.budget.attempts, budget_calls=self.budget.calls, budget_spent_usd=round(self.budget.spent_usd, 6))
         return resp
 
     def _try_repair(self, req: LLMRequest, raw_text: str, span, exclude: str) -> Optional[LLMResponse]:
@@ -207,7 +237,6 @@ class Router:
             if name == exclude or name not in self.providers:
                 continue
             try:
-                self.budget.check()
                 resp = self._call(self.providers[name], repair_req, span)
                 span.event("repaired", by=name)
                 return resp
@@ -220,7 +249,7 @@ class Router:
     @staticmethod
     def _record(span, resp: LLMResponse, chain: list[str]) -> None:
         span.set(provider=resp.provider, model=resp.model, input_tokens=resp.input_tokens, output_tokens=resp.output_tokens,
-                 cost_usd=resp.cost_usd, latency_ms=resp.latency_ms, finish_reason=resp.finish_reason,
+                 cost_usd=resp.cost_usd, cost_estimated=resp.cost_estimated, latency_ms=resp.latency_ms, finish_reason=resp.finish_reason,
                  fallback_chain=chain, repaired=resp.repaired, response_text=resp.text[:6000])
         if len(chain) > 1:
             span.status = "fallback"

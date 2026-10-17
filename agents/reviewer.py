@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 from core.llm_schemas import build_review_schema
-from core.schemas import AdCopy, Decision, Finding, Layer, ReviewVerdict, Severity
+from core.schemas import AdCopy, Claim, Decision, Finding, Layer, ReviewVerdict, Severity
 from guardrails.normalize import loose_text
 from guardrails.output_guard import OutputGuardResult, decision_from
 from guardrails.policy import PolicyCatalog
@@ -34,6 +34,17 @@ class ReviewOutcome:
 def _quote_verified(quote: str, text: str) -> bool:
     q = loose_text(quote).strip()
     return bool(q) and q in loose_text(text)
+
+
+def relink_claims(claims: list[Claim], new_text: str) -> list[Claim]:
+    """원문의 주장 중 새 문구에 (정규화 후) 그대로 남아 있는 것만 이어받는다. 문구가 바뀐 주장의 근거 연결은 무효다."""
+    blob = loose_text(new_text)
+    kept: list[Claim] = []
+    for c in claims:
+        key = loose_text(c.text).strip()
+        if key and key in blob:
+            kept.append(Claim(text=c.text, fact_id=c.fact_id))
+    return kept
 
 
 def _user_prompt(copy: AdCopy, det: OutputGuardResult, facts: str, landing_text: str) -> str:
@@ -76,7 +87,10 @@ def _to_verdict(copy: AdCopy, parsed, det: OutputGuardResult, catalog: PolicyCat
         rw = parsed.rewrite
         if rw.headline.strip() and rw.body.strip():
             rewrite = AdCopy(headline=rw.headline.strip(), body=rw.body.strip(), cta=(rw.cta or copy.cta).strip(),
-                             claims=copy.claims, disclosures=[d for d in rw.disclosures if d.strip()], tone=copy.tone + " (수정안)")
+                             claims=[], disclosures=[d for d in rw.disclosures if d.strip()], tone=copy.tone + " (수정안)")
+            # 주장→근거 연결은 '바뀐 문구' 기준으로 다시 맺는다. 원문 주장 중 수정안에 그대로 남은 것만 이어받고,
+            # 사라진 주장은 버린다. 새 숫자·새 주장은 grounding 이 사실 목록과 대조한다 (재검사).
+            rewrite.claims = relink_claims(copy.claims, rewrite.full_text())
     all_findings = det.findings + findings
     # decision = max(결정론+검증된 semantic finding 으로 재계산한 판정, 모델이 말한 판정). 모델은 판정을 '완화' 할 수 없다.
     recomputed = decision_from([f for f in all_findings if f.verified_quote or f.layer != Layer.SEMANTIC])
@@ -88,7 +102,7 @@ def _to_verdict(copy: AdCopy, parsed, det: OutputGuardResult, catalog: PolicyCat
     surviving = [f for f in all_findings if f.verified_quote or f.layer != Layer.SEMANTIC]
     unsupported = model_decision in (Decision.REVISE, Decision.REJECT) and not surviving
     verdict = ReviewVerdict(variant_id=copy.variant_id, decision=decision, confidence=conf, findings=all_findings,
-                            rationale=parsed.rationale.strip(), compliant_rewrite=rewrite, provider=provider, model=model,
+                            rationale=parsed.rationale.strip(), proposed_rewrite=rewrite, provider=provider, model=model,
                             unsupported_decision=unsupported)
     return ReviewOutcome(verdict=verdict, unverified_quotes=unverified, unknown_rule_ids=unknown, overruled_by_det=overruled,
                          raw=parsed.model_dump())
