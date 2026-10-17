@@ -104,7 +104,7 @@ FAILURE_MODES: list[FailureMode] = [
         "tests/test_router.py::test_truncation_retry_doubles_max_tokens"),
     FailureMode("FM-17", "두 모델 계열의 판정 불일치", "adjudication",
         "OpenAI 는 승인, Claude 는 반려",
-        "경계 사례(신뢰도 < 임계값 또는 WARN 만 있음)에 2차 의견 요청 후 비교",
+        "경계 사례(검토 모델의 판정이 REJECT 가 아니고, 신뢰도 < 임계값+0.1 이거나 WARN finding 이 하나라도 있음)에 2차 의견 요청 후 비교",
         "불일치면 HUMAN_REVIEW. 일치해야만 자동 판정",
         "tests/test_adjudicator.py::test_disagreement_routes_to_human"),
     FailureMode("FM-18", "언어·형식 이탈", "copywriter",

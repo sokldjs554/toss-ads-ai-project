@@ -146,7 +146,7 @@ def _eval_section(settings: Settings, router_factory) -> None:
 
 def _history_section() -> None:
     st.markdown("## 개선 이력 (실제 모델, 골든셋)")
-    st.markdown("GPT-4o 로 다섯 번 돌리며 코드 규칙을 고쳤습니다 (1~4차 골든셋 v1.1, 5차는 라벨 1건을 고친 v1.2 라 분모가 다릅니다). 프롬프트·규칙을 고친 뒤 같은 데이터로 다시 잰 값이므로 최종 확인용이 아니라 **회귀 감시용**입니다. "
+    st.markdown("GPT-4o 로 다섯 번 돌리며 코드 규칙을 고쳤습니다 (1~2차는 골든셋 53건, 3~4차는 사례 2건을 더한 v1.1 55건, 5차는 라벨 1건을 고친 v1.2 55건이라 회차마다 분모가 다릅니다). 프롬프트·규칙을 고친 뒤 같은 데이터로 다시 잰 값이므로 최종 확인용이 아니라 **회귀 감시용**입니다. "
                 "'담당자 확인으로 넘긴 건' 은 '올바르게 통과시킨 건' 과 다르게 셉니다.")
     rows = []
     for name, label, change in ROUNDS:
@@ -183,7 +183,7 @@ def _technical_section(rep_name: str = "baseline_partial.json") -> None:
             st.caption(("임계값 곡선은 저장된 원본 심사 결과로 실제 판정 함수를 다시 불러 계산했습니다 (서비스와 같은 규칙)." if method == "replay_decide"
                         else "이 결과는 원본 심사 결과를 저장하기 전의 것이라, 곡선은 '확신 < τ 인 판정을 일괄 담당자 확인으로 간주' 하는 옛 방식으로 계산했습니다. 같은 τ 에서 실제 판정과 1건 정도 다를 수 있습니다(예: 코드가 게재 불가로 확정한 사례는 확신과 무관).")
                        + " 평가 경로는 1차 심사만 포함하고 다른 모델 계열의 교차 확인은 포함하지 않습니다.")
-            st.markdown(f"추천 임계값: 문제 있는 광고 통과 0건을 만족하는 최소값 {rep.get('recommended_threshold_for_zero_unsafe')} · 수정 요청 0건까지 만족하는 최소값 {rep.get('recommended_threshold_for_zero_unsafe_and_zero_false_flag')} "
+            st.markdown(f"추천 임계값: 문제 있는 광고 통과 0건을 만족하는 값 중 커버리지가 가장 높은 값(같으면 더 높은 τ) {rep.get('recommended_threshold_for_zero_unsafe')} · 수정 요청 0건까지 만족하는 값 중 커버리지가 가장 높은 값(같으면 더 높은 τ) {rep.get('recommended_threshold_for_zero_unsafe_and_zero_false_flag')} "
                         f"(제공자 {rep.get('provider', '?')} · 모델 {rep.get('model', '?')} · 프롬프트 {rep.get('prompt_version')} · 검사 기준 {rep.get('policy_version')} · 데이터 v{rep.get('dataset_version') or '?'} 에서만 유효)")
             with st.expander("규칙별 정밀도·재현율"):
                 st.dataframe([{"규칙": k, **v} for k, v in rep["summary"]["rules"].items()], width="stretch", hide_index=True)

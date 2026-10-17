@@ -252,7 +252,7 @@ svg.chart .ax { stroke: var(--line); stroke-width: 1; } svg.chart .gr { stroke: 
     document.getElementById('evalround').textContent = D.evals.eval_round || '';
     document.getElementById('strip').innerHTML =
       '<div><dt>문제 있는 광고 통과</dt><dd class="num">' + frac(r.unsafe) + ' <small>수정·게재 제한이 필요한 광고를 통과시킨 수</small></dd></div>' +
-      '<div><dt>문제없는 광고에 수정 요청</dt><dd class="num">' + frac(r.false_flag) + ' <small>1차 5/14</small></dd></div>' +
+      '<div><dt>문제없는 광고에 수정 요청</dt><dd class="num">' + frac(r.false_flag) + ' <small>1차 5/14 (라벨 수정 전 14건) · 같은 13건 기준 1차 4/13</small></dd></div>' +
       '<div><dt>보정 오차 ECE</dt><dd class="num">' + r.ece.toFixed(2) + ' <small>1차 0.14</small></dd></div>' +
       '<div><dt>레드팀 돌파</dt><dd class="num">' + t.evaded + '/' + t.n + ' <small>공격 변형 중 승인된 수</small></dd></div>';
   })();
@@ -456,7 +456,7 @@ svg.chart .ax { stroke: var(--line); stroke-width: 1; } svg.chart .gr { stroke: 
 
   function renderEvals() {
     var R = D.evals.rounds, maxFF = 0.4, maxE = 0.16, maxH = 0.12;
-    var h = '<section class="sec" style="margin-top:0"><h2>같은 모델, 고친 것만 다르게 — 1차→5차</h2><p class="lead">OpenAI 키만 있는 PARTIAL 모드(GPT-4o)에서 같은 평가를 다섯 번 돌렸습니다. 1~4차는 골든셋 v1.1, 5차는 라벨 1건(G-069)을 고친 v1.2 라 분모가 다릅니다(문제 있는 광고 41→42, 문제없는 광고 14→13). 개선은 프롬프트 한 줄이 아니라 라이브 실행이 드러낸 실패마다 넣은 구조 규칙에서 왔습니다.</p>' +
+    var h = '<section class="sec" style="margin-top:0"><h2>같은 모델, 고친 것만 다르게 — 1차→5차</h2><p class="lead">OpenAI 키만 있는 PARTIAL 모드(GPT-4o)에서 같은 평가를 다섯 번 돌렸습니다. 1~2차는 골든셋 53건(문제 있는 광고 39·문제없는 광고 14), 3~4차는 조건 생략 사례 2건을 더한 v1.1 55건(41·14), 5차는 라벨 1건(G-069)을 고친 v1.2 55건(42·13)이라 회차마다 분모가 다릅니다. 회차마다 프롬프트·검사 기준·규칙·라벨이 함께 바뀌어 어떤 변경이 개선을 만들었는지는 이 데이터로 분리해 잴 수 없습니다. 관측된 흐름은 이렇습니다: 2차(프롬프트 2026.10.2 포함)에서 수정 요청 5→3, 올바른 통과 8→11. 3·4차에서 코드 구조 규칙(FM-23 등)을 넣은 뒤에는 남은 오류가 담당자 확인으로 옮겨 갔고 올바른 통과는 11건 그대로였습니다. 5차의 수정 요청 1→0 은 G-069 라벨 수정으로 분모가 바뀐 결과입니다.</p>' +
       '<div class="scroll"><table><thead><tr><th>회차</th><th>바꾼 것</th><th class="r">문제 있는 광고 통과</th><th class="r">문제없는 광고에 수정 요청</th><th class="r">담당자 확인</th><th class="r">ECE</th><th class="r">확신 0.8↑ 오류</th><th class="r">원문에 없는 근거</th><th class="r">비용</th></tr></thead><tbody>' +
       R.map(function (r) {
         var bar = function (v, mx, w) { return '<span class="bar' + (w ? ' w' : '') + '" style="width:' + Math.min(100, v / mx * 100).toFixed(0) + '%"></span>'; };
@@ -464,7 +464,7 @@ svg.chart .ax { stroke: var(--line); stroke-width: 1; } svg.chart .gr { stroke: 
           '<td class="r num">' + frac(r.false_flag) + bar(r.false_flag.rate, maxFF, true) + '</td><td class="r num">' + frac(r.human) + '</td><td class="r num">' + r.ece.toFixed(3) + bar(r.ece, maxE) + '</td>' +
           '<td class="r num">' + frac(r.hc) + bar(r.hc.rate, maxH) + '</td><td class="r num">' + r.unverified + '</td><td class="r num">$' + r.cost.toFixed(2) + '</td></tr>';
       }).join('') + '</tbody></table></div>' +
-      '<div class="scroll" style="margin-top:12px"><table><thead><tr><th>5차 — 처음 보는 데이터</th><th>무엇</th><th class="r">문제 있는 광고 통과</th><th class="r">문제없는 광고에 수정 요청</th><th class="r">담당자 확인</th><th class="r">비용</th></tr></thead><tbody>' +
+      '<div class="scroll" style="margin-top:12px"><table><thead><tr><th>5차 — 추가 데이터 (holdout 만 처음 보는 사례)</th><th>무엇</th><th class="r">문제 있는 광고 통과</th><th class="r">문제없는 광고에 수정 요청</th><th class="r">담당자 확인</th><th class="r">비용</th></tr></thead><tbody>' +
       (D.evals.extra || []).map(function (r) { return '<tr><td><b>' + r.label + '</b><div class="muted num" style="font-size:12px">n=' + r.n + '</div></td><td>' + esc(r.change) + '</td><td class="r num">' + frac(r.unsafe) + '</td><td class="r num">' + frac(r.false_flag) + '</td><td class="r num">' + frac(r.human) + '</td><td class="r num">$' + r.cost.toFixed(2) + '</td></tr>'; }).join('') +
       '</tbody></table></div><p class="muted" style="font-size:12.5px">holdout 은 규칙을 고친 뒤 처음 돌린 사례라 "고치고 다시 잰" 값이 아닙니다. 모든 수치는 관측값이며 보장이 아닙니다.</p></section>';
 
@@ -472,7 +472,7 @@ svg.chart .ax { stroke: var(--line); stroke-width: 1; } svg.chart .gr { stroke: 
     var recTau = (D.evals.rounds[D.evals.rounds.length - 1] || {}).tau;
     var recRow = null; c.forEach(function (r) { if (recTau != null && Math.abs(r.tau - recTau) < 1e-9) recRow = r; });
     var okBins = D.evals.bins.filter(function (b) { return b.n && b.accuracy === 1; }), badBins = D.evals.bins.filter(function (b) { return b.n && b.accuracy < 1; });
-    h += '<section class="sec"><h2>5차 결과로 읽는 자동 판정 임계값</h2><p class="lead">자동 판정에 필요한 최소 확신(τ)을 올리면 담당자 확인이 늘고 문제없는 광고에 수정 요청하는 일이 줄어듭니다. ' + (recRow ? ('이 모델에서는 τ=' + recTau.toFixed(2) + ' 에서 문제 있는 광고 통과 0건과 문제없는 광고 수정 요청 0건을 함께 만족하고, 그때 ' + pct(recRow.coverage, 0) + '를 담당자 확인 없이 판단합니다. 같은 커버리지를 주는 τ 가 여럿이면 가장 높은 값을 추천합니다 — 낮은 τ 는 보지 못한 사례에서 확신 낮은 판정을 자동으로 흘려보낼 위험만 더합니다.') : '이 설정의 검증된 추천값은 없습니다.') + ' 이 곡선은 저장된 판정 원본 입력으로 실제 판정 함수를 τ 마다 다시 불러 계산한 것입니다.</p><div class="grid2">' +
+    h += '<section class="sec"><h2>5차 결과로 읽는 자동 판정 임계값</h2><p class="lead">자동 판정에 필요한 최소 확신(τ)을 올리면 일반적으로 담당자 확인이 늘고 문제없는 광고에 수정 요청하는 일은 줄어들 수 있습니다. 다만 이 5차 곡선에서는 τ ' + c[0].tau.toFixed(2) + '~' + c[c.length - 1].tau.toFixed(2) + ' 전 구간에서 문제없는 광고 수정 요청이 최대 ' + pct(Math.max.apply(null, c.map(function (r) { return r.false_flag; })), 0) + '였고, 담당자 확인 없이 판단하는 비율은 ' + pct(c[0].coverage, 0) + '에서 ' + pct(c[c.length - 1].coverage, 0) + '로 바뀌었을 뿐입니다. ' + (recRow ? ('이 모델에서는 τ=' + recTau.toFixed(2) + ' 에서 문제 있는 광고 통과 0건과 문제없는 광고 수정 요청 0건을 함께 만족하고, 그때 ' + pct(recRow.coverage, 0) + '를 담당자 확인 없이 판단합니다. 같은 커버리지를 주는 τ 가 여럿이면 가장 높은 값을 추천합니다 — 낮은 τ 는 보지 못한 사례에서 확신 낮은 판정을 자동으로 흘려보낼 위험만 더합니다.') : '이 설정의 검증된 추천값은 없습니다.') + ' 이 곡선은 저장된 판정 원본 입력으로 실제 판정 함수를 τ 마다 다시 불러 계산한 것입니다.</p><div class="grid2">' +
       '<div class="card"><div class="lbl">임계값 곡선</div>' + line({ label: '임계값별 판단 비율과 수정 요청', x: [0.5, 0.95], y: [0, 1], xt: [0.5, 0.6, 0.7, 0.8, 0.9], yt: [0, 0.25, 0.5, 0.75, 1], fx: function (v) { return v.toFixed(1); }, fy: function (v) { return Math.round(v * 100) + '%'; }, xl: '자동 판정에 필요한 최소 확신 τ',
         series: [{ n: '담당자 확인 없이 판단', c: 'var(--accent)', p: c.map(function (r) { return [r.tau, r.coverage]; }) }, { n: '문제없는 광고에 수정 요청', c: 'var(--amber)', p: c.map(function (r) { return [r.tau, r.false_flag]; }) }, { n: '문제 있는 광고 통과', c: 'var(--bad)', p: c.map(function (r) { return [r.tau, r.unsafe_approve]; }) }] }) + '</div>' +
       '<div class="card"><div class="lbl">신뢰도 보정 (reliability diagram)</div>' + line({ label: '모델이 말한 신뢰도와 실제 정답률', x: [0, 1], y: [0, 1], xt: [0, 0.25, 0.5, 0.75, 1], yt: [0, 0.25, 0.5, 0.75, 1], fx: function (v) { return v.toFixed(2); }, fy: function (v) { return v.toFixed(2); }, xl: '모델이 말한 신뢰도', diag: true,
@@ -501,7 +501,7 @@ svg.chart .ax { stroke: var(--line); stroke-width: 1; } svg.chart .gr { stroke: 
     }).join('') || '<p class="muted" style="margin-top:12px">일치하는 항목이 없습니다.</p>';
   }
   function renderFM() {
-    return '<section class="sec" style="margin-top:0"><h2>이 시스템은 어떻게 망가지는가</h2><p class="lead">실패 모드 ' + D.fms.length + '개를 코드로 먼저 적었습니다. 각 항목에 탐지 방법, 방어선, 그것을 보장하는 테스트가 있고, 테스트가 실제로 존재하는지도 CI 가 검사합니다. FM-23 은 라이브 실행에서 실제로 발생해 추가된 항목입니다.</p>' +
+    return '<section class="sec" style="margin-top:0"><h2>이 시스템은 어떻게 망가지는가</h2><p class="lead">실패 모드 ' + D.fms.length + '개를 코드로 먼저 적었습니다. 각 항목에 탐지 방법, 방어선, 그것을 보장하는 테스트가 있고, 테스트가 실제로 존재하는지도 CI 가 검사합니다. FM-23 과 FM-24 는 라이브 실행에서 실제로 발생해 추가된 항목입니다.</p>' +
       '<div style="margin-top:12px"><label class="muted" for="fmq" style="font-size:12px;display:block;margin-bottom:4px">검색</label><input id="fmq" class="in" type="search" placeholder="예: 인젝션, 타임아웃, FM-04" value="' + esc(state.fm) + '"></div><div id="fmlist">' + fmList() + '</div></section>';
   }
 

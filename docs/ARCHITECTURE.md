@@ -77,7 +77,7 @@ flowchart LR
 5. fix 가 있으면 수정 필요.
 6. 그 외 점검 통과.
 
-**수정안은 판정과 별개의 상태를 가진다** (`PreflightReport.rewrite_status`: `none` · `verified` · `failed_recheck` · `unchecked`). 모델이 제안한 수정안(`verdict.proposed_rewrite`)은 전체 코드 검사를 다시 통과했을 때만 `verified_rewrite` 가 되고, 어떤 판정 경로(수정 필요·게재 불가·담당자 확인)에서도 재검사에 실패한 수정안은 제시하지 않는다. 수정안의 주장→근거 연결은 바뀐 문구에 그대로 남은 주장만 이어받는다.
+**수정안은 판정과 별개의 상태를 가진다** (`PreflightReport.rewrite_status`: `none` · `verified` · `failed_recheck` · `unchecked`). 모델이 제안한 수정안(`verdict.proposed_rewrite`)은 원문과 같은 코드 검사와 검토 모델의 의미 검사를 모두 다시 통과했을 때만 `verified_rewrite` 가 된다. 코드 검사에서 걸리거나 의미 검사에서 걸리면 `failed_recheck`, 의미 검사를 하지 못하면 `unchecked` 로 남고, 어떤 판정 경로(수정 필요·게재 불가·담당자 확인)에서도 재검사에 실패한 수정안은 제시하지 않는다. 수정안의 주장→근거 연결은 바뀐 문구에 그대로 남은 주장만 이어받는다.
 
 τ(자동 판정에 필요한 최소 확신)는 평가의 임계값 곡선으로 정한다. 곡선은 저장된 판정 원본 입력으로 `decide()` 를 다시 불러 계산한다. 추천값은 문제 있는 광고 통과 0·수정 요청 0 을 만족하는 τ 가운데 커버리지가 가장 높은 것이고, 커버리지가 같으면 더 높은 τ 를 고른다(낮은 τ 는 같은 커버리지에서 위험만 더한다). 제공자·모델·프롬프트·검사 기준·데이터 버전이 현재 설정과 같을 때만 쓴다 (`evals/runner.py::recommendation_for`).
 
@@ -95,7 +95,7 @@ flowchart LR
 
 `Trace(name, trace_id, metadata, root: Span)` · `Span(name, kind ∈ {stage, llm, guardrail, tool}, status ∈ {ok, error, intercepted, fallback}, attributes, events, children)`.
 LLM 스팬 속성: provider, model, 시도 체인, 제약 디코딩 여부, 토큰, 비용, 지연, 수리 여부, 프롬프트/응답 원문. 가드레일 스팬 속성: finding 목록, 체크리스트.
-JSON 으로 내보내고 다시 읽어 '재생' 할 수 있다 — 관측 탭의 `traces/sample_*.json`.
+JSON 으로 내보내고 다시 읽어 '재생' 할 수 있다 — 품질 확인 화면 › 처리 기록의 `traces/sample_*.json`.
 
 ## 왜 Streamlit 하나에 다 넣었나
 
