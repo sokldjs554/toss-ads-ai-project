@@ -32,6 +32,9 @@ from core.schemas import (
 )
 from guardrails.output_guard import OutputGuardResult
 
+if False:  # 타입 힌트 전용 (순환 import 회피)
+    from agents.rewrite_check import RewriteCheck
+
 
 @dataclass
 class DecisionInputs:
@@ -48,7 +51,8 @@ class DecisionInputs:
     disagreement: bool = False                  # 2차 의견 불일치
     second_opinion: Optional[str] = None
     has_rewrite: bool = False
-    rewrite_passed: Optional[bool] = None       # None = 재검사 없음/불가
+    rewrite_passed: Optional[bool] = None       # None = 재검사 없음/불가. 코드 검사 + 의미 검사 모두 통과해야 True
+    rewrite_semantic: Optional[str] = None      # 수정안에 대한 검토 모델 판정 (재생용)
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -67,7 +71,7 @@ class Adjudication:
 
 
 def inputs_from(det: OutputGuardResult, verdict: Optional[ReviewVerdict],
-                rewrite_recheck: Optional[OutputGuardResult] = None) -> DecisionInputs:
+                rewrite_recheck: Optional["OutputGuardResult | RewriteCheck"] = None) -> DecisionInputs:
     inp = DecisionInputs(det_block=any(f.severity == Severity.BLOCK for f in det.findings),
                          det_fix=any(f.severity == Severity.FIX for f in det.findings))
     if verdict is None:
@@ -81,8 +85,12 @@ def inputs_from(det: OutputGuardResult, verdict: Optional[ReviewVerdict],
     inp.disagreement = bool(verdict.disagreement)
     inp.second_opinion = verdict.second_opinion.value if verdict.second_opinion else None
     inp.has_rewrite = verdict.proposed_rewrite is not None
-    if inp.has_rewrite:
-        inp.rewrite_passed = None if rewrite_recheck is None else rewrite_recheck.decision == Decision.APPROVE
+    if inp.has_rewrite and rewrite_recheck is not None:
+        if hasattr(rewrite_recheck, "passed"):  # RewriteCheck: 코드 검사 + 의미 검사
+            inp.rewrite_passed = rewrite_recheck.passed
+            inp.rewrite_semantic = rewrite_recheck.semantic.decision.value if rewrite_recheck.semantic is not None else None
+        else:  # 코드 검사만 (OutputGuardResult) — 의미 검사가 없으므로 '통과' 로 확정하지 않는다
+            inp.rewrite_passed = False if rewrite_recheck.decision != Decision.APPROVE else None
     return inp
 
 
@@ -112,18 +120,28 @@ def decide(inp: DecisionInputs, threshold: float) -> Adjudication:
     if not inp.has_rewrite:
         adj.rewrite_status, adj.rewrite_note = RewriteStatus.NONE, "자동 수정안 없음"
     elif inp.rewrite_passed is True:
-        adj.rewrite_status, adj.rewrite_note = RewriteStatus.VERIFIED, "자동 수정안이 전체 가드레일 재검사를 통과해 함께 제시"
+        adj.rewrite_status, adj.rewrite_note = RewriteStatus.VERIFIED, "자동 수정안이 코드 검사와 의미 검사를 모두 다시 통과해 함께 제시"
     elif inp.rewrite_passed is False:
         adj.rewrite_status, adj.rewrite_note = RewriteStatus.FAILED_RECHECK, "자동 수정안이 재검사에서 다시 걸려 폐기(FM-19) — 제시하지 않음"
     else:
-        adj.rewrite_status, adj.rewrite_note = RewriteStatus.UNCHECKED, "자동 수정안을 재검사하지 못해 제시하지 않음"
+        adj.rewrite_status, adj.rewrite_note = RewriteStatus.UNCHECKED, "자동 수정안의 의미 검사를 하지 못해 제시하지 않음"
     return adj
 
 
 def adjudicate(copy: AdCopy, det: OutputGuardResult, verdict: Optional[ReviewVerdict], threshold: float,
-               rewrite_recheck: Optional[OutputGuardResult] = None, audience: Optional[AudienceReport] = None) -> PreflightReport:
+               rewrite_recheck: Optional["OutputGuardResult | RewriteCheck"] = None, audience: Optional[AudienceReport] = None) -> PreflightReport:
     inp = inputs_from(det, verdict, rewrite_recheck)
     adj = decide(inp, threshold)
+    rc_decision: Optional[Decision] = None
+    rc_findings: list = []
+    if inp.has_rewrite and rewrite_recheck is not None:
+        if hasattr(rewrite_recheck, "passed"):
+            rc_findings = list(rewrite_recheck.findings)
+            rc_decision = (Decision.APPROVE if rewrite_recheck.passed else (Decision.HUMAN_REVIEW if rewrite_recheck.passed is None else
+                           (rewrite_recheck.det.decision if rewrite_recheck.det.decision != Decision.APPROVE else rewrite_recheck.semantic.decision)))
+        else:
+            rc_findings = list(rewrite_recheck.findings)
+            rc_decision = rewrite_recheck.decision
     checklist = list(det.checklist)
     if verdict is not None:
         checklist.append(ChecklistItem(name="의미 심사 (LLM)", passed=verdict.decision == Decision.APPROVE, layer=Layer.SEMANTIC,
@@ -144,7 +162,7 @@ def adjudicate(copy: AdCopy, det: OutputGuardResult, verdict: Optional[ReviewVer
         variant_id=copy.variant_id, ad_copy=copy, audience=audience, verdict=verdict,
         final_decision=adj.decision, checklist=checklist, decision_reason=adj.reason,
         rewrite_status=adj.rewrite_status, verified_rewrite=verified,
-        rewrite_recheck_decision=rewrite_recheck.decision if (inp.has_rewrite and rewrite_recheck is not None) else None,
-        rewrite_recheck_findings=list(rewrite_recheck.findings) if (inp.has_rewrite and rewrite_recheck is not None) else [],
+        rewrite_recheck_decision=rc_decision,
+        rewrite_recheck_findings=rc_findings,
         rewrite_note=adj.rewrite_note,
     )

@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Callable, Optional
 
 from agents import adjudicator, reviewer
+from agents.rewrite_check import check_rewrite
 from agents.prompts import PROMPT_VERSION
 from core.config import Settings
 from core.schemas import AdCopy, Claim, Decision, Fact, ProductCategory, ProductFacts, Severity
@@ -95,6 +96,10 @@ class CaseResult:
     cost_estimated: bool = False
 
 
+def _tracer_of(router: Optional[Router]) -> Tracer:
+    return router.tracer if router is not None else Tracer()
+
+
 def evaluate_case(case: EvalCase, settings: Settings, router: Optional[Router], catalog: PolicyCatalog,
                   use_llm: bool = True) -> CaseResult:
     copy, product = case.to_copy(), case.to_product()
@@ -119,7 +124,8 @@ def evaluate_case(case: EvalCase, settings: Settings, router: Optional[Router], 
                                 findings=det.findings, rationale="결정론 계층만 (의미 심사 없음)", provider="none", model="none")
     recheck = None
     if verdict is not None and verdict.proposed_rewrite is not None:
-        recheck = output_guard.check(verdict.proposed_rewrite, product, categories, case.landing_text, [], catalog)
+        facts = "\n".join(f"- {f.id}: {f.text}" for f in product.facts) or "- (없음)"
+        recheck = check_rewrite(verdict.proposed_rewrite, product, categories, case.landing_text, [], catalog, router if use_llm else None, facts, _tracer_of(router))
     report = adjudicator.adjudicate(copy, det, verdict, settings.auto_decision_confidence, recheck, None)
     inputs = adjudicator.inputs_from(det, verdict, recheck)
     pred_rules = sorted({f.rule_id for f in report.verdict.findings if f.severity != Severity.WARN and f.verified_quote})
@@ -180,7 +186,7 @@ def run_eval(dataset: str, settings: Settings, use_llm: bool = True, router: Opt
         "prompt_version": PROMPT_VERSION, "policy_version": catalog.version,
         "threshold": settings.auto_decision_confidence,
         # 평가 경로의 범위: 결정론 가드레일 → 1차 심사 → 수정안 재검사 → 판정. 2차 의견·가상 유저는 포함하지 않는다 (Studio 와 다른 점).
-        "scope": {"second_opinion": False, "audience": False, "stages": "output_guard → reviewer → rewrite_recheck → adjudicate"},
+        "scope": {"second_opinion": False, "audience": False, "stages": "output_guard → reviewer → rewrite_recheck(code + semantic) → adjudicate"},
         "curve_method": summary.get("curve_method", "replay_decide"),
         "recommended_threshold_for_zero_unsafe": recommend_threshold(records, 0.0),
         "recommended_threshold_for_zero_unsafe_and_zero_false_flag": recommend_threshold(records, 0.0, 0.0),

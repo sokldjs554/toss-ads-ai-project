@@ -282,6 +282,7 @@ class PipelineRun(BaseModel):
     mode: str
     brief: CampaignBrief
     effective_input: str = ""   # 인터셉트로 고쳐진 요청 (없으면 원문)
+    categories: list[str] = Field(default_factory=list)  # 선언 업종 + 문구 단서로 넓힌 업종 (검사 기준 선택에 쓰임)
     intercept: InterceptNotice = Field(default_factory=InterceptNotice)
     plan: Optional[CampaignPlan] = None
     reports: list[PreflightReport] = Field(default_factory=list)

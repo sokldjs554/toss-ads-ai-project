@@ -97,3 +97,37 @@ def test_reviewer_outage_falls_to_human_review(demo_settings, tracer):
 def test_no_raw_exception_escapes(demo_settings, tracer):
     run = run_pipeline(brief("", ProductCategory.OTHER), demo_settings, tracer=tracer)
     assert isinstance(run.trace_id, str)
+
+
+def test_budget_halt_keeps_remaining_variants_as_human_review(demo_settings, tracer):
+    """FM-20: 비용·호출 상한에 걸리면 아직 검사하지 못한 광고안이 사라지지 않고 담당자 확인으로 남는다."""
+    router = Router(demo_settings, tracer=tracer)
+    orig = router.new_run
+
+    def tight():
+        orig()
+        router.budget.max_calls = 5  # 두 번째 광고안 검사 도중에 걸린다
+
+    router.new_run = tight
+    run = run_pipeline(brief("신용대출, 월 300만원, 신청 전환"), demo_settings, router=router, options=RunOptions(n_variants=3), tracer=tracer)
+    assert run.halted and "FM-20" in run.halt_reason
+    assert len(run.reports) == 3  # 검사하지 못한 광고안도 사라지지 않는다
+    unchecked = [r for r in run.reports if "FM-20" in r.decision_reason]
+    assert unchecked, [r.decision_reason for r in run.reports]
+    for r in unchecked:
+        # 모델 검사 없이 통과시키지 않는다: 담당자 확인이거나, 코드 검사만으로 반려·수정 사유가 확인된 경우뿐
+        assert r.final_decision in (Decision.HUMAN_REVIEW, Decision.REJECT, Decision.REVISE)
+        assert r.rewrite_status == RewriteStatus.NONE and r.verified_rewrite is None
+    assert any(r.final_decision == Decision.HUMAN_REVIEW for r in unchecked)
+    assert any(f.code == "FM-20" for f in run.failures)
+
+
+def test_rewrite_recheck_runs_semantic_review(demo_settings, tracer):
+    """수정안 재검사는 코드 검사 뒤 검토 모델의 의미 검사까지 거친다 (span 에 semantic_decision 이 남는다)."""
+    run = run_pipeline(brief("신용대출, 월 300만원, 신청 전환"), demo_settings, tracer=tracer)
+    spans = [s for s in tracer.latest().spans() if s.name == "rewrite_recheck"]
+    assert spans
+    verified = [r for r in run.reports if r.rewrite_status == RewriteStatus.VERIFIED]
+    for r in verified:
+        sp = next(s for s in spans if s.attributes.get("decision") == "APPROVE" and s.attributes.get("semantic_decision"))
+        assert sp.attributes["semantic_decision"] == "APPROVE"

@@ -109,3 +109,33 @@ def test_relink_claims_keeps_only_surviving_claims():
     claims = [Claim(text="7일 무료 체험", fact_id="F1"), Claim(text="최대 5,000만원", fact_id="F2")]
     kept = relink_claims(claims, "7일 무료 체험 후 자동결제\n지금 시작")
     assert [c.text for c in kept] == ["7일 무료 체험"]
+
+
+def _g(h, facts, body="지금", claims=None):
+    P = ProductFacts(name="x", category=ProductCategory.ECOMMERCE, facts=[Fact(id=f"F{i+1}", text=t) for i, t in enumerate(facts)])
+    return grounding.check(AdCopy(headline=h, body=body, cta="확인", claims=claims or []), P)
+
+
+def test_sense_synonyms_do_not_false_flag():
+    assert not _g("전 상품 10% 쿠폰", ["전 상품 10% 할인 쿠폰 (10월 31일까지, 1인 1회)"], body="10월 31일까지, 1인 1회").findings
+    assert not _g("이자 연 4.5%부터", ["대출 금리 연 4.5%~15.0%"]).numbers_unsupported
+    assert _g("5% 할인", ["금리 연 5%"]).numbers_unsupported == ["5%"]
+
+
+def test_bare_numbers_in_facts_do_not_support_unit_numbers():
+    assert "1,234명" in _g("상담원 1,234명 대기", ["고객센터 1588-1234 (24시간)"]).numbers_unsupported
+    assert "200%" in _g("최근 200% 상승", ["코스피200 추종 인덱스 펀드"]).numbers_unsupported
+
+
+def test_dates_match_across_formats_and_are_not_durations():
+    assert not _g("10월 31일까지 10% 할인", ["전 상품 10% 할인 (2026.10.31까지, 1인 1회)"], body="1인 1회").findings
+    assert not _g("2026년 10월 1일 기준 연 3.0%", ["기본 연 3.0% (2026.10.1 기준, 변동 가능)"]).numbers_unsupported
+
+
+def test_negated_marker_and_phrasing_variants():
+    assert not _g("전 상품 10% 할인", ["전 상품 10% 할인 (제외 품목 없음)"]).conditions_omitted
+    assert not _g("전 상품 10% 할인 쿠폰", ["전 상품 10% 할인 쿠폰 (10월 31일까지, 1인 1회)"], body="10월 31일까지, 1인당 1회").conditions_omitted
+
+
+def test_quote_excludes_trailing_whitespace():
+    assert [(q.raw, q.start, q.end) for q in grounding.extract_quantities("1억\n2억 3억")] == [("1억", 0, 2), ("2억", 3, 5), ("3억", 6, 8)]

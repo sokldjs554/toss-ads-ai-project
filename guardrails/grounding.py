@@ -20,7 +20,9 @@ from guardrails.normalize import loose_text
 from guardrails.policy import PolicyCatalog, get_catalog
 
 # 숫자 + (한국어 자릿수 단위) + (단위). 예: 5,000만원 / 4.5% / 15일 / 7일 / 19,900원 / 3배 / 5천만원
-_NUM = re.compile(r"(\d[\d,]*(?:\.\d+)?)\s*([십백천만억]*)\s*(%|퍼센트|원|명|배|일|개월|달|년|시간|분|초|회|건|호|개|점|p|포인트|kg|㎏|g)?", re.IGNORECASE)
+_NUM = re.compile(r"(?<![A-Za-z가-힣\d.\-])(\d[\d,]*(?:\.\d+)?)(?![\d\-])([십백천만억]*)(?:\s*(%|퍼센트|원|명|배|일|개월|달|년|시간|분|초|회|건|호|개|점|p|포인트|kg|㎏|g))?", re.IGNORECASE)
+# 날짜: 숫자 대조에서 '31일'·'2026년' 같은 기간 수치로 오인하지 않도록 먼저 잡아 (월, 일) 로 비교한다
+_DATE = re.compile(r"(?:(\d{4})\s*[.\-/년]\s*)?(\d{1,2})\s*[.\-/월]\s*(\d{1,2})\s*일?(?![\d%])")
 _TOKEN = re.compile(r"[가-힣]{2,}|[A-Za-z]{3,}")
 _STOP = {"지금", "바로", "확인", "조건", "상품", "서비스", "가능", "신청", "이용", "고객", "혜택", "제공", "있습니다", "있어요", "합니다", "해요",
          "최대", "최소", "기준", "경우", "통해", "위해", "대한", "모든", "전체"}
@@ -28,26 +30,36 @@ _MULT = {"십": 10, "백": 100, "천": 1_000, "만": 10_000, "억": 100_000_000}
 _UNIT_CLASS = {"%": "percent", "퍼센트": "percent", "원": "krw", "명": "count", "회": "count", "건": "count", "개": "count", "호": "count",
                "배": "multiple", "일": "duration", "개월": "duration", "달": "duration", "년": "duration", "시간": "duration", "분": "duration",
                "초": "duration", "점": "points", "p": "points", "포인트": "points", "kg": "weight", "㎏": "weight", "g": "weight"}
-# 같은 숫자·단위라도 뜻이 다르면 뒷받침이 아니다. 숫자 주변(±10자)에 이 어휘가 있을 때만 비교한다.
-_SENSE_WORDS = ("할인", "금리", "이자", "수익률", "수익", "적립", "캐시백", "보수", "수수료", "연체", "환급", "배송", "체험", "한도", "보장", "할부", "쿠폰")
+# 같은 숫자·단위라도 뜻이 다르면 뒷받침이 아니다. 숫자와 같은 구절 안의 뜻 어휘를 '묶음' 으로 비교한다 (할인≈쿠폰≈세일, 금리≈이자…).
+_SENSE_GROUPS: dict[str, tuple[str, ...]] = {
+    "할인": ("할인", "쿠폰", "세일", "특가"), "금리": ("금리", "이자", "이율"), "수익": ("수익률", "수익", "배당", "성과"),
+    "적립": ("적립", "캐시백", "포인트", "리워드"), "수수료": ("보수", "수수료"), "연체": ("연체",), "환급": ("환급",), "배송": ("배송",),
+    "체험": ("체험", "무료"), "한도": ("한도",), "보장": ("보장", "보상"), "할부": ("할부",),
+}
+_SENSE_WORDS = tuple(w for ws in _SENSE_GROUPS.values() for w in ws)
+_SENSE_OF = {w: g for g, ws in _SENSE_GROUPS.items() for w in ws}
 # 조건 표식: (이름, 사실 텍스트에서 조건을 찾는 패턴, 광고 문구에 있어야 하는 패턴들 중 하나)
 _CONDITION_MARKERS: tuple[tuple[str, re.Pattern, tuple[re.Pattern, ...]], ...] = (
     ("자동결제·유료 전환", re.compile(r"(자동\s*결제|자동\s*갱신|유료\s*(전환|결제)|정기\s*결제|과금)"),
      (re.compile(r"자동\s*결제"), re.compile(r"자동\s*갱신"), re.compile(r"유료\s*(전환|결제)"), re.compile(r"정기\s*결제"), re.compile(r"과금"))),
     ("심사 조건", re.compile(r"심사\s*(결과|기준)?\s*에\s*따라"), (re.compile(r"심사"),)),
     ("최소 금액 조건", re.compile(r"(\d[\d,]*\s*[십백천만억]*\s*원)\s*이상"), (re.compile(r"이상"),)),
-    ("기간 한정", re.compile(r"(\d+\s*월\s*\d+\s*일|\d{4}[.\-/]\d{1,2}[.\-/]\d{1,2}|\d+\s*일)\s*까지"), (re.compile(r"까지"),)),
-    ("1인 1회", re.compile(r"1\s*인\s*1\s*회"), (re.compile(r"1\s*인\s*1\s*회"), re.compile(r"1\s*회\s*한정"))),
+    ("기간 한정", re.compile(r"(\d+\s*월\s*\d+\s*일|\d{4}[.\-/]\d{1,2}[.\-/]\d{1,2}|\d+\s*일)\s*까지"),
+     (re.compile(r"까지"), re.compile(r"종료"), re.compile(r"마감"), re.compile(r"한정"), re.compile(r"기간"))),
+    ("1인 1회", re.compile(r"1\s*인\s*(당)?\s*1\s*회"),
+     (re.compile(r"1\s*인\s*(당)?\s*1\s*회"), re.compile(r"(고객|회원|계정|아이디)\s*당\s*1\s*회"), re.compile(r"1\s*회\s*(한정|만|씩)"), re.compile(r"한\s*번만"))),
     ("제외 조건", re.compile(r"(일부|특정)?\s*[가-힣A-Za-z]*\s*제외"), (re.compile(r"제외"),)),
 )
+# 조건 표식 바로 뒤에 부정이 오면 조건이 아니다: '제외 품목 없음', '자동결제 없이'
+_NEGATED_AFTER = re.compile(r"^\s*(품목|상품|대상|항목)?\s*(없음|없습니다|없어요|없이|않|아님|아닙니다|제로|0건)")
 
 
 @dataclass(frozen=True)
 class Quantity:
     value: float
-    cls: str            # percent | krw | count | multiple | duration | points | weight | bare
+    cls: str            # percent | krw | count | multiple | duration | points | weight | date | bare
     unit: str           # 원문 단위 (duration·count 는 단위까지 같아야 한다)
-    sense: str          # 주변 어휘로 본 뜻 (없으면 "")
+    sense: frozenset    # 같은 구절의 뜻 묶음들 (없으면 빈 집합)
     start: int
     end: int
     raw: str
@@ -56,12 +68,15 @@ class Quantity:
         """self(사실 쪽) 가 other(광고 쪽) 를 뒷받침하는가."""
         if abs(self.value - other.value) > 1e-9:
             return False
-        if other.cls != "bare" and self.cls != "bare":
-            if self.cls != other.cls:
+        if other.cls == "date" or self.cls == "date":
+            return self.cls == other.cls
+        if other.cls != "bare":
+            # 광고가 단위를 붙여 말한 숫자는 사실에도 같은 종류의 단위로 있어야 한다. 전화번호·상품명 속 숫자는 근거가 아니다.
+            if self.cls == "bare" or self.cls != other.cls:
                 return False
             if self.cls in ("duration", "count") and self.unit != other.unit:
                 return False
-        if self.sense and other.sense and self.sense != other.sense:
+        if self.sense and other.sense and not (self.sense & other.sense):
             return False
         return True
 
@@ -81,24 +96,33 @@ class GroundingResult:
 _SEG_DELIM = re.compile(r"[\n.,;()·~\-/]")
 
 
-def _sense(text: str, start: int, end: int) -> str:
-    """숫자와 같은 구절(줄·쉼표·괄호로 끊기는 구간) 안에서 가장 가까운 뜻 어휘. 다른 줄의 어휘를 끌어오지 않는다."""
+def _sense(text: str, start: int, end: int) -> frozenset:
+    """숫자와 같은 구절(줄·쉼표·괄호로 끊기는 구간) 안에 있는 뜻 묶음 전부. 다른 줄의 어휘를 끌어오지 않는다."""
     seg_start = max((m.end() for m in _SEG_DELIM.finditer(text, 0, start)), default=0)
     m_end = _SEG_DELIM.search(text, end)
     seg_end = m_end.start() if m_end else len(text)
     seg = text[seg_start:seg_end]
-    best, best_d = "", 10 ** 9
-    for w in _SENSE_WORDS:
-        for m in re.finditer(re.escape(w), seg):
-            d = min(abs((seg_start + m.start()) - end), abs(start - (seg_start + m.end())))
-            if d < best_d:
-                best, best_d = ("수익" if w == "수익률" else w), d
-    return best if best_d <= 12 else ""
+    return frozenset(_SENSE_OF[w] for w in _SENSE_WORDS if w in seg)
+
+
+def _dates(text: str) -> tuple[list[Quantity], str]:
+    """날짜를 (월*100+일) 값의 date 수량으로 뽑고, 그 자리를 공백으로 지운 텍스트를 돌려준다."""
+    out: list[Quantity] = []
+    chars = list(text)
+    for m in _DATE.finditer(text):
+        month, day = int(m.group(2)), int(m.group(3))
+        if not (1 <= month <= 12 and 1 <= day <= 31):
+            continue
+        out.append(Quantity(value=float(month * 100 + day), cls="date", unit="date", sense=frozenset(), start=m.start(), end=m.end(), raw=text[m.start():m.end()].strip()))
+        for i in range(m.start(), m.end()):
+            chars[i] = " "
+    return out, "".join(chars)
 
 
 def extract_quantities(text: str) -> list[Quantity]:
-    out: list[Quantity] = []
-    for m in _NUM.finditer(text):
+    dates, blanked = _dates(text)
+    out: list[Quantity] = list(dates)
+    for m in _NUM.finditer(blanked):
         raw_num, mult, unit = m.group(1), m.group(2) or "", (m.group(3) or "")
         digits = raw_num.replace(",", "")
         try:
@@ -108,15 +132,16 @@ def extract_quantities(text: str) -> list[Quantity]:
         for ch in mult:
             value *= _MULT.get(ch, 1)
         unit_norm = unit.lower()
-        if unit_norm in ("퍼센트",):
+        if unit_norm == "퍼센트":
             unit_norm = "%"
         cls = _UNIT_CLASS.get(unit_norm, "bare") if unit_norm else ("krw" if mult else "bare")
         if cls == "bare" and not mult and len(digits.replace(".", "")) < 3:
             continue  # 단위 없는 한두 자리 숫자는 무시 (예: '3개 중 1')
         if mult and not unit_norm:
-            cls = "bare_mult"  # '5천' 처럼 단위 없는 자릿수 표기 — 값만 비교
-        out.append(Quantity(value=value, cls="bare" if cls == "bare_mult" else cls, unit=unit_norm, sense=_sense(text, m.start(), m.end()),
+            cls = "bare"  # '5천' 처럼 단위 없는 자릿수 표기 — 값만 비교
+        out.append(Quantity(value=value, cls=cls, unit=unit_norm, sense=_sense(text, m.start(), m.end()),
                             start=m.start(), end=m.end(), raw=text[m.start():m.end()]))
+    out.sort(key=lambda q: q.start)
     return out
 
 
@@ -175,8 +200,10 @@ def omitted_conditions(copy: AdCopy, facts: list[Fact]) -> list[tuple[Fact, str,
             m = finder.search(f.text)
             if not m:
                 continue
+            if _NEGATED_AFTER.search(f.text[m.end():m.end() + 12]):
+                continue  # '제외 품목 없음' 처럼 부정된 표식은 조건이 아니다
             if not any(p.search(blob) for p in needed):
-                out.append((f, name, m.group(0)))
+                out.append((f, name, m.group(0).strip()))
     return out
 
 

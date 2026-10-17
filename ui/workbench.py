@@ -50,6 +50,23 @@ PRESET_TITLES = {
     "commerce_landing": "커머스 쿠폰 — 랜딩 페이지와 조건이 다름",
 }
 FORM_KEYS = ("form_input", "form_name", "form_category", "form_facts", "form_desc", "form_landing", "form_budget")
+# 다른 화면으로 갔다 오면 Streamlit 이 그 화면에 없던 위젯의 값을 지운다. 그래서 값은 _store 에 따로 두고, 위젯을 그리기 전에 되살린다.
+PERSIST_KEYS = FORM_KEYS + ("opt_n_variants", "opt_audience", "opt_second", "opt_tau", "opt_budget", "opt_drill", "opt_oa_model", "opt_an_model",
+                            "user_openai_key", "user_anthropic_key")
+
+
+def _restore(keys=PERSIST_KEYS) -> None:
+    store = st.session_state.setdefault("_store", {})
+    for k in keys:
+        if k not in st.session_state and k in store:
+            st.session_state[k] = store[k]
+
+
+def _persist(keys=PERSIST_KEYS) -> None:
+    store = st.session_state.setdefault("_store", {})
+    for k in keys:
+        if k in st.session_state:
+            store[k] = st.session_state[k]
 STEPS = [("intercept", "요청 검사"), ("planner", "캠페인 구성"), ("copywriter", "광고 초안 작성"), ("review", "광고안 검사·판정")]
 
 
@@ -60,6 +77,7 @@ def _init_state() -> None:
     ss.setdefault("rechecks", {})
     ss.setdefault("rejected_history", [])
     ss.setdefault("running", False)
+    _restore()
     if "form_input" not in ss:
         _load_preset("loan_ok")
 
@@ -75,6 +93,7 @@ def _load_preset(key: str) -> None:
     ss.form_landing = p.get("landing_text", "")
     ss.form_budget = int(p.get("budget") or 0)
     ss.loaded_preset = key
+    _persist(FORM_KEYS)
 
 
 def _form() -> dict:
@@ -94,6 +113,8 @@ def run_state(entry: dict) -> str:
         return "failed"
     if not run.reports:
         return "empty"
+    if run.halted:
+        return "partial"
     stage_fail = any(f.code in ("FM-05", "FM-06", "FM-07", "FM-08", "FM-09", "FM-10") or f.stage in ("planner", "audience") for f in run.failures) or run.plan is None
     if stage_fail:
         return "partial"
@@ -152,34 +173,37 @@ def _inputs(make_settings, server_status: dict) -> tuple[Settings, RunOptions, s
 
     # ---- 상세 옵션 ---------------------------------------------------------------
     with st.expander("상세 옵션 — 광고안 수, 판정 기준, 모델, API 키", expanded=False):
+        ss.setdefault("opt_n_variants", 3); ss.setdefault("opt_audience", True); ss.setdefault("opt_second", True)
+        ss.setdefault("opt_oa_model", "gpt-4o"); ss.setdefault("opt_an_model", "claude-sonnet-5-5")
+        ss.setdefault("user_openai_key", ""); ss.setdefault("user_anthropic_key", "")
         o1, o2, o3 = st.columns(3)
         with o1:
-            n_variants = st.slider("광고안 수", 1, 5, 3)
+            n_variants = st.slider("광고안 수", 1, 5, key="opt_n_variants")
         with o2:
-            enable_audience = st.toggle("가상 사용자 반응 포함", value=True, help=TERM["audience"])
+            enable_audience = st.toggle("가상 사용자 반응 포함", key="opt_audience", help=TERM["audience"])
         with o3:
-            enable_second = st.toggle("다른 모델 계열의 교차 확인", value=True, help="확신이 낮거나 참고 사항이 있는 광고안만 다른 모델 계열에 한 번 더 묻습니다.")
+            enable_second = st.toggle("다른 모델 계열의 교차 확인", key="opt_second", help="확신이 낮거나 참고 사항이 있는 광고안만 다른 모델 계열에 한 번 더 묻습니다.")
         user_oa, user_an = "", ""
-        oa_model = st.session_state.get("opt_oa_model", "gpt-4o")
-        an_model = st.session_state.get("opt_an_model", "claude-sonnet-5-5")
+        oa_model, an_model = ss.opt_oa_model, ss.opt_an_model
         if IN_BROWSER:
             st.caption("브라우저 실행판은 서버가 없어 API 키를 쓸 수 없고 항상 예시 실행입니다. 실제 모델 결과는 '검사 사례' 에 저장돼 있습니다.")
         else:
             st.markdown("**모델과 API 키**")
             st.caption(f"서버에 설정된 키: OpenAI {'있음' if server_status['openai'] else '없음'} · Anthropic {'있음' if server_status['anthropic'] else '없음'}. "
-                       "서버 키 값은 화면에 보이지 않습니다. 직접 키를 넣으면 이 세션에서만 그 키를 씁니다.")
+                       "서버 키 값은 화면에 보이지 않습니다. 직접 키를 넣으면 이 세션에서만 그 키를 씁니다 (화면을 오가도 유지).")
             k1, k2 = st.columns(2)
             with k1:
-                user_oa = st.text_input("내 OpenAI API 키 (선택)", type="password", value="", key="user_openai_key", autocomplete="off")
-                oa_model = st.text_input("OpenAI 모델", value=oa_model, key="opt_oa_model")
+                user_oa = st.text_input("내 OpenAI API 키 (선택)", type="password", key="user_openai_key", autocomplete="off")
+                oa_model = st.text_input("OpenAI 모델", key="opt_oa_model")
             with k2:
-                user_an = st.text_input("내 Anthropic API 키 (선택)", type="password", value="", key="user_anthropic_key", autocomplete="off")
-                an_model = st.text_input("Anthropic 모델", value=an_model, key="opt_an_model")
+                user_an = st.text_input("내 Anthropic API 키 (선택)", type="password", key="user_anthropic_key", autocomplete="off")
+                an_model = st.text_input("Anthropic 모델", key="opt_an_model")
         provisional = make_settings(user_oa.strip(), user_an.strip(), openai_model=oa_model.strip() or "gpt-4o", anthropic_model=an_model.strip() or "claude-sonnet-5-5")
         rec = recommendation_for(provisional)
         st.markdown("**판정 기준**")
         default_tau = float(rec["tau"]) if rec["tau"] is not None else float(provisional.auto_decision_confidence)
-        tau = st.slider("자동 판정에 필요한 검토 모델의 최소 확신", 0.5, 0.99, default_tau, 0.01,
+        ss.setdefault("opt_tau", default_tau)
+        tau = st.slider("자동 판정에 필요한 검토 모델의 최소 확신", 0.5, 0.99, step=0.01, key="opt_tau",
                         help="검토 모델의 확신이 이 값보다 낮으면 자동으로 확정하지 않고 담당자 확인으로 넘깁니다. 게재 불가 사유가 코드로 확인된 광고는 이 값과 무관하게 게재 불가입니다.")
         if rec["tau"] is not None:
             st.caption(f"기본값 {rec['tau']:.2f} 은 같은 제공자·모델·프롬프트·검사 기준·평가 데이터로 평가해 '문제 있는 광고를 통과시킨 사례 0건·문제없는 광고에 수정 요청 0건' 을 만족한 가장 낮은 값입니다.")
@@ -187,11 +211,20 @@ def _inputs(make_settings, server_status: dict) -> tuple[Settings, RunOptions, s
             st.caption("이 설정의 검증된 추천값 없음 — " + (", ".join(rec["mismatches"]) if rec["mismatches"] else rec["reason"]) + ". 기본값은 설정값(0.80)을 씁니다.")
         b1, b2 = st.columns(2)
         with b1:
-            budget = st.number_input("실행당 비용 상한 (USD)", min_value=0.01, value=0.50, step=0.05, help="실제 모델 호출 비용이 이 값을 넘으면 실행을 멈추고 남은 광고안은 담당자 확인으로 둡니다. 실패한 요청의 비용은 알 수 없어 '추정' 으로 표시합니다.")
+            # 서버 키를 쓰는 실행은 서버가 정한 상한(PREFLIGHT_RUN_BUDGET_USD)을 넘을 수 없다. 자기 키를 넣은 경우에만 자유롭다.
+            using_server_key = not (user_oa.strip() or user_an.strip())
+            server_cap = float(server_status.get("run_budget_usd") or 0.5)
+            ss.setdefault("opt_budget", min(server_cap, 0.5) if using_server_key else 0.5)
+            if using_server_key and ss.opt_budget > server_cap:
+                ss.opt_budget = server_cap
+            budget = st.number_input("실행당 비용 상한 (USD)", min_value=0.01, max_value=(server_cap if using_server_key else None), step=0.05, key="opt_budget",
+                                     help="실제 모델 호출 비용이 이 값을 넘으면 실행을 멈추고 남은 광고안은 담당자 확인으로 둡니다. 실패한 요청의 비용은 알 수 없어 '추정' 으로 표시합니다."
+                                     + (f" 서버 키를 쓸 때는 서버가 정한 상한 ${server_cap:.2f} 까지입니다." if using_server_key else ""))
         with b2:
-            drill = st.selectbox("장애 시뮬레이션 (기술 시연용)", ["없음", "openai: timeout", "openai: schema", "anthropic: timeout", "anthropic: refusal", "mock: timeout"],
-                                 help="모델 호출을 일부러 실패시켜 대체 경로와 '실패해도 통과로 흐르지 않음' 을 보여 줍니다.")
-        ss.opt_drill = drill
+            ss.setdefault("opt_drill", "없음")
+            drill = st.selectbox("장애 시뮬레이션 (기술 시연용 — 광고 작업에만 적용)", ["없음", "openai: timeout", "openai: schema", "anthropic: timeout", "anthropic: refusal", "mock: timeout"], key="opt_drill",
+                                 help="모델 호출을 일부러 실패시켜 대체 경로와 '실패해도 통과로 흐르지 않음' 을 보여 줍니다. 품질 확인의 평가 실행에는 적용되지 않습니다.")
+        _persist()
     overrides = dict(openai_model=oa_model.strip() or "gpt-4o", anthropic_model=an_model.strip() or "claude-sonnet-5-5",
                      auto_decision_confidence=tau, run_budget_usd=float(budget))
     settings = make_settings(user_oa.strip(), user_an.strip(), **overrides)
@@ -283,6 +316,8 @@ def _state_banner(entry: dict, stale: bool) -> None:
     state = run_state(entry)
     if stale:
         st.warning("아래 결과는 **이전 입력**에 대한 결과입니다. 입력이 바뀌었으니 '광고 초안 만들기' 를 다시 눌러 주세요.", icon="⚠️")
+    if run.halted and run.reports:
+        st.warning(f"도중에 멈췄습니다 — {run.halt_reason}  \n검사하지 못한 광고안은 '담당자 확인 필요' 로 두었고, 코드 검사만으로 이미 사유가 확인된 광고안에는 모델 검사를 하지 못했다고 적었습니다. 비용 상한을 올리거나 광고안 수를 줄여 다시 실행할 수 있습니다.", icon="⚠️")
     if state == "failed":
         st.error(f"실행을 끝내지 못했습니다 — {run.halt_reason}  \n입력은 그대로 남아 있습니다. 요청을 고치거나 상세 옵션을 바꿔 다시 실행하세요.", icon="⛔")
     elif state == "empty":
@@ -420,13 +455,17 @@ def _edit_and_recheck(rep: PreflightReport, entry: dict, catalog, tracer: Tracer
     base = rep.verified_rewrite if rep.verified_rewrite is not None else rep.ad_copy
     with st.expander("문구 고쳐서 다시 검사", expanded=rep.final_decision in (Decision.REVISE, Decision.REJECT)):
         st.caption("아래 칸을 고치고 '수정한 문구 다시 검사' 를 누르면 같은 검사 기준으로 다시 검사합니다. 결과는 그 시점의 문구에만 해당합니다.")
-        h = st.text_input("제목", value=base.headline, key=f"edit_h_{vid}")
-        b = st.text_area("본문", value=base.body, key=f"edit_b_{vid}", height=80)
+        keys = (f"edit_h_{vid}", f"edit_b_{vid}", f"edit_c_{vid}", f"edit_d_{vid}")
+        _restore(keys)
+        ss.setdefault(keys[0], base.headline); ss.setdefault(keys[1], base.body); ss.setdefault(keys[2], base.cta); ss.setdefault(keys[3], "\n".join(base.disclosures))
+        h = st.text_input("제목", key=keys[0])
+        b = st.text_area("본문", key=keys[1], height=80)
         c1, c2 = st.columns([1, 2])
         with c1:
-            c = st.text_input("버튼 문구", value=base.cta, key=f"edit_c_{vid}")
+            c = st.text_input("버튼 문구", key=keys[2])
         with c2:
-            d = st.text_area("안내 문구 (한 줄에 하나)", value="\n".join(base.disclosures), key=f"edit_d_{vid}", height=80)
+            d = st.text_area("안내 문구 (한 줄에 하나)", key=keys[3], height=80)
+        _persist(keys)
         edited = build_edited_copy(rep.ad_copy, h, b, c, d.splitlines())
         fp = copy_fingerprint(edited)
         prev = ss.rechecks.get(vid)
@@ -439,9 +478,11 @@ def _edit_and_recheck(rep: PreflightReport, entry: dict, catalog, tracer: Tracer
                     settings: Settings = make_settings(*ss.get("user_keys", ("", "")), **entry.get("overrides", {}))
                     brief = entry["brief"]
                     categories = catalog.effective_categories(brief.product.category, edited.full_text(), brief.product.raw_description)
+                    own = {rep.ad_copy.full_text()} | {r2["copy"].full_text() for r2 in [prev] if r2}
+                    history = [h for h in ss.rejected_history if h not in own]  # 고치고 있는 광고 자신은 '다른 반려 광고' 가 아니다
                     with st.spinner("다시 검사하는 중…"):
                         res = recheck(edited, brief.product, categories, settings, router=router_factory(settings), landing_text=entry.get("landing", ""),
-                                      rejected_history=list(ss.rejected_history), catalog=catalog, tracer=tracer)
+                                      rejected_history=history, catalog=catalog, tracer=tracer)
                     ss.rechecks[vid] = {"fingerprint": fp, "result": res, "at": datetime.now(), "copy": edited}
                     prev = ss.rechecks[vid]
                 except Exception as e:  # noqa: BLE001
@@ -574,15 +615,20 @@ def render(make_settings, tracer: Tracer, router_factory, server_status: dict) -
     _init_state()
     ss = st.session_state
     qp = st.query_params
-    if ss.pop("pending_load", None):
-        pass  # app.py 에서 이미 폼에 넣었다
-    if "_qp_preset_done" not in ss and qp.get("preset") in PRESETS:
-        _load_preset(qp.get("preset"))
+    if "_qp_preset_done" not in ss:
         ss._qp_preset_done = True
-    autorun = qp.get("autorun") in ("1", "true") and not ss.get("_autorun_done")
+        if qp.get("preset") in PRESETS and not ss.pop("_pending_load_applied", False):
+            _load_preset(qp.get("preset"))  # URL 의 예시는 첫 방문 기본값일 뿐 — 사용자가 고른 사례(pending_load)가 우선
+    autorun = bool(ss.pop("_force_autorun", False))
+    if qp.get("autorun") in ("1", "true") and not ss.get("_autorun_done"):
+        autorun = True
+        ss._autorun_done = True
+        try:
+            del st.query_params["autorun"]  # 새로고침·공유 링크로 다시 실행되지 않도록 한 번 쓰고 지운다
+        except Exception:  # noqa: BLE001
+            pass
     settings, options, mode, clicked = _inputs(make_settings, server_status)
     if autorun:
-        ss._autorun_done = True
         clicked = True
     if clicked:
         _execute(settings, options, tracer, router_factory, mode)

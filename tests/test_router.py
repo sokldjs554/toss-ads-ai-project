@@ -178,3 +178,42 @@ def test_unknown_usage_is_estimated_not_zero(tracer):
     assert resp.cost_estimated and r.budget.estimated and r.budget.spent_usd > 0
     span = tracer.latest().llm_spans()[0]
     assert span.attributes.get("cost_estimated") is True
+
+
+def test_truncated_first_request_counts_as_failed_attempt(tracer):
+    def behave(r: LLMRequest) -> LLMResponse:
+        return LLMResponse(text='{"ok": true}', parsed=Out(ok=True), provider="openai", model="fake", cost_usd=0.001)
+
+    oa = FakeProvider("openai", behavior=behave, errors=[TruncatedOutput("len", provider="openai")])
+    r = router(oa, FakeProvider("anthropic"), tracer)
+    with tracer.trace("t"):
+        r.complete(LLMRequest(task=Task.REVIEW, system="s", user="u", schema=Out, max_tokens=100))
+    b = r.budget
+    assert b.attempts == 2 and b.calls == 1 and b.failed_attempts == 1 and b.estimated
+    assert b.attempts == b.calls + b.failed_attempts
+
+
+def test_repair_path_respects_open_breaker(tracer):
+    oa = FakeProvider("openai", errors=[Timeout("t", provider="openai")] * 3)
+    an = FakeProvider("anthropic")
+    r = router(oa, an, tracer)
+    with tracer.trace("t"):
+        for _ in range(3):
+            r.complete(req())
+    assert r.breakers["openai"].is_open and oa.calls == 3
+    an.errors.append(SchemaMismatch("bad", provider="anthropic", raw_text="ok: true"))
+    with tracer.trace("t2"):
+        with pytest.raises(ProviderUnavailable):
+            r.complete(req(Task.COPY))  # 수리 경로도 열린 서킷을 건너뛴다 → openai 에 요청이 가지 않는다
+    assert oa.calls == 3
+
+
+def test_unexpected_provider_exception_falls_back_and_keeps_budget_consistent(tracer):
+    oa = FakeProvider("openai", errors=[RuntimeError("boom")])
+    an = FakeProvider("anthropic")
+    r = router(oa, an, tracer)
+    with tracer.trace("t"):
+        resp = r.complete(req())
+    assert resp.provider == "anthropic"
+    b = r.budget
+    assert b.attempts == 2 and b.calls == 1 and b.failed_attempts == 1 and b.estimated

@@ -7,3 +7,7 @@ docs/screenshots
 site
 tests
 .env
+.env.*
+.streamlit/secrets.toml
+evals/reports/latest.json
+evals/reports/redteam_latest.json

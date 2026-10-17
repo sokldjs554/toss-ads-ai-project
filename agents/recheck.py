@@ -18,6 +18,7 @@ from observability.tracer import Tracer, get_tracer
 
 from . import adjudicator, reviewer
 from .reviewer import relink_claims
+from .rewrite_check import check_rewrite
 
 
 def copy_fingerprint(copy: AdCopy) -> str:
@@ -63,13 +64,11 @@ def recheck(copy: AdCopy, product: ProductFacts, categories: set[str], settings:
             except Exception as e:  # noqa: BLE001 — 심사 실패는 사람 검토로 (fail-closed)
                 span.status = "error"
                 span.event("reviewer_failed", error=str(e)[:200])
-        recheck_det = None
+        recheck_rw = None
         if verdict is not None and verdict.proposed_rewrite is not None:
-            with tracer.span("rewrite_recheck", kind="guardrail") as span:
-                recheck_det = output_guard.check(verdict.proposed_rewrite, product, categories, landing_text, [], catalog)
-                span.set(decision=recheck_det.decision.value)
+            recheck_rw = check_rewrite(verdict.proposed_rewrite, product, categories, landing_text, rejected_history or [], catalog, router, facts_text, tracer)
         with tracer.span("adjudicate", kind="guardrail") as span:
-            report = adjudicator.adjudicate(copy, det, verdict, settings.auto_decision_confidence, recheck_det, None)
+            report = adjudicator.adjudicate(copy, det, verdict, settings.auto_decision_confidence, recheck_rw, None)
             span.set(final=report.final_decision.value, reason=report.decision_reason, rewrite_status=report.rewrite_status.value)
     return RecheckResult(report=report, fingerprint=copy_fingerprint(copy), mode=settings.mode.value,
                          cost_usd=router.budget.spent_usd, cost_estimated=router.budget.estimated)

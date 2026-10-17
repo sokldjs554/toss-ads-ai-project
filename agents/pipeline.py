@@ -20,6 +20,7 @@ from llm.router import Router
 from observability.tracer import Tracer, get_tracer
 
 from . import adjudicator, audience as audience_agent, copywriter, planner, reviewer
+from .rewrite_check import check_rewrite
 from .prompts import PROMPT_VERSION
 
 
@@ -62,17 +63,10 @@ def run_pipeline(brief: CampaignBrief, settings: Settings, router: Optional[Rout
             _run_stages(run, brief, settings, router, options, catalog, tracer)
         except BudgetExceeded as e:
             run.halted = True
-            run.halt_reason = f"FM-20 실행 예산 초과로 중단: {e}"
-            _escalate_pending(run)
+            run.halt_reason = f"FM-20 실행 비용·호출 상한 초과로 중단: {e}"
     run.total_cost_usd = trace.total_cost_usd
     run.total_latency_ms = round((time.perf_counter() - t0) * 1000, 1)
     return run
-
-
-def _escalate_pending(run: PipelineRun) -> None:
-    for r in run.reports:
-        if r.final_decision == Decision.APPROVE and r.verdict.rationale == "":
-            r.final_decision = Decision.HUMAN_REVIEW
 
 
 def _run_stages(run: PipelineRun, brief: CampaignBrief, settings: Settings, router: Router, options: RunOptions,
@@ -83,6 +77,7 @@ def _run_stages(run: PipelineRun, brief: CampaignBrief, settings: Settings, rout
         notice, effective_input, description, categories = input_guard.intercept(brief, catalog, router=router)
         run.intercept = notice
         run.effective_input = effective_input
+        run.categories = sorted(categories)
         span.set(triggered=notice.triggered, kind=notice.kind.value if notice.kind else None, hard_block=notice.hard_block,
                  findings=[f.model_dump(mode="json") for f in notice.findings], categories=sorted(categories),
                  removed=notice.removed_phrases, suggested_input=notice.suggested_input)
@@ -119,8 +114,31 @@ def _run_stages(run: PipelineRun, brief: CampaignBrief, settings: Settings, rout
             return
 
     # 3~6) per variant ---------------------------------------------------------
-    for idx, copy in enumerate(cr.variants, start=1):
-        _progress(options, "review", f"광고안 {idx}/{len(cr.variants)} 검사")
+    try:
+        _review_variants(run, brief, settings, router, options, catalog, tracer, cr.variants, facts_text)
+    except BudgetExceeded:
+        # FM-20: 비용·호출 상한. 아직 판정하지 못한 광고안은 코드 검사만 붙여 담당자 확인으로 남긴다 — 조용히 사라지지 않는다.
+        done = {r.variant_id for r in run.reports}
+        for copy in cr.variants:
+            if copy.variant_id in done:
+                continue
+            det = output_guard.check(copy, brief.product, set(run.categories), options.landing_text, options.rejected_history, catalog)
+            report = adjudicator.adjudicate(copy, det, None, settings.auto_decision_confidence, None, None)
+            if report.final_decision == Decision.HUMAN_REVIEW:
+                report.decision_reason = "실행 비용·호출 상한 초과로 검사하지 못함 (FM-20) → 담당자 확인"
+            else:  # 코드 검사만으로 이미 반려·수정 사유가 확인된 경우 — 판정은 유지하되 모델 검사가 빠졌음을 남긴다
+                report.decision_reason += " · 모델 검사는 비용·호출 상한 초과로 수행하지 못함 (FM-20)"
+            run.reports.append(report)
+        run.failures.append(FailureEvent(code="FM-20", stage="pipeline", message=f"비용·호출 상한 초과 — 검사하지 못한 광고안 {len(cr.variants) - len(done)}개",
+                                         fallback="남은 광고안은 담당자 확인"))
+        raise
+
+
+def _review_variants(run: PipelineRun, brief: CampaignBrief, settings: Settings, router: Router, options: RunOptions,
+                     catalog: PolicyCatalog, tracer: Tracer, variants: list, facts_text: str) -> None:
+    categories = set(run.categories)
+    for idx, copy in enumerate(variants, start=1):
+        _progress(options, "review", f"광고안 {idx}/{len(variants)} 검사")
         with tracer.span(f"variant:{copy.variant_id}", kind="stage", headline=copy.headline):
             with tracer.span("output_guard", kind="guardrail") as span:
                 det = output_guard.check(copy, brief.product, categories, options.landing_text, options.rejected_history, catalog)
@@ -173,14 +191,11 @@ def _run_stages(run: PipelineRun, brief: CampaignBrief, settings: Settings, rout
                             span.event("disagreement")
                             run.failures.append(_fm17(copy.variant_id))
 
-            # 수정안 재검사 (FM-19) — 모델이 제안한 수정안은 전체 가드레일을 다시 통과해야만 '검증된 수정안' 이 된다
+            # 수정안 재검사 (FM-19) — 모델이 제안한 수정안은 원문과 같은 검사(코드 검사 + 의미 검사)를 다시 통과해야만 '검증된 수정안' 이 된다
             recheck = None
             if verdict is not None and verdict.proposed_rewrite is not None:
-                with tracer.span("rewrite_recheck", kind="guardrail") as span:
-                    recheck = output_guard.check(verdict.proposed_rewrite, brief.product, categories, options.landing_text, [], catalog)
-                    span.set(decision=recheck.decision.value, findings=[f.model_dump(mode="json") for f in recheck.findings])
-                    if recheck.decision != Decision.APPROVE:
-                        span.status = "intercepted"
+                recheck = check_rewrite(verdict.proposed_rewrite, brief.product, categories, options.landing_text, options.rejected_history,
+                                        catalog, router, facts_text, tracer)
 
             with tracer.span("adjudicate", kind="guardrail") as span:
                 report = adjudicator.adjudicate(copy, det, verdict, settings.auto_decision_confidence, recheck, aud)

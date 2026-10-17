@@ -209,7 +209,8 @@ class Router:
             try:
                 resp = provider.complete(req)
             except TruncatedOutput:
-                # 재시도도 요청 1회다 — 상한을 다시 확인하고 센다
+                # 잘린 첫 요청도 보낸 요청이고 사용량을 못 받았다 → 실패 요청으로 세고(추정 표시), 재시도는 또 하나의 요청이다
+                self.budget.failed()
                 self.budget.attempt()
                 span.event("truncation_retry", provider=provider.name, max_tokens=req.max_tokens * 2)
                 bigger = LLMRequest(task=req.task, system=req.system, user=req.user, schema=req.schema,
@@ -220,6 +221,9 @@ class Router:
         except LLMError:
             self.budget.failed()  # 응답을 못 받은 요청: 비용 미확인 → 추정으로 표시
             raise
+        except Exception as e:  # noqa: BLE001 — SDK 가 던진 예상 밖 예외도 '보낸 요청의 실패' 다. 제공자 오류로 분류해 fallback 을 탄다
+            self.budget.failed()
+            raise ProviderError(f"unexpected {type(e).__name__}: {e}", provider=provider.name) from e
         self.budget.add(resp)
         span.set(budget_attempts=self.budget.attempts, budget_calls=self.budget.calls, budget_spent_usd=round(self.budget.spent_usd, 6))
         return resp
@@ -236,12 +240,20 @@ class Router:
         for name in self.chain_for(Task.REPAIR):
             if name == exclude or name not in self.providers:
                 continue
+            breaker = self.breakers[name]
+            if breaker.is_open:  # 수리 경로도 서킷브레이커를 지킨다
+                span.event("skip_provider", provider=name, reason="circuit_open", stage="repair")
+                continue
             try:
                 resp = self._call(self.providers[name], repair_req, span)
+                breaker.success()
                 span.event("repaired", by=name)
                 return resp
             except BudgetExceeded:
                 raise
+            except _TRANSIENT as e:
+                breaker.failure()
+                span.event("repair_failed", by=name, error=str(e)[:200])
             except LLMError as e:
                 span.event("repair_failed", by=name, error=str(e)[:200])
         return None

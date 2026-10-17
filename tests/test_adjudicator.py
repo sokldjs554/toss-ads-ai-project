@@ -1,6 +1,7 @@
 import pytest
 
 from agents.adjudicator import DecisionInputs, adjudicate, decide, inputs_from
+from agents.rewrite_check import RewriteCheck
 from core.schemas import AdCopy, Decision, Fact, Finding, Layer, ProductCategory, ProductFacts, ReviewVerdict, RewriteStatus, Severity
 from guardrails import output_guard
 
@@ -48,6 +49,12 @@ BAD_REWRITE = AdCopy(headline="타사보다 2배 적립", body="x", cta="y")    
 GOOD_REWRITE = AdCopy(headline="전 상품 10% 할인", body="좋은 상품", cta="보기")   # 재검사 통과
 
 
+def rc(copy, semantic=Decision.APPROVE, semantic_findings=()):
+    """수정안 재검사 결과: 코드 검사 + (있으면) 의미 검사."""
+    sem = None if semantic is None else ReviewVerdict(variant_id="rw", decision=semantic, confidence=0.9, findings=list(semantic_findings))
+    return RewriteCheck(det=det(copy), semantic=sem)
+
+
 def test_rewrite_recheck_failure_drops_rewrite_but_keeps_revise():
     copy = AdCopy(headline="지금 아니면 못 받는 할인", body="전 상품 10% 할인", cta="보기")
     d = det(copy)
@@ -79,7 +86,7 @@ def test_failed_rewrite_never_verified_on_any_path(make):
 def test_verified_rewrite_is_separate_from_original_decision():
     """재검사를 통과한 수정안은 원문 판정이 REJECT 여도 '검증됨' 으로 붙는다 — 원문 판정과 수정안 상태는 별개."""
     copy = AdCopy(headline="타사보다 2배", body="전 상품 10% 할인", cta="보기")
-    r = adjudicate(copy, det(copy), verdict(Decision.REJECT, 0.95, rewrite=GOOD_REWRITE), 0.8, rewrite_recheck=det(GOOD_REWRITE))
+    r = adjudicate(copy, det(copy), verdict(Decision.REJECT, 0.95, rewrite=GOOD_REWRITE), 0.8, rewrite_recheck=rc(GOOD_REWRITE))
     assert r.final_decision == Decision.REJECT and r.rewrite_status == RewriteStatus.VERIFIED and r.verified_rewrite is GOOD_REWRITE
 
 
@@ -87,6 +94,20 @@ def test_unchecked_rewrite_is_not_verified():
     copy = AdCopy(headline="지금 아니면 못 받는 할인", body="전 상품 10% 할인", cta="보기")
     r = adjudicate(copy, det(copy), verdict(Decision.REVISE, 0.9, rewrite=GOOD_REWRITE), 0.8, rewrite_recheck=None)
     assert r.rewrite_status == RewriteStatus.UNCHECKED and r.verified_rewrite is None
+    # 코드 검사만 통과하고 의미 검사를 못 했으면 '검증됨' 이 아니다
+    r2 = adjudicate(copy, det(copy), verdict(Decision.REVISE, 0.9, rewrite=GOOD_REWRITE), 0.8, rewrite_recheck=rc(GOOD_REWRITE, semantic=None))
+    assert r2.rewrite_status == RewriteStatus.UNCHECKED and r2.verified_rewrite is None
+    r3 = adjudicate(copy, det(copy), verdict(Decision.REVISE, 0.9, rewrite=GOOD_REWRITE), 0.8, rewrite_recheck=det(GOOD_REWRITE))
+    assert r3.rewrite_status == RewriteStatus.UNCHECKED
+
+
+def test_semantic_only_violation_in_rewrite_fails_recheck():
+    """코드 검사는 통과했지만 검토 모델이 수정안에서 의미상 위반(조건 생략)을 찾으면 수정안은 폐기된다 — 원문과 같은 검사."""
+    copy = AdCopy(headline="지금 아니면 못 받는 할인", body="전 상품 10% 할인", cta="보기")
+    f = Finding(rule_id="TA-OMISSION-01", severity=Severity.FIX, layer=Layer.SEMANTIC, quote="전 상품 10% 할인", verified_quote=True)
+    r = adjudicate(copy, det(copy), verdict(Decision.REVISE, 0.9, rewrite=GOOD_REWRITE), 0.8, rewrite_recheck=rc(GOOD_REWRITE, semantic=Decision.REVISE, semantic_findings=[f]))
+    assert r.rewrite_status == RewriteStatus.FAILED_RECHECK and r.verified_rewrite is None
+    assert any(x.rule_id == "TA-OMISSION-01" for x in r.rewrite_recheck_findings) and r.rewrite_recheck_decision == Decision.REVISE
 
 
 def test_decide_is_pure_and_matches_adjudicate():

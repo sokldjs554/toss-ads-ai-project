@@ -109,7 +109,7 @@ def _to_verdict(copy: AdCopy, parsed, det: OutputGuardResult, catalog: PolicyCat
 
 
 def review(copy: AdCopy, det: OutputGuardResult, categories: set[str], facts: str, landing_text: str,
-           catalog: PolicyCatalog, router: Router, task: Task = Task.REVIEW) -> ReviewOutcome:
+           catalog: PolicyCatalog, router: Router, task: Task = Task.REVIEW, label_suffix: str = "") -> ReviewOutcome:
     rule_ids = [r.id for r in catalog.rules_for(categories)]
     schema = build_review_schema(rule_ids)
     req = LLMRequest(
@@ -118,7 +118,7 @@ def review(copy: AdCopy, det: OutputGuardResult, categories: set[str], facts: st
         context={"lexical_findings": [f.model_dump(mode="json") for f in det.findings], "rule_ids": rule_ids,
                  "copy": copy.model_dump(mode="json"),
                  "required_disclosures": [i.canonical for i in det.missing_disclosures]},
-        label=f"{task.value}:{copy.variant_id}",
+        label=f"{task.value}:{copy.variant_id}" + (f":{label_suffix}" if label_suffix else ""),
     )
     resp = router.complete(req)
     if resp.parsed is None:

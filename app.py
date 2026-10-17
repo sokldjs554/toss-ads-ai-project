@@ -22,7 +22,8 @@ theme.inject()
 
 # --- 서버 키: 서버에서만 읽고 쓴다. 화면에는 '설정 여부' 만 내보낸다. ------------------------------
 _SERVER = Settings.from_env()
-SERVER_STATUS = {"openai": bool(_SERVER.openai_api_key) and not _SERVER.force_demo, "anthropic": bool(_SERVER.anthropic_api_key) and not _SERVER.force_demo}
+SERVER_STATUS = {"openai": bool(_SERVER.openai_api_key) and not _SERVER.force_demo, "anthropic": bool(_SERVER.anthropic_api_key) and not _SERVER.force_demo,
+                 "run_budget_usd": _SERVER.run_budget_usd}  # 서버 키로 도는 실행의 비용 상한 (PREFLIGHT_RUN_BUDGET_USD)
 
 
 def make_settings(user_openai_key: str = "", user_anthropic_key: str = "", **overrides) -> Settings:
@@ -30,13 +31,18 @@ def make_settings(user_openai_key: str = "", user_anthropic_key: str = "", **ove
     return Settings.from_env(openai_api_key=(user_openai_key or _SERVER.openai_api_key), anthropic_api_key=(user_anthropic_key or _SERVER.anthropic_api_key), **overrides)
 
 
-def router_factory(settings: Settings) -> Router:
+def router_factory(settings: Settings, clean: bool = False) -> Router:
+    """광고 작업용 라우터. 장애 시뮬레이션은 광고 작업에만 적용한다 (clean=True 면 무시 — 품질 확인의 평가 실행용)."""
     r = Router(settings, tracer=st.session_state.tracer)
     drill = st.session_state.get("opt_drill", "없음")
-    if drill and drill != "없음":
+    if not clean and drill and drill != "없음":
         prov, kind = [x.strip() for x in drill.split(":")]
         r.simulate_failure(prov, kind.split("(")[0].strip())
     return r
+
+
+def clean_router_factory(settings: Settings) -> Router:
+    return router_factory(settings, clean=True)
 
 
 if "tracer" not in st.session_state:
@@ -53,8 +59,9 @@ elif "nav" not in st.session_state:
 pending = st.session_state.pop("pending_load", None)
 if pending:
     workbench._load_preset(pending)
+    st.session_state["_pending_load_applied"] = True
     if st.session_state.pop("pending_autorun", False):
-        st.session_state["_force_autorun"] = True
+        st.session_state["_force_autorun"] = True  # 세션 안에서 한 번만. URL 에는 남기지 않는다
 
 st.markdown(f'<div class="pf-topbar"><div class="pf-brand">✅ {PROJECT_NAME}<small>광고가 올라가기 전에 확인이 필요한 구절을 먼저 찾습니다</small></div>'
             f'<div class="pf-note">개인 프로젝트 · 토스·토스애즈와 무관</div></div>', unsafe_allow_html=True)
@@ -63,14 +70,11 @@ if nav is None:
     nav = VIEWS[0]
 
 if nav == "광고 작업":
-    if st.session_state.pop("_force_autorun", False):
-        st.session_state["_autorun_done"] = False
-        st.query_params["autorun"] = "1"
     workbench.render(make_settings, st.session_state.tracer, router_factory, SERVER_STATUS)
 elif nav == "검사 사례":
     cases.render()
 else:
-    quality.render(make_settings(), router_factory, st.session_state.tracer)
+    quality.render(make_settings(), clean_router_factory, st.session_state.tracer)
 
 st.markdown(f'<hr style="border:none;border-top:1px solid #E5E8EB;margin:32px 0 10px"><div class="pf-note">{html.escape(DISCLAIMER)}'
             + (" · 브라우저 실행판 (서버 없음, 예시 실행만)" if IN_BROWSER else "") + "</div>", unsafe_allow_html=True)

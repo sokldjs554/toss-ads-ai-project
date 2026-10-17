@@ -21,6 +21,7 @@ REPO = Path(__file__).resolve().parents[1]
 APP_INCLUDE = ["app.py", "core", "llm", "guardrails", "agents", "observability", "evals", "ui", "traces", ".streamlit"]
 EXCLUDE_DIR_NAMES = {"__pycache__", ".pytest_cache"}
 EXCLUDE_FILES = {"evals/reports/latest.json", "evals/reports/redteam_latest.json"}
+ALLOW_STREAMLIT = {".streamlit/config.toml"}  # .streamlit/ 에서는 설정 파일만. secrets.toml 은 어떤 경우에도 묶지 않는다
 
 
 def _want(rel: Path) -> bool:
@@ -29,6 +30,10 @@ def _want(rel: Path) -> bool:
     if rel.suffix in {".pyc", ".png"}:
         return False
     if rel.as_posix() in EXCLUDE_FILES:
+        return False
+    if rel.parts[0] == ".streamlit" and rel.as_posix() not in ALLOW_STREAMLIT:
+        return False
+    if rel.name.startswith(".env") or "secret" in rel.name.lower():
         return False
     if rel.parts[0] == "traces" and not rel.name.startswith("sample_"):
         return False

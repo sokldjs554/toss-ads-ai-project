@@ -1,7 +1,7 @@
 # Preflight — 광고가 올라가기 전에, 확인이 필요한 구절을 먼저 찾는 광고 검사 도구
 
 [![ci](https://github.com/sokldjs554/toss-ads-ai-project/actions/workflows/ci.yml/badge.svg)](https://github.com/sokldjs554/toss-ads-ai-project/actions/workflows/ci.yml)
-![python](https://img.shields.io/badge/python-3.11%2B-blue) ![streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B) ![tests](https://img.shields.io/badge/tests-126%20passed-brightgreen)
+![python](https://img.shields.io/badge/python-3.11%2B-blue) ![streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B) ![tests](https://img.shields.io/badge/tests-140%20passed-brightgreen)
 
 > **🌐 공개 데모 — <https://sokldjs554.github.io/toss-ads-ai-project/>**
 > · **[광고 작업 (브라우저 실행판)](https://sokldjs554.github.io/toss-ads-ai-project/app/)** — 서버 없이 브라우저(WebAssembly) 안에서 전체 앱이 돕니다. 예시 실행(실제 AI 호출 없음), 첫 로딩 20~60초
@@ -23,7 +23,7 @@ pip install -r requirements.txt && streamlit run app.py
 |---|---|---|
 | 광고 초안 만들기 | 상품 정보·꼭 들어가야 할 조건·광고 요청을 받아 캠페인을 구성하고 광고안 여러 개를 만든다. 모든 숫자·주장은 상품 정보에서만 나온다 | `agents/planner.py` `agents/copywriter.py` |
 | 확인이 필요한 구절 찾기 | 표현 규칙·필수 안내 문구·상품 정보 일치·형식을 코드가 검사하고, 검토 모델이 의미상 문제를 찾는다. 모든 지적은 **원문의 구절**과 **이유**가 붙는다 | `guardrails/` `agents/reviewer.py` |
-| 수정 제안과 재검사 | 검토 모델이 낸 수정 제안은 같은 검사를 다시 통과한 것만 보여 준다. 사용자가 직접 고친 문구도 같은 경로로 다시 검사한다 | `agents/adjudicator.py` `agents/recheck.py` |
+| 수정 제안과 재검사 | 검토 모델이 낸 수정 제안은 원문과 같은 검사(코드 검사 + 의미 검사)를 다시 통과한 것만 보여 준다. 사용자가 직접 고친 문구도 같은 경로로 다시 검사한다 | `agents/rewrite_check.py` `agents/recheck.py` |
 | 판단이 어려우면 담당자에게 | 근거가 약하거나, 모델이 원문에 없는 내용을 근거로 들거나, 확신이 낮으면 자동으로 확정하지 않고 '담당자 확인 필요' 로 넘기며 확인할 내용을 만들어 준다 | `agents/adjudicator.py` |
 | 틀리는 곳을 재고 고치기 | 정답이 붙은 사례로 '문제 있는 광고를 통과시켰는지'·'문제없는 광고를 괴롭혔는지' 를 세고, 고친 뒤 실제로 나아졌는지 같은 데이터로 다시 잰다 | `evals/` |
 
@@ -56,9 +56,9 @@ URL 로 바로 열기: `?preset=malicious&autorun=1` (`loan_ok` · `malicious` �
 | 발견 | 무엇이 문제였나 | 고친 것 | 보장하는 테스트 |
 |---|---|---|---|
 | 재검사에 실패한 수정안이 '검증된 수정안' 으로 표시 | 수정안을 버리는 코드가 '수정 필요' 분기에만 있어, 게재 불가·담당자 확인 판정에서는 실패한 수정안이 그대로 남아 화면에 "전체 검사를 다시 통과한 수정안" 으로 보였다 | 수정안 상태(`rewrite_status`: 없음·검증됨·재검사 실패·미검사)를 판정과 **따로** 관리. 어떤 판정 경로에서도 재검사 실패 수정안은 `verified_rewrite` 가 되지 않는다. 실패 기록(FM-19)의 조치 문구와 실제 처리가 같다 | `tests/test_adjudicator.py::test_failed_rewrite_never_verified_on_any_path` (5개 경로), `tests/test_pipeline.py::test_failed_rewrite_not_shown_on_reject_and_revise_paths` |
-| 숫자를 부분 문자열로 비교 | 사실 "배송까지 15일" 이 광고 "5% 할인" 의 근거로 통과했다 (5 ⊂ 15). 같은 숫자에 다른 단위(15일 vs 15%)도 통과 | 값 전체 + 단위 종류(비율·금액·기간·수량·배수) + 주변 뜻(할인/금리…) 으로 비교. 주장이 가리킨 사실이 실제로 그 주장을 뒷받침하는지 확인. 근거 사실의 **조건**(자동결제·심사 조건·최소 금액·기간·1인 1회·제외)이 광고에 빠지면 새 규칙 `GRND-COND-01`. 수정안·직접 편집 문구는 주장→근거 연결을 바뀐 문구 기준으로 다시 맺는다 | `tests/test_grounding.py` 9개 (재현·단위·뜻·금액 표기·조건 생략·수정안 재연결) |
+| 숫자를 부분 문자열로 비교 | 사실 "배송까지 15일" 이 광고 "5% 할인" 의 근거로 통과했다 (5 ⊂ 15). 같은 숫자에 다른 단위(15일 vs 15%)도 통과 | 값 전체 + 단위 종류(비율·금액·기간·수량·배수) + 주변 뜻(할인/금리…) 으로 비교. 주장이 가리킨 사실이 실제로 그 주장을 뒷받침하는지 확인. 근거 사실의 **조건**(자동결제·심사 조건·최소 금액·기간·1인 1회·제외)이 광고에 빠지면 새 규칙 `GRND-COND-01`. 수정안·직접 편집 문구는 주장→근거 연결을 바뀐 문구 기준으로 다시 맺는다 | `tests/test_grounding.py` 18개 (재현·단위·뜻·금액 표기·날짜·부정어·조건 생략·수정안 재연결) |
 | 서버 API 키가 입력창 기본값 | 환경변수 키가 비밀번호 입력창의 `value` 로 들어갔다 | 서버 키는 `app.py` 에서만 읽고 화면에는 '설정 여부' 만 표시. 사용자 키 입력은 빈 값이 기본. 세션 상태·처리 기록·내려받기 어디에도 키 값이 없다 | `tests/test_app.py::test_server_key_never_exposed` (가짜 키로 입력창·화면·세션·처리 기록·요청문 검사) |
-| 호출 상한이 실제 요청 수에 안 걸림 | 상한 1회여도 잘림 재시도로 요청이 2회 나갔고, 실패한 요청은 호출 수에서 빠졌다. 사용량을 못 받은 요청의 비용은 0원이 됐다 | `RunBudget` 이 **요청 시도 수**(실패·재시도·수리 포함)에 상한을 걸고 재시도 직전에도 확인. 실패 요청은 '비용 미확인' 으로 세어 총비용을 `≈ 추정` 으로 표시. 사용량이 없으면 글자 수로 추정하고 `cost_estimated` 표시 | `tests/test_router.py` 4개 |
+| 호출 상한이 실제 요청 수에 안 걸림 | 상한 1회여도 잘림 재시도로 요청이 2회 나갔고, 실패한 요청은 호출 수에서 빠졌다. 사용량을 못 받은 요청의 비용은 0원이 됐다 | `RunBudget` 이 **요청 시도 수**(실패·재시도·수리 포함)에 상한을 걸고 재시도 직전에도 확인. 실패 요청은 '비용 미확인' 으로 세어 총비용을 `≈ 추정` 으로 표시. 사용량이 없으면 글자 수로 추정하고 `cost_estimated` 표시 | `tests/test_router.py` 8개 (상한·재시도·잘림·수리 경로·비용 추정) |
 | 평가 곡선과 실제 판정이 같은 τ 에서 다름 | 임계값별 분석이 '확신 < τ' 를 일괄 제외해, 코드가 게재 불가로 확정한 사례(확신 0.6)가 빠졌다 — 4차 결과에서 52 vs 51 | 판정 규칙을 순수 함수 `adjudicator.decide()` 하나로 두고 서비스와 평가가 같이 쓴다. 평가는 판정 원본 입력을 저장해 어떤 τ 로도 같은 함수로 재생한다. 추천 τ 는 제공자·모델·프롬프트·검사 기준·데이터 버전이 맞을 때만 쓰고, 아니면 "이 설정의 검증된 추천값 없음" | `tests/test_metrics.py::test_curve_replays_real_decision_rules`, `tests/test_adjudicator.py::test_decide_is_pure_and_matches_adjudicate` |
 | 라벨 오류 (G-069) | '최초' 표현 사례로 쓴 광고가 사실 "체험 후 월 19,900원 자동결제" 조건을 빠뜨리고 있었는데 '문제없음' 라벨이었다 | '최초' 유무 × 조건 표시 유무 대조 사례 4개로 확인: 판정을 만드는 것은 조건 누락. 1~4차 실제 모델도 4/4 '조건 생략' 을 냈고 최상급 규칙은 한 번도 내지 않았다. 라벨을 '수정 필요' 로 바꾸고 이력을 남겼다 | `evals/datasets/contrast_g069.jsonl`, `evals/datasets/golden.jsonl` 의 `label_history` |
 
@@ -68,7 +68,7 @@ URL 로 바로 열기: `?preset=malicious&autorun=1` (`loan_ok` · `malicious` �
 
 **검증한 것** (모두 네트워크 없이 재현 가능)
 
-- 단위·통합·화면 테스트 126개 (`python -m pytest -q`). 화면 테스트는 Streamlit AppTest 로 세 화면 렌더링, 기본 예시 실행, 수정한 문구 재검사가 **현재 편집한 문구**를 쓰는지, 가짜 서버 키가 어디에도 새지 않는지 확인.
+- 단위·통합·화면 테스트 140개 (`python -m pytest -q`). 화면 테스트는 Streamlit AppTest 로 세 화면 렌더링, 기본 예시 실행, 수정한 문구 재검사가 **현재 편집한 문구**를 쓰는지, 가짜 서버 키가 어디에도 새지 않는지 확인.
 - 골든셋 v1.2 55건: 코드 검사만 / 예시 실행 모두 문제 있는 광고 통과 0/41, 문제없는 광고에 수정 요청 0/13. CI 가 기준선 대비 나빠지면 실패.
 - 최종 확인용 holdout 12건(규칙을 고친 뒤 처음 보는 사례, 고치는 데 쓰지 않음): 코드 검사만 0/8 통과·0/2 수정 요청, 예시 실행 0/8·0/2.
 - 레드팀이 뚫은 변형 7건(회귀셋): 코드 검사만으로 통과 0건.
@@ -87,7 +87,7 @@ URL 로 바로 열기: `?preset=malicious&autorun=1` (`loan_ok` · `malicious` �
 
 **아직 확인하지 못한 것**
 
-- 이번에 고친 규칙·라벨·프롬프트(검사 기준 2026.10.2, 프롬프트 2026.10.3, 골든셋 v1.2, holdout)에 대한 **실제 모델 재측정**. 비용이 드는 호출이라 승인 뒤 `live-eval` 워크플로로 돌립니다 (예상: gpt-4o 약 160회, 약 $2).
+- 이번에 고친 규칙·라벨·프롬프트(검사 기준 2026.10.2, 프롬프트 2026.10.3, 골든셋 v1.2, holdout)에 대한 **실제 모델 재측정**. 비용이 드는 호출이라 승인 뒤 `live-eval` 워크플로로 돌립니다 (예상: gpt-4o 약 200회, 약 $2.5).
 - 독립 라벨러·실제 반려 데이터. 라벨은 규칙을 쓴 사람이 달았습니다.
 - 두 모델 계열의 교차 확인은 OpenAI 키만 있어 같은 모델이 두 번 본 것이라 독립성이 없습니다(화면에 그렇게 표시).
 - 이미지·영상 소재, 랜딩 페이지 실제 수집, 성과 분석은 범위 밖입니다.
@@ -131,7 +131,7 @@ agents/      prompts.py(v2026.10.3) · planner.py · copywriter.py · audience.p
 observability/ tracer.py · pricing.py · replay.py(저장된 기록 → 화면)
 evals/       datasets/(golden v1.2 dev 55 · holdout 12 · contrast_g069 4 · adversarial 7 · redteam_seeds 4) · metrics.py · runner.py · regression.py · redteam.py · judge.py · run.py · reports/(+history/)
 ui/          labels.py(화면 문구 한곳) · theme.py · workbench.py(광고 작업) · cases.py(검사 사례) · quality.py(품질 확인) · trace_view.py · redteam_view.py · catalog_view.py · components.py · presets.py
-tests/       126개, 네트워크 없음 (AppTest 화면 테스트 포함)
+tests/       140개, 네트워크 없음 (AppTest 화면 테스트 포함)
 docs/        ARCHITECTURE.md · EVALS.md · FAILURE_MODES.md(생성) · POLICY.md(생성) · screenshots/
 site/        공개 데모 소스 — index.html(랜딩) · app/(브라우저 실행판) · replay/(실제 기록 재생 템플릿)
 scripts/     build_site.py · build_replay.py · record_traces.py · gen_docs.py · screenshot.py
