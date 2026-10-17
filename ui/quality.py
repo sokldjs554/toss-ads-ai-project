@@ -95,7 +95,8 @@ def _eval_section(settings: Settings, router_factory) -> None:
         if st.button("평가 실행"):
             router = router_factory(settings) if use_llm else None
             prog = st.progress(0.0, text="평가 중…")
-            r = run_eval(ds, settings, use_llm=use_llm, router=router, progress=lambda i, n, x: prog.progress(i / n, text=f"{i}/{n} {x.case.id}"), limit=limit or None)
+            r = run_eval(ds, settings, use_llm=use_llm, router=router, progress=lambda i, n, x: prog.progress(i / n, text=f"{i}/{n} {x.case.id}"), limit=limit or None,
+                         breaker_wait_s=0, abort_after=0)  # 화면에서는 기다리거나 중단하지 않는다. 장애가 섞였으면 아래에서 표시
             save_report(r, "latest.json")
             st.session_state.eval_report = r
             prog.empty()
@@ -103,6 +104,10 @@ def _eval_section(settings: Settings, router_factory) -> None:
     if rep is None:
         st.info("아직 결과가 없습니다. 위에서 저장된 결과를 고르거나 평가를 실행하세요.")
         return
+    pf = rep.get("provider_failures") or {}
+    if pf.get("n"):
+        st.warning(f"이 결과에는 검토 모델 호출이 실패해 '담당자 확인 필요' 로 떨어진 사례가 {pf['n']}건 섞여 있습니다 (오류: {pf.get('by_error')}). "
+                   "장애 기록이지 모델 판단의 측정이 아니므로 기준선이나 추천 임계값에는 쓰지 않습니다.", icon="⚠️")
     st.caption(_report_meta(rep))
     for line in _sentences(rep):
         st.markdown(f"- {line}")

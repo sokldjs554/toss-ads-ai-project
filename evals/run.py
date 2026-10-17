@@ -7,7 +7,7 @@ import sys
 from core.config import Settings
 
 from .regression import gate
-from .runner import load_report, run_eval, save_report
+from .runner import EvalAborted, baseline_allowed, load_report, run_eval, save_report
 
 
 def _print_summary(report: dict) -> None:
@@ -56,14 +56,30 @@ def main(argv: list[str] | None = None) -> int:
             save_report(rep, f"baseline_redteam_{rep['mode']}.json")
             print("redteam baseline saved")
         return 0
-    report = run_eval(args.dataset, settings, use_llm=not args.no_llm, limit=args.limit)
+    try:
+        report = run_eval(args.dataset, settings, use_llm=not args.no_llm, limit=args.limit, log=print)
+    except EvalAborted as e:
+        # 제공자 장애로 중단: 부분 결과는 latest.json 에만 남기고 기준선은 건드리지 않는다
+        save_report(e.report, "latest.json")
+        pf = e.report.get("provider_failures") or {}
+        print(f"\n== {args.dataset} | 중단: {e}")
+        print(f"  심사 모델 단계 실패 {pf.get('n')}건 — 오류별: {pf.get('by_error')}")
+        print("  부분 결과: evals/reports/latest.json (기준선으로 저장하지 않음)")
+        return 2
     mode_tag = report["mode"]
     save_report(report, "latest.json")
     if report["n"]:
         _print_summary(report)
     else:
         print(f"\n== {report['dataset']} | 비어 있음 (사례 0건)")
+    pf = report.get("provider_failures") or {}
+    if pf.get("n"):
+        print(f"  심사 모델 단계 실패 {pf['n']}건: {pf.get('cases')} — 오류별: {pf.get('by_error')}")
     if args.save_baseline:
+        ok, why = baseline_allowed(report)
+        if not ok:
+            print(f"baseline NOT saved — 장애가 섞인 결과는 측정이 아니다: {why}")
+            return 2
         save_report(report, args.baseline or f"baseline_{mode_tag}.json")
         print("baseline saved")
     if args.require_zero_unsafe:

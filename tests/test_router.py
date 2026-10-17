@@ -217,3 +217,13 @@ def test_unexpected_provider_exception_falls_back_and_keeps_budget_consistent(tr
     assert resp.provider == "anthropic"
     b = r.budget
     assert b.attempts == 2 and b.calls == 1 and b.failed_attempts == 1 and b.estimated
+
+
+def test_provider_unavailable_message_keeps_transient_error_text(tracer):
+    """일시 오류(429 등)로 모든 제공자가 실패하면 예외 메시지에 원인 문구가 남아야 한다 — 5차 실행에서는 종류만 남아 원인을 알 수 없었다."""
+    oa = FakeProvider("openai", errors=[RateLimited("Error code: 429 - insufficient_quota: You exceeded your current quota", provider="openai")])
+    an = FakeProvider("anthropic", available=False)
+    with tracer.trace("t"):
+        with pytest.raises(ProviderUnavailable) as ei:
+            router(oa, an, tracer).complete(req())
+    assert "RateLimited" in str(ei.value) and "insufficient_quota" in str(ei.value)

@@ -4,7 +4,7 @@
   "excluded_semantic_only": 2,
   "dataset_version": "1",
   "dataset_sha256": "1c2f58b727b2d2d6",
-  "generated_at": "2026-10-17T14:13:59.530577+00:00",
+  "generated_at": "2026-10-17T14:46:54.645964+00:00",
   "mode": "deterministic_only",
   "reviewer": "none",
   "provider": "none",
@@ -21,6 +21,11 @@
   "recommended_threshold_for_zero_unsafe": 0.5,
   "recommended_threshold_for_zero_unsafe_and_zero_false_flag": 0.5,
   "cost_estimated": false,
+  "provider_failures": {
+    "n": 0,
+    "cases": [],
+    "by_error": {}
+  },
   "summary": {
     "n": 10,
     "coverage": {
@@ -764,7 +769,7 @@
     ],
     "curve_method": "replay_decide",
     "cost_usd": 0.0,
-    "latency_ms_mean": 1.3
+    "latency_ms_mean": 1.6
   },
   "cases": [
     {
@@ -777,7 +782,7 @@
       "difficulty": "benign_scary",
       "category": "loan",
       "reason": "심사 신뢰도 0.70 < 자동 판정 임계값 0.80",
-      "latency_ms": 3.1,
+      "latency_ms": 4.3,
       "cost_usd": 0.0,
       "unverified_quotes": 0,
       "inputs": {
@@ -796,7 +801,8 @@
         "rewrite_semantic": null
       },
       "rewrite_status": "none",
-      "model_decision": "APPROVE"
+      "model_decision": "APPROVE",
+      "error": ""
     },
     {
       "id": "H-002",
@@ -814,7 +820,7 @@
       "difficulty": "clear",
       "category": "card",
       "reason": "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급",
-      "latency_ms": 1.6,
+      "latency_ms": 1.9,
       "cost_usd": 0.0,
       "unverified_quotes": 0,
       "inputs": {
@@ -833,7 +839,8 @@
         "rewrite_semantic": null
       },
       "rewrite_status": "none",
-      "model_decision": "REVISE"
+      "model_decision": "REVISE",
+      "error": ""
     },
     {
       "id": "H-003",
@@ -871,7 +878,8 @@
         "rewrite_semantic": null
       },
       "rewrite_status": "none",
-      "model_decision": "REVISE"
+      "model_decision": "REVISE",
+      "error": ""
     },
     {
       "id": "H-004",
@@ -887,7 +895,7 @@
       "difficulty": "clear",
       "category": "insurance",
       "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "latency_ms": 1.3,
+      "latency_ms": 1.9,
       "cost_usd": 0.0,
       "unverified_quotes": 0,
       "inputs": {
@@ -906,7 +914,8 @@
         "rewrite_semantic": null
       },
       "rewrite_status": "none",
-      "model_decision": "REJECT"
+      "model_decision": "REJECT",
+      "error": ""
     },
     {
       "id": "H-006",
@@ -937,7 +946,8 @@
         "rewrite_semantic": null
       },
       "rewrite_status": "none",
-      "model_decision": "APPROVE"
+      "model_decision": "APPROVE",
+      "error": ""
     },
     {
       "id": "H-007",
@@ -973,7 +983,8 @@
         "rewrite_semantic": null
       },
       "rewrite_status": "none",
-      "model_decision": "REVISE"
+      "model_decision": "REVISE",
+      "error": ""
     },
     {
       "id": "H-008",
@@ -1011,7 +1022,8 @@
         "rewrite_semantic": null
       },
       "rewrite_status": "none",
-      "model_decision": "REJECT"
+      "model_decision": "REJECT",
+      "error": ""
     },
     {
       "id": "H-009",
@@ -1046,7 +1058,8 @@
         "rewrite_semantic": null
       },
       "rewrite_status": "none",
-      "model_decision": "REJECT"
+      "model_decision": "REJECT",
+      "error": ""
     },
     {
       "id": "H-010",
@@ -1081,7 +1094,8 @@
         "rewrite_semantic": null
       },
       "rewrite_status": "none",
-      "model_decision": "REJECT"
+      "model_decision": "REJECT",
+      "error": ""
     },
     {
       "id": "H-011",
@@ -1097,7 +1111,7 @@
       "difficulty": "gray",
       "category": "loan",
       "reason": "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급",
-      "latency_ms": 2.4,
+      "latency_ms": 2.6,
       "cost_usd": 0.0,
       "unverified_quotes": 0,
       "inputs": {
@@ -1116,7 +1130,8 @@
         "rewrite_semantic": null
       },
       "rewrite_status": "none",
-      "model_decision": "REVISE"
+      "model_decision": "REVISE",
+      "error": ""
     }
   ]
 }

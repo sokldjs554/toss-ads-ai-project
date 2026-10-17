@@ -177,7 +177,7 @@ class Router:
                 except _TRANSIENT as e:
                     breaker.failure()
                     span.event("provider_error", provider=name, type=type(e).__name__, error=str(e)[:200])
-                    errors.append(f"{name}: {type(e).__name__}")
+                    errors.append(f"{name}: {type(e).__name__}: {str(e)[:160]}")
                 except LLMError as e:
                     errors.append(f"{name}: {type(e).__name__}: {e}")
                     span.event("provider_error", provider=name, type=type(e).__name__, error=str(e)[:200])

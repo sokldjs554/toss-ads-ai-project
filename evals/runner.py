@@ -17,6 +17,7 @@ from core.config import Settings
 from core.schemas import AdCopy, Claim, Decision, Fact, ProductCategory, ProductFacts, Severity
 from guardrails import output_guard
 from guardrails.policy import PolicyCatalog, get_catalog
+from llm.base import Task
 from llm.router import Router
 from observability.tracer import Tracer
 
@@ -94,6 +95,39 @@ class CaseResult:
     rewrite_status: str = "none"
     model_decision: str = ""
     cost_estimated: bool = False
+    error: str = ""   # 심사 모델 단계가 실패했을 때 그 이유 (예외 종류 + 메시지 앞부분). 비어 있으면 모델 판정이 있었다
+
+
+class EvalAborted(RuntimeError):
+    """제공자 오류가 연속으로 이어져 평가를 중단했다. 부분 결과는 .report 에 있다 (기준선으로 저장하면 안 된다)."""
+
+    def __init__(self, message: str, report: dict):
+        super().__init__(message)
+        self.report = report
+
+
+def _primary_breaker(router: Optional[Router]):
+    """심사 작업의 1순위 제공자 서킷브레이커 (대역이면 None)."""
+    if router is None:
+        return None
+    chain = router.chain_for(Task.REVIEW)
+    if not chain or chain[0] == "mock":
+        return None
+    return router.breakers.get(chain[0])
+
+
+def _wait_for_breaker(router: Optional[Router], max_wait_s: float, log: Optional[Callable[[str], None]] = None) -> float:
+    """1순위 제공자의 서킷이 열려 있으면 닫힐 때까지(최대 max_wait_s) 기다린다. 평가를 '담당자 확인' 으로 태우며 지나가지 않기 위해서다."""
+    b = _primary_breaker(router)
+    if b is None or b.opened_at is None or not b.is_open:
+        return 0.0
+    remaining = max(0.0, b.cooldown_s - (time.time() - b.opened_at))
+    wait = min(remaining, max_wait_s)
+    if wait > 0:
+        if log:
+            log(f"제공자 서킷 열림 — {wait:.0f}초 기다린 뒤 다시 시도")
+        time.sleep(wait)
+    return wait
 
 
 def _tracer_of(router: Optional[Router]) -> Tracer:
@@ -109,14 +143,16 @@ def evaluate_case(case: EvalCase, settings: Settings, router: Optional[Router], 
     det = output_guard.check(copy, product, categories, case.landing_text, [], catalog)
     verdict = None
     unverified = 0
+    error = ""
     if use_llm and router is not None:
         facts = "\n".join(f"- {f.id}: {f.text}" for f in product.facts) or "- (없음)"
         try:
             ro = reviewer.review(copy, det, categories, facts, case.landing_text, catalog, router)
             verdict = ro.verdict
             unverified = ro.unverified_quotes
-        except Exception:  # noqa: BLE001 — 실패는 HUMAN_REVIEW 로 떨어진다 (fail-closed)
+        except Exception as e:  # noqa: BLE001 — 실패는 HUMAN_REVIEW 로 떨어진다 (fail-closed). 이유는 남긴다
             verdict = None
+            error = f"{type(e).__name__}: {str(e)[:300]}"
     if not use_llm:
         from core.schemas import ReviewVerdict
 
@@ -135,12 +171,15 @@ def evaluate_case(case: EvalCase, settings: Settings, router: Optional[Router], 
                       cost_usd=round((router.budget.spent_usd - cost_before) if router else 0.0, 6), unverified_quotes=unverified,
                       inputs=inputs.to_dict(), rewrite_status=report.rewrite_status.value,
                       model_decision=verdict.decision.value if verdict is not None else "",
-                      cost_estimated=bool(router and router.budget.estimated))
+                      cost_estimated=bool(router and router.budget.estimated), error=error)
 
 
 def run_eval(dataset: str, settings: Settings, use_llm: bool = True, router: Optional[Router] = None,
              catalog: Optional[PolicyCatalog] = None, progress: Optional[Callable[[int, int, CaseResult], None]] = None,
-             limit: Optional[int] = None) -> dict:
+             limit: Optional[int] = None, breaker_wait_s: float = 90.0, abort_after: int = 3,
+             log: Optional[Callable[[str], None]] = None) -> dict:
+    """breaker_wait_s: 제공자 서킷이 열리면 그만큼(최대) 기다렸다가 그 사례를 한 번 더 시도한다 (0 이면 기다리지 않음).
+    abort_after: 제공자 오류가 이 수만큼 연속되면 EvalAborted — 나머지를 담당자 확인으로 채운 '측정' 을 만들지 않는다."""
     catalog = catalog or get_catalog()
     cases = load_dataset(dataset)
     excluded_semantic_only = 0
@@ -156,11 +195,28 @@ def run_eval(dataset: str, settings: Settings, use_llm: bool = True, router: Opt
         router.budget.cap_usd = max(router.budget.cap_usd, 5.0)  # 평가는 실행 예산보다 크게
         router.budget.max_calls = 10_000
     results: list[CaseResult] = []
+    consecutive_failures = 0
     for i, c in enumerate(cases):
+        if use_llm and breaker_wait_s > 0:
+            _wait_for_breaker(router, breaker_wait_s, log)
         r = evaluate_case(c, settings, router, catalog, use_llm=use_llm)
+        if r.error and use_llm and breaker_wait_s > 0:
+            # 일시 오류일 수 있다: 서킷이 닫히길 기다렸다가 같은 사례를 한 번 더
+            _wait_for_breaker(router, breaker_wait_s, log)
+            r = evaluate_case(c, settings, router, catalog, use_llm=use_llm)
         results.append(r)
         if progress:
             progress(i + 1, len(cases), r)
+        consecutive_failures = consecutive_failures + 1 if r.error else 0
+        if abort_after and consecutive_failures >= abort_after:
+            partial = _build_report(dataset, cases[: len(results)], results, settings, catalog, use_llm, excluded_semantic_only)
+            partial["aborted"] = {"after_case": c.id, "consecutive_provider_failures": consecutive_failures, "done": len(results), "planned": len(cases)}
+            raise EvalAborted(f"제공자 오류가 {consecutive_failures}건 연속 ({c.id} 까지 {len(results)}/{len(cases)} 처리) — 마지막 오류: {r.error}", partial)
+    return _build_report(dataset, cases, results, settings, catalog, use_llm, excluded_semantic_only)
+
+
+def _build_report(dataset: str, cases: list, results: list[CaseResult], settings: Settings, catalog: PolicyCatalog,
+                  use_llm: bool, excluded_semantic_only: int) -> dict:
     records = [EvalRecord(case_id=r.case.id, label=r.case.label, predicted=r.predicted, confidence=r.confidence,
                           label_rules=set(r.case.rule_ids), predicted_rules=set(r.predicted_rules), difficulty=r.case.difficulty,
                           category=r.case.category, latency_ms=r.latency_ms, cost_usd=r.cost_usd, inputs=r.inputs or None) for r in results]
@@ -191,13 +247,34 @@ def run_eval(dataset: str, settings: Settings, use_llm: bool = True, router: Opt
         "recommended_threshold_for_zero_unsafe": recommend_threshold(records, 0.0),
         "recommended_threshold_for_zero_unsafe_and_zero_false_flag": recommend_threshold(records, 0.0, 0.0),
         "cost_estimated": any(r.cost_estimated for r in results),
+        # 심사 모델 단계가 실패한 사례 — 이 수가 0 이 아니면 '담당자 확인' 비율에 모델 판단이 아닌 장애가 섞여 있다. 기준선으로 저장하지 않는다
+        "provider_failures": {"n": sum(1 for r in results if r.error), "cases": [r.case.id for r in results if r.error],
+                              "by_error": _tally(r.error for r in results if r.error)},
         "summary": summary,
         "cases": [{"id": r.case.id, "label": r.case.label, "predicted": r.predicted, "confidence": r.confidence,
                    "label_rules": r.case.rule_ids, "predicted_rules": r.predicted_rules, "difficulty": r.case.difficulty,
                    "category": r.case.category, "reason": r.reason, "latency_ms": r.latency_ms, "cost_usd": r.cost_usd,
                    "unverified_quotes": r.unverified_quotes, "inputs": r.inputs, "rewrite_status": r.rewrite_status,
-                   "model_decision": r.model_decision} for r in results],
+                   "model_decision": r.model_decision, "error": r.error} for r in results],
     }
+
+
+def _tally(errors) -> dict[str, int]:
+    out: dict[str, int] = {}
+    for e in errors:
+        key = e.split(":")[0] if e else "?"
+        out[key] = out.get(key, 0) + 1
+    return out
+
+
+def baseline_allowed(report: dict) -> tuple[bool, str]:
+    """기준선으로 저장해도 되는 결과인가. 제공자 장애로 담당자 확인이 된 사례가 하나라도 있으면 측정이 아니라 장애 기록이다."""
+    pf = report.get("provider_failures") or {}
+    if report.get("aborted"):
+        return False, f"평가가 중단됨 ({report['aborted']})"
+    if pf.get("n"):
+        return False, f"심사 모델 단계 실패 {pf['n']}건 ({', '.join(pf.get('cases', [])[:8])}{' …' if pf.get('n', 0) > 8 else ''}) — 오류: {pf.get('by_error')}"
+    return True, ""
 
 
 def records_from_report(report: dict) -> list[EvalRecord]:

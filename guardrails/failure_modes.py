@@ -137,6 +137,11 @@ FAILURE_MODES: list[FailureMode] = [
         "모든 트레이스·리포트에 mode 와 provider='mock' 이 찍힌다",
         "UI 상단 배너 + 리포트 메타데이터. 평가 결과 파일에 mode 기록",
         "tests/test_pipeline.py::test_demo_mode_is_labeled"),
+    FailureMode("FM-24", "평가 중 제공자 장애가 '측정' 으로 둔갑", "evals",
+        "실제 모델 평가 도중 429·장애로 심사 호출이 실패하고 서킷이 열리면 나머지 사례가 1~2ms 만에 담당자 확인으로 떨어지는데, 그 결과가 기준선으로 저장된다 (5차 실행에서 실제 발생)",
+        "사례별 error 기록, provider_failures 집계, 연속 실패 카운터",
+        "서킷이 닫힐 때까지 기다렸다가 같은 사례를 한 번 더 시도. 연속 3건 실패면 EvalAborted 로 중단(종료 코드 2). 장애가 1건이라도 섞인 결과는 --save-baseline 을 거부하고 latest.json 에만 남긴다",
+        "tests/test_eval_runner.py::test_cli_refuses_to_save_degraded_baseline"),
 ]
 
 BY_CODE: dict[str, FailureMode] = {fm.code: fm for fm in FAILURE_MODES}
