@@ -183,7 +183,20 @@ evals/       datasets/ · metrics.py · runner.py · regression.py · redteam.py
 ui/          studio.py · trace_view.py · evals_view.py · redteam_view.py · catalog_view.py · components.py · presets.py
 tests/       85 tests, 네트워크 없음
 docs/        ARCHITECTURE.md · EVALS.md · FAILURE_MODES.md(생성) · POLICY.md(생성) · screenshots/
+site/        공개 데모 소스 — index.html(랜딩) · app/(stlite 브라우저 실행판) · replay/(실제 트레이스 재생 템플릿)
+scripts/     build_site.py · build_replay.py · record_traces.py · gen_docs.py · screenshot.py
+Dockerfile · render.yaml   Render 무료 웹 서비스 블루프린트 (실제 모델로 돌리는 공개 서버)
 ```
+
+## 공개 데모는 어떻게 떠 있나
+
+| 주소 | 무엇 | 어떻게 |
+|---|---|---|
+| <https://sokldjs554.github.io/toss-ads-ai-project/app/> | **Studio 브라우저 실행판** — 전체 Streamlit 앱이 서버 없이 브라우저(WebAssembly·[stlite](https://github.com/whitphx/stlite)) 안에서 돈다 | `main` 에 push 될 때마다 `.github/workflows/pages.yml` 이 `scripts/build_site.py` 로 소스를 zip 으로 묶어 GitHub Pages 에 올린다. `sys.platform == "emscripten"` 이면 `core/config.py` 가 DEMO 모드로 고정한다 |
+| <https://sokldjs554.github.io/toss-ads-ai-project/replay/> | **실제 GPT-4o 트레이스 재생** — `live-eval` 워크플로가 기록한 5개 시나리오 트레이스와 1차→4차 평가 결과 | `scripts/build_replay.py` 가 `traces/sample_partial_*.json` · `evals/reports/` 를 정적 페이지로 굽는다. 모델 호출 없음 |
+| Render (버튼 한 번) | **실제 모델로 도는 서버** — 대시보드에서 `OPENAI_API_KEY`·`ANTHROPIC_API_KEY` 를 넣으면 LIVE | `render.yaml` + `Dockerfile`. 무료 플랜은 15분 무접속이면 잠든다 |
+
+브라우저 실행판의 한계: 네트워크 SDK 를 못 쓰므로 LLM 단계는 대역(mock)이고, 파일 다운로드 대신 JSON 을 화면에 보여 준다. 첫 로딩은 Pyodide·Streamlit·pydantic·plotly 를 내려받느라 20~60초 걸린다.
 
 ## 한계와 다음 단계
 
