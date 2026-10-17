@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Preflight Studio — 브라우저 실행판</title>
+<meta name="description" content="Preflight 가드레일 스튜디오를 서버 없이 브라우저(WebAssembly) 안에서 실행합니다. DEMO 모드.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/stlite.css">
+<style>
+  html, body { margin: 0; height: 100%; background: #FFFFFF; }
+  #root { height: 100%; }
+  #boot { position: fixed; left: 0; right: 0; bottom: 0; padding: 10px 16px; font: 13px/1.5 system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+          color: #4E5968; background: #F2F4F6; border-top: 1px solid #E5E8EB; z-index: 5; }
+  #boot b { color: #191F28; }
+  #boot.hide { display: none; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="boot"><b>브라우저 안에서 파이썬 런타임을 준비하는 중입니다</b> — 처음 한 번은 20~60초 걸립니다 (Pyodide · Streamlit · pydantic · plotly 를 내려받습니다).
+  서버가 없으므로 DEMO 모드(결정적 모의 모델)로 동작하며, 실제 GPT-4o 결과는 <a href="../replay/">재생 페이지</a>에서 볼 수 있습니다.</div>
+<script type="module">
+  import { mount } from "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/stlite.js";
+  const PYODIDE_URL = null; // 로컬 검증용 자체 호스팅 pyodide.mjs 경로를 넣는다. 배포본은 기본 CDN.
+  const opts = {
+    entrypoint: "app.py",
+    requirements: ["pydantic", "pyyaml", "plotly", "pandas"],
+    archives: [{ url: "./src.zip", format: "zip", options: {} }],
+    streamlitConfig: {
+      "theme.base": "light",
+      "theme.primaryColor": "#3182F6",
+      "theme.backgroundColor": "#FFFFFF",
+      "theme.secondaryBackgroundColor": "#F2F4F6",
+      "theme.textColor": "#191F28",
+      "client.toolbarMode": "minimal",
+      "browser.gatherUsageStats": false,
+      "server.runOnSave": false,
+    },
+  };
+  if (PYODIDE_URL) opts.pyodideUrl = PYODIDE_URL;
+  const root = document.getElementById("root");
+  const boot = document.getElementById("boot");
+  mount(opts, root);
+  // Streamlit 본문이 그려지면 안내 바를 숨긴다.
+  const obs = new MutationObserver(() => {
+    if (root.querySelector('[data-testid="stSidebar"], [data-testid="stMain"], .stApp .block-container')) {
+      boot.classList.add("hide");
+      obs.disconnect();
+    }
+  });
+  obs.observe(root, { childList: true, subtree: true });
+</script>
+</body>
+</html>

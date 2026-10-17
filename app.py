@@ -8,7 +8,7 @@ import os
 
 import streamlit as st
 
-from core.config import Settings
+from core.config import IN_BROWSER, Settings
 from llm.router import Router
 from observability.tracer import Tracer
 from ui import catalog_view, evals_view, redteam_view, studio, trace_view
@@ -26,12 +26,17 @@ if "rejected_history" not in st.session_state:
 with st.sidebar:
     st.markdown("## 🛫 Preflight")
     st.caption("광고주 요청 → 캠페인 계획 → 소재 → 가상 유저 → 가드레일 심사 → 판정. 모든 단계가 트레이스로 남습니다.")
-    with st.expander("🔑 API 키 (세션에만 저장)", expanded=False):
-        oa_key = st.text_input("OPENAI_API_KEY", type="password", value=os.environ.get("OPENAI_API_KEY", ""))
-        an_key = st.text_input("ANTHROPIC_API_KEY", type="password", value=os.environ.get("ANTHROPIC_API_KEY", ""))
-        oa_model = st.text_input("OpenAI 모델 (구조화·심사)", value=os.environ.get("OPENAI_MODEL", "gpt-4o"))
-        an_model = st.text_input("Anthropic 모델 (창의·패널)", value=os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-5-5"))
-        st.caption("둘 다 비우면 DEMO 모드. gpt-4o 는 2027-01-14 API 종료 예정 — 그 뒤엔 gpt-5 계열로 바꾸세요.")
+    if IN_BROWSER:
+        oa_key, an_key = "", ""
+        oa_model, an_model = os.environ.get("OPENAI_MODEL", "gpt-4o"), os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-5-5")
+        st.caption("🧪 브라우저 실행판 — 서버가 없어 API 키를 쓸 수 없고 항상 DEMO 모드입니다. 실제 모델 결과는 재생 페이지(../replay/)에 있습니다.")
+    else:
+        with st.expander("🔑 API 키 (세션에만 저장)", expanded=False):
+            oa_key = st.text_input("OPENAI_API_KEY", type="password", value=os.environ.get("OPENAI_API_KEY", ""))
+            an_key = st.text_input("ANTHROPIC_API_KEY", type="password", value=os.environ.get("ANTHROPIC_API_KEY", ""))
+            oa_model = st.text_input("OpenAI 모델 (구조화·심사)", value=os.environ.get("OPENAI_MODEL", "gpt-4o"))
+            an_model = st.text_input("Anthropic 모델 (창의·패널)", value=os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-5-5"))
+            st.caption("둘 다 비우면 DEMO 모드. gpt-4o 는 2027-01-14 API 종료 예정 — 그 뒤엔 gpt-5 계열로 바꾸세요.")
     st.markdown("### 판정·실행 옵션")
     _provisional = Settings.from_env(openai_api_key=oa_key.strip(), anthropic_api_key=an_key.strip())
     _rec = None

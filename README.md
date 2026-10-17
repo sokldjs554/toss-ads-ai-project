@@ -3,6 +3,11 @@
 [![ci](https://github.com/sokldjs554/toss-ads-ai-project/actions/workflows/ci.yml/badge.svg)](https://github.com/sokldjs554/toss-ads-ai-project/actions/workflows/ci.yml)
 ![python](https://img.shields.io/badge/python-3.10%2B-blue) ![streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B) ![tests](https://img.shields.io/badge/tests-85%20passed-brightgreen)
 
+> **🌐 공개 데모 — <https://sokldjs554.github.io/toss-ads-ai-project/>**
+> · **[Studio (브라우저 실행판)](https://sokldjs554.github.io/toss-ads-ai-project/app/)** — 서버 없이 브라우저(WebAssembly) 안에서 전체 앱이 돕니다 (DEMO 모드, 첫 로딩 20~60초)
+> · **[Replay (실제 GPT-4o 트레이스 재생)](https://sokldjs554.github.io/toss-ads-ai-project/replay/)** — GitHub Actions 에서 실제 모델로 돌린 5개 시나리오의 트레이스와 1차→4차 평가 결과
+> · 실제 모델로 직접 돌려 보려면 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/sokldjs554/toss-ads-ai-project) (무료 플랜, `render.yaml`) 또는 아래 한 줄.
+
 **광고주가 말로 요청하면 캠페인·소재가 만들어지고, 올라가기 전에 가드레일이 먼저 틀릴 곳을 잡습니다.**
 모델은 제안만 하고, 판정은 코드가 하며, 모든 결정은 트레이스로 증명합니다.
 

@@ -5,6 +5,7 @@ import html
 
 import streamlit as st
 
+from core.config import IN_BROWSER
 from core.schemas import AdCopy, Decision, Finding, Severity
 
 DECISION_STYLE = {
@@ -31,7 +32,11 @@ def severity_chip(s: Severity) -> str:
 
 
 def mode_banner(mode: str, openai_model: str, anthropic_model: str) -> None:
-    if mode == "demo":
+    if mode == "demo" and IN_BROWSER:
+        st.warning("**브라우저 실행판 (WebAssembly · DEMO 모드)** — 이 페이지는 서버 없이 브라우저 안에서 파이썬이 돌아갑니다. "
+                   "LLM 단계(플래너·카피·패널·심사)는 결정론적 **대역(mock)** 이 수행하고, 가드레일·관측·평가·판정 로직은 실제 코드가 그대로 돕니다. "
+                   "실제 모델(GPT-4o · Claude)로 보려면 로컬 실행 또는 Render 배포에서 키를 넣으세요. 실제 모델 결과는 '재생' 페이지에 기록돼 있습니다.", icon="🧪")
+    elif mode == "demo":
         st.warning("**DEMO 모드** — API 키가 없어 LLM 단계(플래너·카피·패널·심사)는 결정론적 **대역(mock)** 이 수행합니다. "
                    "가드레일·관측·평가·판정 로직은 실제 코드가 그대로 돕니다. 결과는 모델 성능이 아닙니다 (FM-22). "
                    "왼쪽 사이드바에 키를 넣으면 LIVE 로 바뀝니다.", icon="🧪")

@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from dataclasses import dataclass
 from enum import Enum
 
@@ -17,6 +18,10 @@ try:  # .env 는 있으면 읽고 없으면 조용히 넘어간다
     load_dotenv()
 except Exception:  # pragma: no cover - dotenv 미설치 환경
     pass
+
+
+# 브라우저(WebAssembly·stlite) 실행판에서는 네트워크 SDK 를 쓸 수 없으므로 항상 DEMO 모드로 고정한다.
+IN_BROWSER = sys.platform == "emscripten"
 
 
 class Mode(str, Enum):
@@ -53,7 +58,7 @@ class Settings:
             max_retries=int(_env("PREFLIGHT_MAX_RETRIES", "2")),
             run_budget_usd=float(_env("PREFLIGHT_RUN_BUDGET_USD", "0.50")),
             auto_decision_confidence=float(_env("PREFLIGHT_AUTO_DECISION_CONFIDENCE", "0.80")),
-            force_demo=_env("PREFLIGHT_FORCE_DEMO", "0") in {"1", "true", "yes"},
+            force_demo=_env("PREFLIGHT_FORCE_DEMO", "0") in {"1", "true", "yes"} or IN_BROWSER,
         )
         base.update(overrides)
         return cls(**base)  # type: ignore[arg-type]

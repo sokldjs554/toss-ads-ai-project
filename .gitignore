@@ -13,3 +13,6 @@ venv/
 dist/
 build/
 .DS_Store
+
+# GitHub Pages 빌드 산출물
+_site/
