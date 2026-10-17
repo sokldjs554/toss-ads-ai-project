@@ -1,0 +1,38 @@
+# Render 공개 서버가 살아 있는지 확인한다 (수동 실행). 무료 인스턴스는 잠들어 있으면 깨는 데 1~2분 걸리므로 재시도한다.
+name: render-check
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "Render 서비스 주소"
+        required: false
+        default: "https://preflight-toss-ads.onrender.com"
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: health + first page
+        env:
+          URL: ${{ inputs.url }}
+        run: |
+          set -u
+          base="${URL%/}"
+          for i in $(seq 1 24); do
+            code=$(curl -sS -o /tmp/health -m 30 -w "%{http_code}" "$base/_stcore/health" || true)
+            echo "try $i: /_stcore/health -> $code $(head -c 40 /tmp/health 2>/dev/null)"
+            if [ "$code" = "200" ]; then
+              page=$(curl -sS -o /tmp/page -m 30 -w "%{http_code}" "$base/" || true)
+              echo "GET / -> $page, bytes=$(wc -c </tmp/page)"
+              grep -o "<title>[^<]*</title>" /tmp/page || true
+              echo "RESULT: OK $base"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "RESULT: FAIL $base"
+          exit 1
