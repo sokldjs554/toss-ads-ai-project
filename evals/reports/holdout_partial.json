@@ -18,8 +18,8 @@
     "stages": "output_guard → reviewer → rewrite_recheck(code + semantic) → adjudicate"
   },
   "curve_method": "replay_decide",
-  "recommended_threshold_for_zero_unsafe": 0.5,
-  "recommended_threshold_for_zero_unsafe_and_zero_false_flag": 0.5,
+  "recommended_threshold_for_zero_unsafe": 0.95,
+  "recommended_threshold_for_zero_unsafe_and_zero_false_flag": 0.95,
   "cost_estimated": false,
   "provider_failures": {
     "n": 0,

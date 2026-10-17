@@ -19,7 +19,8 @@ ROUNDS = [  # (파일, 회차, 바뀐 것)
     ("history/baseline_partial_run1.json", "1차", "처음 실행 (프롬프트 2026.10.1)"),
     ("history/baseline_partial_run2.json", "2차", "보이지 않는 문자 전부 제거 + 프롬프트 2026.10.2"),
     ("history/baseline_partial_run3.json", "3차", "코드가 확정한 안내·근거·형식 결과를 모델이 뒤집지 못함, 골든셋 55건"),
-    ("baseline_partial.json", "4차", "근거 없는 수정·게재 불가 제안은 담당자 확인으로"),
+    ("history/baseline_partial_run4_golden_v1.1_policy_2026.10.1.json", "4차", "근거 없는 수정·게재 불가 제안은 담당자 확인으로"),
+    ("baseline_partial.json", "5차", "리뷰 수정 반영: 조건 생략 규칙·수정안 의미 재검사·골든셋 v1.2(G-069 라벨 수정)·프롬프트 2026.10.3"),
 ]
 
 
@@ -77,8 +78,9 @@ def _eval_section(settings: Settings, router_factory) -> None:
                 "라벨은 이 프로젝트가 직접 썼고 독립 검증자는 없습니다. 모든 수치는 해당 평가에서 관측된 값이며 모든 광고에 대한 보장이 아닙니다.")
     options: dict[str, str] = {}
     if (REPORTS / "baseline_partial.json").exists():
-        options["저장된 실제 모델 결과 (4차, gpt-4o, 골든셋)"] = "baseline_partial.json"
-    for label, name in (("최종 확인용 holdout — 예시 실행", "holdout_demo.json"), ("최종 확인용 holdout — 코드 검사만", "holdout_deterministic_only.json"),
+        options["저장된 실제 모델 결과 (5차, gpt-4o, 골든셋 v1.2)"] = "baseline_partial.json"
+    for label, name in (("최종 확인용 holdout — 실제 모델 (5차, gpt-4o)", "holdout_partial.json"), ("G-069 대조 사례 — 실제 모델 (5차, gpt-4o)", "contrast_g069_partial.json"),
+                        ("최종 확인용 holdout — 예시 실행", "holdout_demo.json"), ("최종 확인용 holdout — 코드 검사만", "holdout_deterministic_only.json"),
                         ("골든셋 — 예시 실행 (실제 AI 호출 없음)", "baseline_demo.json"), ("골든셋 — 코드 검사만 (모델 없음)", "baseline_deterministic_only.json"),
                         ("G-069 대조 사례 — 코드 검사만", "contrast_g069_deterministic_only.json")):
         if (REPORTS / name).exists():
@@ -144,7 +146,7 @@ def _eval_section(settings: Settings, router_factory) -> None:
 
 def _history_section() -> None:
     st.markdown("## 개선 이력 (실제 모델, 골든셋)")
-    st.markdown("같은 골든셋을 GPT-4o 로 네 번 돌리며 코드 규칙을 고쳤습니다. 프롬프트·규칙을 고친 뒤 같은 데이터로 다시 잰 값이므로 최종 확인용이 아니라 **회귀 감시용**입니다. "
+    st.markdown("GPT-4o 로 다섯 번 돌리며 코드 규칙을 고쳤습니다 (1~4차 골든셋 v1.1, 5차는 라벨 1건을 고친 v1.2 라 분모가 다릅니다). 프롬프트·규칙을 고친 뒤 같은 데이터로 다시 잰 값이므로 최종 확인용이 아니라 **회귀 감시용**입니다. "
                 "'담당자 확인으로 넘긴 건' 은 '올바르게 통과시킨 건' 과 다르게 셉니다.")
     rows = []
     for name, label, change in ROUNDS:
@@ -158,9 +160,11 @@ def _history_section() -> None:
                      "담당자 확인(전체)": f"{s['human_review']['k']}/{s['human_review']['n']}", "확신 보정 오차(ECE)": s["calibration"]["ece"], "비용": f"${s['cost_usd']}"})
     if rows:
         st.dataframe(rows, width="stretch", hide_index=True)
-        st.markdown("- 1차→4차에서 문제 있는 광고를 통과시킨 사례는 네 번 모두 0건이었습니다.\n"
+        st.markdown("- 1차→5차에서 문제 있는 광고를 통과시킨 사례는 다섯 번 모두 0건이었습니다.\n"
                     "- 3차→4차: 문제없는 광고 14건 중 올바르게 통과시킨 수는 11건으로 같습니다. 바뀐 것은 잘못된 수정 요청 3건 중 2건이 **담당자 확인**으로 옮겨 간 것이지, 통과가 늘어난 것이 아닙니다.\n"
-                    "- 4차에 남은 수정 요청 1건(G-069)은 라벨을 재검토해 v1.2 에서 '수정 필요' 로 바꿨습니다 (근거: 결제 조건 누락, 대조 사례). 그 뒤의 수치는 다음 실제 모델 실행에서 다시 잽니다.")
+                    "- 4차에 남은 수정 요청 1건(G-069)은 라벨을 재검토해 v1.2 에서 '수정 필요' 로 바꿨습니다 (근거: 결제 조건 누락, 대조 사례). 그래서 5차부터 분모가 바뀝니다 — 문제 있는 광고 42건, 문제없는 광고 13건.\n"
+                    "- 5차(골든셋 v1.2, 검사 기준 2026.10.2, 프롬프트 2026.10.3): 문제없는 광고 13건 중 12건 올바른 통과, 수정 요청 0건, 담당자 확인 1건(원문에 없는 인용). 처음 보는 holdout 12건에서도 통과 0/10·수정 요청 0/2. 4차와 5차는 골든셋 버전이 달라 같은 행끼리 직접 비교하면 안 됩니다.\n"
+                    "- 5차의 첫 시도(run 39041334234)는 실행 도중 OpenAI 크레딧이 떨어져 절반이 모델 판단 없이 끝났습니다. 그 결과는 기준선에서 빼고 보관만 했고, 같은 일이 다시 생기면 저장되지 않도록 고쳤습니다 (FM-24).")
 
 
 def _technical_section(rep_name: str = "baseline_partial.json") -> None:

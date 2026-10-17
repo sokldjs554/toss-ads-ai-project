@@ -18,7 +18,17 @@ def test_coverage_curve_and_threshold():
     rs = [rec(1, "REJECT", "APPROVE", 0.7), rec(2, "REJECT", "REJECT", 0.9), rec(3, "APPROVE", "APPROVE", 0.9)]
     curve = coverage_curve(rs)
     assert curve[0]["tau"] == 0.5 and curve[0]["unsafe_approve"] == 0.5
-    assert recommend_threshold(rs, 0.0) == 0.75  # 0.7 짜리 위험 승인을 걸러내는 최소 τ
+    # 0.7 짜리 위험 승인을 걸러내려면 τ ≥ 0.75. 0.75~0.9 는 커버리지가 같으므로(2/3) 그중 가장 높은 0.9 를 추천한다 — 같은 커버리지면 보수적인 쪽
+    assert recommend_threshold(rs, 0.0) == 0.9
+    assert recommend_threshold(rs, 0.5) == 0.7  # 위험 승인 50% 까지 허용하면 0.7 에서 커버리지 3/3 이 최대이고, 그 커버리지를 주는 가장 높은 τ 는 0.7
+
+
+def test_recommend_threshold_prefers_highest_tau_at_equal_coverage():
+    """5차 실제 모델 결과 재현: τ 0.5~0.9 에서 커버리지·위험 승인·오탐이 전부 같았는데 0.5 를 추천했다. 같은 커버리지면 더 높은 τ 가 맞다."""
+    rs = [rec(1, "REJECT", "REJECT", 0.92), rec(2, "APPROVE", "APPROVE", 0.95), rec(3, "REVISE", "REVISE", 0.9), rec(4, "REJECT", "REJECT", 0.99)]
+    curve = {row["tau"]: row["coverage"] for row in coverage_curve(rs)}
+    assert curve[0.5] == curve[0.9] == 1.0 and curve[0.95] < 1.0
+    assert recommend_threshold(rs, 0.0, 0.0) == 0.9
 
 
 def test_wilson_bounds():

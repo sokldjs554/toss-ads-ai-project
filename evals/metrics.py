@@ -189,12 +189,15 @@ def coverage_curve(records: list[EvalRecord]) -> list[dict]:
 
 
 def recommend_threshold(records: list[EvalRecord], max_unsafe: float = 0.0, max_false_flag: float | None = None) -> float | None:
-    """위험 승인율 ≤ max_unsafe (그리고 주어지면 오탐율 ≤ max_false_flag) 를 만족하는 가장 낮은 τ (= 가장 높은 커버리지)."""
-    best = None
+    """위험 승인율 ≤ max_unsafe (그리고 주어지면 오탐율 ≤ max_false_flag) 를 만족하는 τ 가운데 커버리지가 가장 높은 것.
+    커버리지가 같으면 **더 높은 τ** 를 고른다 — 낮은 τ 는 같은 커버리지에서 아무것도 더 주지 않고, 보지 못한 사례에서 확신 낮은 판정을 자동으로 흘려보낼 위험만 더한다.
+    (이전 구현은 가장 낮은 τ 를 골랐다. 5차 실제 모델 결과에서 τ 0.5~0.9 의 커버리지가 전부 같았는데 0.5 를 추천한 것이 계기.)"""
+    best_row = None
     for row in coverage_curve(records):
         if not row["n_auto"] or row["unsafe_approve"] > max_unsafe:
             continue
         if max_false_flag is not None and row["false_flag"] > max_false_flag:
             continue
-        best = row["tau"] if best is None else min(best, row["tau"])
-    return best
+        if best_row is None or row["coverage"] > best_row["coverage"] or (row["coverage"] == best_row["coverage"] and row["tau"] > best_row["tau"]):
+            best_row = row
+    return None if best_row is None else best_row["tau"]

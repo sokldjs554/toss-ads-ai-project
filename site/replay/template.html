@@ -199,7 +199,7 @@ svg.chart .ax { stroke: var(--line); stroke-width: 1; } svg.chart .gr { stroke: 
       <a class="btn primary" href="https://share.streamlit.io/deploy?repository=sokldjs554/toss-ads-ai-project&amp;branch=main&amp;mainModule=app.py" target="_blank" rel="noopener">앱 직접 띄우기</a>
     </div>
   </header>
-  <p class="notice"><b>이 페이지는 재생입니다.</b> 2026-10-16 live-eval(run <span id="runid" class="mono"></span>)에서 실제 GPT-4o 로 기록한 트레이스와 평가 결과를 그대로 보여 주며, 새 모델 호출은 하지 않습니다. 입력은 시나리오 5개로 고정이고, 직접 입력해 보려면 위의 앱을 띄우세요. 모든 상품과 수치는 가상이고 어느 회사의 실제 심사 기준도 아닙니다.</p>
+  <p class="notice"><b>이 페이지는 재생입니다.</b> 실제 GPT-4o 로 기록한 처리 기록(<span id="tracedate"></span> 4차 실행, run <span id="tracerun" class="mono"></span>)과 평가 결과(<span id="evaldate"></span> 5차 실행, run <span id="runid" class="mono"></span>)를 그대로 보여 주며, 새 모델 호출은 하지 않습니다. 입력은 시나리오 5개로 고정이고, 직접 입력해 보려면 위의 앱을 띄우세요. 모든 상품과 수치는 가상이고 어느 회사의 실제 심사 기준도 아닙니다.</p>
   <dl class="strip" id="strip"></dl>
   <nav class="tabs" role="tablist" id="tabs"></nav>
   <main class="view" id="view"></main>
@@ -245,6 +245,9 @@ svg.chart .ax { stroke: var(--line); stroke-width: 1; } svg.chart .gr { stroke: 
   (function () {
     var r = D.evals.rounds[3], t = D.evals.red[3];
     document.getElementById('runid').textContent = D.evals.run_id;
+    document.getElementById('tracerun').textContent = D.evals.trace_run_id || D.evals.run_id;
+    document.getElementById('tracedate').textContent = D.evals.trace_date || '';
+    document.getElementById('evaldate').textContent = D.evals.eval_date || '';
     document.getElementById('strip').innerHTML =
       '<div><dt>문제 있는 광고 통과</dt><dd class="num">' + frac(r.unsafe) + ' <small>수정·게재 제한이 필요한 광고를 통과시킨 수</small></dd></div>' +
       '<div><dt>문제없는 광고에 수정 요청</dt><dd class="num">' + frac(r.false_flag) + ' <small>1차 5/14</small></dd></div>' +
@@ -451,27 +454,33 @@ svg.chart .ax { stroke: var(--line); stroke-width: 1; } svg.chart .gr { stroke: 
 
   function renderEvals() {
     var R = D.evals.rounds, maxFF = 0.4, maxE = 0.16, maxH = 0.12;
-    var h = '<section class="sec" style="margin-top:0"><h2>같은 골든셋, 같은 모델, 고친 것만 다르게</h2><p class="lead">OpenAI 키만 있는 PARTIAL 모드(GPT-4o)에서 같은 평가를 네 번 돌렸습니다. 개선은 프롬프트 한 줄이 아니라 라이브 실행이 드러낸 실패마다 넣은 구조 규칙에서 왔습니다.</p>' +
+    var h = '<section class="sec" style="margin-top:0"><h2>같은 모델, 고친 것만 다르게 — 1차→5차</h2><p class="lead">OpenAI 키만 있는 PARTIAL 모드(GPT-4o)에서 같은 평가를 다섯 번 돌렸습니다. 1~4차는 골든셋 v1.1, 5차는 라벨 1건(G-069)을 고친 v1.2 라 분모가 다릅니다(문제 있는 광고 41→42, 문제없는 광고 14→13). 개선은 프롬프트 한 줄이 아니라 라이브 실행이 드러낸 실패마다 넣은 구조 규칙에서 왔습니다.</p>' +
       '<div class="scroll"><table><thead><tr><th>회차</th><th>바꾼 것</th><th class="r">문제 있는 광고 통과</th><th class="r">문제없는 광고에 수정 요청</th><th class="r">담당자 확인</th><th class="r">ECE</th><th class="r">확신 0.8↑ 오류</th><th class="r">원문에 없는 근거</th><th class="r">비용</th></tr></thead><tbody>' +
       R.map(function (r) {
         var bar = function (v, mx, w) { return '<span class="bar' + (w ? ' w' : '') + '" style="width:' + Math.min(100, v / mx * 100).toFixed(0) + '%"></span>'; };
         return '<tr><td><b>' + r.label + '</b><div class="muted num" style="font-size:12px">n=' + r.n + '</div></td><td style="min-width:200px">' + esc(r.change) + '</td><td class="r num">' + frac(r.unsafe) + '</td>' +
           '<td class="r num">' + frac(r.false_flag) + bar(r.false_flag.rate, maxFF, true) + '</td><td class="r num">' + frac(r.human) + '</td><td class="r num">' + r.ece.toFixed(3) + bar(r.ece, maxE) + '</td>' +
           '<td class="r num">' + frac(r.hc) + bar(r.hc.rate, maxH) + '</td><td class="r num">' + r.unverified + '</td><td class="r num">$' + r.cost.toFixed(2) + '</td></tr>';
-      }).join('') + '</tbody></table></div></section>';
+      }).join('') + '</tbody></table></div>' +
+      '<div class="scroll" style="margin-top:12px"><table><thead><tr><th>5차 — 처음 보는 데이터</th><th>무엇</th><th class="r">문제 있는 광고 통과</th><th class="r">문제없는 광고에 수정 요청</th><th class="r">담당자 확인</th><th class="r">비용</th></tr></thead><tbody>' +
+      (D.evals.extra || []).map(function (r) { return '<tr><td><b>' + r.label + '</b><div class="muted num" style="font-size:12px">n=' + r.n + '</div></td><td>' + esc(r.change) + '</td><td class="r num">' + frac(r.unsafe) + '</td><td class="r num">' + frac(r.false_flag) + '</td><td class="r num">' + frac(r.human) + '</td><td class="r num">$' + r.cost.toFixed(2) + '</td></tr>'; }).join('') +
+      '</tbody></table></div><p class="muted" style="font-size:12.5px">holdout 은 규칙을 고친 뒤 처음 돌린 사례라 "고치고 다시 잰" 값이 아닙니다. 모든 수치는 관측값이며 보장이 아닙니다.</p></section>';
 
     var c = D.evals.curve;
-    h += '<section class="sec"><h2>4차 결과로 읽는 자동 판정 임계값</h2><p class="lead">자동 판정에 필요한 최소 확신(τ)을 올리면 담당자 확인이 늘고 문제없는 광고에 수정 요청하는 일이 줄어듭니다. 이 모델에서는 τ=0.90 에서 문제 있는 광고 통과 0건과 문제없는 광고 수정 요청 0건을 함께 만족하고, 그때 ' + pct(c[8].coverage, 0) + '를 담당자 확인 없이 판단합니다. 이 곡선은 당시 저장 방식(확신 필터) 기준이라 같은 τ 에서 실제 판정과 1건 다를 수 있습니다.</p><div class="grid2">' +
+    var recTau = (D.evals.rounds[D.evals.rounds.length - 1] || {}).tau;
+    var recRow = null; c.forEach(function (r) { if (recTau != null && Math.abs(r.tau - recTau) < 1e-9) recRow = r; });
+    var okBins = D.evals.bins.filter(function (b) { return b.n && b.accuracy === 1; }), badBins = D.evals.bins.filter(function (b) { return b.n && b.accuracy < 1; });
+    h += '<section class="sec"><h2>5차 결과로 읽는 자동 판정 임계값</h2><p class="lead">자동 판정에 필요한 최소 확신(τ)을 올리면 담당자 확인이 늘고 문제없는 광고에 수정 요청하는 일이 줄어듭니다. ' + (recRow ? ('이 모델에서는 τ=' + recTau.toFixed(2) + ' 에서 문제 있는 광고 통과 0건과 문제없는 광고 수정 요청 0건을 함께 만족하고, 그때 ' + pct(recRow.coverage, 0) + '를 담당자 확인 없이 판단합니다. 같은 커버리지를 주는 τ 가 여럿이면 가장 높은 값을 추천합니다 — 낮은 τ 는 보지 못한 사례에서 확신 낮은 판정을 자동으로 흘려보낼 위험만 더합니다.') : '이 설정의 검증된 추천값은 없습니다.') + ' 이 곡선은 저장된 판정 원본 입력으로 실제 판정 함수를 τ 마다 다시 불러 계산한 것입니다.</p><div class="grid2">' +
       '<div class="card"><div class="lbl">임계값 곡선</div>' + line({ label: '임계값별 판단 비율과 수정 요청', x: [0.5, 0.95], y: [0, 1], xt: [0.5, 0.6, 0.7, 0.8, 0.9], yt: [0, 0.25, 0.5, 0.75, 1], fx: function (v) { return v.toFixed(1); }, fy: function (v) { return Math.round(v * 100) + '%'; }, xl: '자동 판정에 필요한 최소 확신 τ',
         series: [{ n: '담당자 확인 없이 판단', c: 'var(--accent)', p: c.map(function (r) { return [r.tau, r.coverage]; }) }, { n: '문제없는 광고에 수정 요청', c: 'var(--amber)', p: c.map(function (r) { return [r.tau, r.false_flag]; }) }, { n: '문제 있는 광고 통과', c: 'var(--bad)', p: c.map(function (r) { return [r.tau, r.unsafe_approve]; }) }] }) + '</div>' +
       '<div class="card"><div class="lbl">신뢰도 보정 (reliability diagram)</div>' + line({ label: '모델이 말한 신뢰도와 실제 정답률', x: [0, 1], y: [0, 1], xt: [0, 0.25, 0.5, 0.75, 1], yt: [0, 0.25, 0.5, 0.75, 1], fx: function (v) { return v.toFixed(2); }, fy: function (v) { return v.toFixed(2); }, xl: '모델이 말한 신뢰도', diag: true,
         dots: D.evals.bins.map(function (b) { return { x: b.confidence, y: b.accuracy, r: 4 + Math.min(10, Math.sqrt(b.n) * 1.6), n: b.n }; }) }) +
-      '<p class="muted" style="font-size:12.5px">점선이 완벽한 보정입니다. 0.8 근처 3건은 모두 틀렸고, 0.96 근처 47건은 모두 맞았습니다. 그래서 τ 를 0.9 로 둡니다.</p></div></div></section>';
+      '<p class="muted" style="font-size:12.5px">점선이 완벽한 보정입니다. ' + (badBins.length ? ('확신 ' + badBins.map(function (b) { return b.confidence.toFixed(2) + ' 근처 ' + b.n + '건(정답률 ' + Math.round(b.accuracy * 100) + '%)'; }).join(', ') + '에서 틀린 판정이 있었고, ') : '틀린 자동 판정은 없었고, ') + (okBins.length ? ('확신 ' + okBins.map(function (b) { return b.confidence.toFixed(2); }).join('·') + ' 근처 ' + okBins.reduce(function (a, b) { return a + b.n; }, 0) + '건은 모두 맞았습니다.') : '') + ' 담당자 확인으로 간 사례는 이 그림에 없습니다.</p></div></div></section>';
 
-    h += '<section class="sec"><h2>난이도별 · 약한 규칙 · 레드팀</h2><div class="grid2"><div class="card"><div class="lbl">슬라이스별 (4차)</div><div class="scroll"><table><thead><tr><th>슬라이스</th><th class="r">n</th><th class="r">문제 있는 광고 통과</th><th class="r">문제없는 광고에 수정 요청</th><th class="r">담당자 확인</th></tr></thead><tbody>' +
+    h += '<section class="sec"><h2>난이도별 · 약한 규칙 · 레드팀</h2><div class="grid2"><div class="card"><div class="lbl">슬라이스별 (5차)</div><div class="scroll"><table><thead><tr><th>슬라이스</th><th class="r">n</th><th class="r">문제 있는 광고 통과</th><th class="r">문제없는 광고에 수정 요청</th><th class="r">담당자 확인</th></tr></thead><tbody>' +
       Object.keys(D.evals.by_diff).map(function (k) { var v = D.evals.by_diff[k]; return '<tr><td class="mono">' + k + '</td><td class="r num">' + v.n + '</td><td class="r num">' + (v.unsafe.n ? frac(v.unsafe) : '—') + '</td><td class="r num">' + (v.ff.n ? frac(v.ff) : '—') + '</td><td class="r num">' + frac(v.human) + '</td></tr>'; }).join('') +
       '</tbody></table></div><p class="muted" style="font-size:12.5px">benign_scary 는 무서운 단어가 있지만 괜찮은 소재, semantic_only 는 의미 심사만 잡을 수 있는 조건 생략입니다.</p></div>' +
-      '<div class="card"><div class="lbl">정밀도가 낮은 규칙 (4차, 모델이 낸 finding 포함)</div><div class="scroll"><table><thead><tr><th>규칙</th><th class="r">맞음</th><th class="r">잘못 잡음</th><th class="r">놓침</th></tr></thead><tbody>' +
+      '<div class="card"><div class="lbl">정밀도가 낮은 규칙 (5차, 코드·모델 finding 포함)</div><div class="scroll"><table><thead><tr><th>규칙</th><th class="r">맞음</th><th class="r">잘못 잡음</th><th class="r">놓침</th></tr></thead><tbody>' +
       D.evals.rules.slice(0, 8).map(function (r) { return '<tr><td class="mono">' + r.id + '</td><td class="r num">' + r.tp + '</td><td class="r num">' + r.fp + '</td><td class="r num">' + r.fn + '</td></tr>'; }).join('') + '</tbody></table></div></div></div>' +
       '<div class="card" style="margin-top:12px"><div class="lbl">레드팀: 위반 소재 4개를 8가지 수법으로 변형한 공격 32개</div><div class="scroll"><table><thead><tr><th>회차</th><th class="r">공격</th><th class="r">뚫림(통과)</th><th class="r">담당자 확인</th><th class="r">수정 필요</th><th class="r">비용</th></tr></thead><tbody>' +
       D.evals.red.map(function (r) { return '<tr><td><b>' + r.label + '</b></td><td class="r num">' + r.n + '</td><td class="r num">' + r.evaded + '</td><td class="r num">' + r.human + '</td><td class="r num">' + r.revise + '</td><td class="r num">$' + r.cost.toFixed(2) + '</td></tr>'; }).join('') + '</tbody></table></div>' +
