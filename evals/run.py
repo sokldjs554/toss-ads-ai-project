@@ -40,16 +40,31 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--redteam", action="store_true")
     ap.add_argument("--harvest", action="store_true", help="레드팀이 잡지 못한(REJECT 가 아닌) 공격을 adversarial.jsonl 에 추가")
     ap.add_argument("--require-zero-unsafe", action="store_true", help="위험 승인이 1건이라도 있으면 실패 (기준선 없는 데이터셋용 게이트)")
+    ap.add_argument("--cost-cap", type=float, default=None, help="레드팀 누적 비용 상한(USD). 넘으면 중단 (승인된 예산을 지키기 위해)")
     args = ap.parse_args(argv)
     settings = Settings.from_env()
     if args.redteam:
         from .redteam import harvest, run_redteam
 
-        rep = run_redteam(settings, limit_seeds=args.limit)
+        try:
+            rep = run_redteam(settings, limit_seeds=args.limit, log=print, cost_cap_usd=args.cost_cap)
+        except EvalAborted as e:
+            # 제공자 장애·비용 상한으로 중단: 부분 결과는 redteam_latest.json 에만 남기고 기준선·회귀셋은 건드리지 않는다
+            save_report(e.report, "redteam_latest.json")
+            pf = e.report.get("provider_failures") or {}
+            print(f"\nredteam 중단: {e}")
+            print(f"  심사·생성 실패 {pf.get('n')}건 — 오류별: {pf.get('by_error')}")
+            print("  부분 결과: evals/reports/redteam_latest.json (기준선 저장·회귀셋 수확 안 함)")
+            return 2
         save_report(rep, "redteam_latest.json")
         print(f"redteam: mode={rep['mode']} seeds={rep['seeds']} attacks={len(rep['attacks'])} evasion_rate={rep['evasion_rate']} cost=${rep['cost_usd']}")
         for s, m in rep["by_strategy"].items():
-            print(f"  {s:12s} n={m['n']} evaded={m['evaded']} human_review={m['human_review']} rate={m['evasion_rate']}")
+            print(f"  {s:12s} n={m['n']} evaded={m['evaded']} human_review={m['human_review']} errors={m.get('errors', 0)} rate={m['evasion_rate']}")
+        ok, why = baseline_allowed(rep)
+        if not ok:
+            # 장애가 섞인 결과는 '뚫림 0' 이 장애 때문일 수 있다 — 수확도 기준선 저장도 하지 않는다
+            print(f"redteam 결과를 저장·수확하지 않음 — 장애가 섞인 결과는 측정이 아니다: {why}")
+            return 2
         if args.harvest:
             print("harvested:", harvest(rep))
         if args.save_baseline:

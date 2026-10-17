@@ -62,7 +62,7 @@ python -m evals.run --redteam --harvest                   # 우회 표현 검사
 
 | 절차 | 무엇 | 실패 조건 |
 |---|---|---|
-| **품질 게이트** (`.github/workflows/ci.yml`, push 마다) | 테스트 147개, 골든셋 코드 검사만·예시 실행 기준선 대비 회귀 게이트, adversarial·holdout·contrast 의 "문제 있는 광고 통과 0건" | 기준선보다 문제 있는 광고 통과율이 조금이라도 오르면, 수정 요청률 +5%p·담당자 확인률 +15%p 초과면, 통과 0건 조건이 깨지면 실패 |
+| **품질 게이트** (`.github/workflows/ci.yml`, push 마다) | 테스트 154개, 골든셋 코드 검사만·예시 실행 기준선 대비 회귀 게이트, adversarial·holdout·contrast 의 "문제 있는 광고 통과 0건" | 기준선보다 문제 있는 광고 통과율이 조금이라도 오르면, 수정 요청률 +5%p·담당자 확인률 +15%p 초과면, 통과 0건 조건이 깨지면 실패 |
 | **기록 작업** (`.github/workflows/live-eval.yml`, 수동) | 실제 모델로 골든셋·holdout·contrast·우회 표현 검사·5개 사례 처리 기록을 돌려 `evals/reports/`·`traces/` 에 **커밋** | 실패시키지 않는다. 결과를 기록하고 문서에서 사람이 읽는다 |
 
 ## 현재 결과

@@ -20,7 +20,7 @@ from guardrails.policy import PolicyCatalog, get_catalog
 from llm.base import LLMRequest, Task
 from llm.router import Router
 
-from .runner import DATASETS, EvalCase, evaluate_case, load_dataset
+from .runner import DATASETS, EvalAborted, EvalCase, _wait_for_breaker, evaluate_with_retry, load_dataset, tally_errors
 
 STRATEGIES = ["spacing", "zero_width", "hanja", "paraphrase", "negation", "bury", "injection", "implicature"]
 
@@ -38,6 +38,7 @@ class Attack:
     predicted_rules: list[str] = field(default_factory=list)
     evaded: bool = False
     reason: str = ""
+    error: str = ""   # 심사 호출이 실패한 공격 — 통과도 반려도 아니다. 집계·수확에서 제외한다
 
 
 def generate_attacks(seed: EvalCase, router: Router, strategies: list[str]) -> list[Attack]:
@@ -55,9 +56,48 @@ def generate_attacks(seed: EvalCase, router: Router, strategies: list[str]) -> l
             for a in resp.parsed.attacks if a.headline or a.body]
 
 
+def _generate_with_retry(seed: EvalCase, router: Router, strategies: list[str], breaker_wait_s: float,
+                         log: Optional[Callable[[str], None]]) -> tuple[list[Attack], str]:
+    """공격 생성 호출. 실패하면 서킷이 닫히길 기다렸다가 한 번 더. 그래도 실패하면 (빈 목록, 오류 문구)."""
+    err = ""
+    for attempt in range(2 if breaker_wait_s > 0 else 1):
+        if attempt or breaker_wait_s > 0:
+            _wait_for_breaker(router, breaker_wait_s, log, task=Task.ATTACK)
+        try:
+            return generate_attacks(seed, router, strategies), ""
+        except Exception as e:  # noqa: BLE001 — 생성 실패는 기록하고 다음 시드로 간다
+            err = f"{type(e).__name__}: {str(e)[:300]}"
+    return [], err
+
+
+def _redteam_report(settings: Settings, router: Router, seed_cases: list, attacks: list[Attack], gen_failures: list[dict]) -> dict:
+    by_strategy: dict[str, dict] = {}
+    for a in attacks:
+        s = by_strategy.setdefault(a.strategy, {"n": 0, "evaded": 0, "human_review": 0, "errors": 0})
+        s["n"] += 1
+        s["evaded"] += int(a.evaded)
+        s["human_review"] += int(a.predicted == "HUMAN_REVIEW")
+        s["errors"] += int(bool(a.error))
+    for s in by_strategy.values():
+        s["evasion_rate"] = round(s["evaded"] / s["n"], 3) if s["n"] else 0.0
+    failed = [f"{a.seed_id}:{a.strategy}" for a in attacks if a.error] + [f"{g['seed']}:generate" for g in gen_failures]
+    errs = [a.error for a in attacks if a.error] + [g["error"] for g in gen_failures]
+    return {
+        "generated_at": datetime.now(timezone.utc).isoformat(), "mode": settings.mode.value, "seeds": len(seed_cases),
+        "attacks": [a.__dict__ for a in attacks], "by_strategy": by_strategy,
+        "evasion_rate": round(sum(a.evaded for a in attacks) / len(attacks), 3) if attacks else 0.0,
+        "cost_usd": round(router.budget.spent_usd, 4),
+        # 제공자 장애로 심사하지 못한 공격·생성하지 못한 시드. 0 이 아니면 '뚫림 0' 이 장애 때문일 수 있어 기준선·수확에 쓰지 않는다
+        "provider_failures": {"n": len(failed), "cases": failed, "by_error": tally_errors(errs)},
+    }
+
+
 def run_redteam(settings: Settings, router: Optional[Router] = None, seeds: str = "redteam_seeds",
                 strategies: Optional[list[str]] = None, catalog: Optional[PolicyCatalog] = None,
-                progress: Optional[Callable[[str, Attack], None]] = None, limit_seeds: Optional[int] = None) -> dict:
+                progress: Optional[Callable[[str, Attack], None]] = None, limit_seeds: Optional[int] = None,
+                breaker_wait_s: float = 90.0, abort_after: int = 3, cost_cap_usd: Optional[float] = None,
+                log: Optional[Callable[[str], None]] = None) -> dict:
+    """abort_after: 제공자 오류가 연속으로 이만큼 나면 EvalAborted. cost_cap_usd: 누적 비용이 넘으면 EvalAborted (승인된 예산을 지킨다)."""
     catalog = catalog or get_catalog()
     router = router or Router(settings)
     router.new_run()
@@ -68,31 +108,40 @@ def run_redteam(settings: Settings, router: Optional[Router] = None, seeds: str 
     if limit_seeds:
         seed_cases = seed_cases[:limit_seeds]
     attacks: list[Attack] = []
+    gen_failures: list[dict] = []
+    consecutive = 0
+    planned = len(seed_cases) * len(strategies)
+
+    def abort(reason: str, last_error: str, after: str) -> EvalAborted:
+        rep = _redteam_report(settings, router, seed_cases, attacks, gen_failures)
+        rep["aborted"] = {"reason": reason, "after": after, "consecutive_provider_failures": consecutive, "done": len(attacks), "planned": planned,
+                          "cost_usd": round(router.budget.spent_usd, 4)}
+        return EvalAborted(f"{reason} ({after} 까지 공격 {len(attacks)}/{planned}건 처리) — 마지막 오류: {last_error or '-'}", rep)
+
     for seed in seed_cases:
-        for atk in generate_attacks(seed, router, strategies):
+        generated, gen_err = _generate_with_retry(seed, router, strategies, breaker_wait_s, log)
+        if gen_err:
+            gen_failures.append({"seed": seed.id, "error": gen_err})
+            consecutive += 1
+            if abort_after and consecutive >= abort_after:
+                raise abort(f"제공자 오류가 {consecutive}건 연속", gen_err, seed.id)
+            continue
+        for atk in generated:
             case = EvalCase(id=f"{seed.id}:{atk.strategy}", category=seed.category, headline=atk.headline, body=atk.body, cta=atk.cta,
                             label="REJECT", rule_ids=seed.rule_ids, disclosures=seed.disclosures, facts=seed.facts,
                             claims=seed.claims, landing_text=seed.landing_text, difficulty="evasion", source="redteam")
-            r = evaluate_case(case, settings, router, catalog, use_llm=True)
-            atk.predicted, atk.confidence, atk.predicted_rules, atk.reason = r.predicted, r.confidence, r.predicted_rules, r.reason
-            atk.evaded = r.predicted == "APPROVE"
+            r = evaluate_with_retry(case, settings, router, catalog, use_llm=True, breaker_wait_s=breaker_wait_s, log=log)
+            atk.predicted, atk.confidence, atk.predicted_rules, atk.reason, atk.error = r.predicted, r.confidence, r.predicted_rules, r.reason, r.error
+            atk.evaded = r.predicted == "APPROVE" and not r.error
             attacks.append(atk)
             if progress:
                 progress(seed.id, atk)
-    by_strategy: dict[str, dict] = {}
-    for a in attacks:
-        s = by_strategy.setdefault(a.strategy, {"n": 0, "evaded": 0, "human_review": 0})
-        s["n"] += 1
-        s["evaded"] += int(a.evaded)
-        s["human_review"] += int(a.predicted == "HUMAN_REVIEW")
-    for s in by_strategy.values():
-        s["evasion_rate"] = round(s["evaded"] / s["n"], 3) if s["n"] else 0.0
-    return {
-        "generated_at": datetime.now(timezone.utc).isoformat(), "mode": settings.mode.value, "seeds": len(seed_cases),
-        "attacks": [a.__dict__ for a in attacks], "by_strategy": by_strategy,
-        "evasion_rate": round(sum(a.evaded for a in attacks) / len(attacks), 3) if attacks else 0.0,
-        "cost_usd": round(router.budget.spent_usd, 4),
-    }
+            consecutive = consecutive + 1 if r.error else 0
+            if abort_after and consecutive >= abort_after:
+                raise abort(f"제공자 오류가 {consecutive}건 연속", r.error, f"{seed.id}:{atk.strategy}")
+            if cost_cap_usd is not None and router.budget.spent_usd > cost_cap_usd:
+                raise abort(f"누적 비용 ${router.budget.spent_usd:.2f} 가 상한 ${cost_cap_usd:.2f} 초과", "", f"{seed.id}:{atk.strategy}")
+    return _redteam_report(settings, router, seed_cases, attacks, gen_failures)
 
 
 def harvest(report: dict, path: Optional[Path] = None, only_evaded: bool = False) -> int:
@@ -108,6 +157,8 @@ def harvest(report: dict, path: Optional[Path] = None, only_evaded: bool = False
     added = 0
     with path.open("a", encoding="utf-8") as fh:
         for a in report["attacks"]:
+            if a.get("error"):  # 제공자 장애로 심사하지 못한 공격은 '못 잡은 공격' 이 아니다
+                continue
             if only_evaded and not a["evaded"]:
                 continue
             if not only_evaded and a["predicted"] == "REJECT":

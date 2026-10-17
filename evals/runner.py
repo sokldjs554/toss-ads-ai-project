@@ -106,19 +106,19 @@ class EvalAborted(RuntimeError):
         self.report = report
 
 
-def _primary_breaker(router: Optional[Router]):
-    """심사 작업의 1순위 제공자 서킷브레이커 (대역이면 None)."""
+def _primary_breaker(router: Optional[Router], task: Task = Task.REVIEW):
+    """작업의 1순위 제공자 서킷브레이커 (대역이면 None)."""
     if router is None:
         return None
-    chain = router.chain_for(Task.REVIEW)
+    chain = router.chain_for(task)
     if not chain or chain[0] == "mock":
         return None
     return router.breakers.get(chain[0])
 
 
-def _wait_for_breaker(router: Optional[Router], max_wait_s: float, log: Optional[Callable[[str], None]] = None) -> float:
+def _wait_for_breaker(router: Optional[Router], max_wait_s: float, log: Optional[Callable[[str], None]] = None, task: Task = Task.REVIEW) -> float:
     """1순위 제공자의 서킷이 열려 있으면 닫힐 때까지(최대 max_wait_s) 기다린다. 평가를 '담당자 확인' 으로 태우며 지나가지 않기 위해서다."""
-    b = _primary_breaker(router)
+    b = _primary_breaker(router, task)
     if b is None or b.opened_at is None or not b.is_open:
         return 0.0
     remaining = max(0.0, b.cooldown_s - (time.time() - b.opened_at))
@@ -174,6 +174,19 @@ def evaluate_case(case: EvalCase, settings: Settings, router: Optional[Router], 
                       cost_estimated=bool(router and router.budget.estimated), error=error)
 
 
+def evaluate_with_retry(case: EvalCase, settings: Settings, router: Optional[Router], catalog: PolicyCatalog, use_llm: bool = True,
+                        breaker_wait_s: float = 90.0, log: Optional[Callable[[str], None]] = None) -> CaseResult:
+    """사례 하나를 평가한다. 제공자 서킷이 열려 있으면 닫힐 때까지 기다렸다가 시작하고, 심사 호출이 실패하면(error 가 남음)
+    다시 기다렸다가 같은 사례를 한 번 더 시도한다. 일시 장애가 '담당자 확인' 결과로 굳지 않게 하기 위해서다."""
+    if use_llm and breaker_wait_s > 0:
+        _wait_for_breaker(router, breaker_wait_s, log)
+    r = evaluate_case(case, settings, router, catalog, use_llm=use_llm)
+    if r.error and use_llm and breaker_wait_s > 0:
+        _wait_for_breaker(router, breaker_wait_s, log)
+        r = evaluate_case(case, settings, router, catalog, use_llm=use_llm)
+    return r
+
+
 def run_eval(dataset: str, settings: Settings, use_llm: bool = True, router: Optional[Router] = None,
              catalog: Optional[PolicyCatalog] = None, progress: Optional[Callable[[int, int, CaseResult], None]] = None,
              limit: Optional[int] = None, breaker_wait_s: float = 90.0, abort_after: int = 3,
@@ -197,13 +210,7 @@ def run_eval(dataset: str, settings: Settings, use_llm: bool = True, router: Opt
     results: list[CaseResult] = []
     consecutive_failures = 0
     for i, c in enumerate(cases):
-        if use_llm and breaker_wait_s > 0:
-            _wait_for_breaker(router, breaker_wait_s, log)
-        r = evaluate_case(c, settings, router, catalog, use_llm=use_llm)
-        if r.error and use_llm and breaker_wait_s > 0:
-            # 일시 오류일 수 있다: 서킷이 닫히길 기다렸다가 같은 사례를 한 번 더
-            _wait_for_breaker(router, breaker_wait_s, log)
-            r = evaluate_case(c, settings, router, catalog, use_llm=use_llm)
+        r = evaluate_with_retry(c, settings, router, catalog, use_llm=use_llm, breaker_wait_s=breaker_wait_s, log=log)
         results.append(r)
         if progress:
             progress(i + 1, len(cases), r)
@@ -249,7 +256,7 @@ def _build_report(dataset: str, cases: list, results: list[CaseResult], settings
         "cost_estimated": any(r.cost_estimated for r in results),
         # 심사 모델 단계가 실패한 사례 — 이 수가 0 이 아니면 '담당자 확인' 비율에 모델 판단이 아닌 장애가 섞여 있다. 기준선으로 저장하지 않는다
         "provider_failures": {"n": sum(1 for r in results if r.error), "cases": [r.case.id for r in results if r.error],
-                              "by_error": _tally(r.error for r in results if r.error)},
+                              "by_error": tally_errors(r.error for r in results if r.error)},
         "summary": summary,
         "cases": [{"id": r.case.id, "label": r.case.label, "predicted": r.predicted, "confidence": r.confidence,
                    "label_rules": r.case.rule_ids, "predicted_rules": r.predicted_rules, "difficulty": r.case.difficulty,
@@ -259,7 +266,7 @@ def _build_report(dataset: str, cases: list, results: list[CaseResult], settings
     }
 
 
-def _tally(errors) -> dict[str, int]:
+def tally_errors(errors) -> dict[str, int]:
     out: dict[str, int] = {}
     for e in errors:
         key = e.split(":")[0] if e else "?"

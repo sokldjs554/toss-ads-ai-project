@@ -1,7 +1,7 @@
 # Preflight — 광고가 올라가기 전에, 확인이 필요한 구절을 먼저 찾는 광고 검사 도구
 
 [![ci](https://github.com/sokldjs554/toss-ads-ai-project/actions/workflows/ci.yml/badge.svg)](https://github.com/sokldjs554/toss-ads-ai-project/actions/workflows/ci.yml)
-![python](https://img.shields.io/badge/python-3.11%2B-blue) ![streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B) ![tests](https://img.shields.io/badge/tests-147%20passed-brightgreen)
+![python](https://img.shields.io/badge/python-3.11%2B-blue) ![streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B) ![tests](https://img.shields.io/badge/tests-154%20passed-brightgreen)
 
 > **🌐 공개 데모 — <https://sokldjs554.github.io/toss-ads-ai-project/>**
 > · **[광고 작업 (브라우저 실행판)](https://sokldjs554.github.io/toss-ads-ai-project/app/)** — 서버 없이 브라우저(WebAssembly) 안에서 전체 앱이 돕니다. 예시 실행(실제 AI 호출 없음), 첫 로딩 20~60초
@@ -68,7 +68,7 @@ URL 로 바로 열기: `?preset=malicious&autorun=1` (`loan_ok` · `malicious` �
 
 **검증한 것** (모두 네트워크 없이 재현 가능)
 
-- 단위·통합·화면 테스트 147개 (`python -m pytest -q`). 화면 테스트는 Streamlit AppTest 로 세 화면 렌더링, 기본 예시 실행, 수정한 문구 재검사가 **현재 편집한 문구**를 쓰는지, 가짜 서버 키가 어디에도 새지 않는지 확인.
+- 단위·통합·화면 테스트 154개 (`python -m pytest -q`). 화면 테스트는 Streamlit AppTest 로 세 화면 렌더링, 기본 예시 실행, 수정한 문구 재검사가 **현재 편집한 문구**를 쓰는지, 가짜 서버 키가 어디에도 새지 않는지 확인.
 - 골든셋 v1.2 55건: 코드 검사만 / 예시 실행 모두 문제 있는 광고 통과 0/41, 문제없는 광고에 수정 요청 0/13. CI 가 기준선 대비 나빠지면 실패.
 - 최종 확인용 holdout 12건(규칙을 고친 뒤 처음 보는 사례, 고치는 데 쓰지 않음): 코드 검사만 0/8 통과·0/2 수정 요청, 예시 실행 0/8·0/2.
 - 레드팀이 뚫은 변형 7건(회귀셋): 코드 검사만으로 통과 0건.
@@ -133,7 +133,7 @@ agents/      prompts.py(v2026.10.3) · planner.py · copywriter.py · audience.p
 observability/ tracer.py · pricing.py · replay.py(저장된 기록 → 화면)
 evals/       datasets/(golden v1.2 dev 55 · holdout 12 · contrast_g069 4 · adversarial 7 · redteam_seeds 4) · metrics.py · runner.py · regression.py · redteam.py · judge.py · run.py · reports/(+history/)
 ui/          labels.py(화면 문구 한곳) · theme.py · workbench.py(광고 작업) · cases.py(검사 사례) · quality.py(품질 확인) · trace_view.py · redteam_view.py · catalog_view.py · components.py · presets.py
-tests/       147개, 네트워크 없음 (AppTest 화면 테스트 포함)
+tests/       154개, 네트워크 없음 (AppTest 화면 테스트 포함)
 docs/        ARCHITECTURE.md · EVALS.md · FAILURE_MODES.md(생성) · POLICY.md(생성) · screenshots/
 site/        공개 데모 소스 — index.html(랜딩) · app/(브라우저 실행판) · replay/(실제 기록 재생 템플릿)
 scripts/     build_site.py · build_replay.py · record_traces.py · gen_docs.py · screenshot.py

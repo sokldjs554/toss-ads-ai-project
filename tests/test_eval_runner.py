@@ -107,3 +107,177 @@ def test_cli_refuses_to_save_degraded_baseline(monkeypatch, tmp_path):
     written.clear()
     assert cli.main(["--dataset", "golden", "--save-baseline"]) == 2
     assert [n for _, n in written] == ["latest.json"]
+
+
+# ---------------------------------------------------------------- 레드팀 (FM-24 를 레드팀에도)
+def _real_eval(case, settings, router, catalog, use_llm=True, **kw):
+    from evals.runner import evaluate_case
+    return evaluate_case(case, settings, router, catalog, use_llm=use_llm)
+
+
+def test_redteam_records_attack_failures_and_never_counts_them_as_blocked_or_evaded(tracer, monkeypatch, tmp_path):
+    """장애로 심사하지 못한 공격은 '잡았다' 도 '뚫렸다' 도 아니다. 집계·수확에서 빠지고 provider_failures 로 남는다."""
+    import json
+
+    from evals import redteam
+    from guardrails.policy import get_catalog
+
+    s, router = _demo_router(tracer)
+    seen = {"n": 0}
+
+    def flaky(case, settings, router, catalog, use_llm=True, breaker_wait_s=0, log=None):
+        r = _real_eval(case, settings, router, catalog, use_llm)
+        seen["n"] += 1
+        if seen["n"] <= 2:  # 처음 두 공격은 제공자 장애. 첫째는 (있어서는 안 되지만) APPROVE 로 읽히는 상태까지 가정한다 — 그래도 '뚫림' 으로 세면 안 된다
+            r.error, r.predicted, r.confidence = "ProviderUnavailable: 모든 제공자 실패 → openai: RateLimited: 429 no credits", ("APPROVE" if seen["n"] == 1 else "HUMAN_REVIEW"), 0.0
+        return r
+
+    monkeypatch.setattr(redteam, "evaluate_with_retry", flaky)
+    rep = redteam.run_redteam(s, router=router, catalog=get_catalog(), limit_seeds=1, breaker_wait_s=0, abort_after=0)
+    errored = [a for a in rep["attacks"] if a["error"]]
+    assert len(errored) == 2 and all(not a["evaded"] for a in errored)
+    pf = rep["provider_failures"]
+    assert pf["n"] == 2 and pf["cases"] == [f"{a['seed_id']}:{a['strategy']}" for a in errored] and pf["by_error"] == {"ProviderUnavailable": 2}
+    assert sum(v["errors"] for v in rep["by_strategy"].values()) == 2
+    # 수확: 오류 난 공격은 HUMAN_REVIEW 라도 회귀셋에 넣지 않는다
+    path = tmp_path / "adv.jsonl"
+    before = redteam.harvest({**rep, "attacks": [a for a in rep["attacks"] if not a["error"]]}, path=path)
+    path2 = tmp_path / "adv2.jsonl"
+    assert redteam.harvest(rep, path=path2) == before
+    ids = [json.loads(l)["id"] for l in path2.read_text(encoding="utf-8").splitlines() if l.strip()]
+    assert not any(f"{a['seed_id']}-{a['strategy']}" in i for a in errored for i in ids)
+    from evals.runner import baseline_allowed
+    assert baseline_allowed(rep)[0] is False
+
+
+def test_redteam_generation_failure_is_retried_once_then_recorded(tracer, monkeypatch):
+    from evals import redteam
+    from guardrails.policy import get_catalog
+
+    s, router = _demo_router(tracer)
+    real = redteam.generate_attacks
+    calls = {"n": 0}
+
+    def gen(seed, router, strategies):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise RuntimeError("simulated 429")
+        return real(seed, router, strategies)
+
+    monkeypatch.setattr(redteam, "generate_attacks", gen)
+    rep = redteam.run_redteam(s, router=router, catalog=get_catalog(), limit_seeds=1, breaker_wait_s=30, abort_after=3)
+    assert calls["n"] == 2 and rep["provider_failures"]["n"] == 0 and rep["attacks"]  # 재시도로 회복
+
+    def always_fail(seed, router, strategies):
+        raise RuntimeError("simulated outage")
+
+    monkeypatch.setattr(redteam, "generate_attacks", always_fail)
+    rep = redteam.run_redteam(s, router=router, catalog=get_catalog(), limit_seeds=2, breaker_wait_s=30, abort_after=0)
+    from evals.runner import load_dataset
+
+    first_two = [c.id for c in load_dataset("redteam_seeds")[:2]]
+    assert rep["attacks"] == [] and rep["provider_failures"]["cases"] == [f"{sid}:generate" for sid in first_two]
+    assert rep["provider_failures"]["n"] == 2 and rep["provider_failures"]["by_error"] == {"RuntimeError": 2}
+
+
+def test_redteam_aborts_after_consecutive_failures_and_on_cost_cap(tracer, monkeypatch):
+    from evals import redteam
+    from guardrails.policy import get_catalog
+
+    s, router = _demo_router(tracer)
+
+    def failing(case, settings, router, catalog, use_llm=True, breaker_wait_s=0, log=None):
+        r = _real_eval(case, settings, router, catalog, use_llm)
+        r.error, r.predicted = "ProviderUnavailable: down", "HUMAN_REVIEW"
+        return r
+
+    monkeypatch.setattr(redteam, "evaluate_with_retry", failing)
+    with pytest.raises(EvalAborted) as ei:
+        redteam.run_redteam(s, router=router, catalog=get_catalog(), breaker_wait_s=0, abort_after=3)
+    ab = ei.value.report["aborted"]
+    assert ab["consecutive_provider_failures"] == 3 and ab["done"] == 3 and ab["planned"] > 3
+    assert ei.value.report["provider_failures"]["n"] == 3
+
+    s, router = _demo_router(Tracer())
+
+    def costly(case, settings, router, catalog, use_llm=True, breaker_wait_s=0, log=None):
+        r = _real_eval(case, settings, router, catalog, use_llm)
+        router.budget.spent_usd += 0.6  # 공격 하나에 $0.6 가 든다고 치자
+        return r
+
+    monkeypatch.setattr(redteam, "evaluate_with_retry", costly)
+    with pytest.raises(EvalAborted) as ei:
+        redteam.run_redteam(s, router=router, catalog=get_catalog(), breaker_wait_s=0, abort_after=3, cost_cap_usd=1.0)
+    assert "상한" in str(ei.value) and ei.value.report["aborted"]["done"] == 2 and ei.value.report["aborted"]["cost_usd"] >= 1.2
+
+
+def test_cli_redteam_refuses_harvest_and_baseline_when_failures_or_aborted(monkeypatch, tmp_path):
+    degraded = {"mode": "partial", "seeds": 1, "attacks": [], "by_strategy": {}, "evasion_rate": 0.0, "cost_usd": 0.0,
+                "provider_failures": {"n": 1, "cases": ["S-1:spacing"], "by_error": {"ProviderUnavailable": 1}}}
+    harvested: list = []
+    written: list[str] = []
+    monkeypatch.setattr(cli, "save_report", lambda rep, name="latest.json": written.append(name) or tmp_path / name)
+    monkeypatch.setattr("evals.redteam.harvest", lambda rep, *a, **k: harvested.append(rep) or 0)
+    monkeypatch.setattr("evals.redteam.run_redteam", lambda *a, **k: degraded)
+    monkeypatch.setenv("PREFLIGHT_FORCE_DEMO", "1")
+    assert cli.main(["--redteam", "--harvest", "--save-baseline"]) == 2
+    assert written == ["redteam_latest.json"] and harvested == []
+
+    def aborted(*a, **k):
+        raise EvalAborted("boom", {**degraded, "aborted": {"reason": "x", "done": 3, "planned": 32}})
+
+    monkeypatch.setattr("evals.redteam.run_redteam", aborted)
+    written.clear()
+    assert cli.main(["--redteam", "--harvest", "--save-baseline"]) == 2
+    assert written == ["redteam_latest.json"] and harvested == []
+
+    clean = {**degraded, "provider_failures": {"n": 0, "cases": [], "by_error": {}}}
+    monkeypatch.setattr("evals.redteam.run_redteam", lambda *a, **k: clean)
+    written.clear()
+    assert cli.main(["--redteam", "--harvest", "--save-baseline"]) == 0
+    assert written == ["redteam_latest.json", "baseline_redteam_partial.json"] and len(harvested) == 1
+
+
+# ---------------------------------------------------------------- 트레이스 기록
+def _record_traces_module():
+    import importlib.util
+    from pathlib import Path
+
+    spec = importlib.util.spec_from_file_location("record_traces_under_test", Path(__file__).resolve().parents[1] / "scripts" / "record_traces.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def test_record_traces_writes_all_files_when_clean(tmp_path):
+    rt = _record_traces_module()
+    s = Settings.from_env(openai_api_key="", anthropic_api_key="", force_demo=True)
+    out = tmp_path / "traces"
+    assert rt.main(settings=s, out=out, log=lambda m: None) == 0
+    assert sorted(p.name for p in out.iterdir()) == sorted(f"sample_demo_{k}.json" for k in rt.SCENARIOS)
+
+
+def test_record_traces_writes_nothing_when_any_scenario_has_provider_failure(tmp_path):
+    from core.schemas import FailureEvent
+
+    rt = _record_traces_module()
+    s = Settings.from_env(openai_api_key="", anthropic_api_key="", force_demo=True)
+    out = tmp_path / "traces"
+    out.mkdir()
+    sentinel = out / "sample_demo_malicious.json"
+    sentinel.write_text("OLD GOOD TRACE", encoding="utf-8")
+    messages: list[str] = []
+    calls = {"n": 0}
+
+    def pipeline(brief, settings, options=None, tracer=None, **kw):
+        run = rt.run_pipeline(brief, settings, options=options, tracer=tracer, **kw)
+        calls["n"] += 1
+        if calls["n"] == 3:  # 세 번째 시나리오(injection)에서만 제공자 장애가 기록됐다고 치자
+            run.failures.append(FailureEvent(code="FM-07", stage="reviewer", message="ProviderUnavailable: 429", fallback="HUMAN_REVIEW"))
+        return run
+
+    rc = rt.main(settings=s, out=out, pipeline=pipeline, log=messages.append)
+    assert rc == 2
+    assert sentinel.read_text(encoding="utf-8") == "OLD GOOD TRACE"          # 기존 샘플을 덮어쓰지 않았다
+    assert [p.name for p in out.iterdir()] == ["sample_demo_malicious.json"]   # 새 파일도 쓰지 않았다
+    assert any("FM-07@reviewer" in m for m in messages)

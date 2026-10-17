@@ -4,6 +4,10 @@ name: live-eval
 on:
   workflow_dispatch:
     inputs:
+      evals:
+        description: "골든셋·holdout·contrast 평가 실행 (끄면 레드팀·트레이스만 — 이미 잰 평가를 다시 돌려 비용을 쓰지 않으려고)"
+        type: boolean
+        default: true
       limit:
         description: "골든셋 사례 수 제한 (비우면 전부)"
         required: false
@@ -41,17 +45,20 @@ jobs:
             echo "::error::Secrets 에 OPENAI_API_KEY 또는 ANTHROPIC_API_KEY 가 없습니다. Settings → Secrets and variables → Actions 에 추가하세요."; exit 1; fi
           python -c "from core.config import Settings; s=Settings.from_env(); print('mode =', s.mode.value, '| openai:', s.has_openai, s.openai_model, '| anthropic:', s.has_anthropic, s.anthropic_model)"
       - name: 골든셋 평가 (실제 심사 모델) → baseline_<mode>.json
+        if: ${{ github.event.inputs.evals != 'false' }}
         run: |
           ARGS=""; if [ -n "${{ github.event.inputs.limit }}" ]; then ARGS="--limit ${{ github.event.inputs.limit }}"; fi
           python -m evals.run --dataset golden --save-baseline $ARGS
       - name: 최종 확인용 holdout · G-069 대조 사례 (실제 심사 모델) → holdout_<mode>.json · contrast_g069_<mode>.json
+        if: ${{ github.event.inputs.evals != 'false' }}
         run: |
           MODE=$(python -c "from core.config import Settings; print(Settings.from_env().mode.value)")
           python -m evals.run --dataset holdout --baseline holdout_$MODE.json --save-baseline
           python -m evals.run --dataset contrast_g069 --baseline contrast_g069_$MODE.json --save-baseline
       - name: 레드팀 → 돌파 사례 수확
         if: ${{ github.event.inputs.redteam == 'true' }}
-        run: python -m evals.run --redteam --harvest --save-baseline
+        # 비용 상한 $1.5: 승인된 예산을 넘기면 중단한다. 제공자 장애가 섞이면 수확·기준선 저장 없이 종료 코드 2
+        run: python -m evals.run --redteam --harvest --save-baseline --cost-cap 1.5
       - name: 실제 트레이스 기록
         if: ${{ github.event.inputs.traces == 'true' }}
         run: python scripts/record_traces.py
