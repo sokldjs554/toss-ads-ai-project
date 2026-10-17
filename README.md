@@ -6,7 +6,8 @@
 > **🌐 공개 데모 — <https://sokldjs554.github.io/toss-ads-ai-project/>**
 > · **[Studio (브라우저 실행판)](https://sokldjs554.github.io/toss-ads-ai-project/app/)** — 서버 없이 브라우저(WebAssembly) 안에서 전체 앱이 돕니다 (DEMO 모드, 첫 로딩 20~60초)
 > · **[Replay (실제 GPT-4o 트레이스 재생)](https://sokldjs554.github.io/toss-ads-ai-project/replay/)** — GitHub Actions 에서 실제 모델로 돌린 5개 시나리오의 트레이스와 1차→4차 평가 결과
-> · 실제 모델로 직접 돌려 보려면 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/sokldjs554/toss-ads-ai-project) (무료 플랜, `render.yaml`) 또는 아래 한 줄.
+> · **[Render 서버](<https://preflight-toss-ads.onrender.com>)** — 같은 앱을 서버에서 실행 (`render.yaml`, 무료 플랜이라 15분 무접속이면 잠들고 첫 접속에 30초~1분 걸림). 대시보드에 API 키를 넣으면 실제 모델로 도는 LIVE 모드
+> · 직접 띄우려면 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/sokldjs554/toss-ads-ai-project) 또는 아래 한 줄.
 
 **광고주가 말로 요청하면 캠페인·소재가 만들어지고, 올라가기 전에 가드레일이 먼저 틀릴 곳을 잡습니다.**
 모델은 제안만 하고, 판정은 코드가 하며, 모든 결정은 트레이스로 증명합니다.
@@ -194,7 +195,7 @@ Dockerfile · render.yaml   Render 무료 웹 서비스 블루프린트 (실제 
 |---|---|---|
 | <https://sokldjs554.github.io/toss-ads-ai-project/app/> | **Studio 브라우저 실행판** — 전체 Streamlit 앱이 서버 없이 브라우저(WebAssembly·[stlite](https://github.com/whitphx/stlite)) 안에서 돈다 | `main` 에 push 될 때마다 `.github/workflows/pages.yml` 이 `scripts/build_site.py` 로 소스를 zip 으로 묶어 GitHub Pages 에 올린다. `sys.platform == "emscripten"` 이면 `core/config.py` 가 DEMO 모드로 고정한다 |
 | <https://sokldjs554.github.io/toss-ads-ai-project/replay/> | **실제 GPT-4o 트레이스 재생** — `live-eval` 워크플로가 기록한 5개 시나리오 트레이스와 1차→4차 평가 결과 | `scripts/build_replay.py` 가 `traces/sample_partial_*.json` · `evals/reports/` 를 정적 페이지로 굽는다. 모델 호출 없음 |
-| Render (버튼 한 번) | **실제 모델로 도는 서버** — 대시보드에서 `OPENAI_API_KEY`·`ANTHROPIC_API_KEY` 를 넣으면 LIVE | `render.yaml` + `Dockerfile`. 무료 플랜은 15분 무접속이면 잠든다 |
+| <https://preflight-toss-ads.onrender.com> | **Render 서버** — 같은 앱을 서버에서 실행. 대시보드에서 `OPENAI_API_KEY`·`ANTHROPIC_API_KEY` 를 넣으면 실제 모델로 도는 LIVE 모드 | `render.yaml` + `Dockerfile`, `main` push 마다 자동 재배포(autoDeploy). 무료 플랜은 15분 무접속이면 잠들고 깨는 데 30초~1분. `.github/workflows/render-check.yml` 로 상태 확인 |
 
 브라우저 실행판의 한계: 네트워크 SDK 를 못 쓰므로 LLM 단계는 대역(mock)이고, 파일 다운로드 대신 JSON 을 화면에 보여 준다. 첫 로딩은 Pyodide·Streamlit·pydantic·plotly 를 내려받느라 20~60초 걸린다.
 
