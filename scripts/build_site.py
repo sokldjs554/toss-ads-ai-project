@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import shutil
 import subprocess
 import sys
@@ -53,7 +54,21 @@ def build_zip(out: Path) -> int:
                     continue
                 zf.write(f, rel.as_posix())
                 n += 1
+        sha = _build_sha()
+        if sha:  # 브라우저 실행판 상단에 '빌드 <커밋>' 을 보여 주기 위한 표식 (app.py 가 읽는다)
+            zf.writestr("build_info.txt", sha + "\n")
+            n += 1
     return n
+
+
+def _build_sha() -> str:
+    sha = os.environ.get("GITHUB_SHA") or os.environ.get("PREFLIGHT_BUILD") or ""
+    if not sha:
+        try:
+            sha = subprocess.run(["git", "rev-parse", "HEAD"], cwd=REPO, capture_output=True, text=True, check=True).stdout
+        except Exception:  # noqa: BLE001 — git 이 없거나 저장소가 아니면 표식 없이 빌드
+            sha = ""
+    return sha.strip()[:7]
 
 
 def main() -> int:

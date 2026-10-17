@@ -8,6 +8,8 @@
 from __future__ import annotations
 
 import html
+import os
+from pathlib import Path
 
 import streamlit as st
 
@@ -63,8 +65,16 @@ if pending:
     if st.session_state.pop("pending_autorun", False):
         st.session_state["_force_autorun"] = True  # 세션 안에서 한 번만. URL 에는 남기지 않는다
 
+# 배포된 버전 표시: Render 는 RENDER_GIT_COMMIT, 브라우저 실행판·수동 배포는 PREFLIGHT_BUILD 로 커밋을 넘긴다 (없으면 표시하지 않음)
+_build = (os.environ.get("PREFLIGHT_BUILD") or os.environ.get("RENDER_GIT_COMMIT") or "").strip()
+if not _build:
+    try:
+        _build = (Path(__file__).resolve().parent / "build_info.txt").read_text(encoding="utf-8").strip()  # 브라우저 실행판 번들
+    except OSError:
+        _build = ""
+_build = _build[:7]
 st.markdown(f'<div class="pf-topbar"><div class="pf-brand">✅ {PROJECT_NAME}<small>광고가 올라가기 전에 확인이 필요한 구절을 먼저 찾습니다</small></div>'
-            f'<div class="pf-note">개인 프로젝트 · 토스·토스애즈와 무관</div></div>', unsafe_allow_html=True)
+            f'<div class="pf-note">개인 프로젝트 · 토스·토스애즈와 무관{" · 빌드 " + html.escape(_build) if _build else ""}</div></div>', unsafe_allow_html=True)
 nav = st.segmented_control("화면", VIEWS, key="nav", label_visibility="collapsed", width="stretch")
 if nav is None:
     nav = VIEWS[0]
