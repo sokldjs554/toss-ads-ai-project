@@ -199,7 +199,7 @@ svg.chart .ax { stroke: var(--line); stroke-width: 1; } svg.chart .gr { stroke: 
       <a class="btn primary" href="https://share.streamlit.io/deploy?repository=sokldjs554/toss-ads-ai-project&amp;branch=main&amp;mainModule=app.py" target="_blank" rel="noopener">앱 직접 띄우기</a>
     </div>
   </header>
-  <p class="notice"><b>이 페이지는 재생입니다.</b> 실제 GPT-4o 로 기록한 처리 기록(<span id="tracedate"></span> 4차 실행, run <span id="tracerun" class="mono"></span>)과 평가 결과(<span id="evaldate"></span> 5차 실행, run <span id="runid" class="mono"></span>)를 그대로 보여 주며, 새 모델 호출은 하지 않습니다. 입력은 시나리오 5개로 고정이고, 직접 입력해 보려면 위의 앱을 띄우세요. 모든 상품과 수치는 가상이고 어느 회사의 실제 심사 기준도 아닙니다.</p>
+  <p class="notice"><b>이 페이지는 재생입니다.</b> 실제 GPT-4o 로 기록한 처리 기록(<span id="tracedate"></span> <span id="traceround"></span> 실행, run <span id="tracerun" class="mono"></span>)과 평가 결과(<span id="evaldate"></span> <span id="evalround"></span> 실행, run <span id="runid" class="mono"></span>)를 그대로 보여 주며, 새 모델 호출은 하지 않습니다. 입력은 시나리오 5개로 고정이고, 직접 입력해 보려면 위의 앱을 띄우세요. 모든 상품과 수치는 가상이고 어느 회사의 실제 심사 기준도 아닙니다.</p>
   <dl class="strip" id="strip"></dl>
   <nav class="tabs" role="tablist" id="tabs"></nav>
   <main class="view" id="view"></main>
@@ -243,11 +243,13 @@ svg.chart .ax { stroke: var(--line); stroke-width: 1; } svg.chart .gr { stroke: 
 
   /* ───────── 상단 요약 ───────── */
   (function () {
-    var r = D.evals.rounds[3], t = D.evals.red[3];
+    var r = D.evals.rounds[D.evals.rounds.length - 1], t = D.evals.red[D.evals.red.length - 1];
     document.getElementById('runid').textContent = D.evals.run_id;
     document.getElementById('tracerun').textContent = D.evals.trace_run_id || D.evals.run_id;
     document.getElementById('tracedate').textContent = D.evals.trace_date || '';
     document.getElementById('evaldate').textContent = D.evals.eval_date || '';
+    document.getElementById('traceround').textContent = D.evals.trace_round || '';
+    document.getElementById('evalround').textContent = D.evals.eval_round || '';
     document.getElementById('strip').innerHTML =
       '<div><dt>문제 있는 광고 통과</dt><dd class="num">' + frac(r.unsafe) + ' <small>수정·게재 제한이 필요한 광고를 통과시킨 수</small></dd></div>' +
       '<div><dt>문제없는 광고에 수정 요청</dt><dd class="num">' + frac(r.false_flag) + ' <small>1차 5/14</small></dd></div>' +
@@ -256,7 +258,7 @@ svg.chart .ax { stroke: var(--line); stroke-width: 1; } svg.chart .gr { stroke: 
   })();
 
   /* ───────── 탭 ───────── */
-  var TABS = [['replay', '시나리오 재생'], ['evals', '평가 4회 비교'], ['fm', '실패 모드'], ['arch', '구조']];
+  var TABS = [['replay', '시나리오 재생'], ['evals', '평가 5회 비교'], ['fm', '실패 모드'], ['arch', '구조']];
   function renderTabs() {
     document.getElementById('tabs').innerHTML = TABS.map(function (t) {
       return '<button class="tab" role="tab" data-a="tab" data-v="' + t[0] + '" aria-selected="' + (state.tab === t[0]) + '">' + t[1] + '</button>';
@@ -484,7 +486,7 @@ svg.chart .ax { stroke: var(--line); stroke-width: 1; } svg.chart .gr { stroke: 
       D.evals.rules.slice(0, 8).map(function (r) { return '<tr><td class="mono">' + r.id + '</td><td class="r num">' + r.tp + '</td><td class="r num">' + r.fp + '</td><td class="r num">' + r.fn + '</td></tr>'; }).join('') + '</tbody></table></div></div></div>' +
       '<div class="card" style="margin-top:12px"><div class="lbl">레드팀: 위반 소재 4개를 8가지 수법으로 변형한 공격 32개</div><div class="scroll"><table><thead><tr><th>회차</th><th class="r">공격</th><th class="r">뚫림(통과)</th><th class="r">담당자 확인</th><th class="r">수정 필요</th><th class="r">비용</th></tr></thead><tbody>' +
       D.evals.red.map(function (r) { return '<tr><td><b>' + r.label + '</b></td><td class="r num">' + r.n + '</td><td class="r num">' + r.evaded + '</td><td class="r num">' + r.human + '</td><td class="r num">' + r.revise + '</td><td class="r num">$' + r.cost.toFixed(2) + '</td></tr>'; }).join('') + '</tbody></table></div>' +
-      '<p class="sub" style="margin-top:8px">1차에서 공격자(GPT-4o)가 글자 사이에 NUL 제어 문자를 끼워 어휘 규칙을 피했습니다. 검토 모델도 확신 0.6 밖에 못 내서 담당자 확인으로만 떨어졌습니다. 정규화를 보이지 않는 모든 문자로 넓혀 고쳤고, 4차에서는 보이는 글자를 단어 사이에 끼운 변형이 새로 나왔습니다. 이것은 아직 못 막는 한계로 적어 두었습니다.</p></div></section>';
+      '<p class="sub" style="margin-top:8px">1차에서 공격자(GPT-4o)가 글자 사이에 NUL 제어 문자를 끼워 어휘 규칙을 피했습니다. 검토 모델도 확신 0.6 밖에 못 내서 담당자 확인으로만 떨어졌습니다. 정규화를 보이지 않는 모든 문자로 넓혀 고쳤고, 4차에서는 보이는 글자를 단어 사이에 끼운 변형이 새로 나왔습니다. 이것은 아직 못 막는 한계로 적어 두었습니다. 5차(검사 기준 2026.10.2)에서도 같은 종류 1건이 나왔습니다 — 글자마다 탭과 ‘C’ 를 끼운 변형이고, 검토 모델이 확신 0.6 으로 반려를 제안했지만 원문에서 검증된 근거를 대지 못해 담당자 확인으로 갔습니다. 이 변형도 회귀셋에 추가했습니다. 32건 중 승인 0건은 이 한 번의 측정값이며 뚫리지 않는다는 보장이 아닙니다.</p></div></section>';
 
     h += '<section class="sec"><h2>읽을 때 주의할 점</h2><ul class="plain" style="margin-top:8px"><li>골든셋 55건의 라벨은 규칙을 쓴 사람이 달았습니다. 독립 라벨러와 실제 반려 데이터는 없습니다.</li><li>2차부터는 같은 골든셋으로 고치고 다시 잰 값이라 holdout 이 아닙니다. 첫 측정은 1차 행입니다.</li><li>OpenAI 한 계열만 썼습니다. 교차 검증은 같은 모델이 한 번 더 본 것이라 독립성이 없다고 표시합니다. Anthropic 키를 넣으면 하이브리드 수치가 추가됩니다.</li></ul></section>';
     return h;

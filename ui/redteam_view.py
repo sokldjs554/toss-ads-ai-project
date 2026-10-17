@@ -18,7 +18,7 @@ def _table(rep: dict) -> None:
 
 def render_summary() -> None:
     options = {}
-    for label, name in (("저장된 실제 모델 결과 (4차, gpt-4o)", "baseline_redteam_partial.json"), ("예시 실행 (실제 AI 호출 없음)", "baseline_redteam_demo.json"),
+    for label, name in (("저장된 실제 모델 결과 (5차, gpt-4o)", "baseline_redteam_partial.json"), ("예시 실행 (실제 AI 호출 없음)", "baseline_redteam_demo.json"),
                         ("이 세션에서 실행한 결과", "redteam_latest.json")):
         if load_report(name) is not None:
             options[label] = name

@@ -1,7 +1,7 @@
 # Preflight — 광고가 올라가기 전에, 확인이 필요한 구절을 먼저 찾는 광고 검사 도구
 
 [![ci](https://github.com/sokldjs554/toss-ads-ai-project/actions/workflows/ci.yml/badge.svg)](https://github.com/sokldjs554/toss-ads-ai-project/actions/workflows/ci.yml)
-![python](https://img.shields.io/badge/python-3.11%2B-blue) ![streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B) ![tests](https://img.shields.io/badge/tests-154%20passed-brightgreen)
+![python](https://img.shields.io/badge/python-3.11%2B-blue) ![streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B) ![tests](https://img.shields.io/badge/tests-156%20passed-brightgreen)
 
 > **🌐 공개 데모 — <https://sokldjs554.github.io/toss-ads-ai-project/>**
 > · **[광고 작업 (브라우저 실행판)](https://sokldjs554.github.io/toss-ads-ai-project/app/)** — 서버 없이 브라우저(WebAssembly) 안에서 전체 앱이 돕니다. 예시 실행(실제 AI 호출 없음), 첫 로딩 20~60초
@@ -68,7 +68,7 @@ URL 로 바로 열기: `?preset=malicious&autorun=1` (`loan_ok` · `malicious` �
 
 **검증한 것** (모두 네트워크 없이 재현 가능)
 
-- 단위·통합·화면 테스트 154개 (`python -m pytest -q`). 화면 테스트는 Streamlit AppTest 로 세 화면 렌더링, 기본 예시 실행, 수정한 문구 재검사가 **현재 편집한 문구**를 쓰는지, 가짜 서버 키가 어디에도 새지 않는지 확인.
+- 단위·통합·화면 테스트 156개 (`python -m pytest -q`). 화면 테스트는 Streamlit AppTest 로 세 화면 렌더링, 기본 예시 실행, 수정한 문구 재검사가 **현재 편집한 문구**를 쓰는지, 가짜 서버 키가 어디에도 새지 않는지 확인.
 - 골든셋 v1.2 55건: 코드 검사만 / 예시 실행 모두 문제 있는 광고 통과 0/41, 문제없는 광고에 수정 요청 0/13. CI 가 기준선 대비 나빠지면 실패.
 - 최종 확인용 holdout 12건(규칙을 고친 뒤 처음 보는 사례, 고치는 데 쓰지 않음): 코드 검사만 0/8 통과·0/2 수정 요청, 예시 실행 0/8·0/2.
 - 레드팀이 뚫은 변형 7건(회귀셋): 코드 검사만으로 통과 0건.
@@ -88,7 +88,8 @@ URL 로 바로 열기: `?preset=malicious&autorun=1` (`loan_ok` · `malicious` �
 
 **아직 확인하지 못한 것**
 
-- 우회 표현 검사(32개 공격)와 5개 사례 처리 기록은 4차(검사 기준 2026.10.1) 기준이고, 현재 기준으로 다시 돌리지 않았습니다.
+- 우회 표현 검사 32건은 5차에서도 승인 0건이지만(담당자 확인 1건 — 글자 사이에 보이는 문자를 끼운, 4차부터 알려진 한계), 한 번의 측정일 뿐 뚫리지 않는다는 보장이 아닙니다.
+- 5개 사례 처리 기록의 '점검 통과' 광고안은 코드 규칙과 검토 모델이 통과시킨 것이지 사람이 확인한 것이 아닙니다. '금리 걱정 없는'·'부담 없는 상환' 같은 일반 안심 표현은 코드 규칙이 없어 모델 판단에 기대고 있고, 같은 종류인데 한 번은 모델이 잡고('금리 걱정 없는' 반려) 한 번은 통과('부담 없는 상환')했습니다.
 - 원문에 없는 인용이 5차에서 7건/5사례로 늘어난 원인. 인용 검증이 걸러 담당자 확인으로 보냈지만, 인용을 원문에서 고르게 하는 제약은 아직 넣지 않았습니다.
 - 독립 라벨러·실제 반려 데이터. 라벨은 규칙을 쓴 사람이 달았습니다.
 - 두 모델 계열의 교차 확인은 OpenAI 키만 있어 같은 모델이 두 번 본 것이라 독립성이 없습니다(화면에 그렇게 표시).
@@ -133,7 +134,7 @@ agents/      prompts.py(v2026.10.3) · planner.py · copywriter.py · audience.p
 observability/ tracer.py · pricing.py · replay.py(저장된 기록 → 화면)
 evals/       datasets/(golden v1.2 dev 55 · holdout 12 · contrast_g069 4 · adversarial 7 · redteam_seeds 4) · metrics.py · runner.py · regression.py · redteam.py · judge.py · run.py · reports/(+history/)
 ui/          labels.py(화면 문구 한곳) · theme.py · workbench.py(광고 작업) · cases.py(검사 사례) · quality.py(품질 확인) · trace_view.py · redteam_view.py · catalog_view.py · components.py · presets.py
-tests/       154개, 네트워크 없음 (AppTest 화면 테스트 포함)
+tests/       156개, 네트워크 없음 (AppTest 화면 테스트 포함)
 docs/        ARCHITECTURE.md · EVALS.md · FAILURE_MODES.md(생성) · POLICY.md(생성) · screenshots/
 site/        공개 데모 소스 — index.html(랜딩) · app/(브라우저 실행판) · replay/(실제 기록 재생 템플릿)
 scripts/     build_site.py · build_replay.py · record_traces.py · gen_docs.py · screenshot.py
@@ -157,7 +158,7 @@ Dockerfile · render.yaml   Render 무료 웹 서비스 블루프린트
 | 주소 | 무엇 | 어떻게 |
 |---|---|---|
 | <https://sokldjs554.github.io/toss-ads-ai-project/app/> | **브라우저 실행판** — 전체 앱이 서버 없이 브라우저(WebAssembly·[stlite](https://github.com/whitphx/stlite)) 안에서 돈다 | `main` 에 push 될 때마다 `.github/workflows/pages.yml` 이 `scripts/build_site.py` 로 소스를 zip 으로 묶어 GitHub Pages 에 올린다. `sys.platform == "emscripten"` 이면 예시 실행으로 고정 |
-| <https://sokldjs554.github.io/toss-ads-ai-project/replay/> | **실제 GPT-4o 실행 기록 재생** — `live-eval` 워크플로가 기록한 5개 사례와 1차→4차 평가 | `scripts/build_replay.py` 가 `traces/sample_partial_*.json` · `evals/reports/` 를 정적 페이지로 굽는다. 모델 호출 없음 |
+| <https://sokldjs554.github.io/toss-ads-ai-project/replay/> | **실제 GPT-4o 실행 기록 재생** — `live-eval` 워크플로가 기록한 5개 사례와 1차→5차 평가 | `scripts/build_replay.py` 가 `traces/sample_partial_*.json` · `evals/reports/` 를 정적 페이지로 굽는다. 모델 호출 없음 |
 | <https://preflight-toss-ads.onrender.com> | **Render 서버** — 같은 앱의 서버 실행판. 대시보드에서 `OPENAI_API_KEY`·`ANTHROPIC_API_KEY` 를 넣으면 실제 모델 | `render.yaml` + `Dockerfile`, push 마다 자동 재배포. `.github/workflows/render-check.yml` 로 상태 확인 |
 
 브라우저 실행판의 한계: 네트워크 SDK 를 못 쓰므로 모델 단계는 대역이고, 파일 다운로드 대신 내용을 화면에 보여 준다.

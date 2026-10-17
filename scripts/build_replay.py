@@ -218,7 +218,8 @@ c5 = json.load(open(REPO / "evals/reports/contrast_g069_partial.json", encoding=
 t1 = json.load(open(HIST / "redteam_partial_run1.json", encoding="utf-8"))
 t2 = json.load(open(HIST / "redteam_partial_run2.json", encoding="utf-8"))
 t3 = json.load(open(HIST / "redteam_partial_run3.json", encoding="utf-8"))
-t4 = json.load(open(REPO / "evals/reports/baseline_redteam_partial.json", encoding="utf-8"))
+t4 = json.load(open(HIST / "redteam_partial_run4_policy_2026.10.1.json", encoding="utf-8"))
+t5 = json.load(open(REPO / "evals/reports/baseline_redteam_partial.json", encoding="utf-8"))
 s5 = r5["summary"]
 data = {
     "scenarios": [build_scenario(k) for k in ORDER],
@@ -229,11 +230,11 @@ data = {
                          eval_row(r5, "5차", "조건 생략 규칙·수정안 의미 재검사·골든셋 v1.2(G-069 라벨 수정)·프롬프트 2026.10.3 — 분모가 바뀜(문제 있는 광고 42, 문제없는 광고 13)")],
               "extra": [dict(eval_row(h5, "holdout (5차)", "처음 보는 12건, 규칙을 고치는 데 쓰지 않음"), dataset="holdout"),
                         dict(eval_row(c5, "G-069 대조 (5차)", "'최초' 유무 × 결제 조건 표시 유무 4건"), dataset="contrast_g069")],
-              "red": [dict(red_row(t), label=l) for t, l in ((t1, "1차"), (t2, "2차"), (t3, "3차"), (t4, "4차"))],
+              "red": [dict(red_row(t), label=l) for t, l in ((t1, "1차"), (t2, "2차"), (t3, "3차"), (t4, "4차"), (t5, "5차 (검사 기준 2026.10.2)"))],
               "curve": s5["coverage_curve"], "curve_method": s5.get("curve_method"), "bins": [b for b in s5["calibration"]["bins"] if b["n"]],
               "by_diff": {k: {"n": v["n"], "unsafe": v["unsafe_approve"], "ff": v["false_flag"], "human": v["human_review"]} for k, v in s5["by_difficulty"].items()},
               "rules": sorted([{"id": k, **v} for k, v in s5["rules"].items()], key=lambda r: (r["precision"] if r["precision"] is not None else 2, -(r["tp"] + r["fp"])))[:14],
-              "run_id": "39042649138", "generated_at": r5["generated_at"], "trace_run_id": "38933253590", "trace_date": "2026-10-16", "eval_date": "2026-10-17"},
+              "run_id": "39042649138", "generated_at": r5["generated_at"], "trace_run_id": "39044437805", "trace_date": "2026-10-17", "trace_round": "5차", "eval_round": "5차", "eval_date": "2026-10-17"},
     "fms": [{"code": f.code, "name": f.name, "stage": f.stage, "symptom": f.symptom, "detection": f.detection, "defense": f.defense, "test": f.test} for f in FAILURE_MODES],
     "rules": {r.id: {"title": r.title, "severity": r.severity.value, "layer": r.layer.value, "section": r.section} for r in CAT.rules.values()},
     "meta": {"policy_version": CAT.version, "rule_count": len(CAT.rules), "prompt_version": r5["prompt_version"]},
@@ -249,7 +250,7 @@ page = template.replace("__DATA__", payload)
 head_part, body_part = page.split("</style>", 1)
 html = ("<!doctype html>\n<html lang=\"ko\">\n<head>\n<meta charset=\"utf-8\">\n"
         "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">\n"
-        "<meta name=\"description\" content=\"Preflight — 실제 GPT-4o 실행 트레이스(4차)와 1차→5차 평가 결과 재생\">\n"
+        "<meta name=\"description\" content=\"Preflight — 실제 GPT-4o 실행 트레이스와 1차→5차 평가 결과 재생\">\n"
         + head_part + "</style>\n</head>\n<body>" + body_part + "\n</body>\n</html>\n")
 (out_dir / "index.html").write_text(html, encoding="utf-8")
 print("wrote", out_dir / "index.html", len(html), "bytes")
