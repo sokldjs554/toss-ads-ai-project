@@ -7,6 +7,7 @@ from pathlib import Path
 import plotly.graph_objects as go
 import streamlit as st
 
+from core.config import IN_BROWSER
 from observability.tracer import Span, Trace, Tracer
 
 from .components import KIND_COLOR, STATUS_COLOR
@@ -107,7 +108,12 @@ def render(tracer: Tracer) -> None:
             if resp:
                 st.markdown("**response**")
                 st.code(resp, language="json")
-    st.download_button("트레이스 JSON 내보내기", data=trace.to_json(), file_name=f"{trace.trace_id}.json", mime="application/json")
+    if IN_BROWSER:
+        # stlite(브라우저 실행판)에서는 파일 다운로드가 동작하지 않아 JSON 을 그대로 보여 준다.
+        with st.expander("트레이스 JSON (복사용 — 브라우저 실행판은 파일 다운로드 대신 표시)"):
+            st.code(trace.to_json(), language="json")
+    else:
+        st.download_button("트레이스 JSON 내보내기", data=trace.to_json(), file_name=f"{trace.trace_id}.json", mime="application/json")
     with st.expander("LLM 호출 표"):
         st.dataframe([{"스팬": x.name, "task": x.attributes.get("task"), "provider": x.attributes.get("provider"), "model": x.attributes.get("model"),
                        "체인": " → ".join(x.attributes.get("fallback_chain") or []), "status": x.status, "ms": x.duration_ms,
