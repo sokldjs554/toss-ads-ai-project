@@ -264,6 +264,11 @@ def test_comparison_section_is_view_only_and_labels_the_controlled_run(app, monk
 
     monkeypatch.setattr("llm.router.Router.complete", boom)
     monkeypatch.setattr("evals.compare.run_compare", boom)
+    from evals import runner as _runner
+
+    real_load = _runner.load_report
+    # 저장된 실제 모델 결과(compare_live.json)가 있는 저장소에서도 ‘아직 없음’ 상태를 확인하도록 그 파일만 없는 것으로 고정한다
+    monkeypatch.setattr("ui.compare_view.load_report", lambda name: None if name == "compare_live.json" else real_load(name))
     at = app.run()
     at.session_state["nav_request"] = "품질 확인"
     at.run()
@@ -272,6 +277,26 @@ def test_comparison_section_is_view_only_and_labels_the_controlled_run(app, monk
     assert "방식 비교" in t and "실제 모델로 돌린 비교 결과는 아직 없습니다" in t and "모델 호출 약" in t
     assert any("하네스 검증용" in e.label and "모델 품질 아님" in e.label for e in at.expander)
     assert "모델 품질이 아니다" in t or any("모델 품질이 아니다" in str(w.value) for w in at.warning)
+
+
+def test_comparison_section_shows_the_stored_real_model_result_apart_from_the_controlled_one(app, monkeypatch):
+    """저장된 실제 모델 결과(compare_live.json)가 있으면 ‘결과 없음’ 안내 대신 그 결과를 따로 보여 주고, 대역 결과는 접힌 블록에 남는다. 보는 것만으로 모델을 부르지 않는다."""
+    def boom(*a, **k):
+        raise AssertionError("방식 비교를 보는 것만으로 모델/평가가 실행됐다")
+
+    monkeypatch.setattr("llm.router.Router.complete", boom)
+    monkeypatch.setattr("evals.compare.run_compare", boom)
+    from evals import runner as _runner
+
+    if _runner.load_report("compare_live.json") is None:
+        pytest.skip("저장된 실제 모델 비교 결과가 없는 저장소")
+    at = app.run()
+    at.session_state["nav_request"] = "품질 확인"
+    at.run()
+    assert not at.exception, [str(e.value) for e in at.exception]
+    t = _all_text(at)
+    assert "실제 모델 결과 (끝까지 마친 실행)" in t and "실제 모델로 돌린 비교 결과는 아직 없습니다" not in t
+    assert any("하네스 검증용" in e.label and "모델 품질 아님" in e.label for e in at.expander)       # 대역 결과는 따로
 
 
 # ───────────── 내부 재점검(self_review)에서 확인된 화면 결함 ─────────────

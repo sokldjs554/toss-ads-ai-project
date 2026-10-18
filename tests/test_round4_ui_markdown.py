@@ -28,13 +28,35 @@ def offenders(at) -> list[str]:
     return out
 
 
-def test_the_comparison_screen_estimate_and_warnings_do_not_render_as_math():
+def _quality_page_at(monkeypatch, hide_live: bool):
+    from evals import runner as _runner
+
+    real_load = _runner.load_report
+    if hide_live:
+        monkeypatch.setattr("ui.compare_view.load_report", lambda name: None if name == "compare_live.json" else real_load(name))
     at = AppTest.from_file(APP, default_timeout=180).run()
     at.session_state["nav_request"] = "품질 확인"
     at.run()
     assert not at.exception
+    return at
+
+
+def test_the_comparison_screen_estimate_and_warnings_do_not_render_as_math(monkeypatch):
+    """실제 결과가 아직 없는 상태(저장된 compare_live.json 이 있는 저장소에서도 그 파일만 없는 것으로 고정)의 비용 추정·경고 문장."""
+    at = _quality_page_at(monkeypatch, hide_live=True)
     texts = " ".join(str(getattr(el, "value", "")) for kind in KINDS for el in getattr(at, kind, []))
     assert "추정 비용" in texts and "3.5" in texts                          # 이 화면이 실제로 그려졌다 (빈 화면 통과 방지)
+    assert not offenders(at), offenders(at)
+
+
+def test_the_comparison_screen_with_the_stored_real_result_does_not_render_money_as_math(monkeypatch):
+    from evals import runner as _runner
+
+    if _runner.load_report("compare_live.json") is None:
+        return
+    at = _quality_page_at(monkeypatch, hide_live=False)
+    texts = " ".join(str(getattr(el, "value", "")) for kind in KINDS for el in getattr(at, kind, []))
+    assert "실제 모델 결과 (끝까지 마친 실행)" in texts
     assert not offenders(at), offenders(at)
 
 
