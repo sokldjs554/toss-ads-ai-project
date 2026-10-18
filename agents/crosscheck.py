@@ -1,17 +1,19 @@
 """경계 사례의 교차 확인(다른 모델 계열의 2차 의견) — 원문(pipeline)·자동 수정안(rewrite_check)·직접 재검사(recheck)가 같은 조건·같은 처리를 쓴다.
 
 경계 사례: 검토 모델의 판정이 게재 불가(REJECT)가 아니고, 확신이 τ+margin 보다 낮거나 참고(warn) 지적이 있는 경우.
-교차 확인이 필요한데 그 호출이 실패하면 일치 여부를 모르므로 `second_opinion_failed` 를 표시해 판정 함수가 담당자 확인으로 보낸다 (통과로 흐르지 않는다).
+교차 확인이 필요한데 그 호출이 실패하거나(두 제공자가 모두 설정된 실행에서 다른 계열이 응답하지 못해 같은 제공자가 대신 답한 경우 포함) 일치 여부를 모르므로 `second_opinion_failed` 를 표시해 판정 함수가 담당자 확인으로 보낸다 (통과로 흐르지 않는다).
 평가·방식 비교는 교차 확인을 쓰지 않는 범위(리포트의 scope)라 호출하는 쪽에서 끈다.
 """
 from __future__ import annotations
 
 from typing import Optional
 
+from core.config import Mode
 from core.schemas import AdCopy, Decision, ReviewVerdict
 from guardrails.output_guard import OutputGuardResult
 from guardrails.policy import PolicyCatalog
 from llm.base import Task
+from llm.errors import ProviderUnavailable
 from llm.router import Router
 
 from . import reviewer
@@ -37,4 +39,9 @@ def apply_second_opinion(copy: AdCopy, det: OutputGuardResult, categories: set[s
     verdict.second_opinion_provider = so.verdict.provider
     verdict.second_opinion_independent = so.verdict.provider != verdict.provider
     verdict.disagreement = so.verdict.decision != verdict.decision
+    if not verdict.second_opinion_independent and router.mode == Mode.LIVE:
+        # 두 제공자가 모두 설정된 실행인데 다른 계열이 응답하지 못해 같은 제공자가 대신 답했다 — 교차 확인이 아니다. 필요한 확인을 받지 못한 것으로 처리한다.
+        # (키가 하나뿐인 PARTIAL 실행에서 같은 제공자가 두 번 보는 것은 처음부터 독립성이 없다고 화면에 표시하는 설계라 그대로 둔다)
+        verdict.second_opinion_failed = True
+        raise ProviderUnavailable("다른 모델 계열이 응답하지 못해 같은 제공자가 교차 확인을 대신함 — 독립된 교차 확인을 받지 못함", provider=so.verdict.provider)
     return verdict

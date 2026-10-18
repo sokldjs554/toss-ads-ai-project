@@ -123,22 +123,31 @@ def _run_stages(run: PipelineRun, brief: CampaignBrief, settings: Settings, rout
         for copy in cr.variants:
             if copy.variant_id in done:
                 continue
-            det = output_guard.check(copy, brief.product, set(run.categories), options.landing_text, options.rejected_history, catalog)
+            det = output_guard.check(copy, brief.product, set(run.categories) | catalog.categories_for(brief.product, copy.full_text()),
+                                     options.landing_text, options.rejected_history, catalog)
             report = adjudicator.adjudicate(copy, det, None, settings.auto_decision_confidence, None, None)
             if report.final_decision == Decision.HUMAN_REVIEW:
                 report.decision_reason = "실행 비용·호출 상한 초과로 검사하지 못함 (FM-20) → 담당자 확인"
             else:  # 코드 검사만으로 이미 반려·수정 사유가 확인된 경우 — 판정은 유지하되 모델 검사가 빠졌음을 남긴다
                 report.decision_reason += " · 모델 검사는 비용·호출 상한 초과로 수행하지 못함 (FM-20)"
             run.reports.append(report)
-        run.failures.append(FailureEvent(code="FM-20", stage="pipeline", message=f"비용·호출 상한 초과 — 검사하지 못한 광고안 {len(cr.variants) - len(done)}개",
-                                         fallback="남은 광고안은 담당자 확인"))
+        unchecked = len(cr.variants) - len(done)
+        existing = next((f for f in run.failures if f.code == "FM-20"), None)
+        if existing is None:
+            run.failures.append(FailureEvent(code="FM-20", stage="pipeline", message=f"비용·호출 상한 초과 — 검사하지 못한 광고안 {unchecked}개",
+                                             fallback="남은 광고안은 담당자 확인", recoverable=False))
+        else:   # 상한에 닿은 호출이 이미 FM-20 으로 기록돼 있다 — 같은 사건을 두 번 세지 않고 검사하지 못한 광고안 수만 덧붙인다
+            existing.message += f" · 검사하지 못한 광고안 {unchecked}개"
+            existing.fallback = "남은 광고안은 담당자 확인"
         raise
 
 
 def _review_variants(run: PipelineRun, brief: CampaignBrief, settings: Settings, router: Router, options: RunOptions,
                      catalog: PolicyCatalog, tracer: Tracer, variants: list, facts_text: str) -> None:
-    categories = set(run.categories)
+    base_categories = set(run.categories)
     for idx, copy in enumerate(variants, start=1):
+        # 업종은 요청·상품 정보에서 정한 것에 이 광고안의 문구가 가져온 단서를 더한다 — 같은 문구를 직접 재검사·수정안 검사·평가가 보는 업종과 같다
+        categories = base_categories | catalog.categories_for(brief.product, copy.full_text())
         _progress(options, "review", f"광고안 {idx}/{len(variants)} 검사")
         with tracer.span(f"variant:{copy.variant_id}", kind="stage", headline=copy.headline):
             with tracer.span("output_guard", kind="guardrail") as span:
@@ -200,8 +209,6 @@ def _review_variants(run: PipelineRun, brief: CampaignBrief, settings: Settings,
                     run.failures.append(FailureEvent(code=recheck.semantic_error_code or "FM-05", stage="rewrite_recheck",
                                                      message=f"{copy.variant_id}: 수정안 의미 검사 실패 — {recheck.semantic_error}",
                                                      fallback="수정안은 '확인하지 못함' 으로 두고 제시하지 않음. 원문 판정은 그대로"))
-                if recheck.budget_exceeded:
-                    raise BudgetExceeded(recheck.semantic_error)   # 상한에 닿았으면 다음 호출로 넘어가지 않고 FM-20 으로 멈춘다 (남은 광고안은 담당자 확인)
 
             with tracer.span("adjudicate", kind="guardrail") as span:
                 report = adjudicator.adjudicate(copy, det, verdict, settings.auto_decision_confidence, recheck, aud)
@@ -210,6 +217,9 @@ def _review_variants(run: PipelineRun, brief: CampaignBrief, settings: Settings,
                 if report.rewrite_status == RewriteStatus.FAILED_RECHECK:
                     run.failures.append(_fm19(copy.variant_id, report.final_decision, [f.rule_id for f in report.rewrite_recheck_findings]))
                 run.reports.append(report)
+            if recheck is not None and recheck.budget_exceeded:
+                # 상한에 닿았다 — 이 광고안은 끝난 검토 결과를 그대로 판정에 쓰고(수정안은 '확인하지 못함'), 다음 호출로 넘어가지 않고 FM-20 으로 멈춘다 (남은 광고안은 담당자 확인)
+                raise BudgetExceeded(recheck.semantic_error)
 
 
 def _is_borderline(verdict: ReviewVerdict, settings: Settings, options: RunOptions) -> bool:

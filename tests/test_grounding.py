@@ -274,3 +274,163 @@ def test_unit_like_words_after_a_number_are_not_units():
 def test_text_beyond_the_analysis_cap_is_not_scanned():
     assert grounding.extract_quantities("가" * grounding.MAX_ANALYZED_CHARS + " 99%") == []
     assert [q.raw for q in grounding.extract_quantities("99% " + "가" * grounding.MAX_ANALYZED_CHARS)] == ["99%"]
+
+
+# ───────────── 2차 내부 재점검(검토자 공격)에서 확인된 결함 ─────────────
+def _gp(facts, head, body="지금 확인", cta="확인", disc=()):
+    P = ProductFacts(name="p", category=ProductCategory.ECOMMERCE, facts=[Fact(id=f"F{i+1}", text=t) for i, t in enumerate(facts)])
+    return grounding.check(AdCopy(headline=head, body=body, cta=cta, disclosures=list(disc)), P)
+
+
+def test_a_unit_on_the_next_line_is_not_attached_to_a_number():
+    res = _gp(["최대 한도 5천만원"], "최대 한도 3", "원 상당 혜택")
+    for f in res.findings:
+        assert "\n" not in f.quote, f.quote
+    copy = AdCopy(headline="2026.11.30", body="지금 확인", cta="확인")
+    res = _gp(["2026.10.31까지"], "2026.11.30", "지금 확인")
+    f = next(f for f in res.findings if f.rule_id == "GRND-NUM-01")
+    assert copy.full_text()[f.start:f.end] == f.quote == "2026.11.30"                 # 끝의 줄바꿈·공백이 인용에 들어가지 않는다
+
+
+def test_a_negation_in_the_next_field_does_not_negate_the_previous_fields_marker():
+    res = _gp(["7일 무료 체험 후 월 19,900원 자동결제"], "7일 무료 체험 후 월 19,900원 자동결제", "부담 없이 시작하세요")
+    assert not res.findings
+    res = _gp(["전 상품 10% 할인, 일부 상품 제외"], "전 상품 10% 할인", "일부 상품 제외", "부담 없이 쇼핑")
+    assert not res.findings
+
+
+def test_a_fact_that_says_both_polarities_can_be_copied_verbatim():
+    for fact in ("7일간 자동결제 없이 무료 체험, 이후 월 19,900원 자동결제", "체험 기간 중 과금 없음, 체험 종료 후 월 9,900원 정기결제", "서류 심사 없이 간편 신청, 최종 한도는 심사 결과에 따라 결정"):
+        assert not _gp([fact], "안내", fact).findings, fact
+
+
+@pytest.mark.parametrize("phrase", ["자동결제 전혀 없음", "자동결제 절대 없어요", "자동결제 하나도 없어요", "자동결제는 전혀 되지 않습니다", "자동결제 걱정 전혀 없음"])
+def test_intensified_negation_is_still_a_negation(phrase):
+    assert "GRND-COND-02" in {f.rule_id for f in _gp(["7일 무료 체험 후 월 19,900원 자동결제"], "7일 무료 체험", f"월 19,900원, {phrase}").findings}
+
+
+def test_coupon_validity_dates_are_compared_but_reference_dates_are_not():
+    assert "GRND-NUM-01" in {f.rule_id for f in _gp(["10% 할인 쿠폰 사용 가능, 유효기간: 2026.10.31"], "10% 할인 쿠폰 사용 가능", "유효기간: 2026.12.31").findings}
+    assert "GRND-NUM-01" in {f.rule_id for f in _gp(["10% 할인 쿠폰 사용 가능, 유효기간 2026.10.01~2026.12.31"], "10% 할인 쿠폰", "유효기간 2026.10.01~2027.12.31").findings}
+    for ad in ("(9월 30일 기준)", "(9.30 기준)", "(9월 30일 현재)", "(2026. 9. 30. 기준)"):
+        assert not _gp(["최근 1년 성과 5.2% (2026.09.30 기준)"], "최근 1년 성과 5.2%", ad).findings, ad
+
+
+@pytest.mark.parametrize("fact,ad", [
+    ("이벤트 기간: 10.1~10.31", "이벤트 기간: 10월 1일 ~ 10월 31일"), ("이벤트 기간: 10월 1일 ~ 10월 31일", "이벤트 기간: 10.1~10.31"),
+    ("이벤트 기간: 10/1~10/31", "이벤트 기간: 10월 1일 ~ 10월 31일"), ("이벤트 기간: 10월 1일 ~ 10월 31일", "이벤트 기간: 10/1 ~ 10/31"),
+    ("이벤트 기간: 2026.10.01 ~ 2026.10.31", "이벤트 기간: 10.1 ~ 10.31"), ("이벤트 기간: 10.1~10.31", "이벤트 기간: 10.1 ~ 10.31"),
+])
+def test_date_ranges_in_different_notations_match(fact, ad):
+    assert not _gp([fact], ad).findings, (fact, ad)
+
+
+def test_a_different_date_range_in_another_notation_is_still_caught():
+    assert "GRND-NUM-01" in {f.rule_id for f in _gp(["이벤트 기간: 10.1~10.31"], "이벤트 기간: 10월 1일 ~ 11월 30일").findings}
+    assert "GRND-NUM-01" in {f.rule_id for f in _gp(["이벤트 기간: 10월 1일 ~ 10월 31일"], "이벤트 기간: 10.1 ~ 11.30").findings}
+
+
+def test_rate_ranges_without_a_percent_sign_are_not_read_as_dates():
+    assert not _gp(["연 4.5%~12.5% 적립"], "연 4.5~12.5% 적립").findings
+    assert "GRND-NUM-01" in {f.rule_id for f in _gp(["연 4.5%~12.5% 적립"], "적립 4.5 ~ 11.5").findings}
+
+
+def test_ad_side_within_days_does_not_conflict_with_other_deadlines_and_fact_side_stays_non_binding():
+    assert not _gp(["가입 후 30일까지 신청 가능", "신청 후 7일 이내 지급"], "가입 후 30일까지 신청 가능", "신청 후 7일 이내 지급").findings
+    assert not _gp(["구매 후 30일까지 쿠폰 사용 가능", "배송 3일 이내"], "구매 후 30일까지 쿠폰 사용 가능", "배송 3일 이내").findings
+    assert not _gp(["전 상품 10% 할인, 배송 3일 이내 도착"], "전 상품 10% 할인").findings           # 사실의 '3일 이내' 는 광고가 반드시 옮겨 적을 조건이 아니다
+
+
+def test_digitless_man_won_is_one_man_won():
+    q = grounding.extract_quantities("만원 이상 구매, 천원 할인")
+    assert [(x.value, x.cls) for x in q] == [(10000.0, "krw"), (1000.0, "krw")]
+    assert "GRND-COND-02" in {f.rule_id for f in _gp(["50,000원 이상 구매 시 무료배송"], "만원 이상 구매 시 무료배송").findings}
+    assert not _gp(["만원 이상 구매 시 무료배송"], "10,000원 이상 구매 시 무료배송").findings
+    assert grounding.extract_quantities("수만원") == [] and grounding.extract_quantities("몇만원") == []       # 앞에 글자가 붙은 말은 수량이 아니다
+
+
+def test_sign_matters_for_performance_numbers_but_not_for_discount_labels():
+    assert "GRND-NUM-01" in {f.rule_id for f in _gp(["최근 1년 성과 -5.2%"], "최근 1년 성과 5.2%").findings}
+    assert "GRND-NUM-01" in {f.rule_id for f in _gp(["최근 1년 성과 5.2%"], "최근 1년 성과 -5.2%").findings}
+    assert not _gp(["전 상품 30% 할인"], "정가 대비 -30% 할인").findings                                    # '-30%' 할인 표기는 부호를 보지 않는다
+    assert not _gp(["최대 50-60% 할인"], "최대 50-60% 할인").findings                                       # 범위 하이픈은 부호가 아니다
+
+
+def test_range_with_a_multiplier_on_the_first_endpoint_matches_the_unit_form():
+    assert not _gp(["최대 적립 100만~500만원"], "적립 100만원~500만원").findings
+    assert not _gp(["적립 5천~1만원"], "적립 5천원~1만원").findings
+
+
+def test_clock_times_are_not_durations_and_deadline_wordings_with_times_match():
+    for ad in ("10월 31일 23시 59분까지", "10월 31일 오후 11시 59분까지", "10월 31일 23:59까지", "10월 31일 밤 12시까지", "10월 31일(금) 오후 6시 30분까지", "10월 31일 이벤트 종료"):
+        assert not _gp(["10월 31일까지 사용 가능"], ad).findings, ad
+
+
+def test_a_period_range_satisfies_a_from_to_deadline():
+    assert not _gp(["10월 1일부터 10월 31일까지 진행"], "10월 1일 ~ 10월 31일 진행").findings
+    assert "GRND-COND-02" in {f.rule_id for f in _gp(["10월 1일부터 10월 31일까지 진행"], "10월 1일 ~ 11월 30일 진행").findings}
+
+
+@pytest.mark.parametrize("fact,ad", [("14일 무료 체험", "14주 무료 체험"), ("만 19세 이상", "만 14세 이상"), ("4주 완성", "8주 완성")])
+def test_week_and_age_units_are_compared(fact, ad):
+    assert "GRND-NUM-01" in {f.rule_id for f in _gp([fact], ad).findings}
+
+
+def test_words_that_start_with_week_or_age_characters_and_5g_are_not_units():
+    assert grounding.extract_quantities("3 주문, 5 세트, 20세기 영화, 5G 요금제, 9 주소") == []
+    assert [q.raw for q in grounding.extract_quantities("4주 완성")] == ["4주"]
+
+
+def test_man_with_comma_tail_is_one_amount():
+    assert [q.value for q in grounding.extract_quantities("월 1만 5,000원")] == [15000.0]
+    assert [q.value for q in grounding.extract_quantities("월 1만5,000원")] == [15000.0]
+    assert not _gp(["월 15,000원"], "월 1만 5,000원").findings
+
+
+def test_absurdly_long_digit_runs_are_ignored_instead_of_comparing_equal():
+    huge = "9" * 400
+    assert grounding.extract_quantities(huge) == []
+    assert not any(q for q in grounding.extract_quantities(f"{huge}원 이상"))
+
+
+def test_digit_runs_longer_than_fifteen_are_not_quantities_but_fifteen_are():
+    """16~300자리 숫자는 유한한 값으로 읽히지만 수치가 아니다 — 15자리까지만 비교 대상이다."""
+    assert grounding.extract_quantities("수익 1234567890123456원") == []
+    assert grounding.extract_quantities("12345678901234567890원 혜택") == []
+    assert [q.value for q in grounding.extract_quantities("수익 123456789012345원")] == [123456789012345.0]
+
+
+def test_the_meaning_of_a_negative_number_is_read_from_before_its_minus_sign():
+    """마이너스 하이픈은 구절 구분자라서, 뜻(수익·성과)을 부호 뒤에서부터 찾으면 사라진다 — 부호 앞에서부터 찾아야 부호 비교가 동작한다."""
+    for text in ("연 수익 -5.2%", "수익률 −5.2%"):
+        (q,) = grounding.extract_quantities(text)
+        assert q.neg and "수익" in q.sense, text
+    assert "GRND-NUM-01" in {f.rule_id for f in _gp(["연 수익 5.2%"], "연 수익 -5.2%").findings}
+
+
+def test_over_long_copy_never_passes_even_though_the_tail_is_not_scanned():
+    """20,000자를 넘는 뒷부분은 숫자 비교를 하지 않지만, 길이 규칙(TA-LENGTH-01)이 이미 수정 필요로 막는다 — 길게 써서 통과하는 길은 없다."""
+    from guardrails import output_guard
+    from guardrails.policy import get_catalog
+
+    P = ProductFacts(name="p", category=ProductCategory.ECOMMERCE, facts=[Fact(id="F1", text="연 4.5%~15.0%")])
+    det = output_guard.check(AdCopy(headline="h", body="가" * grounding.MAX_ANALYZED_CHARS + " 연 99% 금리", cta="확인"), P, {"ecommerce"}, "", [], get_catalog())
+    assert det.decision.value != "APPROVE" and "TA-LENGTH-01" in {f.rule_id for f in det.findings}
+
+
+@pytest.mark.parametrize("name", ["10/31 ", "1.5 ", "2026.10.31 ", "1인 ", "유효기간 ", "심사 ", "제외 ", "자동 "])
+def test_runs_of_blanks_after_a_marker_are_bounded_in_time(name):
+    text = name.rstrip() + " " * 20_000
+    P = ProductFacts(name="p", category=ProductCategory.ECOMMERCE, facts=[Fact(id="F1", text="전 상품 10% 할인 (10월 31일까지, 1인 1회, 일부 상품 제외)")])
+    t0 = time.perf_counter()
+    grounding.check(AdCopy(headline=text, body="x", cta="확인", disclosures=[text[:5000]]), P)
+    assert time.perf_counter() - t0 < 3.0
+
+
+@pytest.mark.parametrize("unit", ["1원 ", "1~2% ", "만원 ", "1만 ", "10.1~10.31 ", "오후 11시 59분 "])
+def test_many_numbers_in_a_long_text_are_bounded_in_time(unit):
+    text = unit * (20_000 // len(unit))
+    P = ProductFacts(name="p", category=ProductCategory.ECOMMERCE, facts=[Fact(id="F1", text="전 상품 10% 할인")])
+    t0 = time.perf_counter()
+    grounding.check(AdCopy(headline=text, body="x", cta="확인"), P)
+    assert time.perf_counter() - t0 < 3.0

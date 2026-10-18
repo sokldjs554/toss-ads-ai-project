@@ -1,3 +1,4 @@
+import os
 import sys
 from pathlib import Path
 
@@ -13,6 +14,11 @@ from observability.tracer import Tracer  # noqa: E402
 
 _APP_ENV = ("OPENAI_API_KEY", "ANTHROPIC_API_KEY", "OPENAI_MODEL", "ANTHROPIC_MODEL", "PREFLIGHT_FORCE_DEMO", "PREFLIGHT_REQUEST_TIMEOUT_S", "PREFLIGHT_MAX_RETRIES",
             "PREFLIGHT_RUN_BUDGET_USD", "PREFLIGHT_AUTO_DECISION_CONFIDENCE", "PREFLIGHT_BUILD", "RENDER_GIT_COMMIT")
+
+
+# 테스트 모듈이 import(수집) 시점에 Settings.from_env() 를 부르는 경우도 있어, 픽스처만으로는 늦다 — 앱 설정을 읽는 모듈을 올린 뒤 여기서 한 번 더 비운다
+for _name in _APP_ENV:
+    os.environ.pop(_name, None)
 
 
 @pytest.fixture(autouse=True)

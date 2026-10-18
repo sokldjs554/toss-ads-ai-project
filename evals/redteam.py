@@ -70,7 +70,7 @@ def _generate_with_retry(seed: EvalCase, router: Router, strategies: list[str], 
     return [], err
 
 
-def _redteam_report(settings: Settings, router: Router, seed_cases: list, attacks: list[Attack], gen_failures: list[dict]) -> dict:
+def _redteam_report(settings: Settings, router: Router, seed_cases: list, attacks: list[Attack], gen_failures: list[dict], limit_seeds: Optional[int] = None) -> dict:
     # n = 정상적으로 심사된 공격 수. 제공자 장애로 심사하지 못한 공격(errors)은 n·담당자 확인·뚫림률의 분모에서 뺀다 — 장애를 '담당자 확인' 으로 세면 뚫림률이 낮게 보인다 (FM-24)
     by_strategy: dict[str, dict] = {}
     for a in attacks:
@@ -89,6 +89,7 @@ def _redteam_report(settings: Settings, router: Router, seed_cases: list, attack
     errs = [a.error for a in attacks if a.error] + [g["error"] for g in gen_failures]
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(), "mode": settings.mode.value, "seeds": len(seed_cases),
+        "run_settings": {"limit": limit_seeds},      # 시드 일부만 돌렸다면 기록한다 — baseline_allowed 가 부분 실행을 기준선으로 쓰지 않게
         "attacks": [a.__dict__ for a in attacks], "by_strategy": by_strategy,
         "judged": len(judged),
         "evasion_rate": round(sum(a.evaded for a in judged) / len(judged), 3) if judged else 0.0,
@@ -121,7 +122,7 @@ def run_redteam(settings: Settings, router: Optional[Router] = None, seeds: str 
     planned = len(seed_cases) * len(strategies)
 
     def abort(reason: str, last_error: str, after: str) -> EvalAborted:
-        rep = _redteam_report(settings, router, seed_cases, attacks, gen_failures)
+        rep = _redteam_report(settings, router, seed_cases, attacks, gen_failures, limit_seeds)
         rep["aborted"] = {"reason": reason, "after": after, "consecutive_provider_failures": consecutive, "done": len(attacks), "planned": planned,
                           "cost_usd": round(router.budget.spent_usd, 4)}
         return EvalAborted(f"{reason} ({after} 까지 공격 {len(attacks)}/{planned}건 처리) — 마지막 오류: {last_error or '-'}", rep)
@@ -150,7 +151,7 @@ def run_redteam(settings: Settings, router: Optional[Router] = None, seeds: str 
                 raise abort(f"제공자 오류가 {consecutive}건 연속", atk.error, f"{seed.id}:{atk.strategy}")
             if cost_cap_usd is not None and router.budget.spent_usd > cost_cap_usd:
                 raise abort(f"누적 비용 ${router.budget.spent_usd:.2f} 가 상한 ${cost_cap_usd:.2f} 초과", "", f"{seed.id}:{atk.strategy}")
-    return _redteam_report(settings, router, seed_cases, attacks, gen_failures)
+    return _redteam_report(settings, router, seed_cases, attacks, gen_failures, limit_seeds)
 
 
 def harvest(report: dict, path: Optional[Path] = None, only_evaded: bool = False) -> int:

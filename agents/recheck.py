@@ -9,7 +9,7 @@ import hashlib
 import json
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional
+from typing import Iterable, Optional
 
 from core.config import Settings
 from core.schemas import AdCopy, Claim, FailureEvent, PreflightReport, ProductFacts
@@ -35,12 +35,18 @@ def _digest(*parts: str) -> str:
     return hashlib.sha256("\x1f".join(parts).encode("utf-8")).hexdigest()[:12]
 
 
+def recheck_categories(catalog: PolicyCatalog, product: ProductFacts, copy: AdCopy, base: Iterable[str] = ()) -> set[str]:
+    """재검사에 적용할 업종 — 처음 검사에 적용한 업종 + 고친 문구가 가져오는 단서 (화면이 키를 만들 때와 recheck() 가 검사할 때 같은 값을 쓰도록 한 곳에서 정한다)."""
+    return set(base) | catalog.categories_for(product, copy.full_text())
+
+
 def recheck_key(copy: AdCopy, product: ProductFacts, landing_text: str, settings: Settings, catalog: PolicyCatalog,
-                rejected_history: Optional[list[str]] = None, second_opinion: bool = False) -> str:
+                rejected_history: Optional[list[str]] = None, second_opinion: bool = False, categories: Optional[Iterable[str]] = None,
+                second_opinion_margin: float = DEFAULT_MARGIN) -> str:
     """재검사 결과를 다시 써도 되는 '같은 조건' 의 지문.
 
     문구만이 아니라 결과를 바꿀 수 있는 모든 것을 넣는다: 상품 정보(이름·업종·사실·설명)·랜딩 문구·반려 이력, 검사 기준 버전·프롬프트 버전,
-    실행 방식·모델·자동 판정 기준, 어느 제공자의 키가 쓰이는지, 교차 확인 사용 여부. 하나라도 다르면 이전 결과를 쓰지 않고 다시 검사한다.
+    실행 방식·모델·자동 판정 기준, 어느 제공자의 키가 쓰이는지, 교차 확인 사용 여부와 경계 기준, 적용 업종, 이어받은 근거 사실. 하나라도 다르면 이전 결과를 쓰지 않고 다시 검사한다.
     각 항목은 따로 해시한 뒤 합쳐서, 항목 사이의 경계가 달라 우연히 같아지는 일이 없게 한다.
     """
     payload = {
@@ -49,7 +55,8 @@ def recheck_key(copy: AdCopy, product: ProductFacts, landing_text: str, settings
         "landing": _digest(landing_text), "history": _digest(*(rejected_history or [])),
         "policy": catalog.version, "prompt": PROMPT_VERSION, "mode": settings.mode.value,
         "providers": [settings.has_openai, settings.has_anthropic], "models": [settings.openai_model, settings.anthropic_model],
-        "tau": settings.auto_decision_confidence, "second_opinion": bool(second_opinion),
+        "tau": settings.auto_decision_confidence, "second_opinion": bool(second_opinion), "margin": second_opinion_margin if second_opinion else None,
+        "categories": sorted(categories) if categories is not None else None, "carried": sorted(copy.carried_fact_ids),
     }
     return hashlib.sha256(json.dumps(payload, ensure_ascii=False, sort_keys=True).encode("utf-8")).hexdigest()[:16]
 
@@ -130,6 +137,8 @@ def recheck(copy: AdCopy, product: ProductFacts, categories: set[str], settings:
             landing_text: str = "", rejected_history: Optional[list[str]] = None, catalog: Optional[PolicyCatalog] = None,
             tracer: Optional[Tracer] = None, enable_second_opinion: bool = False, second_opinion_margin: float = DEFAULT_MARGIN) -> RecheckResult:
     """enable_second_opinion: 원문 검사와 같은 조건(경계 사례)에서 다른 모델 계열의 교차 확인을 받는다. 필요한데 호출이 실패하면 담당자 확인이다."""
+    if not (copy.headline.strip() or copy.body.strip()):
+        raise ValueError("검사할 문구가 비어 있습니다 (제목과 본문이 모두 비어 있음)")
     catalog = catalog or get_catalog()
     tracer = tracer or get_tracer()
     router = router or Router(settings, tracer=tracer)
@@ -137,7 +146,7 @@ def recheck(copy: AdCopy, product: ProductFacts, categories: set[str], settings:
     facts_text = "\n".join(f"- {f.id}: {f.text}" for f in product.facts) or "- (없음)"
     failures: list[FailureEvent] = []
     review_error = ""
-    categories = set(categories) | catalog.categories_for(product, copy.full_text())
+    categories = recheck_categories(catalog, product, copy, categories)
     with tracer.trace("recheck", product=product.name, variant_id=copy.variant_id, fingerprint=copy_fingerprint(copy), mode=settings.mode.value) as trace:
         with tracer.span("output_guard", kind="guardrail") as span:
             det = output_guard.check(copy, product, categories, landing_text, rejected_history or [], catalog)
@@ -176,7 +185,7 @@ def recheck(copy: AdCopy, product: ProductFacts, categories: set[str], settings:
             span.set(final=report.final_decision.value, reason=report.decision_reason, rewrite_status=report.rewrite_status.value)
     b = router.budget
     return RecheckResult(report=report, fingerprint=copy_fingerprint(copy), mode=settings.mode.value, cost_usd=b.spent_usd, cost_estimated=b.estimated,
-                         key=recheck_key(copy, product, landing_text, settings, catalog, rejected_history, enable_second_opinion), trace_id=trace.trace_id,
+                         key=recheck_key(copy, product, landing_text, settings, catalog, rejected_history, enable_second_opinion, categories, second_opinion_margin), trace_id=trace.trace_id,
                          review_error=review_error, rewrite_error=(recheck_rw.semantic_error if recheck_rw is not None else ""),
                          calls=b.calls, attempts=b.attempts, failed_attempts=b.failed_attempts, failures=failures,
                          info={"mode": settings.mode.value, "openai_model": settings.openai_model, "anthropic_model": settings.anthropic_model,

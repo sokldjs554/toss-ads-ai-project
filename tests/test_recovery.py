@@ -12,9 +12,9 @@ from streamlit.testing.v1 import AppTest
 
 from agents import recheck as recheck_mod
 from agents.pipeline import RunOptions, run_pipeline
-from agents.recheck import RecheckHistory, recheck, recheck_key
+from agents.recheck import RecheckHistory, recheck, recheck_categories, recheck_key
 from core.config import Settings
-from core.schemas import AdCopy, Decision, Fact, ProductCategory, ProductFacts, RewriteStatus
+from core.schemas import AdCopy, Claim, Decision, Fact, ProductCategory, ProductFacts, RewriteStatus
 from evals.runner import baseline_allowed, evaluate_with_retry, load_dataset, run_eval
 from guardrails.failsafe import PROVIDER_FAILURE_CODES, STEP_FAILURE_CODES
 from guardrails.policy import get_catalog
@@ -42,8 +42,10 @@ def do_recheck(response, copy=COPY, product=PRODUCT, settings=SETTINGS, landing=
 
 
 # ───────────── 재사용 키 ─────────────
-def key_of(copy=COPY, product=PRODUCT, landing="", settings=SETTINGS, catalog=CAT, history=None):
-    return recheck_key(copy, product, landing, settings, catalog, history)
+def key_of(copy=COPY, product=PRODUCT, landing="", settings=SETTINGS, catalog=CAT, history=None, second_opinion=False, categories=None, margin=None):
+    """화면이 키를 만드는 방식과 같다 — 적용 업종은 처음 검사의 업종({'ecommerce'}) + 고친 문구가 가져오는 단서."""
+    cats = recheck_categories(catalog, product, copy, {"ecommerce"}) if categories is None else categories
+    return recheck_key(copy, product, landing, settings, catalog, history, second_opinion, cats, *(() if margin is None else (margin,)))
 
 
 def test_reuse_key_changes_with_everything_that_can_change_the_result(monkeypatch):
@@ -60,6 +62,11 @@ def test_reuse_key_changes_with_everything_that_can_change_the_result(monkeypatc
         "anthropic model": key_of(settings=dataclasses.replace(SETTINGS, anthropic_model="claude-haiku-5-5")),
         "mode": key_of(settings=dataclasses.replace(SETTINGS, force_demo=True)),
         "rejected history": key_of(history=["이미 반려된 광고"]),
+        "cross-check on": key_of(second_opinion=True),
+        "cross-check margin": key_of(second_opinion=True, margin=0.2),
+        "applied categories": key_of(categories={"ecommerce", "finance"}),
+        "carried facts": key_of(copy=COPY.model_copy(update={"carried_fact_ids": ["F1"]})),
+        "claims": key_of(copy=COPY.model_copy(update={"claims": [Claim(text="전 상품 10% 할인", fact_id="F1")]})),
     }
     for name, k in changed.items():
         assert k != base, f"{name} 가 바뀌어도 이전 결과를 재사용하게 된다"

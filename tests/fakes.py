@@ -41,3 +41,34 @@ def scripted_review_provider(response, name: str = "openai") -> "FakeProvider":
                            latency_ms=1.0, cost_usd=0.001, finish_reason="stop")
 
     return FakeProvider(name, model="controlled", behavior=behave)
+
+
+class TaskScriptedProvider:
+    """작업(Task)마다 응답을 정해 두는 가짜 제공자. 응답이 없는 작업(캠페인 구성·광고 초안·가상 반응 등)은 대역(mock)이 맡는다.
+    handler: 심사 출력 dict · 예외 인스턴스 · 요청을 받아 그 둘 중 하나를 돌려주는 함수. 실제 모델 품질 측정이 아니라 판단 규칙 검증용이다."""
+
+    available = True
+
+    def __init__(self, name: str, handlers: dict | None = None, model: str = "controlled", cost: float = 0.001):
+        from llm.mock_provider import MockProvider
+
+        self.name, self.model, self.handlers, self.cost = name, model, handlers or {}, cost
+        self.calls: list[tuple] = []
+        self._mock = MockProvider()
+
+    def complete(self, req: LLMRequest) -> LLMResponse:
+        self.calls.append((req.task, req.label))
+        h = self.handlers.get(req.task)
+        if h is None:
+            r = self._mock.complete(req)
+            r.provider, r.model, r.cost_usd = self.name, self.model, self.cost
+            return r
+        r = h(req) if callable(h) else h
+        if isinstance(r, Exception):
+            raise r
+        parsed = req.schema.model_validate(r)
+        return LLMResponse(text="{}", parsed=parsed, provider=self.name, model=self.model, input_tokens=10, output_tokens=5, latency_ms=1.0, cost_usd=self.cost,
+                           finish_reason="stop")
+
+    def count(self, task) -> int:
+        return sum(1 for t, _ in self.calls if t == task)

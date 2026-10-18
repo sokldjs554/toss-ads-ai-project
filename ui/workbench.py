@@ -15,7 +15,7 @@ from datetime import datetime
 import streamlit as st
 
 from agents.pipeline import RunOptions, run_pipeline
-from agents.recheck import RecheckHistory, RecheckResult, build_edited_copy, recheck, recheck_key
+from agents.recheck import RecheckHistory, RecheckResult, build_edited_copy, recheck, recheck_categories, recheck_key
 from core.config import IN_BROWSER, Settings
 from core.schemas import Decision, PipelineRun, PreflightReport, ProductCategory, RewriteStatus, Severity
 from evals.runner import recommendation_for
@@ -271,11 +271,13 @@ def _inputs(make_settings, server_status: dict) -> tuple[Settings, RunOptions, s
         st.markdown(theme.mode_pill("demo" if mode == "demo" else "live", RUN_MODE_LABEL[mode]), unsafe_allow_html=True)
         st.caption(RUN_MODE_HELP[mode])
         if mode != "demo":
-            calls = 2 + 4 * options.n_variants
+            # 캠페인 구성 1 + 광고 초안 1 + 요청 되묻기 최대 1, 광고안마다 가상 반응 1 + 검토 1 + 수정안 검토 1 (교차 확인을 켜면 원문·수정안에 각각 최대 1 더)
+            calls = 3 + options.n_variants * (5 if options.enable_second_opinion else 3)
             st.warning(f"새 실제 모델 실행입니다 — 모델 호출 최대 약 {calls}회, 비용은 ${float(budget):.2f} 에서 멈춥니다 (실행당 상한)."
                        + (" 서버 키가 쓰이므로 비용은 서버 운영자 계정에 청구됩니다." if funded_by_server(server_status, user_oa, user_an) else " 직접 넣은 키만 쓰이므로 비용은 그 계정에 청구됩니다."), icon="💳")
             # 확인은 '지금 보이는 호출 수·비용·모드' 에 대한 것이다. 숫자가 바뀌거나 한 번 실행하면 다시 확인해야 한다
-            sig = f"{mode}|{calls}|{float(budget):.2f}|{len(ss.runs)}"
+            payer = funded_by_server(server_status, user_oa, user_an)   # 누구 계정에 청구되는지도 확인의 일부다 — 바뀌면 다시 확인
+            sig = f"{mode}|{calls}|{float(budget):.2f}|{payer}|{len(ss.runs)}"
             if ss.get("_confirm_live_sig") != sig:
                 ss["_confirm_live_sig"] = sig
                 ss["confirm_live_run"] = False
@@ -369,7 +371,7 @@ def _state_banner(entry: dict, stale: bool) -> None:
             st.error(f"실행을 끝내지 못했습니다 — {plain_halt(run)}  \n입력은 그대로 남아 있습니다. 요청을 고치거나 상세 옵션을 바꿔 다시 실행하세요.", icon="⛔")
     elif state == "empty":
         st.warning("광고안이 만들어지지 않았습니다. 상품 정보와 사실 목록을 조금 더 구체적으로 적고 다시 실행해 보세요.", icon="ℹ️")
-    elif state == "partial":
+    elif state == "partial" and not run.halted:   # 중간에 멈춘 실행은 위의 ‘도중에 멈췄습니다’ 안내가 이미 설명한다 — 반대되는 두 번째 안내를 붙이지 않는다
         names = {"planner": "캠페인 구성", "audience": "가상 사용자 반응", "reviewer": "검토 모델 검사", "second_opinion": "교차 확인", "rewrite_recheck": "수정안 의미 검사"}
         parts = sorted({f.stage for f in run.failures if f.stage in names and f.code in STEP_FAILURE_CODES} | ({"planner"} if run.plan is None else set()))
         what = ", ".join(names.get(p, p) for p in parts) or "일부 단계"
@@ -549,30 +551,32 @@ def _edit_and_recheck(rep: PreflightReport, entry: dict, catalog, tracer: Tracer
             sstat = ss.get("_server_status", {})
             if funded_by_server(sstat, *ss.get("user_keys", ("", ""))):
                 settings = dataclasses.replace(settings, run_budget_usd=min(settings.run_budget_usd, _server_cap(sstat)))
-        own = {rep.ad_copy.full_text()} | {r.report.ad_copy.full_text() for r in hist.attempts}
-        history = [x for x in ss.rejected_history if x not in own]  # 고치고 있는 광고 자신은 '다른 반려 광고' 가 아니다
+        history = [x for x in ss.rejected_history if x != rep.ad_copy.full_text()]  # 고치고 있는 광고 자신(수정 전 원문)은 '다른 반려 광고' 가 아니다. 시도마다 달라지지 않는 기준이라 재사용 키가 흔들리지 않는다
         # 재사용 키: 문구뿐 아니라 상품 정보·랜딩·검사 기준·프롬프트·모델·판정 기준이 같을 때만 이전 결과를 다시 쓴다
         so = bool(entry.get("second_opinion", False))   # 처음 검사와 같은 조건: 그 실행에서 교차 확인을 켰다면 재검사도 같은 경계 사례에서 교차 확인을 받는다
-        key = recheck_key(edited, brief.product, entry.get("landing", ""), settings, catalog, history, so)
+        categories = recheck_categories(catalog, brief.product, edited, entry["run"].categories)   # 처음 검사에 적용한 업종 + 고친 문구가 가져오는 업종
+        key = recheck_key(edited, brief.product, entry.get("landing", ""), settings, catalog, history, so, categories)
+        blank = not (h.strip() or b.strip())
         last_try = hist.latest_for(key)
         label = "같은 문구로 다시 시도" if (last_try is not None and last_try.failed) else "수정한 문구 다시 검사"
         rerun_after = False
         recheck_ok = True
         if live_recheck and hist.reusable_for(key) is None:
-            st.warning(f"실제 모델을 부릅니다 — 이 문구를 다시 검사하면 모델 호출 약 {'2–6' if so else '2–4'}회, 비용은 ${settings.run_budget_usd:.2f} 에서 멈춥니다.", icon="💳")
-            csig = f"{key}|{len(hist.attempts)}|{settings.run_budget_usd:.2f}"
+            st.warning(f"실제 모델을 부릅니다 — 이 문구를 다시 검사하면 모델 호출 최대 {4 if so else 2}회, 비용은 ${settings.run_budget_usd:.2f} 에서 멈춥니다.", icon="💳")
+            csig = f"{key}|{len(hist.attempts)}|{settings.run_budget_usd:.2f}|{funded_by_server(ss.get('_server_status', {}), *ss.get('user_keys', ('', '')))}"
             ckey = f"confirm_recheck_{vid}"
             if ss.get("_" + ckey) != csig:
                 ss["_" + ckey] = csig
                 ss[ckey] = False
             recheck_ok = st.checkbox("위 비용 상한을 확인했고 실제 모델로 다시 검사합니다", key=ckey)
-        if st.button(label, key=f"recheck_{vid}", type="primary", disabled=bool(ss.running) or not recheck_ok):
+        if blank:
+            st.warning("제목과 본문이 모두 비어 있어 검사할 수 없습니다. 문구를 입력해 주세요.", icon="⚠️")
+        if st.button(label, key=f"recheck_{vid}", type="primary", disabled=bool(ss.running) or not recheck_ok or blank):
             if hist.reusable_for(key) is not None:
                 st.info("같은 문구·같은 조건으로 이미 검사했습니다. 모델을 다시 부르지 않고 그 결과를 보여 드립니다.")
             else:
                 ss.running = True
                 try:
-                    categories = set(entry["run"].categories)   # 처음 검사에 적용한 업종 + (recheck 가) 고친 문구에서 추론하는 업종
                     with st.spinner("다시 검사하는 중…"):
                         res = recheck(edited, brief.product, categories, settings, router=router_factory(settings), landing_text=entry.get("landing", ""),
                                       rejected_history=history, catalog=catalog, tracer=tracer, enable_second_opinion=so)

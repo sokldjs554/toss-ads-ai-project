@@ -17,6 +17,7 @@
 """
 from __future__ import annotations
 
+import math
 import re
 import unicodedata
 from dataclasses import dataclass, field
@@ -34,47 +35,54 @@ _NUMBER = r"(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?"
 _NUM_TOKEN = re.compile(rf"(?<![A-Za-z\d.])(?<![A-Za-z]-)({_NUMBER})(?!\d)")
 _MULT_RUN = re.compile(r"[십백천만억]+")
 _CHAIN = re.compile(rf"[ \t]*({_NUMBER})([십백천만억]*)")
-_RANGE_BETWEEN = re.compile(r"^\s*[~\-–—〜]\s*$")
-_UNIT_NAMES = ("퍼센트", "프로", "개월", "포인트", "시간", "kg", "㎏", "퍼", "원", "명", "배", "일", "달", "년", "분", "초", "회", "건", "호", "개", "점", "p", "g")
+_RANGE_BETWEEN = re.compile(r"^[ \t]*[~\-–—〜][ \t]*$")
+_UNIT_NAMES = ("퍼센트", "프로", "개월", "포인트", "시간", "kg", "㎏", "퍼", "원", "명", "배", "일", "달", "년", "분", "초", "회", "건", "호", "개", "점", "주", "세", "p", "g")
 _UNIT_AT = re.compile(r"(%|" + "|".join(_UNIT_NAMES) + r")", re.IGNORECASE)
-_WS = re.compile(r"\s*")
+_WS = re.compile(r"[ \t]*")
 # 숫자 바로 뒤 글자가 단위처럼 보여도 실제로는 다른 낱말인 경우 ('1분기' · '7일정' · '100원금' · '3회원')
 _NOT_UNIT_WORD = re.compile(
-    r"(?:분기|분석|분명|일정|일부|일반|일시|일상|일찍|원금|원래|회원|회사|회의|개인|개발|개선|개통|건강|건물|건설|호텔|호출|점검|점수|명품|명세|명단|달성|달러|달라|배경|배우|배터리)")
+    r"(?:분기|분석|분명|일정|일부|일반|일시|일상|일찍|원금|원래|회원|회사|회의|개인|개발|개선|개통|건강|건물|건설|호텔|호출|점검|점수|명품|명세|명단|달성|달러|달라|배경|배우|배터리"
+    r"|주문|주소|주택|주식|주말|주의|주요|주변|주거|주제|주차|주민|주인|주력|주로|세금|세일|세트|세탁|세계|세대|세상|세부|세련|세기|세미)")
 # 숫자와 단위 사이를 띄어 썼다면, 단위 뒤에 한글이 바로 이어질 때는 이 말들(조사·'이상' 같은 꼬리)일 때만 단위로 읽는다
 _UNIT_TAIL_OK = re.compile(r"(?:이상|이하|이내|이후|이전|미만|초과|간|까지|마다|당|부터|씩|째|짜리|에|의|은|는|이|가|을|를|도|로|과|와|만|만큼|정도|쯤|여|내)")
 _UNIT_CLASS = {"%": "percent", "원": "krw", "명": "count", "회": "count", "건": "count", "개": "count", "호": "count",
                "배": "multiple", "일": "duration", "개월": "duration", "년": "duration", "시간": "duration", "분": "duration",
-               "초": "duration", "점": "points", "p": "points", "포인트": "points", "kg": "weight", "㎏": "weight", "g": "weight"}
+               "초": "duration", "주": "duration", "세": "count", "점": "points", "p": "points", "포인트": "points", "kg": "weight", "㎏": "weight", "g": "weight"}
 _UNIT_ALIAS = {"퍼센트": "%", "프로": "%", "퍼": "%", "달": "개월"}
 _GLUED_UNITS = {"%", "원", "배", "개월", "일"}   # 한글에 붙여 쓴 숫자('할인5%')는 혜택을 말하는 단위일 때만 본다. '코스피200'·'제2026호' 같은 이름·번호는 무시
 # 혜택 수치가 아닌 식별번호·기준일: 찾은 자리는 공백으로 지워 숫자로 읽지 않는다.
 _IDENT_PRE = re.compile(      # 날짜보다 먼저 지운다 — 심의필 유효기간·기준일은 광고가 약속하는 날짜가 아니다
-    r"제\s*[\d\-–]+\s*호(?:\s*\(\s*\d{4}[^)\n]{0,40}\))?"
-    r"|(?:유효\s*기간|사용\s*기한|심의\s*기간)\s*:?\s*\d{4}[\d.\-/년월일 \t~–]{4,40}"
-    r"|\d{4}\s*[.\-/년]\s*\d{1,2}\s*(?:[.\-/월]\s*\d{1,2}\s*일?\.?|월)?\s*(?:기준|현재)")
+    r"제[ \t]*[\d\-–]+[ \t]*호(?:[ \t]*\([ \t]*\d{4}[^)\n]{0,40}\))?"
+    r"|심의[ \t]*기간[ \t]*:?[ \t]*\d{4}[\d.\-/년월일 \t~–]{4,40}"
+    r"|(?:\d{4}[ \t]*[.\-/년][ \t]*)?\d{1,2}[ \t]*(?:[.\-/월][ \t]*\d{1,2}[ \t]*일?\.?|월)[ \t]*(?:기준|현재|말)")
 _IDENT = re.compile(
     r"https?://\S+"
     r"|(?<![\w.+-])[\w.+-]{1,64}@[\w-]+(?:\.[\w-]+)+"
     r"|(?<![\w.@-])(?:[A-Za-z0-9-]+\.)+(?:com|net|kr|im|io|co|org|me|app|dev|shop|store)(?:/\S*)?"
     r"|(?<![\d.])\d+(?:\.\d+){2,}(?![\d.])"
-    r"|(?<![\d\-])(?:0\d{1,2}|1[5-9]\d{2})\s*[-)]\s*\d{3,4}(?:\s*-\s*\d{4})?(?![\d\-]|\s*(?:원|%|일|개월|배|명|회|건|개|점))"
+    r"|(?<![\d\-])(?:0\d{1,2}|1[5-9]\d{2})[ \t]*[-)][ \t]*\d{3,4}(?:[ \t]*-[ \t]*\d{4})?(?![\d\-]|[ \t]*(?:원|%|일|개월|배|명|회|건|개|점))"
     r"|(?<![\d\-])\d{3}-\d{2}-\d{5}(?![\d\-])")
 # 날짜: 숫자 대조에서 '31일'·'2026년' 같은 기간 수치로 오인하지 않도록 먼저 잡아 (월, 일) 로 비교한다.
 #  · 연도가 있는 형태(2026.10.31 · 2026-10-31 · 2026년 10월 31일) · '월' 이 있는 형태(10월 31일)
 #  · 연도도 '월' 도 없는 '10.31'·'10/31' 은 뒤에 '(금)'·'까지'·'종료'·'마감' 이 올 때만 날짜다 ('4.5'·'3-5일'·'1.5배' 는 날짜가 아니다)
-_DATE_PARTS = (r"(?:(?P<y>\d{4})\s*[.\-/년]\s*(?P<m>\d{1,2})\s*[.\-/월]\s*(?P<d>\d{1,2})"
-               r"|(?P<m2>\d{1,2})\s*월\s*(?P<d2>\d{1,2})"
-               r"|(?<![\d.\-/])(?P<m3>\d{1,2})\s*[./]\s*(?P<d3>\d{1,2})(?=\s*(?:\(\s*[월화수목금토일]\s*\)|까지|종료|마감)))")
-_DATE = re.compile(rf"(?<![\d.]){_DATE_PARTS}\s*일?(?![\d%]|,\d{{3}}(?!\d))")
-_DATE_TAIL = re.compile(r"\s*[~\-–—〜]\s*(\d{1,2})\s*일")   # '10월 1일 ~ 31일' 의 뒷날짜 (같은 달)
+_DATE_PARTS = (r"(?:(?P<y>\d{4})[ \t]*[.\-/년][ \t]*(?P<m>\d{1,2})[ \t]*[.\-/월][ \t]*(?P<d>\d{1,2})"
+               r"|(?P<m2>\d{1,2})[ \t]*월[ \t]*(?P<d2>\d{1,2})"
+               r"|(?<![\d.\-/])(?P<m3>\d{1,2})[ \t]*[./][ \t]*(?P<d3>\d{1,2})(?=[ \t]*(?:\([ \t]*[월화수목금토일][ \t]*\)|까지|종료|마감)))")
+_DATE = re.compile(rf"(?<![\d.]){_DATE_PARTS}[ \t]*일?(?![\d%]|,\d{{3}}(?!\d))")
+# 시각('오후 11시 59분' · '23:59') 은 혜택 수치도 기간도 아니다 — 분(分)을 기간으로 읽지 않게 먼저 지운다
+_TIME = re.compile(r"(?:오전|오후|밤|새벽|낮)?[ \t]*\d{1,2}[ \t]*시(?!간)(?:[ \t]*\d{1,2}[ \t]*분)?|(?<![\d:])\d{1,2}:\d{2}(?::\d{2})?(?![\d:])")
+# '10.1 ~ 10.31' · '10/1~10/31' — 날짜일 수도 소수일 수도 있어 값(월·일)과 소수 읽기를 함께 갖는 수량으로 읽는다
+_MD_RANGE = re.compile(r"(?<![\d./])(\d{1,2})[./](\d{1,2})[ \t]*[~\-–—〜][ \t]*(\d{1,2})[./](\d{1,2})(?![\d./%]|[ \t]*(?:원|배|개|명|회|건|점|일|월|년|%))")
+# 앞에 숫자가 없는 '만원'·'천원' (= 1만원·1천원)
+_BARE_MULT_AMOUNT = re.compile(r"(?<![0-9십백천만억가-힣])([십백천만억]+)[ \t]*원")
+_DATE_TAIL = re.compile(r"[ \t]*[~\-–—〜][ \t]*(\d{1,2})[ \t]*일")   # '10월 1일 ~ 31일' 의 뒷날짜 (같은 달)
 _TOKEN = re.compile(r"[가-힣]{2,}|[A-Za-z]{3,}")
 _STOP = {"지금", "바로", "확인", "조건", "상품", "서비스", "가능", "신청", "이용", "고객", "혜택", "제공", "있습니다", "있어요", "합니다", "해요",
          "최대", "최소", "기준", "경우", "통해", "위해", "대한", "모든", "전체"}
 # 금액·비율의 주기: '월 19,900원' 과 '연 19,900원' 은 같은 수치가 아니다. 숫자 앞의 주기 말('월', '매월', '연회비', '월 최대', '연 이용료') 또는 뒤의 '/월' 로 읽는다.
-_CYCLE_TOKEN = re.compile(r"(?<![가-힣\d])(매월|매년|매주|매일|하루|연간|월간|연회비|월회비|연이율|월정액|1\s*년에|한\s*달에|월|연|년|주)(?=[\s가-힣]|$)")
+_CYCLE_TOKEN = re.compile(r"(?<![가-힣\d])(매월|매년|매주|매일|하루|연간|월간|연회비|월회비|연이율|월정액|1[ \t]*년에|한[ \t]*달에|월|연|년|주)(?=[ \t가-힣]|$)")
 _CYCLE_FILLER = re.compile(r"^(?:[ \t]*(?:최대|최소|평균|약|총|기본|정기|일반|이용료|구독료|요금|수수료|회비|이자|금리|할인|캐시백|적립|혜택|금액|비용|납입|한도|부터|당|가입|이용|결제|납부)){0,3}[ \t]*$")
-_CYCLE_POST = re.compile(r"^\s*/\s*(월|연|년|주|일)(?![가-힣])")
+_CYCLE_POST = re.compile(r"^[ \t]*/[ \t]*(월|연|년|주|일)(?![가-힣])")
 _CYCLE_NAME = {"매월": "월", "월": "월", "월간": "월", "월회비": "월", "월정액": "월", "한달에": "월", "매년": "연", "연": "연", "년": "연", "연간": "연", "연회비": "연",
                "연이율": "연", "1년에": "연", "매주": "주", "주": "주", "매일": "일", "하루": "일", "일": "일"}
 # 같은 숫자·단위라도 뜻이 다르면 뒷받침이 아니다. 숫자와 같은 구절 안의 뜻 어휘를 '묶음' 으로 비교한다 (할인≈쿠폰≈세일, 금리≈이자…).
@@ -102,7 +110,7 @@ def _fold(text: str) -> str:
 @dataclass(frozen=True)
 class Quantity:
     value: float
-    cls: str            # percent | krw | count | multiple | duration | points | weight | date | bare
+    cls: str            # percent | krw | count | multiple | duration | points | weight | date | mdlike | bare
     unit: str           # 원문 단위 (duration·count 는 단위까지 같아야 한다)
     sense: frozenset    # 같은 구절의 뜻 묶음들 (없으면 빈 집합)
     start: int
@@ -110,16 +118,36 @@ class Quantity:
     raw: str
     cycle: str = ""     # 금액·비율의 주기 (월 · 연 · 주 · 일). 말하지 않았으면 빈 문자열
     year: int = 0       # date 수량이 연도를 말했으면 그 연도 (0 = 말하지 않음). 둘 다 말했을 때만 비교한다
+    alt: float = -1.0   # mdlike('10.1~10.31' 처럼 날짜일 수도 소수일 수도 있는 값) 를 소수로 읽은 값. value 는 월*100+일
+    neg: bool = False   # 값 앞에 마이너스('-5.2%')나 ▼ 가 붙었다
 
     def supports(self, other: "Quantity") -> bool:
         """self(사실 쪽) 가 other(광고 쪽) 를 뒷받침하는가."""
-        if abs(self.value - other.value) > 1e-9:
+        if self.cls == "mdlike" or other.cls == "mdlike":
+            return self._supports_mdlike(other)
+        return self._supports_plain(other, other.value, other.cls)
+
+    def _year_ok(self, other: "Quantity") -> bool:
+        return not self.year or not other.year or self.year == other.year
+
+    def _supports_mdlike(self, other: "Quantity") -> bool:
+        dateish = ("date", "mdlike")
+        if self.cls in dateish and other.cls in dateish:
+            return abs(self.value - other.value) <= 1e-9 and self._year_ok(other)     # 같은 월·일 — '10.1' 과 '10월 1일' 은 같은 날
+        if other.cls == "mdlike":
+            return self._supports_plain(other, other.alt, "bare") if other.alt >= 0 else False   # 날짜가 아닌 소수로 읽어 같은 값의 수치가 사실에 있으면 뒷받침
+        if other.cls == "date":
             return False
-        if other.cls == "date" or self.cls == "date":
-            return self.cls == other.cls and (not self.year or not other.year or self.year == other.year)
-        if other.cls != "bare":
+        return other.cls == "bare" and self.alt >= 0 and abs(self.alt - other.value) <= 1e-9     # 사실 쪽 모호한 값은 단위 없는 수치와만 맞는다
+
+    def _supports_plain(self, other: "Quantity", ovalue: float, ocls: str) -> bool:
+        if abs(self.value - ovalue) > 1e-9:
+            return False
+        if ocls == "date" or self.cls == "date":
+            return self.cls == ocls and self._year_ok(other)
+        if ocls != "bare":
             # 광고가 단위를 붙여 말한 숫자는 사실에도 같은 종류의 단위로 있어야 한다. 전화번호·상품명 속 숫자는 근거가 아니다.
-            if self.cls == "bare" or self.cls != other.cls:
+            if self.cls == "bare" or self.cls != ocls:
                 return False
             if self.cls in ("duration", "count") and self.unit != other.unit:
                 return False
@@ -127,6 +155,8 @@ class Quantity:
             return False  # 둘 다 주기를 말했는데 다르면 다른 수치 (한쪽이 주기를 말하지 않은 경우는 코드가 판단하지 않는다)
         if self.sense and other.sense and not (self.sense & other.sense):
             return False
+        if self.neg != other.neg and ("수익" in self.sense or "수익" in other.sense):
+            return False  # 수익률 -5.2% 와 5.2% 는 손실과 이익이라 다른 수치다 (할인 '-30%' 같은 표기는 부호를 보지 않는다)
         return True
 
 
@@ -146,11 +176,21 @@ class GroundingResult:
 _SEG_DELIM = re.compile(r"[\n.,;()·~\-/]")
 
 
+def _squash(text: str) -> str:
+    """길이를 바꾸지 않고, 8칸을 넘는 공백·탭 나열의 나머지를 NUL 로 바꾼다 — 공백이 수만 개 이어진 입력에서 정규식 비용이 커지는 것을 막는다 (숫자와 단위 사이에 9칸 넘게 띄우는 글은 없다)."""
+    return _LONG_WS.sub(lambda m: m.group()[:8] + "\x00" * (len(m.group()) - 8), text)
+
+
+_LONG_WS = re.compile(r"[ \t]{9,}")
+_SENSE_WINDOW = 120   # 뜻을 찾는 구절의 바깥 한계 (구분자가 없는 긴 글에서 숫자마다 글 전체를 훑지 않는다)
+
+
 def _sense(text: str, start: int, end: int) -> frozenset:
     """숫자와 같은 구절(줄·쉼표·괄호로 끊기는 구간) 안에 있는 뜻 묶음 전부. 다른 줄의 어휘를 끌어오지 않는다."""
-    seg_start = max((m.end() for m in _SEG_DELIM.finditer(text, 0, start)), default=0)
-    m_end = _SEG_DELIM.search(text, end)
-    seg_end = m_end.start() if m_end else len(text)
+    lo = max(0, start - _SENSE_WINDOW)
+    seg_start = max((m.end() for m in _SEG_DELIM.finditer(text, lo, start)), default=lo)
+    m_end = _SEG_DELIM.search(text, end, end + _SENSE_WINDOW)
+    seg_end = m_end.start() if m_end else min(len(text), end + _SENSE_WINDOW)
     seg = text[seg_start:seg_end]
     return frozenset(_SENSE_OF[w] for w in _SENSE_WORDS if w in seg)
 
@@ -189,6 +229,8 @@ def _dates(folded: str, original: str) -> tuple[list[Quantity], str]:
         if not (1 <= month <= 12 and 1 <= day <= 31):
             continue
         end = m.end()
+        while end > m.start() and folded[end - 1] in " \t":
+            end -= 1                                  # 날짜 뒤 공백은 날짜의 일부가 아니다 (인용·위치가 필드 안에 머물도록)
         out.append(Quantity(value=float(month * 100 + day), cls="date", unit="date", sense=frozenset(), start=m.start(), end=end,
                             raw=original[m.start():end].strip(), year=year))
         tail = _DATE_TAIL.match(folded, end)
@@ -209,7 +251,7 @@ def _cycle_of(text: str, start: int, end: int) -> str:
     for m in _CYCLE_TOKEN.finditer(window):
         last = m
     if last is not None and _CYCLE_FILLER.match(window[last.end():]):
-        return _CYCLE_NAME[re.sub(r"\s+", "", last.group(1))]
+        return _CYCLE_NAME[re.sub(r"[ \t]+", "", last.group(1))]
     post = _CYCLE_POST.match(text[end:end + 6])
     return _CYCLE_NAME[post.group(1)] if post else ""
 
@@ -265,7 +307,8 @@ def _read_amount(t: str, num_end: int, first: float) -> tuple[float, int, str]:
             end = n.end()
             continue
         # 맨 끝 자릿수 단위 없는 꼬리: 붙여 쓴 네 자리 이하 정수 뒤에 '원' 이 올 때만 ('1만5000원')
-        if n.start(1) == end and re.fullmatch(r"\d{1,4}", n.group(1)) and v2 < last_place and re.match(r"\s*원", t[n.end():]):
+        glued_tail = n.start(1) == end and re.fullmatch(r"\d{1,4}", n.group(1))
+        if (glued_tail or re.fullmatch(r"\d{1,3},\d{3}", n.group(1))) and v2 < last_place and re.match(r"[ \t]*원", t[n.end():]):
             total += v2
             end = n.end()
         break
@@ -280,6 +323,8 @@ def _read_unit(t: str, pos: int) -> tuple[str, int]:
     if not m:
         return "", pos
     unit, end = m.group(1), m.end()
+    if unit.isascii() and unit.isalpha() and unit != unit.lower():
+        return "", pos                      # '5G' 는 5g(그램)이 아니다 — 영문 단위는 소문자일 때만
     if unit != "%":
         if _NOT_UNIT_WORD.match(t, ws_end):
             return "", pos
@@ -293,32 +338,68 @@ def _read_unit(t: str, pos: int) -> tuple[str, int]:
     return _UNIT_ALIAS.get(unit, unit), end
 
 
+def _sign_before(t: str, start: int) -> bool:
+    """숫자 바로 앞의 마이너스(-5.2%) · ▼ · '마이너스'. 앞이 숫자·글자면 범위 구분자('50-60%')라 부호가 아니다."""
+    if start == 0:
+        return False
+    c = t[start - 1]
+    if c == "▼":
+        return True
+    if c in "-−" and (start == 1 or t[start - 2] in " \t(,:~[>"):
+        return True
+    return t[max(0, start - 8):start].rstrip(" \t").endswith("마이너스")
+
+
 def extract_quantities(text: str) -> list[Quantity]:
     text = text[:MAX_ANALYZED_CHARS]
-    folded = _fold(text)
+    folded = _squash(_fold(text))
     folded = _mask(folded, _IDENT_PRE)               # 심의필 유효기간·기준일은 날짜보다 먼저 지운다
+    folded = _mask(folded, _TIME)                    # 시각은 혜택 수치가 아니다
     dates, blanked = _dates(folded, text)
     blanked = _mask(blanked, _IDENT)                 # 전화·심의번호·URL·버전 등은 혜택 수치가 아니다
     out: list[Quantity] = list(dates)
+    # '10.1~10.31' 같은 날짜/소수 겸용 범위
+    md_spans: list[tuple[int, int]] = []
+    for m in _MD_RANGE.finditer(blanked):
+        parts = [(int(m.group(1)), int(m.group(2)), m.start(1), m.end(2)), (int(m.group(3)), int(m.group(4)), m.start(3), m.end(4))]
+        if all(1 <= mo <= 12 and 1 <= d <= 31 for mo, d, _, _ in parts):
+            for mo, d, a, z in parts:
+                raw = text[a:z]
+                alt = float(raw) if "." in raw else -1.0
+                out.append(Quantity(value=float(mo * 100 + d), cls="mdlike", unit="", sense=frozenset(), start=a, end=z, raw=raw, alt=alt))
+            md_spans.append((m.start(), m.end()))
+    blanked = _blank(blanked, md_spans)
+    # 앞 숫자 없는 '만원'·'천원'
+    amt_spans: list[tuple[int, int]] = []
+    for m in _BARE_MULT_AMOUNT.finditer(blanked):
+        out.append(Quantity(value=_mult_value(m.group(1)), cls="krw", unit="원", sense=_sense(blanked, m.start(), m.end()), start=m.start(), end=m.end(), raw=text[m.start():m.end()],
+                            cycle=_cycle_of(blanked, m.start(), m.end())))
+        amt_spans.append((m.start(), m.end()))
+    blanked = _blank(blanked, amt_spans)
     toks: list[dict] = []
     consumed = 0
     for m in _NUM_TOKEN.finditer(blanked):
         if m.start() < consumed:
             continue                                  # '1만5천원' 의 '5천' 처럼 앞 숫자가 이미 읽은 부분
+        digits = re.sub(r"\D", "", m.group(1))
+        if len(digits) > 15:
+            continue                                  # 자릿수가 비정상적으로 긴 나열은 수치가 아니다 (비교할 수 없는 값을 만들지 않는다)
         first = float(m.group(1).replace(",", ""))
         value, num_end, mult_run = _read_amount(blanked, m.end(), first)
+        if not math.isfinite(value):
+            continue
         unit, end = _read_unit(blanked, num_end)
         glued = m.start() > 0 and "가" <= blanked[m.start() - 1] <= "힣"
         if glued and unit not in _GLUED_UNITS:
             continue                                  # '코스피200' · '제2026호' — 이름·번호는 숫자로 읽지 않는다
         consumed = max(end, m.end())
-        toks.append({"start": m.start(), "end": end, "value": value, "unit": unit, "mult": mult_run, "digits": re.sub(r"\D", "", m.group(1))})
-    # 범위('4.5~15.0%' · '50-60%' · '1~2만원') 의 앞 숫자는 단위가 없으면 뒤 숫자의 단위를 이어받는다
+        toks.append({"start": m.start(), "end": end, "value": value, "unit": unit, "mult": mult_run, "digits": digits, "neg": _sign_before(blanked, m.start())})
+    # 범위('4.5~15.0%' · '50-60%' · '1~2만원' · '100만~500만원') 의 앞 숫자는 단위가 없으면 뒤 숫자의 단위를 이어받는다
     for i, tk in enumerate(toks[:-1]):
         nx = toks[i + 1]
-        if not tk["unit"] and not tk["mult"] and nx["unit"] and _RANGE_BETWEEN.match(blanked[tk["end"]:nx["start"]]):
+        if not tk["unit"] and nx["unit"] and _RANGE_BETWEEN.match(blanked[tk["end"]:nx["start"]]):
             tk["unit"] = nx["unit"]
-            if nx["mult"]:
+            if nx["mult"] and not tk["mult"]:
                 tk["value"] *= _mult_value(nx["mult"])
                 tk["mult"] = nx["mult"]
     for tk in toks:
@@ -327,8 +408,10 @@ def extract_quantities(text: str) -> list[Quantity]:
         if cls == "bare" and not mult and len(tk["digits"]) < 3:
             continue  # 단위 없는 한두 자리 숫자는 무시 (예: '3개 중 1')
         cycle = _cycle_of(blanked, tk["start"], tk["end"]) if cls in ("krw", "percent") else ""
-        out.append(Quantity(value=tk["value"], cls=cls, unit=unit, sense=_sense(blanked, tk["start"], tk["end"]),
-                            start=tk["start"], end=tk["end"], raw=text[tk["start"]:tk["end"]], cycle=cycle))
+        # 마이너스 하이픈은 구분자로 취급되어 앞 구절이 잘리므로, 뜻은 부호 앞에서부터 찾는다
+        sense_from = tk["start"] - 1 if (tk["neg"] and blanked[tk["start"] - 1] in "-−") else tk["start"]
+        out.append(Quantity(value=tk["value"], cls=cls, unit=unit, sense=_sense(blanked, sense_from, tk["end"]),
+                            start=tk["start"], end=tk["end"], raw=text[tk["start"]:tk["end"]], cycle=cycle, neg=tk["neg"]))
     out.sort(key=lambda q: q.start)
     return out
 
@@ -345,30 +428,32 @@ def _supported(q: Quantity, pool: list[Quantity]) -> bool:
 # ─────────────────────────── 조건 비교 (코드가 확인하는 여섯 종류만) ───────────────────────────
 # 부정: 조건 표식 바로 뒤에 '없음·않음·아님·안 함' 같은 말이 오면 조건이 아니라 조건이 없다는 말이다 ('제외 품목 없음', '자동결제 없이', '자동결제 되지 않아요',
 # '제외 상품이 없어요', '심사 불필요', '자동결제 안 해요', '자동결제 NO'). 이 목록에 있는 표현만 부정으로 읽는다 — 그 밖의 돌려 말하기는 의미 심사와 사람의 몫이다.
-_NEG_WORD = (r"(?:없|않|아님|아닙|아니|아닌|안\s*(?:돼|됩|되|해|합|함|하)|불가|제로|0\s*건|면제|생략|불필요|필요\s*없|미적용|미부과|미청구|해당\s*없"
-             r"|해제\s*(?:됨|돼|되|됐)|no(?![A-Za-z]))")
+_NEG_WORD = (r"(?:없|않|아님|아닙|아니|아닌|안[ \t]*(?:돼|됩|되|해|합|함|하)|불가|제로|0[ \t]*건|면제|생략|불필요|필요[ \t]*없|미적용|미부과|미청구|해당[ \t]*없"
+             r"|해제[ \t]*(?:됨|돼|되|됐)|no(?![A-Za-z]))")
 _NEG_NOUN = r"(?:품목|상품|대상|항목|걱정|부담|절차|과정|조건|요금|비용|결제|과금|탈락|거절)"
 _NEG_PART = r"(?:이|가|은|는|도|를|을|엔|에는)"
+_NEG_ADV = r"(?:(?:전혀|절대|일절|아예|하나도|단[ \t]*하나도|조금도|별도로?|따로|추가로?)[ \t]*)?"   # '자동결제 전혀 없음' — 강조 부사가 끼어도 부정이다
 _NEGATED_AFTER = re.compile(
-    rf"^\s*(?:{_NEG_PART}\s*)?(?:(?:되는|하는|되어|하여)\s*)?(?:{_NEG_NOUN}\s*){{0,2}}(?:{_NEG_PART}\s*)?(?:(?:되지|돼지|하지|이루어지지)\s*)?{_NEG_WORD}[가-힣]*",
+    rf"^[ \t]*(?:{_NEG_PART}[ \t]*)?(?:(?:되는|하는|되어|하여)[ \t]*)?(?:{_NEG_NOUN}[ \t]*){{0,2}}(?:{_NEG_PART}[ \t]*)?{_NEG_ADV}(?:(?:되지|돼지|하지|이루어지지)[ \t]*)?{_NEG_ADV}{_NEG_WORD}[가-힣]*",
     re.IGNORECASE)
 _CANCEL_NEAR = re.compile(r"해지|취소|환불|위약")   # '자동결제 없이 해지 가능' 처럼 해지·취소를 말하는 부정은 조건이 반대라는 뜻이 아니다
-_AUTOPAY = re.compile(r"자동\s*(?:으로\s*)?(?:결제|갱신|연장|청구)|유료\s*(?:전환|결제)|정기\s*결제|과금")
+_AUTOPAY = re.compile(r"자동[ \t]*(?:으로[ \t]*)?(?:결제|갱신|연장|청구)|유료[ \t]*(?:전환|결제)|정기[ \t]*결제|과금")
 _AMT_NUM = r"(?:\d{1,3}(?:,\d{3}){1,4}|\d{1,15})(?:\.\d{1,6})?"      # 길이를 제한해, 긴 숫자 나열에서 정규식 비용이 늘어나지 않게 한다
-_AMOUNT = rf"(?<![\d,.])((?:{_AMT_NUM}\s*[십백천만억]+\s*){{0,4}}{_AMT_NUM}\s*[십백천만억]*)\s*원"
-_MIN_AMOUNT = re.compile(_AMOUNT + r"\s*(이상|초과|이하|미만)")
-_DL_CORE = (r"(?:(?P<y>\d{4})\s*[.\-/년]\s*(?P<m>\d{1,2})\s*[.\-/월]\s*(?P<d>\d{1,2})"
-            r"|(?P<m2>\d{1,2})\s*[./월]\s*(?P<d2>\d{1,2}))")
-_DL_MID = (r"\s*일?\s*(?:\(\s*[월화수목금토일]\s*\)\s*)?"
-           r"(?:(?:\d{1,2}\s*[:시]\s*(?:\d{1,2}\s*분?)?|자정|정오|오전\s*\d{1,2}\s*시|오후\s*\d{1,2}\s*시)\s*)?(?:에\s*)?")
-_DEADLINE_DATE = re.compile(rf"(?<![\d.]){_DL_CORE}{_DL_MID}(?P<mark>까지|종료|마감)")
-_DEADLINE_RANGE = re.compile(r"(?<![\d.])(\d{1,2})\s*월\s*(\d{1,2})\s*일?\s*[~\-–—〜]\s*(?:(\d{1,2})\s*월\s*)?(\d{1,2})\s*일?\s*(까지|종료|마감)")
-_DEADLINE_DUR = re.compile(r"(?<![\d.])(\d{1,6})\s*(일|개월|달|주)\s*(까지|이내)")
-_LIMIT_PER_PERSON = re.compile(r"(?<!\d)1\s*인\s*(?:당|최대)?\s*(?:최대\s*)?(\d{1,6})\s*회|(?:고객|회원|계정|아이디|ID|인|사람)\s*당\s*(?:최대\s*)?(\d{1,6})\s*회", re.IGNORECASE)
-_LIMIT_AD_ONLY = re.compile(r"(?<!\d)(\d{1,6})\s*회\s*(?:한정|만|씩)|한\s*번만")
+_AMOUNT = rf"(?:(?<![\d,.])((?:{_AMT_NUM}[ \t]*[십백천만억]+[ \t]*){{0,4}}{_AMT_NUM}[ \t]*[십백천만억]*)|(?<![\d,.십백천만억가-힣])([십백천만억]+))[ \t]*원"   # 두 번째: 앞 숫자 없는 '만원'·'천원'(=1만원·1천원)
+_MIN_AMOUNT = re.compile(_AMOUNT + r"[ \t]*(이상|초과|이하|미만)")
+_DL_CORE = (r"(?:(?P<y>\d{4})[ \t]*[.\-/년][ \t]*(?P<m>\d{1,2})[ \t]*[.\-/월][ \t]*(?P<d>\d{1,2})"
+            r"|(?P<m2>\d{1,2})[ \t]*[./월][ \t]*(?P<d2>\d{1,2}))")
+_DL_MID = (r"[ \t]*일?[ \t]*(?:\([ \t]*[월화수목금토일][ \t]*\)[ \t]*)?(?:[월화수목금토일]요일[ \t]*)?"
+           r"(?:(?:(?:오전|오후|밤|새벽|낮)?[ \t]*\d{1,2}[ \t]*(?:시(?:[ \t]*\d{1,2}[ \t]*분?)?|:\d{2}(?::\d{2})?)|자정|정오)[ \t]*)?(?:에[ \t]*)?")
+_DEADLINE_DATE = re.compile(rf"(?<![\d.]){_DL_CORE}{_DL_MID}(?P<mark>까지|(?:[가-힣]{{1,6}}[ \t]*)?(?:종료|마감))")
+_PERIOD_RANGE = re.compile(r"(?<![\d.])(\d{1,2})[ \t]*월[ \t]*(\d{1,2})[ \t]*일?[ \t]*[~\-–—〜][ \t]*(?:(\d{1,2})[ \t]*월[ \t]*)?(\d{1,2})[ \t]*일?(?![\d%])")
+_DEADLINE_RANGE = re.compile(r"(?<![\d.])(\d{1,2})[ \t]*월[ \t]*(\d{1,2})[ \t]*일?[ \t]*[~\-–—〜][ \t]*(?:(\d{1,2})[ \t]*월[ \t]*)?(\d{1,2})[ \t]*일?[ \t]*(까지|종료|마감)")
+_DEADLINE_DUR = re.compile(r"(?<![\d.])(\d{1,6})[ \t]*(일|개월|달|주)[ \t]*(까지|이내)")
+_LIMIT_PER_PERSON = re.compile(r"(?<!\d)1[ \t]*인[ \t]*(?:당|최대)?[ \t]*(?:최대[ \t]*)?(\d{1,6})[ \t]*회|(?:고객|회원|계정|아이디|ID|인|사람)[ \t]*당[ \t]*(?:최대[ \t]*)?(\d{1,6})[ \t]*회", re.IGNORECASE)
+_LIMIT_AD_ONLY = re.compile(r"(?<!\d)(\d{1,6})[ \t]*회[ \t]*(?:한정|만|씩)|한[ \t]*번만")
 _EXCLUDE = re.compile(r"(?<![가-힣A-Za-z])(?:(?:일부|특정)[ \t]*)?(?:[가-힣A-Za-z]{1,10}[ \t]*)?제외")
 _REVIEW = re.compile(r"심사")
-_REVIEW_COND = re.compile(r"\s*(?:결과|기준|내용)?\s*(?:에\s*(?:따라|따른|의해)|별로)")
+_REVIEW_COND = re.compile(r"[ \t]*(?:결과|기준|내용)?[ \t]*(?:에[ \t]*(?:따라|따른|의해)|별로)")
 
 
 @dataclass(frozen=True)
@@ -390,7 +475,7 @@ def _neg_len(text: str, end: int) -> int:
 def _krw(expr: str) -> Optional[float]:
     """'1만5천' · '5천만' · '50,000' → 원 단위 값. 큰 단위부터 작아지는 조합만 하나로 더한다 ('3만 5만' 같은 조합은 읽지 않는다)."""
     total, last = 0.0, None
-    for num, mult in re.findall(rf"({_NUMBER})\s*([십백천만억]*)", expr):
+    for num, mult in re.findall(rf"({_NUMBER})[ \t]*([십백천만억]*)", expr):
         v = float(num.replace(",", ""))
         mv = _mult_value(mult) if mult else 1.0
         if last is not None and mv >= last:
@@ -439,10 +524,10 @@ def _c_review(folded: str, orig: str, is_fact: bool) -> list[Cond]:
 def _c_min_amount(folded: str, orig: str, is_fact: bool) -> list[Cond]:
     out = []
     for m in _MIN_AMOUNT.finditer(folded):
-        value = _krw(m.group(1))
+        value = _krw(m.group(1)) if m.group(1) else _mult_value(m.group(2))
         if value is None:
             continue
-        comp = m.group(2)
+        comp = m.group(3)
         # 사실 쪽의 '이상·초과' 는 광고가 지켜야 하는 구매 하한이다. '이하·미만' 은 비교용 참고값
         out.append(_cond("최소 금액 조건", orig, m.start(), m.end(), value=(value, comp), binding=(comp in ("이상", "초과")) if is_fact else True))
     return out
@@ -459,21 +544,27 @@ def _c_deadline(folded: str, orig: str, is_fact: bool) -> list[Cond]:
         out.append(_cond("기간 한정", orig, m.start(), m.end(), value=("date", month * 100 + d2, 0)))
         spans.append((m.start(), m.end()))
     rest = _blank(folded, spans)
+    if not is_fact:     # 광고가 '10월 1일 ~ 10월 31일' 처럼 기간을 적으면 끝날을 마감으로 읽는다 (사실의 '10월 1일부터 10월 31일까지' 와 같은 말)
+        for m in _PERIOD_RANGE.finditer(rest):
+            month = int(m.group(3)) if m.group(3) else int(m.group(1))
+            if 1 <= month <= 12 and 1 <= int(m.group(4)) <= 31 and 1 <= int(m.group(1)) <= 12:
+                out.append(_cond("기간 한정", orig, m.start(), m.end(), value=("date", month * 100 + int(m.group(4)), 0)))
+                spans.append((m.start(), m.end()))
+        rest = _blank(folded, spans)
     for m in _DEADLINE_DATE.finditer(rest):
         if m.group("y"):
             year, month, day = int(m.group("y")), int(m.group("m")), int(m.group("d"))
         else:
             year, month, day = 0, int(m.group("m2")), int(m.group("d2"))
-        if not (1 <= month <= 12 and 1 <= day <= 31) or (is_fact and m.group("mark") != "까지"):
+        if not (1 <= month <= 12 and 1 <= day <= 31) or (is_fact and not m.group("mark").endswith("까지")):
             continue
         out.append(_cond("기간 한정", orig, m.start(), m.end(), value=("date", month * 100 + day, year)))
         spans.append((m.start(), m.end()))
     rest = _blank(folded, spans)
     for m in _DEADLINE_DUR.finditer(rest):
-        if is_fact and m.group(3) != "까지":
-            continue          # 사실 쪽의 '3일 이내' 는 배송·처리 기간 안내일 수 있어 조건으로 보지 않는다 (광고 쪽 '30일 이내' 는 '30일까지' 와 같은 기간으로 읽는다)
         unit = "개월" if m.group(2) == "달" else m.group(2)
-        out.append(_cond("기간 한정", orig, m.start(), m.end(), value=("dur", float(m.group(1)), unit)))
+        # 사실 쪽의 '3일 이내' 는 배송·처리 기간 안내일 수 있어 광고가 반드시 옮겨 적어야 하는 조건은 아니다(binding=False). 그래도 광고의 같은 값 '3일 이내' 와는 맞대 볼 수 있게 남긴다.
+        out.append(_cond("기간 한정", orig, m.start(), m.end(), value=("dur", float(m.group(1)), unit), binding=not (is_fact and m.group(3) != "까지")))
     return sorted(out, key=lambda c: c.start)
 
 
@@ -513,6 +604,14 @@ class CondIssue:
     why: str
 
 
+_SCOPED_BEFORE = re.compile(r"체험|기간|동안|이전|전에|처음|첫[ \t]*달|[ \t]중[ \t]*$")
+
+
+def _same_line_before(text: str, start: int, width: int = 14) -> str:
+    seg = text[max(0, start - width):start]
+    return seg.rsplit("\n", 1)[-1]
+
+
 def _cond_text(c: Cond) -> str:
     return f"'{c.raw}'"
 
@@ -538,14 +637,15 @@ def condition_issues(copy: AdCopy, all_facts: list[Fact], refs: list[Fact]) -> l
     같은 종류의 조건에 conflict 가 있으면 omitted 는 따로 내지 않는다 (같은 문제를 두 번 말하지 않는다).
     """
     orig = copy.full_text()[:MAX_ANALYZED_CHARS]
-    text = _fold(orig)
+    text = _squash(_fold(orig))
     out: list[CondIssue] = []
     for name, finder in _CONDITIONS:
         ad = finder(text, orig, False)
         ad_aff = [c for c in ad if not c.negated]
         # 해지·취소·환불을 말하는 부정('해지 수수료 없음')은 조건이 반대라는 말이 아니다
-        ad_neg = [c for c in ad if c.negated and not _CANCEL_NEAR.search(text[max(0, c.start - 12):c.end + 12])]
-        fact_conds = [(f, c) for f in all_facts for c in finder(_fold(f.text), f.text, True)]
+        # '체험 기간 중 과금 없음' 처럼 범위를 한정한 부정도 조건이 반대라는 말이 아니다 (사실이 '체험 후 자동결제' 라면 체험 중에 없다는 말은 맞다)
+        ad_neg = [c for c in ad if c.negated and not _CANCEL_NEAR.search(text[max(0, c.start - 12):c.end + 12]) and not _SCOPED_BEFORE.search(_same_line_before(text, c.start))]
+        fact_conds = [(f, c) for f in all_facts for c in finder(_squash(_fold(f.text)), f.text, True)]
         fact_aff = [(f, c) for f, c in fact_conds if not c.negated]
         fact_neg = [(f, c) for f, c in fact_conds if c.negated]
         conflict = False
@@ -559,7 +659,7 @@ def condition_issues(copy: AdCopy, all_facts: list[Fact], refs: list[Fact]) -> l
                     out.append(CondIssue(name, "conflict", f, fc.raw, a.raw, a.start, a.end,
                                          f"광고의 {_cond_text(a)} 이(가) 근거 {f.id}('{f.text}')의 {name} {_cond_text(fc)} 과(와) 값이 다름"))
                     conflict = True
-            if ad_neg:   # 광고 어딘가에 같은 조건을 긍정하는 말이 함께 있어도, 부정한 말이 있으면 뜻이 반대인 문장이 광고에 있는 것이다
+            if ad_neg and not fact_neg:   # 광고 어딘가에 같은 조건을 긍정하는 말이 함께 있어도, 부정한 말이 있으면 뜻이 반대인 문장이 광고에 있는 것이다. 단 사실 자신이 같은 조건의 부정('7일간 자동결제 없이 체험')을 함께 말하면 광고의 부정은 그 옮겨 적음일 수 있어 뜻이 반대라고 보지 않는다
                 a, (f, fc) = ad_neg[0], fact_aff[0]
                 out.append(CondIssue(name, "conflict", f, fc.raw, a.raw, a.start, a.end,
                                      f"광고는 {_cond_text(a)} 라고 하지만 근거 {f.id}('{f.text}')에는 {name} {_cond_text(fc)} 이(가) 있음 — 뜻이 반대"))
@@ -572,7 +672,7 @@ def condition_issues(copy: AdCopy, all_facts: list[Fact], refs: list[Fact]) -> l
         if conflict:
             continue
         for f in refs:
-            for fc in finder(_fold(f.text), f.text, True):
+            for fc in finder(_squash(_fold(f.text)), f.text, True):
                 if fc.negated or not fc.binding:
                     continue
                 if any(_same(a.value, fc.value) for a in ad_aff):

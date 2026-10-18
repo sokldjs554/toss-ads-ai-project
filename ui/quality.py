@@ -9,7 +9,7 @@ import streamlit as st
 
 from core.config import IN_BROWSER, Settings
 from evals.regression import gate
-from evals.runner import REPORTS, dataset_fingerprint, load_dataset, load_report, run_eval
+from evals.runner import REPORTS, EvalAborted, dataset_fingerprint, load_dataset, load_report, run_eval
 from guardrails.policy import get_catalog
 from agents.prompts import PROMPT_VERSION
 from observability.tracer import Tracer
@@ -184,8 +184,12 @@ def _eval_section(make_settings, router_factory, server_status: dict) -> None:
         if st.button("평가 실행", key="eval_run", disabled=not approved):
             router = router_factory(settings) if use_llm else None
             prog = st.progress(0.0, text="평가 중…")
-            r = run_eval(ds, settings, use_llm=use_llm, router=router, progress=lambda i, n, x: prog.progress(i / n, text=f"{i}/{n} {x.case.id}"), limit=int(limit) or None,
-                         breaker_wait_s=0, abort_after=0, budget_cap_usd=cap, run_info={"source": src_note, "requested_dataset": ds})  # 화면에서는 기다리거나 중단하지 않는다. 장애가 섞였으면 아래에서 표시
+            try:
+                r = run_eval(ds, settings, use_llm=use_llm, router=router, progress=lambda i, n, x: prog.progress(i / n, text=f"{i}/{n} {x.case.id}"), limit=int(limit) or None,
+                             breaker_wait_s=0, abort_after=0, budget_cap_usd=cap, run_info={"source": src_note, "requested_dataset": ds})  # 화면에서는 기다리지 않는다. 장애가 섞였으면 아래에서 표시
+            except EvalAborted as e:   # 비용·호출 상한(FM-20)에 닿아 멈춘 평가 — 처리한 사례까지의 부분 결과를 '중단됨' 으로 보여 준다 (기준선으로는 저장하지 않는다)
+                r = e.report
+                ss.eval_abort_note = str(e)
             ss.eval_report = r
             ss.eval_runs = ss.get("eval_runs", 0) + 1
             ss.eval_just_ran = True
@@ -199,6 +203,8 @@ def _eval_section(make_settings, router_factory, server_status: dict) -> None:
     if rep is None:
         st.info("아직 결과가 없습니다. 위에서 저장된 결과를 고르거나 평가를 실행하세요.")
         return
+    if rep.get("aborted"):
+        st.error(f"이 평가는 끝까지 돌지 못하고 중단됐습니다 — {ss.get('eval_abort_note') or rep['aborted']}. 처리한 {rep['aborted'].get('done', '?')}건까지의 부분 결과이며 기준선·추천값에 쓰지 않습니다.", icon="⛔")
     pf = rep.get("provider_failures") or {}
     if pf.get("n"):
         st.warning(f"이 결과에는 검토 모델 호출이 실패해 '담당자 확인 필요' 로 떨어진 사례가 {pf['n']}건 섞여 있습니다 (오류: {pf.get('by_error')}). "
