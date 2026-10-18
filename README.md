@@ -1,7 +1,7 @@
 # Preflight — 광고가 올라가기 전에, 확인이 필요한 구절을 먼저 찾는 광고 검사 도구
 
 [![ci](https://github.com/sokldjs554/toss-ads-ai-project/actions/workflows/ci.yml/badge.svg)](https://github.com/sokldjs554/toss-ads-ai-project/actions/workflows/ci.yml)
-![python](https://img.shields.io/badge/python-3.11%2B-blue) ![streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B) ![tests](https://img.shields.io/badge/tests-448%20passed-brightgreen)
+![python](https://img.shields.io/badge/python-3.11%2B-blue) ![streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B) ![tests](https://img.shields.io/badge/tests-548%20passed-brightgreen)
 
 > **🌐 공개 데모 — <https://sokldjs554.github.io/toss-ads-ai-project/>**
 > · **[광고 작업 (브라우저 실행판)](https://sokldjs554.github.io/toss-ads-ai-project/app/)** — 서버 없이 브라우저(WebAssembly) 안에서 전체 앱이 돕니다. 예시 실행(실제 AI 호출 없음), 첫 로딩 20~60초
@@ -44,7 +44,7 @@ pip install -r requirements.txt && streamlit run app.py
 
 **검증한 것 / 아직 확인하지 못한 것** (자세한 근거는 4절)
 
-- 검증: 테스트 448개(네트워크 없음, 셸의 API 키·`PREFLIGHT_*` 환경변수와 무관), 브라우저에서 데스크톱·모바일로 끝까지 누른 흐름 56개 검사(`docs/screenshots/e2e_report.json`), 숫자·조건 비교 112건(외부 리뷰 기반 39 + 내부 재점검 보강 73; 틀린 문구와 정상 대조) 전부 라벨대로 판정, 골든셋·holdout·대조·우회 표현 게이트에서 **문제 있는 광고 통과 0건**(결정론 계층 — 이 ‘0건’ 이 무엇을 뜻하는지는 4절).
+- 검증: 테스트 548개(네트워크 없음, 셸의 API 키·`PREFLIGHT_*` 환경변수와 무관), 브라우저에서 데스크톱·모바일로 끝까지 누른 흐름 56개 검사(`docs/screenshots/e2e_report.json`), 숫자·조건 비교 112건(외부 리뷰 기반 39 + 내부 재점검 보강 73; 틀린 문구와 정상 대조) 전부 라벨대로 판정, 골든셋·holdout·대조·우회 표현 게이트에서 **문제 있는 광고 통과 0건**(결정론 계층 — 이 ‘0건’ 이 무엇을 뜻하는지는 4절).
 - 미확인: 이번 코드·검사 기준·프롬프트로 **실제 모델을 다시 잰 값은 아직 없습니다**(마지막 실제 측정은 이전 기준의 5차). 코드 검사만·검토 모델만·합친 방식의 실제 모델 비교도 실행 승인 대기입니다(6절). 라벨은 규칙을 쓴 사람이 달았고 독립 검증자는 없습니다.
 
 ## 1. 어떤 광고 업무 문제를 푸나
@@ -143,9 +143,9 @@ URL 로 바로 열기: `?preset=malicious&autorun=1` (`loan_ok` · `malicious` �
 
 **검증한 것** (모두 네트워크 없이 재현 가능)
 
-- 단위·통합·화면 테스트 448개 (`python -m pytest -q`; 개발자 셸에 `PREFLIGHT_FORCE_DEMO=1` 이나 API 키가 있어도 같은 결과 — `tests/conftest.py`). 화면 테스트는 Streamlit AppTest 로 세 화면 렌더링, 기본 예시 실행, 결과 섹션 순서와 이유 중복, 수정한 문구 재검사가 **현재 편집한 문구**를 쓰는지, 실패 뒤 같은 문구 재시도·성공 재사용·문구 변경 시 이전 결과 숨김, 서버 키가 있어도 예시 실행·링크 실행이 AI 를 부르지 않는지, 가짜 서버 키가 어디에도 새지 않는지 확인.
+- 단위·통합·화면 테스트 548개 (`python -m pytest -q`; 개발자 셸에 `PREFLIGHT_FORCE_DEMO=1` 이나 API 키가 있어도 같은 결과 — `tests/conftest.py`). 화면 테스트는 Streamlit AppTest 로 세 화면 렌더링, 기본 예시 실행, 결과 섹션 순서와 이유 중복, 수정한 문구 재검사가 **현재 편집한 문구**를 쓰는지, 실패 뒤 같은 문구 재시도·성공 재사용·문구 변경 시 이전 결과 숨김, 서버 키가 있어도 예시 실행·링크 실행이 AI 를 부르지 않는지, 가짜 서버 키가 어디에도 새지 않는지 확인.
 - **브라우저에서 끝까지 누른 흐름** (`python scripts/e2e_flow.py`): 예시 선택 → 바로 실행 → 결과 → 문구 수정 → 재검사 → 재사용(시도 횟수가 늘지 않음을 확인) → (호출 실패 상황) 확인 요청문 → 같은 문구 재시도 → 문구 변경. 데스크톱·모바일 각 28개, 총 **56개 검사 통과**(단계마다 예외·가로 넘침 없음, 스타일 적용, 브라우저 오류 없음 포함). 이 실행의 검사 목록은 `docs/screenshots/e2e_report.json`(커밋·Streamlit 버전 포함)에 있고, 코드를 바꿀 때마다 다시 돌려야 최신입니다.
-- 숫자·조건 비교 회귀셋: `conditions.jsonl` 39건(틀린 문구 22·정상 대조 17) 수정 전(`c1b9603`) 25/39 → 수정 후 **39/39**, 내부 재점검 보강 `conditions_extra.jsonl` 73건(틀린 37·정상 36)은 1차 수정 직후 엔진 12/73 → 보강 뒤 **73/73** 이 라벨대로(`tests/test_condition_regression.py`, CI 에서도 실행; ‘수정 전’ 값은 `scripts/check_dataset_at_commit.py` 로 해당 커밋에서 재현). 둘 다 개발용이고 보강 73건은 결함을 보고 쓴 사례라 독립 평가도 성능 측정도 아닙니다.
+- 숫자·조건 비교 회귀셋: `conditions.jsonl` 39건(틀린 문구 22·정상 대조 17) 수정 전(`c1b9603`) 25/39 → 수정 후 **39/39**, 내부 재점검 보강 `conditions_extra.jsonl` 99건(틀린 48·정상 51; 1차 재점검 73건 + 2차 재점검 26건)은 1차 수정 직후 엔진(`2521ff3`) 23/99 · 2차 재점검 직전 엔진(`98a2bfb`) 75/99 → 보강 뒤 **99/99** 가 라벨대로(`tests/test_condition_regression.py`, CI 에서도 실행; ‘수정 전’ 값은 `scripts/check_dataset_at_commit.py` 로 해당 커밋에서 재현). 둘 다 개발용이고 보강 99건은 결함을 보고 쓴 사례라 독립 평가도 성능 측정도 아닙니다.
 - 골든셋 v1.2 55건 중 모델만 잡을 수 있는 1건을 뺀 54건: 코드 검사만 / 예시 실행 모두 문제 있는 광고 통과 0/41, 문제없는 광고에 수정 요청 0/13. 이 ‘코드 검사만’ 은 평가의 **결정론 전용 모드**(`--no-llm`)이고, 이 모드는 코드 지적이 없는 광고를 **통과로 확정하지 않습니다**(모델이 없으면 확신 0.70 < 기준 0.80 → 담당자 확인). 그래서 ‘통과 0건’ 자체는 구조상 0 이 나오는 값이고, 코드가 실제로 잡았는지는 **수정 요청·게재 불가로 판정한 수**로 봅니다: 골든셋 41건 중 41건(게재 불가 27·수정 필요 14), holdout 8건 중 8건, 우회 표현 회귀셋은 8건 중 4건(나머지 4건은 코드가 못 잡았지만 통과도 못 해 담당자 확인). 6절의 ‘코드 검사만’ 은 이와 다른 정의(코드 지적이 없으면 통과)이고 거기서는 holdout 2/10·우회 표현 4/8 이 통과로 셉니다. CI 가 기준선 대비 나빠지면 실패. (기준선은 새 검사 기준에서 다시 만들었고 실제 모델 기록은 건드리지 않았습니다.)
 - 최종 확인용 holdout 12건(규칙을 고친 뒤 처음 보는 사례, 고치는 데 쓰지 않음): 모델만 잡을 수 있는 2건을 뺀 10건(문제 있는 8·문제없는 2)에서 코드 검사만 0/8 통과·0/2 수정 요청, 예시 실행 0/8·0/2 — 8+2=10 이고 12 가 아닌 이유는 뺀 2건 때문입니다. 이번 수정 뒤 결과를 확인했고 그중 H-011 에 지적이 하나 늘었습니다(3절).
 - 레드팀 변형 중 REJECT 로 끝나지 않은 근접 사례 8건(회귀셋; 실제 모델에서 승인(APPROVE)된 것은 없고 수정 요청 또는 담당자 확인으로 끝난 것): 결정론 전용 모드에서 통과 0/8 (REJECT 2·수정 요청 2·담당자 확인 4 — 앞의 두 줄과 같이 이 모드는 통과를 확정하지 않으므로, 코드가 실제로 잡은 것은 4건).
@@ -248,9 +248,9 @@ guardrails/  policy.yaml(46개 규칙, v2026.10.4) · normalize.py · lexical.py
              input_guard.py · output_guard.py · failsafe.py · failure_modes.py
 agents/      prompts.py(v2026.10.4) · planner.py · copywriter.py · audience.py · reviewer.py · adjudicator.py(decide) · crosscheck.py(교차 확인 공통) · rewrite_check.py · recheck.py(재사용 키·시도 기록) · pipeline.py
 observability/ tracer.py · pricing.py · replay.py(저장된 기록 → 화면)
-evals/       datasets/(golden v1.2 dev 55 · holdout 12 · contrast_g069 4 · conditions 39 · conditions_extra 73 · adversarial 8 · redteam_seeds 4 · PROVENANCE.json) · metrics.py · runner.py · compare.py(방식 비교) · regression.py · redteam.py · judge.py · run.py · reports/(+history/)
+evals/       datasets/(golden v1.2 dev 55 · holdout 12 · contrast_g069 4 · conditions 39 · conditions_extra 99 · adversarial 8 · redteam_seeds 4 · PROVENANCE.json) · metrics.py · runner.py · compare.py(방식 비교) · regression.py · redteam.py · judge.py · run.py · reports/(+history/)
 ui/          labels.py(화면 문구 한곳) · funding.py(비용이 누구 계정에서 나가는가) · theme.py · workbench.py(광고 작업) · cases.py(검사 사례) · quality.py(품질 확인) · compare_view.py(방식 비교) · trace_view.py · redteam_view.py · catalog_view.py · components.py · presets.py
-tests/       448개, 네트워크 없음·환경변수 무관 (AppTest 화면 테스트·워크플로 YAML 테스트 포함)
+tests/       548개, 네트워크 없음·환경변수 무관 (AppTest 화면 테스트·워크플로 YAML 테스트 포함)
 docs/        ARCHITECTURE.md · EVALS.md · FAILURE_MODES.md(생성) · POLICY.md(생성) · screenshots/
 site/        공개 데모 소스 — index.html(랜딩) · app/(브라우저 실행판) · replay/(실제 기록 재생 템플릿)
 scripts/     build_site.py · build_replay.py · record_traces.py · gen_docs.py · screenshot.py · e2e_flow.py(브라우저로 끝까지 누르기, 결과를 e2e_report.json 에) · check_dataset_at_commit.py(이전 커밋의 코드 검사 결과 재현)
