@@ -96,6 +96,14 @@ class CaseResult:
     model_decision: str = ""
     cost_estimated: bool = False
     error: str = ""   # 심사 모델 단계가 실패했을 때 그 이유 (예외 종류 + 메시지 앞부분). 비어 있으면 모델 판정이 있었다
+    rewrite_error: str = ""   # 수정안의 의미 검사 호출이 실패했을 때 그 이유. 비어 있으면 수정안이 없었거나 의미 검사가 끝났다
+    failed_requests: int = 0   # 이 사례에서 응답(사용량)을 받지 못한 요청 수 — 그 비용은 알 수 없다 (0원으로 적지 않는다)
+    prior_attempts: list = field(default_factory=list)   # 같은 사례를 다시 시도했다면 앞선 시도의 기록 (오류·비용·시간). 재시도가 성공해도 지우지 않는다
+
+    @property
+    def failed(self) -> bool:
+        """모델 호출이 실패해 '모델의 판단' 이 아닌 결과가 섞였는가 — 심사 단계와 수정안 의미 검사 단계 모두."""
+        return bool(self.error or self.rewrite_error)
 
 
 class EvalAborted(RuntimeError):
@@ -140,6 +148,7 @@ def evaluate_case(case: EvalCase, settings: Settings, router: Optional[Router], 
     categories = catalog.effective_categories(product.category, copy.full_text())
     t0 = time.perf_counter()
     cost_before = router.budget.spent_usd if router else 0.0
+    failed_before = router.budget.failed_attempts if router else 0
     det = output_guard.check(copy, product, categories, case.landing_text, [], catalog)
     verdict = None
     unverified = 0
@@ -167,12 +176,14 @@ def evaluate_case(case: EvalCase, settings: Settings, router: Optional[Router], 
     inputs = adjudicator.inputs_from(det, verdict, recheck)
     pred_rules = sorted({f.rule_id for f in report.verdict.findings if f.severity != Severity.WARN and f.verified_quote})
     conf = report.verdict.confidence if verdict is not None else 0.0
+    failed_requests = (router.budget.failed_attempts - failed_before) if router else 0
     return CaseResult(case=case, predicted=report.final_decision.value, confidence=conf, predicted_rules=pred_rules,
                       reason=report.decision_reason, latency_ms=round((time.perf_counter() - t0) * 1000, 1),
                       cost_usd=round((router.budget.spent_usd - cost_before) if router else 0.0, 6), unverified_quotes=unverified,
                       inputs=inputs.to_dict(), rewrite_status=report.rewrite_status.value,
                       model_decision=verdict.decision.value if verdict is not None else "",
-                      cost_estimated=bool(router and router.budget.estimated), error=error)
+                      cost_estimated=failed_requests > 0, error=error, rewrite_error=(recheck.semantic_error if recheck is not None else ""),
+                      failed_requests=failed_requests)
 
 
 def evaluate_with_retry(case: EvalCase, settings: Settings, router: Optional[Router], catalog: PolicyCatalog, use_llm: bool = True,
@@ -182,18 +193,28 @@ def evaluate_with_retry(case: EvalCase, settings: Settings, router: Optional[Rou
     if use_llm and breaker_wait_s > 0:
         _wait_for_breaker(router, breaker_wait_s, log)
     r = evaluate_case(case, settings, router, catalog, use_llm=use_llm)
-    if r.error and use_llm and breaker_wait_s > 0:
+    if r.failed and use_llm and breaker_wait_s > 0:
         _wait_for_breaker(router, breaker_wait_s, log)
+        first = r
         r = evaluate_case(case, settings, router, catalog, use_llm=use_llm)
+        # 재시도가 성공해도 첫 시도의 실패와 사용량은 지우지 않는다: 오류를 기록으로 남기고 비용·시간·실패 요청 수를 합산한다
+        r.prior_attempts = [*first.prior_attempts, {"error": first.error, "rewrite_error": first.rewrite_error, "cost_usd": first.cost_usd,
+                                                    "latency_ms": first.latency_ms, "failed_requests": first.failed_requests}]
+        r.cost_usd = round(r.cost_usd + first.cost_usd, 6)
+        r.latency_ms = round(r.latency_ms + first.latency_ms, 1)
+        r.failed_requests += first.failed_requests
+        r.cost_estimated = r.cost_estimated or first.cost_estimated
     return r
 
 
 def run_eval(dataset: str, settings: Settings, use_llm: bool = True, router: Optional[Router] = None,
              catalog: Optional[PolicyCatalog] = None, progress: Optional[Callable[[int, int, CaseResult], None]] = None,
              limit: Optional[int] = None, breaker_wait_s: float = 90.0, abort_after: int = 3,
-             log: Optional[Callable[[str], None]] = None) -> dict:
+             log: Optional[Callable[[str], None]] = None, budget_cap_usd: Optional[float] = None, run_info: Optional[dict] = None) -> dict:
     """breaker_wait_s: 제공자 서킷이 열리면 그만큼(최대) 기다렸다가 그 사례를 한 번 더 시도한다 (0 이면 기다리지 않음).
-    abort_after: 제공자 오류가 이 수만큼 연속되면 EvalAborted — 나머지를 담당자 확인으로 채운 '측정' 을 만들지 않는다."""
+    abort_after: 제공자 오류가 이 수만큼 연속되면 EvalAborted — 나머지를 담당자 확인으로 채운 '측정' 을 만들지 않는다.
+    budget_cap_usd: 평가 비용 상한. 없으면 기존처럼 실행 예산과 5달러 중 큰 값. 화면에서 서버 키로 돌릴 때는 서버가 정한 상한을 넘기지 않게 이 값을 준다.
+    run_info: 이 평가를 어떤 설정으로 요청했는지(설정 출처·사례 수 제한 등)를 리포트의 run_settings 에 함께 남긴다."""
     catalog = catalog or get_catalog()
     cases = load_dataset(dataset)
     excluded_semantic_only = 0
@@ -206,7 +227,7 @@ def run_eval(dataset: str, settings: Settings, use_llm: bool = True, router: Opt
         cases = cases[:limit]
     if use_llm:
         router = router or Router(settings, tracer=Tracer())
-        router.budget.cap_usd = max(router.budget.cap_usd, 5.0)  # 평가는 실행 예산보다 크게
+        router.budget.cap_usd = budget_cap_usd if budget_cap_usd is not None else max(router.budget.cap_usd, 5.0)  # 기본: 평가는 실행 예산보다 크게
         router.budget.max_calls = 10_000
     results: list[CaseResult] = []
     consecutive_failures = 0
@@ -215,16 +236,16 @@ def run_eval(dataset: str, settings: Settings, use_llm: bool = True, router: Opt
         results.append(r)
         if progress:
             progress(i + 1, len(cases), r)
-        consecutive_failures = consecutive_failures + 1 if r.error else 0
+        consecutive_failures = consecutive_failures + 1 if r.failed else 0
         if abort_after and consecutive_failures >= abort_after:
-            partial = _build_report(dataset, cases[: len(results)], results, settings, catalog, use_llm, excluded_semantic_only)
+            partial = _build_report(dataset, cases[: len(results)], results, settings, catalog, use_llm, excluded_semantic_only, limit, run_info)
             partial["aborted"] = {"after_case": c.id, "consecutive_provider_failures": consecutive_failures, "done": len(results), "planned": len(cases)}
-            raise EvalAborted(f"제공자 오류가 {consecutive_failures}건 연속 ({c.id} 까지 {len(results)}/{len(cases)} 처리) — 마지막 오류: {r.error}", partial)
-    return _build_report(dataset, cases, results, settings, catalog, use_llm, excluded_semantic_only)
+            raise EvalAborted(f"제공자 오류가 {consecutive_failures}건 연속 ({c.id} 까지 {len(results)}/{len(cases)} 처리) — 마지막 오류: {r.error or r.rewrite_error}", partial)
+    return _build_report(dataset, cases, results, settings, catalog, use_llm, excluded_semantic_only, limit, run_info)
 
 
 def _build_report(dataset: str, cases: list, results: list[CaseResult], settings: Settings, catalog: PolicyCatalog,
-                  use_llm: bool, excluded_semantic_only: int) -> dict:
+                  use_llm: bool, excluded_semantic_only: int, limit: Optional[int] = None, run_info: Optional[dict] = None) -> dict:
     records = [EvalRecord(case_id=r.case.id, label=r.case.label, predicted=r.predicted, confidence=r.confidence,
                           label_rules=set(r.case.rule_ids), predicted_rules=set(r.predicted_rules), difficulty=r.case.difficulty,
                           category=r.case.category, latency_ms=r.latency_ms, cost_usd=r.cost_usd, inputs=r.inputs or None) for r in results]
@@ -249,21 +270,32 @@ def _build_report(dataset: str, cases: list, results: list[CaseResult], settings
         "model": ("none" if not use_llm else ("mock" if settings.mode.value == "demo" else (settings.openai_model if settings.has_openai else settings.anthropic_model))),
         "prompt_version": PROMPT_VERSION, "policy_version": catalog.version,
         "threshold": settings.auto_decision_confidence,
+        # 이 평가를 실제로 어떤 설정으로 돌렸는지 (모델·판정 기준·검토 모델 포함 여부·사례 수 제한·설정 출처). 키 값은 넣지 않는다.
+        "run_settings": {"use_llm": use_llm, "openai_model": settings.openai_model, "anthropic_model": settings.anthropic_model,
+                         "threshold": settings.auto_decision_confidence, "limit": limit, **(run_info or {})},
         # 평가 경로의 범위: 결정론 가드레일 → 1차 심사 → 수정안 재검사 → 판정. 2차 의견·가상 유저는 포함하지 않는다 (Studio 와 다른 점).
         "scope": {"second_opinion": False, "audience": False, "stages": "output_guard → reviewer → rewrite_recheck(code + semantic) → adjudicate"},
         "curve_method": summary.get("curve_method", "replay_decide"),
         "recommended_threshold_for_zero_unsafe": recommend_threshold(records, 0.0),
         "recommended_threshold_for_zero_unsafe_and_zero_false_flag": recommend_threshold(records, 0.0, 0.0),
         "cost_estimated": any(r.cost_estimated for r in results),
-        # 심사 모델 단계가 실패한 사례 — 이 수가 0 이 아니면 '담당자 확인' 비율에 모델 판단이 아닌 장애가 섞여 있다. 기준선으로 저장하지 않는다
-        "provider_failures": {"n": sum(1 for r in results if r.error), "cases": [r.case.id for r in results if r.error],
-                              "by_error": tally_errors(r.error for r in results if r.error)},
+        # 응답을 받지 못한 요청은 비용을 알 수 없다. 위의 비용은 응답을 받은 요청만 더한 값(하한)이고, 그 요청 수를 따로 남긴다
+        "failed_requests": sum(r.failed_requests for r in results),
+        # 모델 단계(심사·수정안 의미 검사)가 실패한 사례 — 이 수가 0 이 아니면 '담당자 확인' 비율에 모델 판단이 아닌 장애가 섞여 있다. 기준선으로 저장하지 않는다
+        "provider_failures": {"n": sum(1 for r in results if r.failed), "cases": [r.case.id for r in results if r.failed],
+                              "by_error": tally_errors(e for r in results for e in (r.error, r.rewrite_error) if e),
+                              "by_stage": {"reviewer": sum(1 for r in results if r.error), "rewrite_recheck": sum(1 for r in results if r.rewrite_error)}},
+        # 첫 시도가 실패했다가 재시도로 모델 판정을 받은 사례 — 측정에는 쓸 수 있지만 실패와 그 비용은 기록으로 남긴다
+        "recovered_failures": {"n": sum(1 for r in results if r.prior_attempts and not r.failed), "cases": [r.case.id for r in results if r.prior_attempts and not r.failed],
+                               "by_error": tally_errors(e for r in results if not r.failed for a in r.prior_attempts for e in (a["error"], a["rewrite_error"]) if e),
+                               "cost_usd": round(sum(a["cost_usd"] for r in results for a in r.prior_attempts), 6)},
         "summary": summary,
         "cases": [{"id": r.case.id, "label": r.case.label, "predicted": r.predicted, "confidence": r.confidence,
                    "label_rules": r.case.rule_ids, "predicted_rules": r.predicted_rules, "difficulty": r.case.difficulty,
                    "category": r.case.category, "reason": r.reason, "latency_ms": r.latency_ms, "cost_usd": r.cost_usd,
                    "unverified_quotes": r.unverified_quotes, "inputs": r.inputs, "rewrite_status": r.rewrite_status,
-                   "model_decision": r.model_decision, "error": r.error} for r in results],
+                   "model_decision": r.model_decision, "error": r.error, "rewrite_error": r.rewrite_error,
+                   "failed_requests": r.failed_requests, "prior_attempts": r.prior_attempts} for r in results],
     }
 
 

@@ -84,7 +84,7 @@ if nav == "광고 작업":
 elif nav == "검사 사례":
     cases.render()
 else:
-    quality.render(make_settings(), clean_router_factory, st.session_state.tracer)
+    quality.render(make_settings, clean_router_factory, st.session_state.tracer, SERVER_STATUS)
 
 st.markdown(f'<hr style="border:none;border-top:1px solid #E5E8EB;margin:32px 0 10px"><div class="pf-note">{html.escape(DISCLAIMER)}'
             + (" · 브라우저 실행판 (서버 없음, 예시 실행만)" if IN_BROWSER else "") + "</div>", unsafe_allow_html=True)

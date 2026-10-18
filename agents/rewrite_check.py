@@ -14,6 +14,7 @@ from typing import Optional
 
 from core.schemas import AdCopy, Decision, Finding, Layer, ProductFacts, ReviewVerdict
 from guardrails import output_guard
+from guardrails.failsafe import classify_exception
 from guardrails.output_guard import OutputGuardResult
 from guardrails.policy import PolicyCatalog
 from llm.router import Router
@@ -27,17 +28,19 @@ class RewriteCheck:
     det: OutputGuardResult
     semantic: Optional[ReviewVerdict] = None     # None = 의미 검사를 하지 않았거나(코드 반려) 하지 못함(모델 실패)
     semantic_error: str = ""
+    semantic_error_code: str = ""                # 의미 검사 호출이 실패했을 때의 실패 모드 코드 (FM-05/07/20 …)
     decision: Decision = Decision.HUMAN_REVIEW   # 공통 판정 기준(decide)을 수정안 문구에 적용한 결과
     reason: str = ""
     inputs: Optional[adjudicator.DecisionInputs] = None
 
     @classmethod
-    def judge(cls, det: OutputGuardResult, semantic: Optional[ReviewVerdict], threshold: float, semantic_error: str = "") -> "RewriteCheck":
+    def judge(cls, det: OutputGuardResult, semantic: Optional[ReviewVerdict], threshold: float, semantic_error: str = "",
+              semantic_error_code: str = "") -> "RewriteCheck":
         """코드 검사 결과와 (있다면) 의미 검사 결과를 공통 판정 함수에 넣어 수정안의 판단을 정한다."""
         inp = adjudicator.inputs_from(det, semantic, None)
         inp.has_rewrite = False  # 수정안의 수정안은 따라가지 않는다
         adj = adjudicator.decide(inp, threshold)
-        return cls(det=det, semantic=semantic, semantic_error=semantic_error, decision=adj.decision, reason=adj.reason, inputs=inp)
+        return cls(det=det, semantic=semantic, semantic_error=semantic_error, semantic_error_code=semantic_error_code, decision=adj.decision, reason=adj.reason, inputs=inp)
 
     @property
     def passed(self) -> Optional[bool]:
@@ -63,6 +66,7 @@ def check_rewrite(rewrite: AdCopy, product: ProductFacts, categories: set[str], 
         det = output_guard.check(rewrite, product, categories, landing_text, rejected_history, catalog)
         semantic: Optional[ReviewVerdict] = None
         error = ""
+        error_code = ""
         det_block = any(f.severity.value == "block" for f in det.findings)
         if det_block:
             span.event("semantic_recheck_skipped", reason="code block — 결론이 같아 모델을 부르지 않음")
@@ -73,11 +77,12 @@ def check_rewrite(rewrite: AdCopy, product: ProductFacts, categories: set[str], 
                 ro = reviewer.review(rewrite, det, categories, facts_text, landing_text, catalog, router, label_suffix="rewrite")
                 semantic = ro.verdict
                 span.set(semantic_decision=semantic.decision.value, semantic_confidence=semantic.confidence, unverified_quotes=ro.unverified_quotes)
-            except Exception as e:  # noqa: BLE001 — 의미 검사 실패 → 공통 기준에서 '확인하지 못함'
+            except Exception as e:  # noqa: BLE001 — 의미 검사 실패 → 공통 기준에서 '확인하지 못함'. 실패는 호출한 쪽(실행·평가)이 세도록 코드와 함께 남긴다
                 error = f"{type(e).__name__}: {e}"[:200]
-                span.event("semantic_recheck_failed", error=error)
+                error_code = classify_exception(e)
+                span.event("semantic_recheck_failed", error=error, code=error_code)
                 span.status = "error"
-        rc = RewriteCheck.judge(det, semantic, threshold, error)
+        rc = RewriteCheck.judge(det, semantic, threshold, error, error_code)
         # decision = 공통 기준의 결과(수정안의 최종 상태를 정하는 값). 코드 검사만의 결과는 det_decision.
         span.set(decision=rc.decision.value, reason=rc.reason, det_decision=det.decision.value, threshold=threshold,
                  findings=[f.model_dump(mode="json") for f in rc.findings])

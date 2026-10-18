@@ -30,6 +30,13 @@ def _all_text(at: AppTest) -> str:
     return "\n".join(str(p) for p in parts)
 
 
+def _latest_recheck(at: AppTest, vid: str):
+    """세션에 쌓인 재검사 시도 기록(RecheckHistory) 중 이 광고안의 가장 최근 시도."""
+    hists = [h for k, h in at.session_state["rechecks"].items() if k.endswith(f":{vid}")]
+    assert hists, at.session_state["rechecks"].keys()
+    return hists[-1].latest()
+
+
 def test_three_views_render_without_exceptions(app):
     at = app.run()
     assert not at.exception, [str(e.value) for e in at.exception]
@@ -62,9 +69,9 @@ def test_recheck_uses_currently_edited_text(app):
     at.text_input(key=f"edit_h_{vid}").set_value("원금을 보장하는 대출").run()  # 게재 불가 표현으로 편집
     at.button(key=f"recheck_{vid}").click().run()
     assert not at.exception, [str(e.value) for e in at.exception]
-    rc = at.session_state["rechecks"][vid]
-    assert rc["copy"].headline == "원금을 보장하는 대출"
-    assert rc["result"].report.final_decision.value == "REJECT"
+    rc = _latest_recheck(at, vid)
+    assert rc.report.ad_copy.headline == "원금을 보장하는 대출"
+    assert rc.report.final_decision.value == "REJECT"
     assert "재검사 결과" in _all_text(at) and "게재 불가" in _all_text(at)
     # 문구를 다시 바꾸면 '이전 문구에 대한 결과' 안내가 붙는다
     at.text_input(key=f"edit_h_{vid}").set_value("조건 확인 후 신청").run()
@@ -127,7 +134,7 @@ def test_recheck_does_not_treat_own_text_as_rejected_duplicate(app):
     at.text_input(key=f"edit_h_{vid}").set_value(new_head).run()
     at.button(key=f"recheck_{vid}").click().run()
     assert not at.exception
-    res = at.session_state["rechecks"][vid]["result"]
+    res = _latest_recheck(at, vid)
     report = res.report
     hits = [f.rule_id for f in report.verdict.findings] if report.verdict else []
     hits += [f.rule_id for f in getattr(res, "det", None).findings] if getattr(res, "det", None) else []

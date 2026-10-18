@@ -196,6 +196,11 @@ def _review_variants(run: PipelineRun, brief: CampaignBrief, settings: Settings,
             if verdict is not None and verdict.proposed_rewrite is not None:
                 recheck = check_rewrite(verdict.proposed_rewrite, brief.product, categories, options.landing_text, options.rejected_history,
                                         catalog, router, facts_text, tracer, settings.auto_decision_confidence)
+                if recheck.semantic_error:
+                    # 수정안의 의미 검사를 하지 못했다 — 이 실행은 '일부 단계 실패' 이고 수정안은 '확인하지 못함' 이다. 조용한 성공으로 세지 않는다.
+                    run.failures.append(FailureEvent(code=recheck.semantic_error_code or "FM-05", stage="rewrite_recheck",
+                                                     message=f"{copy.variant_id}: 수정안 의미 검사 실패 — {recheck.semantic_error}",
+                                                     fallback="수정안은 '확인하지 못함' 으로 두고 제시하지 않음. 원문 판정은 그대로"))
 
             with tracer.span("adjudicate", kind="guardrail") as span:
                 report = adjudicator.adjudicate(copy, det, verdict, settings.auto_decision_confidence, recheck, aud)

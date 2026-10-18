@@ -37,8 +37,9 @@ def test_provider_failure_is_recorded_per_case_and_tallied(tracer):
 def test_clean_run_has_no_failures_and_may_be_saved(tracer):
     s, router = _demo_router(tracer)
     rep = run_eval("golden", s, use_llm=True, router=router, limit=3, breaker_wait_s=0, abort_after=0)
-    assert rep["provider_failures"] == {"n": 0, "cases": [], "by_error": {}}
-    assert all(c["error"] == "" for c in rep["cases"])
+    assert rep["provider_failures"] == {"n": 0, "cases": [], "by_error": {}, "by_stage": {"reviewer": 0, "rewrite_recheck": 0}}
+    assert rep["recovered_failures"]["n"] == 0 and rep["failed_requests"] == 0
+    assert all(c["error"] == "" and c["rewrite_error"] == "" for c in rep["cases"])
     assert baseline_allowed(rep) == (True, "")
 
 

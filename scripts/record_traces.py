@@ -18,12 +18,13 @@ sys.path.insert(0, str(ROOT))
 
 from agents.pipeline import RunOptions, run_pipeline  # noqa: E402
 from core.config import Settings  # noqa: E402
+from guardrails.failsafe import PROVIDER_FAILURE_CODES  # noqa: E402
 from observability.tracer import Tracer  # noqa: E402
 from ui.presets import PRESETS, build_brief  # noqa: E402
 
 SCENARIOS = ("loan_ok", "malicious", "injection", "prohibited", "commerce_landing")
-# 제공자 쪽 실패로 분류되는 실패 모드: 타임아웃/미분류(FM-05), 레이트 리밋(FM-06), 제공자 전체 장애·서킷 열림(FM-07), 비용·호출 상한(FM-20)
-PROVIDER_FAILURE_CODES = {"FM-05", "FM-06", "FM-07", "FM-20"}
+# 제공자 쪽 실패로 분류되는 실패 모드(타임아웃/미분류 FM-05, 레이트 리밋 FM-06, 제공자 전체 장애 FM-07, 비용·호출 상한 FM-20)는 guardrails/failsafe.py 의 PROVIDER_FAILURE_CODES.
+# 수정안 의미 검사(rewrite_recheck)가 실패한 것도 같은 코드로 run.failures 에 남으므로 여기서 함께 센다.
 
 
 def provider_failures(run) -> list[str]:

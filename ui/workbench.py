@@ -14,11 +14,12 @@ from datetime import datetime
 import streamlit as st
 
 from agents.pipeline import RunOptions, run_pipeline
-from agents.recheck import build_edited_copy, copy_fingerprint, recheck
+from agents.recheck import RecheckHistory, RecheckResult, build_edited_copy, recheck, recheck_key
 from core.config import IN_BROWSER, Settings
 from core.schemas import Decision, PipelineRun, PreflightReport, ProductCategory, RewriteStatus, Severity
 from evals.runner import recommendation_for
 from guardrails.failure_modes import BY_CODE
+from guardrails.failsafe import STEP_FAILURE_CODES
 from guardrails.policy import get_catalog
 from llm.router import Router
 from observability.tracer import Tracer
@@ -29,6 +30,7 @@ from ui.components import (
     finding_sentence,
     human_review_reason,
     human_review_request_text,
+    recheck_request_text,
     plain_reason,
     render_ad,
     rule_title,
@@ -115,7 +117,8 @@ def run_state(entry: dict) -> str:
         return "empty"
     if run.halted:
         return "partial"
-    stage_fail = any(f.code in ("FM-05", "FM-06", "FM-07", "FM-08", "FM-09", "FM-10") or f.stage in ("planner", "audience") for f in run.failures) or run.plan is None
+    # 모델 호출이 실패해 끝나지 못한 단계가 하나라도 있으면 정상 실행이 아니다: 심사·교차 확인·수정안 의미 검사가 실패한 경우를 포함한다
+    stage_fail = any(f.code in STEP_FAILURE_CODES or f.stage in ("planner", "audience") for f in run.failures) or run.plan is None
     if stage_fail:
         return "partial"
     return "done"
@@ -323,10 +326,13 @@ def _state_banner(entry: dict, stale: bool) -> None:
     elif state == "empty":
         st.warning("광고안이 만들어지지 않았습니다. 상품 정보와 사실 목록을 조금 더 구체적으로 적고 다시 실행해 보세요.", icon="ℹ️")
     elif state == "partial":
-        parts = sorted({f.stage for f in run.failures if f.stage in ("planner", "audience")})
-        names = {"planner": "캠페인 구성", "audience": "가상 사용자 반응"}
+        names = {"planner": "캠페인 구성", "audience": "가상 사용자 반응", "reviewer": "검토 모델 검사", "second_opinion": "교차 확인", "rewrite_recheck": "수정안 의미 검사"}
+        parts = sorted({f.stage for f in run.failures if f.stage in names and (f.code in STEP_FAILURE_CODES or f.stage in ("planner", "audience"))})
         what = ", ".join(names.get(p, p) for p in parts) or "일부 단계"
-        st.info(f"{what} 단계가 실패해 그 부분 없이 진행했습니다. 광고안 검사와 판정은 정상적으로 끝났습니다.", icon="ℹ️")
+        judged = any(p in ("reviewer", "rewrite_recheck", "second_opinion") for p in parts)
+        st.info(f"{what} 단계가 실패해 그 부분 없이 진행했습니다. "
+                + ("실패한 단계의 광고안은 자동으로 확정하지 않고 담당자 확인으로 두었거나, 수정안을 '확인하지 못함' 으로 처리했습니다. 같은 입력으로 다시 실행하면 다시 시도합니다." if judged
+                   else "광고안 검사와 판정은 정상적으로 끝났습니다."), icon="ℹ️")
 
 
 def _summary(entry: dict) -> None:
@@ -432,6 +438,10 @@ def _diff_explained(rep: PreflightReport, catalog) -> None:
         st.caption("고친 이유: " + " · ".join(reasons))
 
 
+def _history(entry: dict, vid: str) -> RecheckHistory:
+    return st.session_state.rechecks.setdefault(f"{entry['run'].run_id}:{vid}", RecheckHistory())
+
+
 def _human_review_block(rep: PreflightReport, entry: dict, catalog) -> None:
     run: PipelineRun = entry["run"]
     with st.container(border=True):
@@ -441,18 +451,28 @@ def _human_review_block(rep: PreflightReport, entry: dict, catalog) -> None:
         for x in what_to_check(rep, catalog):
             st.markdown(f"  - {x}")
         st.markdown("- 다음 단계 진행: **불가** — 담당자 확인 전에는 게재할 수 없습니다.")
-        st.caption("이 화면에는 검토 대기열이나 담당자 처리 기능이 없습니다. 아래 내용을 복사해 담당자에게 직접 전달하세요.")
+        st.caption("이 화면에는 검토 대기열이나 담당자 처리 기능이 없습니다. 요청문을 만들어 복사·내려받을 수 있을 뿐이고, 전달은 직접 하셔야 합니다.")
+        if _history(entry, rep.variant_id).latest() is not None:
+            st.warning("아래 요청문은 **수정 전 광고 원문**에 대한 것입니다. 문구를 고쳐 다시 검사했다면 ‘문구 고쳐서 다시 검사’ 안의 최신 요청문을 쓰세요.", icon="⚠️")
         text = human_review_request_text(rep, run, catalog)
-        with st.expander("확인 요청 내용 (복사용)"):
+        with st.expander("확인 요청 내용 (수정 전 원문 · 복사용)"):
             st.code(text, language=None)
             if not IN_BROWSER:
                 st.download_button("확인 요청 내용 내려받기 (.txt)", data=text, file_name=f"review_request_{rep.variant_id}.txt", mime="text/plain", key=f"dl_{rep.variant_id}")
+
+
+def _usage_line(u: dict) -> str:
+    cost = f"${u['cost_usd']:.4f}"
+    if u["cost_estimated"]:
+        cost = f"≥ {cost} (응답을 받지 못한 요청 {u['failed_attempts']}건의 비용은 알 수 없음)" if u["failed_attempts"] else f"≈ {cost} (추정)"
+    return f"이 문구 검사 {u['tries']}번 시도" + (f" · 실패 {u['failed_tries']}번" if u["failed_tries"] else "") + f" · 모델 호출 {u['calls']}회(요청 {u['attempts']}회) · 비용 {cost}"
 
 
 def _edit_and_recheck(rep: PreflightReport, entry: dict, catalog, tracer: Tracer, router_factory, make_settings) -> None:
     ss = st.session_state
     vid = rep.variant_id
     base = rep.verified_rewrite if rep.verified_rewrite is not None else rep.ad_copy
+    hist = _history(entry, vid)
     with st.expander("문구 고쳐서 다시 검사", expanded=rep.final_decision in (Decision.REVISE, Decision.REJECT)):
         st.caption("아래 칸을 고치고 '수정한 문구 다시 검사' 를 누르면 같은 검사 기준으로 다시 검사합니다. 결과는 그 시점의 문구에만 해당합니다.")
         keys = (f"edit_h_{vid}", f"edit_b_{vid}", f"edit_c_{vid}", f"edit_d_{vid}")
@@ -467,47 +487,80 @@ def _edit_and_recheck(rep: PreflightReport, entry: dict, catalog, tracer: Tracer
             d = st.text_area("안내 문구 (한 줄에 하나)", key=keys[3], height=80)
         _persist(keys)
         edited = build_edited_copy(rep.ad_copy, h, b, c, d.splitlines())
-        fp = copy_fingerprint(edited)
-        prev = ss.rechecks.get(vid)
-        if st.button("수정한 문구 다시 검사", key=f"recheck_{vid}", type="primary", disabled=bool(ss.running)):
-            if prev and prev["fingerprint"] == fp:
-                st.info("같은 문구를 이미 검사했습니다. 결과는 아래에 있습니다.")
+        brief = entry["brief"]
+        settings: Settings = make_settings(*ss.get("user_keys", ("", "")), **entry.get("overrides", {}))
+        own = {rep.ad_copy.full_text()} | {r.report.ad_copy.full_text() for r in hist.attempts}
+        history = [x for x in ss.rejected_history if x not in own]  # 고치고 있는 광고 자신은 '다른 반려 광고' 가 아니다
+        # 재사용 키: 문구뿐 아니라 상품 정보·랜딩·검사 기준·프롬프트·모델·판정 기준이 같을 때만 이전 결과를 다시 쓴다
+        key = recheck_key(edited, brief.product, entry.get("landing", ""), settings, catalog, history)
+        last_try = hist.latest_for(key)
+        label = "같은 문구로 다시 시도" if (last_try is not None and last_try.failed) else "수정한 문구 다시 검사"
+        rerun_after = False
+        if st.button(label, key=f"recheck_{vid}", type="primary", disabled=bool(ss.running)):
+            if hist.reusable_for(key) is not None:
+                st.info("같은 문구·같은 조건으로 이미 검사했습니다. 모델을 다시 부르지 않고 그 결과를 보여 드립니다.")
             else:
                 ss.running = True
                 try:
-                    settings: Settings = make_settings(*ss.get("user_keys", ("", "")), **entry.get("overrides", {}))
-                    brief = entry["brief"]
                     categories = catalog.effective_categories(brief.product.category, edited.full_text(), brief.product.raw_description)
-                    own = {rep.ad_copy.full_text()} | {r2["copy"].full_text() for r2 in [prev] if r2}
-                    history = [h for h in ss.rejected_history if h not in own]  # 고치고 있는 광고 자신은 '다른 반려 광고' 가 아니다
                     with st.spinner("다시 검사하는 중…"):
                         res = recheck(edited, brief.product, categories, settings, router=router_factory(settings), landing_text=entry.get("landing", ""),
                                       rejected_history=history, catalog=catalog, tracer=tracer)
-                    ss.rechecks[vid] = {"fingerprint": fp, "result": res, "at": datetime.now(), "copy": edited}
-                    prev = ss.rechecks[vid]
+                    hist.add(res)
+                    last_try = res
+                    rerun_after = True  # 버튼 이름('같은 문구로 다시 시도') 과 시도 기록을 방금 결과에 맞추려면 한 번 더 그려야 한다
                 except Exception as e:  # noqa: BLE001
                     st.error(f"다시 검사하지 못했습니다: {e}. 편집한 문구는 그대로 남아 있습니다.")
                 finally:
                     ss.running = False
-        if prev:
-            res = prev["result"]
-            r2: PreflightReport = res.report
-            current = prev["fingerprint"] == fp
-            if not current:
-                st.warning("문구가 바뀌었습니다. 아래 결과는 **이전에 검사한 문구**에 대한 것입니다. 다시 검사하세요.", icon="⚠️")
-            st.markdown(f"재검사 결과 {theme.badge(r2.final_decision, big=True)} &nbsp; <span class='pf-muted'>{html.escape(RUN_MODE_LABEL[res.mode])} · {prev['at'].strftime('%H:%M:%S')}"
-                        f"{' · ≈ $%.4f (추정)' % res.cost_usd if res.cost_estimated else ' · $%.4f' % res.cost_usd}</span>", unsafe_allow_html=True)
-            st.markdown(f"<div class='pf-reason'>{html.escape(plain_reason(r2, catalog))}</div>", unsafe_allow_html=True)
-            render_ad(prev["copy"], r2.verdict.findings, title="검사한 문구", catalog=catalog)
-            fs = [f for f in r2.verdict.findings if f.verified_quote or f.layer.value != "semantic"]
-            if fs:
-                st.markdown("**확인이 필요한 구절**")
-                for f in fs:
-                    st.markdown(f"<div class='pf-reason'>{theme.severity_chip(f.severity)} {html.escape(finding_sentence(f, catalog))}</div>", unsafe_allow_html=True)
-            if r2.final_decision == Decision.HUMAN_REVIEW:
-                st.info("재검사 결과도 담당자 확인이 필요합니다: " + human_review_reason(r2), icon="ℹ️")
-            if r2.final_decision == Decision.APPROVE and current:
-                st.success("이 문구는 검사 기준을 통과했습니다. (이 프로젝트의 검사 기준 기준이며 실제 플랫폼 심사가 아닙니다.)", icon="✅")
+        if rerun_after:
+            st.rerun()
+        shown: RecheckResult | None = hist.latest_for(key)
+        if shown is None and hist.latest() is not None:
+            st.warning("문구가 바뀌었습니다. 아래 결과는 **이전에 검사한 문구**에 대한 것입니다. 다시 검사하세요.", icon="⚠️")
+            shown = hist.latest()
+        if shown is not None:
+            _recheck_result(shown, current=(shown.key == key), hist=hist, key=key, entry=entry, rep=rep, catalog=catalog)
+
+
+def _recheck_result(res: RecheckResult, *, current: bool, hist: RecheckHistory, key: str, entry: dict, rep: PreflightReport, catalog) -> None:
+    r2: PreflightReport = res.report
+    if res.failed:
+        st.error("검토 모델 호출이 실패해 이 문구를 끝까지 확인하지 못했습니다" + (f" ({res.review_error or res.rewrite_error})" if (res.review_error or res.rewrite_error) else "")
+                 + ". 통과로 보지 않습니다. 같은 문구로 다시 시도할 수 있습니다.", icon="⛔")
+    st.markdown(f"재검사 결과 {theme.badge(r2.final_decision, big=True)} &nbsp; <span class='pf-muted'>{html.escape(RUN_MODE_LABEL[res.mode])} · {res.at.strftime('%H:%M:%S')}"
+                f"{' · ≈ $%.4f (추정)' % res.cost_usd if res.cost_estimated else ' · $%.4f' % res.cost_usd}</span>", unsafe_allow_html=True)
+    if current:
+        st.caption(_usage_line(hist.usage_for(key)))
+    st.markdown(f"<div class='pf-reason'>{html.escape(plain_reason(r2, catalog))}</div>", unsafe_allow_html=True)
+    render_ad(r2.ad_copy, r2.verdict.findings, title="검사한 문구" if current else "이전에 검사한 문구", catalog=catalog)
+    fs = [f for f in r2.verdict.findings if f.verified_quote or f.layer.value != "semantic"]
+    if fs:
+        st.markdown("**확인이 필요한 구절**")
+        for f in fs:
+            st.markdown(f"<div class='pf-reason'>{theme.severity_chip(f.severity)} {html.escape(finding_sentence(f, catalog))}</div>", unsafe_allow_html=True)
+    if r2.final_decision == Decision.HUMAN_REVIEW and not res.failed:
+        st.info("재검사 결과도 담당자 확인이 필요합니다: " + human_review_reason(r2), icon="ℹ️")
+    if r2.final_decision == Decision.APPROVE and current and not res.failed:
+        st.success("이 문구는 검사 기준을 통과했습니다. (이 프로젝트의 검사 기준 기준이며 실제 플랫폼 심사가 아닙니다.)", icon="✅")
+    if r2.final_decision == Decision.HUMAN_REVIEW:
+        if current:
+            with st.container(border=True):
+                st.markdown("**이 문구에 대한 담당자 확인 요청문**")
+                st.caption("방금 검사한 문구와 그 재검사 결과·처리 기록으로 만든 내용입니다. 요청문만 만들어 줄 뿐 전달·대기열·권한 관리는 없습니다.")
+                text = recheck_request_text(r2.ad_copy, res, rep.variant_id, entry["run"].run_id, catalog)
+                with st.expander("확인 요청 내용 (재검사한 문구 · 복사용)"):
+                    st.code(text, language=None)
+                    if not IN_BROWSER:
+                        st.download_button("확인 요청 내용 내려받기 (.txt)", data=text, file_name=f"review_request_{rep.variant_id}_recheck.txt", mime="text/plain",
+                                           key=f"dl_re_{rep.variant_id}_{res.trace_id}")
+        else:
+            st.caption("문구를 바꿨기 때문에 이전 결과로는 확인 요청문을 만들지 않습니다. 다시 검사한 뒤 만들 수 있습니다.")
+    if current and hist.usage_for(key)["failed_tries"]:
+        with st.expander("이 문구의 검사 시도 기록"):
+            st.dataframe([{"시도": i, "결과": "실패 (모델 호출)" if a.failed else DECISION_LABEL[a.report.final_decision], "이유": a.review_error or a.rewrite_error or "—",
+                           "시각": a.at.strftime("%H:%M:%S"), "모델 호출": a.calls, "실패한 요청": a.failed_attempts, "처리 기록": a.trace_id}
+                          for i, a in enumerate(hist.attempts_for(key), start=1)], width="stretch", hide_index=True)
 
 
 def _details(rep: PreflightReport, entry: dict, catalog) -> None:

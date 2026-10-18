@@ -131,14 +131,15 @@ def run_redteam(settings: Settings, router: Optional[Router] = None, seeds: str 
                             label="REJECT", rule_ids=seed.rule_ids, disclosures=seed.disclosures, facts=seed.facts,
                             claims=seed.claims, landing_text=seed.landing_text, difficulty="evasion", source="redteam")
             r = evaluate_with_retry(case, settings, router, catalog, use_llm=True, breaker_wait_s=breaker_wait_s, log=log)
-            atk.predicted, atk.confidence, atk.predicted_rules, atk.reason, atk.error = r.predicted, r.confidence, r.predicted_rules, r.reason, r.error
-            atk.evaded = r.predicted == "APPROVE" and not r.error
+            # 심사 단계뿐 아니라 수정안 의미 검사 단계의 호출 실패도 장애로 센다
+            atk.predicted, atk.confidence, atk.predicted_rules, atk.reason, atk.error = r.predicted, r.confidence, r.predicted_rules, r.reason, (r.error or r.rewrite_error)
+            atk.evaded = r.predicted == "APPROVE" and not atk.error
             attacks.append(atk)
             if progress:
                 progress(seed.id, atk)
-            consecutive = consecutive + 1 if r.error else 0
+            consecutive = consecutive + 1 if atk.error else 0
             if abort_after and consecutive >= abort_after:
-                raise abort(f"제공자 오류가 {consecutive}건 연속", r.error, f"{seed.id}:{atk.strategy}")
+                raise abort(f"제공자 오류가 {consecutive}건 연속", atk.error, f"{seed.id}:{atk.strategy}")
             if cost_cap_usd is not None and router.budget.spent_usd > cost_cap_usd:
                 raise abort(f"누적 비용 ${router.budget.spent_usd:.2f} 가 상한 ${cost_cap_usd:.2f} 초과", "", f"{seed.id}:{atk.strategy}")
     return _redteam_report(settings, router, seed_cases, attacks, gen_failures)

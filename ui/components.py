@@ -155,24 +155,34 @@ def checklist_rows(rep: PreflightReport) -> list[dict]:
     return [{"항목": check_name(c.name), "결과": "통과" if c.passed else "확인 필요", "내용": c.detail} for c in rep.checklist]
 
 
-def human_review_request_text(rep: PreflightReport, run: PipelineRun, catalog) -> str:
-    """담당자에게 전달할 확인 요청문 (복사·내려받기용). 실제 검토 대기열은 없다 — 전달은 사용자가 한다."""
-    lines = [
-        f"[담당자 확인 요청] 광고안 {rep.variant_id}",
-        f"실행 ID: {run.run_id} · 처리 기록: {run.trace_id} · 실행 방식: {run.mode}",
-        "",
-        "광고 원문",
-        f"  제목: {rep.ad_copy.headline}",
-        f"  본문: {rep.ad_copy.body}",
-        f"  버튼: {rep.ad_copy.cta}",
-    ]
-    if rep.ad_copy.disclosures:
-        lines.append("  안내 문구: " + " / ".join(rep.ad_copy.disclosures))
+def _handoff_lines(copy: AdCopy, rep: PreflightReport, catalog, title: str, header: list[str], copy_label: str) -> str:
+    lines = [title, *header, "", copy_label,
+             f"  제목: {copy.headline}", f"  본문: {copy.body}", f"  버튼: {copy.cta}"]
+    if copy.disclosures:
+        lines.append("  안내 문구: " + " / ".join(copy.disclosures))
     lines += ["", f"확정하지 못한 이유: {human_review_reason(rep)}", "", "확인해 주실 것"]
     lines += [f"  - {x}" for x in what_to_check(rep, catalog)]
     fs = [f for f in rep.verdict.findings]
     if fs:
         lines += ["", "검사에서 나온 항목"]
         lines += [f"  - [{SEVERITY_LABEL[f.severity]}] {finding_sentence(f, catalog)} (규칙 {f.rule_id})" for f in fs]
-    lines += ["", "진행 가능 여부: 담당자 확인 전에는 게재할 수 없습니다."]
+    lines += ["", "진행 가능 여부: 담당자 확인 전에는 게재할 수 없습니다.",
+              "※ 이 요청문은 이 화면이 만든 텍스트입니다. 검토 대기열·담당자 지정·권한 관리는 없으며, 전달은 사용자가 직접 합니다."]
     return "\n".join(lines)
+
+
+def human_review_request_text(rep: PreflightReport, run: PipelineRun, catalog) -> str:
+    """최초 검사 결과(수정 전 원본)에 대한 담당자 확인 요청문. 실제 검토 대기열은 없다 — 전달은 사용자가 한다."""
+    return _handoff_lines(rep.ad_copy, rep, catalog, f"[담당자 확인 요청] 광고안 {rep.variant_id}",
+                          [f"대상: 처음 검사한 광고 원문 (수정 전)", f"실행 ID: {run.run_id} · 처리 기록: {run.trace_id} · 실행 방식: {run.mode}"], "광고 원문")
+
+
+def recheck_request_text(copy: AdCopy, result, original_variant_id: str, original_run_id: str, catalog) -> str:
+    """고쳐서 다시 검사한 문구에 대한 담당자 확인 요청문 — 지금 검사한 문구와 그 재검사 결과·재검사의 처리 기록으로만 만든다.
+    수정 전 원본의 실행 ID 는 '어디서 시작한 문구인지' 참고로만 적고, 이 요청의 근거 기록으로 쓰지 않는다."""
+    info = result.info or {}
+    header = [f"대상: 고쳐서 다시 검사한 문구 (원래 광고안 {original_variant_id} 의 수정본)",
+              f"검사 시각: {result.at.strftime('%Y-%m-%d %H:%M:%S')} · 처리 기록(이 재검사): {result.trace_id} · 실행 방식: {result.mode}",
+              f"검사 설정: 검사 기준 {info.get('policy_version', '?')} · 프롬프트 {info.get('prompt_version', '?')} · 자동 판정 확신 기준 {info.get('threshold', '?')}",
+              f"참고: 수정 전 원본이 나온 실행 {original_run_id}"]
+    return _handoff_lines(copy, result.report, catalog, f"[담당자 확인 요청] 광고안 {original_variant_id} (수정본 재검사)", header, "다시 검사한 문구")

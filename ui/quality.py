@@ -7,9 +7,11 @@ from pathlib import Path
 import plotly.graph_objects as go
 import streamlit as st
 
-from core.config import Settings
+from core.config import IN_BROWSER, Settings
 from evals.regression import gate
-from evals.runner import REPORTS, load_report, run_eval, save_report
+from evals.runner import REPORTS, dataset_fingerprint, load_dataset, load_report, run_eval
+from guardrails.policy import get_catalog
+from agents.prompts import PROMPT_VERSION
 from observability.tracer import Tracer
 from ui import catalog_view, redteam_view, theme, trace_view
 from ui.labels import METRIC, fraction_sentence, pct
@@ -49,7 +51,16 @@ def _report_meta(rep: dict) -> str:
     return (f"실행 방식 `{rep.get('mode')}` · 모델 {model} · 프롬프트 {rep.get('prompt_version')} · 검사 기준 {rep.get('policy_version')} · "
             f"평가 데이터 {rep.get('dataset')} v{rep.get('dataset_version') or '?'} ({rep.get('n')}건"
             + (f", 모델만 잡을 수 있는 사례 {rep['excluded_semantic_only']}건 제외" if rep.get("excluded_semantic_only") else "") + ")"
-            + f" · {str(rep.get('generated_at', ''))[:10]} · 비용 ${rep['summary'].get('cost_usd', 0)}" + (" (추정 포함)" if rep.get("cost_estimated") else ""))
+            + (f" · 자동 판정 확신 기준 {rep['threshold']}" if rep.get("threshold") is not None else "")
+            + f" · {str(rep.get('generated_at', ''))[:10]} · 비용 " + _cost_text(rep))
+
+
+def _cost_text(rep: dict) -> str:
+    """응답을 받지 못한 요청의 비용은 알 수 없다 — 그런 요청이 있으면 합계는 '이상' 이고 0원으로 확정하지 않는다."""
+    cost = rep["summary"].get("cost_usd", 0)
+    if rep.get("failed_requests"):
+        return f"${cost} 이상 (응답을 받지 못한 요청 {rep['failed_requests']}건의 비용은 알 수 없음)"
+    return f"${cost}" + (" (추정 포함)" if rep.get("cost_estimated") else "")
 
 
 def _reliability(cal: dict) -> go.Figure:
@@ -72,7 +83,35 @@ def _coverage(curve: list[dict]) -> go.Figure:
     return fig
 
 
-def _eval_section(settings: Settings, router_factory) -> None:
+SESSION_PICK = "이 세션에서 실행한 결과"
+DATASETS = {"golden": "골든셋 (개발용)", "holdout": "holdout (최종 확인용)", "contrast_g069": "G-069 대조 사례", "conditions": "숫자·조건 비교 (틀린 문구 + 정상 대조)", "adversarial": "우회 표현 회귀셋"}
+
+
+def _eval_settings(make_settings, source: str) -> tuple[Settings, str]:
+    """평가에 쓸 설정. 광고 작업의 설정(모델·판정 기준·직접 넣은 키)을 쓰거나 서버 기본 설정을 쓴다. (설정, 실제로 적용된 출처 설명)"""
+    ss = st.session_state
+    if source == "work" and ss.get("settings_overrides"):
+        keys = ss.get("user_keys", ("", ""))
+        return make_settings(*keys, **ss.settings_overrides), "광고 작업에서 마지막으로 쓴 설정"
+    note = "서버 기본 설정" + (" (광고 작업에서 실행한 적이 없어 기본 설정을 씁니다)" if source == "work" else "")
+    return make_settings(), note
+
+
+def _eval_plan(settings: Settings, ds: str, use_llm: bool, limit: int) -> dict:
+    cases = load_dataset(ds)
+    if not use_llm or settings.mode.value == "demo":
+        cases = [c for c in cases if c.difficulty != "semantic_only"]
+    n = min(len(cases), limit) if limit else len(cases)
+    live = use_llm and settings.mode.value != "demo"
+    per_case = None
+    ref = load_report("baseline_partial.json")
+    if live and ref and ref.get("n"):
+        per_case = ref["summary"].get("cost_usd", 0) / ref["n"]
+    return {"n": n, "live": live, "est_cost": (per_case * n) if per_case is not None else None, "est_calls": int(n * 1.3) if live else 0}
+
+
+def _eval_section(make_settings, router_factory, server_status: dict) -> None:
+    ss = st.session_state
     st.markdown("## 평가 결과")
     st.markdown("정답(기대 판정)이 붙은 광고 사례를 같은 검사 경로로 돌려 **문제 있는 광고를 통과시켰는지**, **문제없는 광고를 괴롭혔는지**, **얼마나 담당자 확인 없이 판단했는지** 를 셉니다. "
                 "라벨은 이 프로젝트가 직접 썼고 독립 검증자는 없습니다. 모든 수치는 해당 평가에서 관측된 값이며 모든 광고에 대한 보장이 아닙니다.")
@@ -85,24 +124,54 @@ def _eval_section(settings: Settings, router_factory) -> None:
                         ("G-069 대조 사례 — 코드 검사만", "contrast_g069_deterministic_only.json")):
         if (REPORTS / name).exists():
             options[label] = name
-    options["이 세션에서 실행한 결과"] = "__session__"
-    pick = st.selectbox("결과 선택", list(options.keys()))
-    rep = st.session_state.get("eval_report") if options[pick] == "__session__" else load_report(options[pick])
-    with st.expander("평가 다시 실행 (현재 설정)"):
-        st.caption("예시 실행이면 모델 호출 없이 바로 끝납니다. 실제 모델 키가 있으면 비용이 듭니다.")
-        c1, c2, c3 = st.columns(3)
-        ds = c1.selectbox("데이터", ["golden", "holdout", "contrast_g069", "adversarial"])
-        use_llm = c2.toggle("검토 모델 포함", value=True)
-        limit = c3.number_input("사례 수 제한 (0=전부)", min_value=0, value=0)
-        if st.button("평가 실행"):
+    options[SESSION_PICK] = "__session__"
+    if ss.pop("eval_just_ran", False):
+        ss["eval_pick"] = SESSION_PICK  # 방금 돌린 결과를 바로 보여 준다 (저장된 첫 결과로 되돌아가지 않는다)
+    pick = st.selectbox("결과 선택", list(options.keys()), key="eval_pick")
+    rep = ss.get("eval_report") if options[pick] == "__session__" else load_report(options[pick])
+    with st.expander("평가 다시 실행 — 설정을 확인하고 실행"):
+        st.caption("저장된 결과는 위에서 고르면 바로 볼 수 있고, 보는 것만으로는 모델을 부르지 않습니다. 여기서 실행하면 아래 설정 그대로 새로 평가해 이 세션에 결과를 남깁니다. 저장된 결과는 바꾸지 않습니다.")
+        c0, c1, c2, c3 = st.columns([2, 2, 2, 1])
+        source = c0.radio("평가에 쓸 설정", ["work", "default"], format_func=lambda k: {"work": "광고 작업의 현재 설정", "default": "서버 기본 설정"}[k], key="eval_settings_src",
+                          help="광고 작업의 설정 = 거기서 마지막으로 쓴 모델·자동 판정 확신 기준·직접 넣은 키. 서버 기본 설정 = 서버 환경변수 기준. 두 설정은 따로 쓰이며 서로를 바꾸지 않습니다.")
+        ds = c1.selectbox("평가 데이터", list(DATASETS.keys()), format_func=lambda k: DATASETS[k], key="eval_ds")
+        use_llm = c2.toggle("검토 모델 포함", value=True, key="eval_use_llm", help="끄면 코드 검사만 합니다 (모델 호출 없음).")
+        limit = c3.number_input("사례 수 제한 (0=전부)", min_value=0, value=0, key="eval_limit")
+        settings, src_note = _eval_settings(make_settings, source)
+        if IN_BROWSER:
+            settings = make_settings()
+            src_note = "브라우저 실행판 — 항상 예시 실행"
+        plan = _eval_plan(settings, ds, use_llm, int(limit))
+        fp = dataset_fingerprint(ds)
+        mode_text = "코드 검사만 (모델 없음)" if not use_llm else {"demo": "예시 실행 (실제 AI 호출 없음)", "partial": "실제 AI 호출 · 한 제공자", "live": "실제 AI 호출 · 두 제공자"}[settings.mode.value]
+        st.markdown("**이 평가에 적용되는 설정**")
+        st.dataframe([{"항목": k, "값": v} for k, v in (
+            ("설정 출처", src_note), ("실행 방식", mode_text), ("OpenAI 모델", settings.openai_model if use_llm else "—"), ("Anthropic 모델", settings.anthropic_model if use_llm else "—"),
+            ("자동 판정 확신 기준(τ)", f"{settings.auto_decision_confidence:.2f}"), ("검사 기준 버전", get_catalog().version), ("프롬프트 버전", PROMPT_VERSION),
+            ("평가 데이터", f"{DATASETS[ds]} · v{fp['dataset_version'] or '?'} · 해시 {fp['dataset_sha256'][:8]}"), ("평가할 사례", f"{plan['n']}건"))],
+            width="stretch", hide_index=True)
+        using_server_key = settings.mode.value != "demo" and ss.get("user_keys", ("", "")) == ("", "") if source == "work" else settings.mode.value != "demo"
+        cap = float(server_status.get("run_budget_usd") or 0.5) if using_server_key else None
+        approved = True
+        if plan["live"]:
+            est = f"약 ${plan['est_cost']:.2f} (5차 실제 모델 실행의 사례당 평균 비용 기준 추정)" if plan["est_cost"] is not None else "알 수 없음"
+            st.warning(f"실제 모델을 부릅니다 — 모델 호출 약 {plan['est_calls']}회, 예상 비용 {est}."
+                       + (f" 서버 키로 도는 평가는 서버가 정한 상한 ${cap:.2f} 에서 멈추고, 멈추면 결과에 장애로 표시합니다." if cap is not None else " 직접 넣은 키로 도는 평가라 비용은 그 계정에 청구됩니다."), icon="💳")
+            approved = st.checkbox("위 호출 수와 비용을 확인했고 실행합니다", key="eval_confirm")
+        if st.button("평가 실행", key="eval_run", disabled=not approved):
             router = router_factory(settings) if use_llm else None
             prog = st.progress(0.0, text="평가 중…")
-            r = run_eval(ds, settings, use_llm=use_llm, router=router, progress=lambda i, n, x: prog.progress(i / n, text=f"{i}/{n} {x.case.id}"), limit=limit or None,
-                         breaker_wait_s=0, abort_after=0)  # 화면에서는 기다리거나 중단하지 않는다. 장애가 섞였으면 아래에서 표시
-            save_report(r, "latest.json")
-            st.session_state.eval_report = r
+            r = run_eval(ds, settings, use_llm=use_llm, router=router, progress=lambda i, n, x: prog.progress(i / n, text=f"{i}/{n} {x.case.id}"), limit=int(limit) or None,
+                         breaker_wait_s=0, abort_after=0, budget_cap_usd=cap, run_info={"source": src_note, "requested_dataset": ds})  # 화면에서는 기다리거나 중단하지 않는다. 장애가 섞였으면 아래에서 표시
+            ss.eval_report = r
+            ss.eval_just_ran = True
             prog.empty()
             st.rerun()
+    if rep is not None and options[pick] == "__session__":
+        rs = rep.get("run_settings") or {}
+        st.success(f"방금 이 세션에서 실행한 결과입니다 — {rs.get('source', '?')} · 모델 {rs.get('openai_model') if rs.get('use_llm') else '없음(코드 검사만)'} · "
+                   f"확신 기준 {rs.get('threshold')} · 검사 기준 {rep.get('policy_version')} · 프롬프트 {rep.get('prompt_version')} · 데이터 {rep.get('dataset')} v{rep.get('dataset_version') or '?'}"
+                   + (f" · 사례 {rs['limit']}건 제한" if rs.get("limit") else ""), icon="🆕")
     if rep is None:
         st.info("아직 결과가 없습니다. 위에서 저장된 결과를 고르거나 평가를 실행하세요.")
         return
@@ -196,10 +265,10 @@ def _technical_section(rep_name: str = "baseline_partial.json") -> None:
         catalog_view.render_policy()
 
 
-def render(settings: Settings, router_factory, tracer: Tracer) -> None:
+def render(make_settings, router_factory, tracer: Tracer, server_status: dict) -> None:
     st.markdown("## 품질 확인")
     st.markdown("이 도구가 **어디서 틀리는지** 재고, 고친 뒤 **실제로 나아졌는지** 확인한 기록입니다.")
-    _eval_section(settings, router_factory)
+    _eval_section(make_settings, router_factory, server_status)
     _history_section()
     st.markdown("## 처리 기록")
     st.markdown("실행 한 번은 단계별 기록으로 남습니다. 어느 단계가 얼마나 걸렸고, 모델에 무엇을 보내 무엇을 받았는지, 어디서 대체 경로를 탔는지 볼 수 있습니다.")
