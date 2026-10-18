@@ -97,6 +97,9 @@ def check(copy: AdCopy, product: ProductFacts, categories: set[str], landing_tex
                                        layer=Layer.GROUNDING,
                                        detail=(f"근거 없음: {', '.join(grd.numbers_unsupported + grd.claims_unsupported)}"
                                                if (grd.numbers_unsupported or grd.claims_unsupported) else f"숫자 {grd.numbers_checked}개 확인")))
+    cond_bad = grd.conditions_omitted + grd.conditions_conflict
+    res.checklist.append(ChecklistItem(name="상품 정보의 조건과 일치", passed=not cond_bad, layer=Layer.GROUNDING,
+                                       detail=("; ".join(cond_bad)) if cond_bad else "확인한 조건에서 다른 점 없음 (코드가 비교하는 조건 6종류)"))
     if landing_text:
         res.checklist.append(ChecklistItem(name="랜딩 페이지 표현 일치", passed=not grd.landing_mismatch, layer=Layer.GROUNDING,
                                            detail=("불일치: " + ", ".join(grd.landing_mismatch)) if grd.landing_mismatch else "일치"))

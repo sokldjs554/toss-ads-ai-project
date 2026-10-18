@@ -4,13 +4,13 @@
   "excluded_semantic_only": 0,
   "dataset_version": "1",
   "dataset_sha256": "c5c71901dda0dfd7",
-  "generated_at": "2026-10-17T14:46:55.702545+00:00",
+  "generated_at": "2026-10-18T07:14:34.381891+00:00",
   "mode": "demo",
   "reviewer": "mock",
   "provider": "mock",
   "model": "mock",
-  "prompt_version": "2026.10.3",
-  "policy_version": "2026.10.2",
+  "prompt_version": "2026.10.4",
+  "policy_version": "2026.10.3",
   "threshold": 0.8,
   "scope": {
     "second_opinion": false,
@@ -405,7 +405,7 @@
     ],
     "curve_method": "replay_decide",
     "cost_usd": 0.0,
-    "latency_ms_mean": 3.0
+    "latency_ms_mean": 3.8
   },
   "cases": [
     {
@@ -422,7 +422,7 @@
       "difficulty": "gray",
       "category": "app",
       "reason": "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급",
-      "latency_ms": 4.4,
+      "latency_ms": 6.3,
       "cost_usd": 0.0,
       "unverified_quotes": 0,
       "inputs": {
@@ -438,7 +438,7 @@
         "second_opinion": null,
         "has_rewrite": true,
         "rewrite_passed": false,
-        "rewrite_semantic": null
+        "rewrite_semantic": "REVISE"
       },
       "rewrite_status": "failed_recheck",
       "model_decision": "REVISE",
@@ -454,7 +454,7 @@
       "difficulty": "benign_scary",
       "category": "app",
       "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
-      "latency_ms": 2.3,
+      "latency_ms": 2.2,
       "cost_usd": 0.0,
       "unverified_quotes": 0,
       "inputs": {
@@ -490,7 +490,7 @@
       "difficulty": "gray",
       "category": "app",
       "reason": "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급",
-      "latency_ms": 3.1,
+      "latency_ms": 4.6,
       "cost_usd": 0.0,
       "unverified_quotes": 0,
       "inputs": {
@@ -506,7 +506,7 @@
         "second_opinion": null,
         "has_rewrite": true,
         "rewrite_passed": false,
-        "rewrite_semantic": null
+        "rewrite_semantic": "REVISE"
       },
       "rewrite_status": "failed_recheck",
       "model_decision": "REVISE",

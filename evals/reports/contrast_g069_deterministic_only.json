@@ -4,13 +4,13 @@
   "excluded_semantic_only": 0,
   "dataset_version": "1",
   "dataset_sha256": "c5c71901dda0dfd7",
-  "generated_at": "2026-10-17T14:46:55.357501+00:00",
+  "generated_at": "2026-10-18T07:14:34.741508+00:00",
   "mode": "deterministic_only",
   "reviewer": "none",
   "provider": "none",
   "model": "none",
-  "prompt_version": "2026.10.3",
-  "policy_version": "2026.10.2",
+  "prompt_version": "2026.10.4",
+  "policy_version": "2026.10.3",
   "threshold": 0.8,
   "scope": {
     "second_opinion": false,
@@ -405,7 +405,7 @@
     ],
     "curve_method": "replay_decide",
     "cost_usd": 0.0,
-    "latency_ms_mean": 0.9
+    "latency_ms_mean": 1.0
   },
   "cases": [
     {
@@ -422,7 +422,7 @@
       "difficulty": "gray",
       "category": "app",
       "reason": "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급",
-      "latency_ms": 1.1,
+      "latency_ms": 1.2,
       "cost_usd": 0.0,
       "unverified_quotes": 0,
       "inputs": {
@@ -454,7 +454,7 @@
       "difficulty": "benign_scary",
       "category": "app",
       "reason": "심사 신뢰도 0.70 < 자동 판정 임계값 0.80",
-      "latency_ms": 0.9,
+      "latency_ms": 1.0,
       "cost_usd": 0.0,
       "unverified_quotes": 0,
       "inputs": {
@@ -490,7 +490,7 @@
       "difficulty": "gray",
       "category": "app",
       "reason": "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급",
-      "latency_ms": 0.7,
+      "latency_ms": 0.8,
       "cost_usd": 0.0,
       "unverified_quotes": 0,
       "inputs": {

@@ -128,9 +128,9 @@ flowchart LR
 app.py                     # streamlit run app.py — 서버 키는 여기서만 읽는다
 core/        schemas.py(RewriteStatus·PreflightReport) · llm_schemas.py(strict 호환, rule_id Literal) · config.py · platform_spec.py
 llm/         router.py(라우팅·fallback·서킷브레이커·요청 단위 예산·수리·추정 비용) · openai_provider.py · anthropic_provider.py · mock_provider.py
-guardrails/  policy.yaml(45개 규칙, v2026.10.2) · normalize.py · lexical.py · disclosure.py · grounding.py(값·단위·뜻·조건) · injection.py · duplicate.py
+guardrails/  policy.yaml(46개 규칙, v2026.10.3) · normalize.py · lexical.py · disclosure.py · grounding.py(값·단위·뜻·조건) · injection.py · duplicate.py
              input_guard.py · output_guard.py · failsafe.py · failure_modes.py
-agents/      prompts.py(v2026.10.3) · planner.py · copywriter.py · audience.py · reviewer.py · adjudicator.py(decide) · recheck.py · pipeline.py
+agents/      prompts.py(v2026.10.4) · planner.py · copywriter.py · audience.py · reviewer.py · adjudicator.py(decide) · recheck.py · pipeline.py
 observability/ tracer.py · pricing.py · replay.py(저장된 기록 → 화면)
 evals/       datasets/(golden v1.2 dev 55 · holdout 12 · contrast_g069 4 · adversarial 8 · redteam_seeds 4) · metrics.py · runner.py · regression.py · redteam.py · judge.py · run.py · reports/(+history/)
 ui/          labels.py(화면 문구 한곳) · theme.py · workbench.py(광고 작업) · cases.py(검사 사례) · quality.py(품질 확인) · trace_view.py · redteam_view.py · catalog_view.py · components.py · presets.py
