@@ -7,6 +7,11 @@ from evals.compare import CONTROLLED_NAME, INCOMPLETE_NAME, LIVE_NAME, SYSTEM_LA
 from evals.runner import load_report
 from ui.labels import RUN_MODE_NAME, pct
 
+def _md(text: str) -> str:
+    """st.markdown 계열은 `$ … $` 한 쌍을 수식으로 그린다 — 금액이 둘 이상 들어간 문장이 깨지지 않게 달러 기호를 이스케이프한다."""
+    return text.replace("$", "\\$")
+
+
 SPLIT_LABEL = {"dev": "개발용 사례 (규칙·프롬프트를 고치는 데 쓴 사례)", "holdout": "최종 확인용 사례 (규칙을 고친 뒤 처음 쓴 사례)"}
 # 완료되지 않은 실행의 사유 코드(evals.compare.incomplete_reasons) → 화면 문구
 REASON_LABEL = {
@@ -105,10 +110,10 @@ def _incomplete(rep: dict) -> None:
         lower = report_cost_is_lower_bound(rep)       # 응답을 받지 못한 요청의 비용은 알 수 없다 — 0 원이나 정확한 값처럼 적지 않고 ‘이상’
         cap = f" · 상한 ${cost['cap_usd']:.2f}" if cost.get("cap_usd") is not None else ""
         why = " (응답을 받지 못한 요청의 비용은 알 수 없어 실제로는 이보다 많을 수 있습니다)" if lower else ""
-        st.caption(f"실행 {str(rep['generated_at'])[:10]} · 쓴 비용 {format_cost(cost.get('spent_usd', 0), lower)}{why}{cap} · 모델 {rep.get('model', '?')}")
+        st.caption(_md(f"실행 {str(rep['generated_at'])[:10]} · 쓴 비용 {format_cost(cost.get('spent_usd', 0), lower)}{why}{cap} · 모델 {rep.get('model', '?')}"))
     flight = (rep.get("aborted") or {}).get("in_flight")
     if flight:
-        st.caption(f"끊긴 시점에 처리 중이던 사례 {flight['case']} ({SYSTEM_LABEL.get(flight['system'], flight['system'])}) — 그때까지 쓴 비용 ${flight['cost_usd']:.4f} 는 위 합계에 들어 있고, 이 사례는 결과로 세지 않았습니다.")
+        st.caption(_md(f"끊긴 시점에 처리 중이던 사례 {flight['case']} ({SYSTEM_LABEL.get(flight['system'], flight['system'])}) — 그때까지 쓴 비용 ${flight['cost_usd']:.4f} 는 위 합계에 들어 있고, 이 사례는 결과로 세지 않았습니다."))
     _provider_line(rep)
     with st.expander("측정한 사례만의 수치 — 세 방식 비교의 결과로 읽지 마세요"):
         st.caption("아래 표는 이 실행이 마친 사례만 센 값입니다. 사례 수가 데이터마다 다르고 일부 데이터는 아예 없을 수 있어 방식끼리 비교하는 근거가 되지 않습니다.")
@@ -178,10 +183,10 @@ def render() -> None:
         e = estimate(["golden", "holdout", "contrast_g069", "conditions"], ("code_only", "llm_only", "combined"))
         wait = "끝까지 마친 실행이 없습니다 — 아래 ‘완료되지 않은 실행’ 은 이 비교의 결과가 아닙니다" if inc else "실행 승인 대기"
         cost = f"추정 비용 ${e['cost_range_usd']['low']:.2f} ~ ${e['cost_range_usd']['high']:.2f} (중간 ${e['cost_range_usd']['central']:.2f}, 상한 ${e['cap_usd']:.2f})" if e.get("cost_range_usd") else "추정 비용은 계산하지 못했습니다"
-        st.info(f"**실제 모델로 돌린 비교 결과는 아직 없습니다** ({wait}). 실행하면 모델 호출 약 {e['total_calls']}회, {cost} 입니다 ({e['cases']}건 × 세 방식, 모두 추정). "
-                "코드 검사만의 결과는 아래에서 이미 볼 수 있습니다.", icon="⏳")
+        st.info(_md(f"**실제 모델로 돌린 비교 결과는 아직 없습니다** ({wait}). 실행하면 모델 호출 약 {e['total_calls']}회, {cost} 입니다 ({e['cases']}건 × 세 방식, 모두 추정). "
+                    "코드 검사만의 결과는 아래에서 이미 볼 수 있습니다."), icon="⏳")
         for w in e.get("warnings", []):
-            st.warning(w, icon="⚠️")
+            st.warning(_md(w), icon="⚠️")
     if inc:
         _incomplete(inc)
     if ctrl:

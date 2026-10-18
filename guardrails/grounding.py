@@ -115,7 +115,9 @@ _SENSE_OF = {w: g for g, ws in _SENSE_GROUPS.items() for w in ws}
 
 
 # 범위·날짜·번호의 구분자로 쓰는 하이픈·물결과 모양이 같은 글자 (NFKC 로는 접히지 않는다): ‐ ‑ ‒ – — ― ⁃ ﹘ −  /  ∼ ˜ 〜 ⁓. 같은 한 글자로 바꿔 읽는다 — 아니면 '배송 3−14일' 의 14일이 사라진다
-_LOOKALIKE = {**{cp: "-" for cp in (0x2010, 0x2011, 0x2012, 0x2013, 0x2014, 0x2015, 0x2043, 0xFE58, 0x2212)}, **{cp: "~" for cp in (0x223C, 0x02DC, 0x301C, 0x2053)}}
+_LOOKALIKE = {**{cp: "-" for cp in (0x2212,)}, **{cp: "~" for cp in (0x223C, 0x02DC, 0x301C, 0x2053)}}      # 마이너스 부호·물결 닮은꼴은 늘 '-' · '~'
+_DASH_LOOKALIKE = frozenset(chr(cp) for cp in (0x2010, 0x2011, 0x2012, 0x2013, 0x2014, 0x2015, 0x2043, 0xFE58))   # 하이픈·줄표 닮은꼴 — 범위 표시일 때만 '-' 로 읽는다
+_RANGE_LEFT_UNITS = "원만천억조일개월주년회건명배점%％"
 
 
 def _fold(text: str) -> str:
@@ -129,7 +131,26 @@ def _fold(text: str) -> str:
         if len(n) == 1 and n.isdecimal():
             n = str(unicodedata.decimal(n))                  # 다른 문자 체계의 숫자(아라비아 인도 숫자 등)도 0-9 로 — 정규식의 \d 는 읽는데 [0-9] 는 못 읽는 어긋남이 없게
         out.append(n if len(n) == 1 else ch)
+    for i, ch in enumerate(out):
+        if ch in _DASH_LOOKALIKE:
+            out[i] = "-" if _is_range_dash(out, i) else " "
     return "".join(out).translate(_LOOKALIKE)
+
+
+def _is_range_dash(chars: list[str], i: int) -> bool:
+    """줄표·하이픈 닮은꼴이 숫자 범위('50–60%'·'30만원–50만원')를 잇는가. 그렇지 않은 곳('고객센터—1588-1234'·'이벤트—10.31까지'·'SALE—50%')에서 '-' 로 접으면 전화번호·날짜의 경계와 부호 읽기가 흐트러지므로 자리만 지키는 공백으로 둔다."""
+    j = i - 1
+    while j >= 0 and i - j <= 9 and chars[j] in " \t":
+        j -= 1
+    k = i + 1
+    while k < len(chars) and k - i <= 9 and chars[k] in " \t":
+        k += 1
+    if j < 0 or k >= len(chars) or not chars[k].isdigit():
+        return False
+    left = chars[j]
+    if left.isdigit() or left in "%％":
+        return True
+    return left in _RANGE_LEFT_UNITS and any(c.isdigit() for c in chars[max(0, j - 4): j])
 
 
 @dataclass(frozen=True)

@@ -466,7 +466,8 @@ def _render(monkeypatch, reports):
 
 
 def _text(at):
-    return "\n".join(str(x.value) for x in list(at.markdown) + list(at.caption) + list(at.info) + list(at.warning) + list(at.error))
+    """화면에 보이는 글자. 화면은 달러 기호를 이스케이프해(수식으로 깨지지 않게) 그리므로 보이는 모양($)으로 되돌려 비교한다."""
+    return "\n".join(str(x.value) for x in list(at.markdown) + list(at.caption) + list(at.info) + list(at.warning) + list(at.error)).replace("\\$", "$")
 
 
 def test_view_shows_an_incomplete_run_in_its_own_block_and_never_as_the_real_result(monkeypatch):

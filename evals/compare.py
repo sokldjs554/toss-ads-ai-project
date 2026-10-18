@@ -533,9 +533,10 @@ def _in_flight(ds: str, case: EvalCase, system: str, router: Router, marks: tupl
 
 def run_compare(datasets: list[str], settings: Settings, router: Optional[Router] = None, catalog: Optional[PolicyCatalog] = None, systems: tuple[str, ...] = SYSTEMS,
                 limit: Optional[int] = None, cost_cap_usd: Optional[float] = None, progress: Optional[Callable[[str, str, int, int], None]] = None,
-                run_kind: Optional[str] = None, breaker_wait_s: float = 0.0, abort_after: int = 0, approved_scope: bool = False) -> dict:
+                run_kind: Optional[str] = None, breaker_wait_s: float = 0.0, abort_after: int = 0, approved_scope: bool = False, sink: Optional[dict] = None) -> dict:
     """breaker_wait_s: 호출이 실패하면 제공자 서킷이 닫힐 때까지(최대) 기다렸다가 같은 사례를 한 번 더 시도한다. abort_after: 호출 실패 행(또는 기준 제공자가 아닌 쪽이 판정한 행)이
     이 수만큼 연속되면 중단한다 (FM-24). 비용 상한(cost_cap_usd)에 닿으면 그 행에서 바로 멈춘다 — 남은 호출은 하지 않는다.
+    sink: 호출한 쪽이 넘기는 빈 dict — 측정한 행(rows)·데이터 정보·계량기를 계속 담아 둔다. 리포트를 돌려주기 전에 신호나 오류가 새어 나오는 틈이 있더라도 호출한 쪽이 그 행으로 리포트를 만들 수 있게 한다.
     approved_scope: 이 실행이 '승인된 전체 범위' 여야 하는가 (워크플로·CLI 실행). 실제 모델 실행이 그 범위를 채우지 못하면 완료된 결과로 세지 않는다.
     datasets·systems 는 호출을 하기 전에 검사한다: 비어 있거나 같은 이름이 두 번 나오거나 알려진 방식 이름이 아니면 ValueError.
     어떤 경우에도 측정한 행은 리포트에 남는다 — 완료 여부는 리포트의 complete·incomplete_reason 이 말한다 (저장 위치는 main 이 정한다).
@@ -572,6 +573,8 @@ def run_compare(datasets: list[str], settings: Settings, router: Optional[Router
     consecutive = foreign = 0
     where = ""
     ds = ""
+    if sink is not None:
+        sink.update(rows=rows, ds_info=ds_info, kind=kind, router=router if needs_model else None, catalog=catalog, where="")
     cur: Optional[Row] = None           # 방금 끝낸 행 — 목록에 넣기 전에 신호가 와도 잃지 않는다
     flight: Optional[tuple] = None      # (데이터, 사례, 방식, 시작 전 계량기) — 모델을 부르는 행이 진행 중일 때만
     try:
@@ -579,6 +582,8 @@ def run_compare(datasets: list[str], settings: Settings, router: Optional[Router
             for i, case in enumerate(cases, start=1):
                 for system in systems:
                     where = f"{ds}:{case.id}"
+                    if sink is not None:
+                        sink["where"] = where
                     marks = _marks(router) if system != "code_only" else None
                     cur, flight = None, ((ds, case, system, marks) if marks is not None else None)
                     try:
@@ -624,8 +629,9 @@ def run_compare(datasets: list[str], settings: Settings, router: Optional[Router
             flight = None
         if flight is not None and router is not None:
             aborted["in_flight"] = _in_flight(*flight[:3], router, flight[3])
-    spent = round(router.budget.spent_usd, 6) if router is not None and needs_model else None
+    spent = None
     try:
+        spent = round(router.budget.spent_usd, 6) if router is not None and needs_model else None   # 반복문 직후의 이 줄도 보호 구간 안이다 — 여기서 신호가 와도 행은 리포트로 남는다
         return build_report(rows, ds_info, settings, catalog, systems, kind, aborted, cost_cap_usd, spent_usd=spent, approved_scope=approved_scope, limit=limit)
     except BaseException as e:  # noqa: BLE001 — 리포트를 정리하다 오류가 나도(두 번째 중단 신호 포함) 이미 쓴 돈의 측정 행은 버리지 않는다: 행 원본만 담은 최소 리포트로
         if aborted is None and isinstance(e, (KeyboardInterrupt, SystemExit)):
@@ -789,6 +795,22 @@ def _tally(items) -> dict:
 
 
 # ───────────────────────────── 저장 ─────────────────────────────
+def out_problem(out: Optional[str]) -> str:
+    """--out 이 저장할 수 없는 이름이면 그 사정, 괜찮으면 빈 문자열. 호출을 하기 전에 막는다 — 돈을 쓴 뒤에야 저장이 실패해 결과가 어디에도 남지 않는 일이 없게.
+    이름은 .json 으로 끝나야 하고, '.'·'..'·폴더 이름은 안 되며, evals/reports 에 이미 있는 다른 결과 파일(compare_ 로 시작하지 않는 이름)을 덮어쓰지 않는다."""
+    if not out:
+        return ""
+    name = Path(out).name
+    if name in ("", ".", "..") or not name.endswith(".json"):
+        return f"--out 은 .json 으로 끝나는 파일 이름이어야 한다: {out!r}"
+    target = _runner.REPORTS / name
+    if target.is_dir():
+        return f"--out {name} 는 폴더 이름이라 결과 파일로 쓸 수 없다"
+    if target.exists() and not name.startswith("compare_"):
+        return f"--out {name} 는 evals/reports 에 이미 있는 다른 결과 파일이라 덮어쓰지 않는다 (방식 비교 결과의 이름은 compare_ 로 시작한다)"
+    return ""
+
+
 def _result_file(kind: str, out: Optional[str]) -> tuple[str, str]:
     """완료된 결과를 저장할 파일 이름과 (바꿨다면) 그 사정. 실제 결과와 대역 결과는 서로의 이름으로 저장하지 않고, 완료되지 못한 실행의 파일을 완료된 결과 이름으로 쓰지 않는다."""
     default = LIVE_NAME if kind == "live" else CONTROLLED_NAME
@@ -923,6 +945,22 @@ def _save(rep: dict, name: str) -> tuple[bool, str]:
             return False, f"{msg}; 임시 폴더 저장도 실패 ({type(e2).__name__}) — 측정한 행 전부: {json.dumps(rep.get('rows', []), ensure_ascii=False, default=str)}"
 
 
+def _rescue_report(sink: dict, exc: BaseException, settings: Settings, systems: tuple[str, ...], cap: Optional[float], limit: Optional[int]) -> Optional[dict]:
+    """run_compare 가 리포트를 돌려주기 전에(반복문 직후·return 직전 등) 신호나 오류가 새어 나왔을 때, 그때까지 측정한 행으로 최소 리포트를 만든다. 측정이 시작되지 않았으면 None."""
+    if "rows" not in sink:
+        return None
+    where = sink.get("where", "")
+    aborted = _interruption(exc, where) if isinstance(exc, (KeyboardInterrupt, SystemExit)) else {"kind": "harness_error", "reason": f"{type(exc).__name__}: {str(exc)[:200]}", "after_case": where}
+    router = sink.get("router")
+    spent = round(router.budget.spent_usd, 6) if router is not None else None
+    catalog = sink.get("catalog")
+    try:
+        return fallback_report(sink["rows"], sink["ds_info"], settings, systems, sink["kind"], aborted, cap, spent_usd=spent, error=exc,
+                               policy_version=catalog.version if catalog is not None else "", approved_scope=True, limit=limit)
+    except BaseException:  # noqa: BLE001
+        return _bare_report(sink["rows"], sink["kind"], aborted, spent, exc)
+
+
 def _positive_float(text: str) -> float:
     v = float(text)
     if not (v > 0 and v < float("inf")):
@@ -981,6 +1019,8 @@ def main(argv: Optional[list[str]] = None) -> int:
     args = build_parser().parse_args(argv)
     settings = Settings.from_env()
     names, systems, problems = _check_selection(args.datasets, args.systems, args.estimate, settings.mode.value == "demo")
+    if not args.estimate and out_problem(args.out):
+        problems.append(out_problem(args.out))
     if problems:   # 호출도 저장도 하기 전에 막는다 — 틀린 이름이 돈을 쓰는 갈래로 흘러가지 않게
         print("실행하지 않음 — " + "; ".join(problems))
         return 2
@@ -995,9 +1035,17 @@ def main(argv: Optional[list[str]] = None) -> int:
         if system == systems[-1] and (i % 10 == 0 or i == n):
             print(f"  {ds} {i}/{n}", file=sys.stderr)
 
+    sink: dict = {}
+    rescued: list[int] = []
     with _terminate_as_exit():
-        rep = run_compare(names, settings, systems=systems, limit=args.limit, cost_cap_usd=cap, progress=progress,
-                          breaker_wait_s=(60.0 if settings.mode.value != "demo" else 0.0), abort_after=3, approved_scope=True)
+        try:
+            rep = run_compare(names, settings, systems=systems, limit=args.limit, cost_cap_usd=cap, progress=progress,
+                              breaker_wait_s=(60.0 if settings.mode.value != "demo" else 0.0), abort_after=3, approved_scope=True, sink=sink)
+        except BaseException as e:  # noqa: BLE001 — run_compare 는 중단 신호도 리포트로 돌려주지만, 반환 직전의 틈에서 새어 나온 신호·오류도 측정한 행을 잃게 두지 않는다
+            with _deferred_interrupts() as rescued:
+                rep = _rescue_report(sink, e, settings, systems, cap, args.limit)
+            if rep is None:
+                raise
         # 저장이 먼저, 요약 출력은 그 다음 — 출력 중 오류가 나도 돈을 쓴 측정을 잃지 않는다. 저장하는 동안 도착한 중단 신호는 끝난 뒤로 미룬다
         with _deferred_interrupts() as held:
             code, tail = _store(rep, args.out)
@@ -1006,6 +1054,7 @@ def main(argv: Optional[list[str]] = None) -> int:
             except Exception as e:  # noqa: BLE001
                 print(f"요약 출력 실패 ({type(e).__name__}: {e}) — 결과 파일은 이미 저장됐다")
             print(tail)
+    held = list(held) + list(rescued)
     if (rep.get("aborted") or {}).get("kind") == "interrupted" or held:
         raise _signal_error(rep, held)   # 측정한 행은 저장했다 — 이제 신호를 되살려 프로세스가 (종료 코드 2 로 얼버무리지 않고) 중단된 채로 끝나게 한다
     return code

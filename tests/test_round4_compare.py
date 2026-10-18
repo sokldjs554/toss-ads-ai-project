@@ -449,7 +449,7 @@ def failed_run(**kw):
 
 
 def captions(at):
-    return " ".join(c.value for c in at.caption)
+    return " ".join(c.value for c in at.caption).replace("\\$", "$")          # 화면은 달러 기호를 이스케이프해 그린다 — 보이는 글자로 비교
 
 
 def test_cost_block_is_a_lower_bound_when_requests_failed_and_keeps_the_old_keys():
