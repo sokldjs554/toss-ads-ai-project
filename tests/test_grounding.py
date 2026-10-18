@@ -410,13 +410,17 @@ def test_the_meaning_of_a_negative_number_is_read_from_before_its_minus_sign():
 
 
 def test_over_long_copy_never_passes_even_though_the_tail_is_not_scanned():
-    """20,000자를 넘는 뒷부분은 숫자 비교를 하지 않지만, 길이 규칙(TA-LENGTH-01)이 이미 수정 필요로 막는다 — 길게 써서 통과하는 길은 없다."""
+    """20,000자를 넘는 뒷부분은 숫자 비교를 하지 않는다 — 그래서 읽지 못한 글이 있다는 것을 grounding 이 직접 수정 필요(GRND-NUM-01)로 알린다.
+    본문이 길면 길이 규칙(TA-LENGTH-01)도 막지만 그 규칙은 제목·본문·버튼만 재므로, 고지 문구를 길게 쓰는 길은 이 알림이 막는다 — 길게 써서 통과하는 길은 없다."""
     from guardrails import output_guard
     from guardrails.policy import get_catalog
 
     P = ProductFacts(name="p", category=ProductCategory.ECOMMERCE, facts=[Fact(id="F1", text="연 4.5%~15.0%")])
     det = output_guard.check(AdCopy(headline="h", body="가" * grounding.MAX_ANALYZED_CHARS + " 연 99% 금리", cta="확인"), P, {"ecommerce"}, "", [], get_catalog())
     assert det.decision.value != "APPROVE" and "TA-LENGTH-01" in {f.rule_id for f in det.findings}
+    long_disclosure = output_guard.check(AdCopy(headline="h", body="확인", cta="확인", disclosures=["가" * grounding.MAX_ANALYZED_CHARS, "연 99% 금리"]), P, {"ecommerce"}, "", [], get_catalog())
+    ids = {f.rule_id for f in long_disclosure.findings}
+    assert long_disclosure.decision.value != "APPROVE" and "GRND-NUM-01" in ids and "TA-LENGTH-01" not in ids    # 길이 규칙은 고지 문구를 재지 않는다
 
 
 @pytest.mark.parametrize("name", ["10/31 ", "1.5 ", "2026.10.31 ", "1인 ", "유효기간 ", "심사 ", "제외 ", "자동 "])

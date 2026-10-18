@@ -15,6 +15,43 @@ from .trace_redact import redacted_copy
 
 TRACES_DIR = Path(__file__).resolve().parents[1] / "traces"
 
+# 요청은 나갔는데 응답(사용량)을 받지 못한 경우를 라우터가 스팬 이벤트로 남기는 이름들. 그 요청의 비용은 기록에 없다 (성공 응답의 사용량만 스팬에 적힌다).
+_FAILED_REQUEST_EVENTS = {"provider_error", "refusal", "truncated", "truncation_retry", "schema_mismatch", "repair_failed"}
+
+
+def unanswered_requests(span: Span) -> int:
+    """이 모델 호출 스팬에서 응답을 받지 못해 비용이 기록되지 않은 요청 수(알 수 있는 만큼).
+    장애 시뮬레이션(simulated_failure)은 요청을 보내기 전에 실패시키므로 센 것에서 뺀다. 이벤트로 설명되지 않는 오류 스팬(상한에 닿은 호출, 이벤트가 없는 기록)은 한 건으로 본다."""
+    names = [str(e.get("name", "")) for e in span.events if isinstance(e, dict)]
+    failed = sum(n in _FAILED_REQUEST_EVENTS for n in names) - names.count("simulated_failure")
+    if span.attributes.get("repaired") and "schema_mismatch" not in names:
+        failed += 1   # 형식을 어겨 수리된 호출 — 수리 전 요청의 비용은 기록에 없다 (이벤트가 없는 기록 대비)
+    if failed <= 0 and span.status == "error" and not any(n in ("simulated_failure", "skip_provider") for n in names) and "cost_usd" not in span.attributes:
+        failed = 1
+    return max(failed, 0)
+
+
+def cost_text(trace: Trace) -> str:
+    """기록의 총비용 표기. 응답을 못 받은 요청이 있으면 '≥' (그 요청의 비용은 알 수 없어 적힌 금액은 최소값), 사용량을 글자 수로 추정한 호출만 있으면 '≈', 깨끗하면 금액만.
+    예시 실행(demo)은 모델을 부르지 않으므로 늘 금액만."""
+    cost = f"${trace.total_cost_usd:.4f}"
+    llm = trace.llm_spans()
+    if trace.metadata.get("mode") != "demo" and sum(unanswered_requests(x) for x in llm):
+        return "≥ " + cost
+    if any(x.attributes.get("cost_estimated") for x in llm):
+        return "≈ " + cost
+    return cost
+
+
+def cost_help(trace: Trace) -> str | None:
+    llm = trace.llm_spans()
+    n = 0 if trace.metadata.get("mode") == "demo" else sum(unanswered_requests(x) for x in llm)
+    if n:
+        return f"응답을 받지 못한 요청 {n}건의 비용은 기록에 없어 이 금액은 최소값입니다. 실제 비용은 더 클 수 있습니다."
+    if any(x.attributes.get("cost_estimated") for x in llm):
+        return "제공자가 사용량을 돌려주지 않은 호출은 글자 수로 비용을 추정했습니다."
+    return None
+
 
 def _flatten(span: Span, depth: int = 0, out=None):
     out = [] if out is None else out
@@ -36,7 +73,8 @@ def _waterfall(trace: Trace) -> go.Figure:
         colors.append(STATUS_COLOR.get(s.status, "#999") if s.status != "ok" else KIND_COLOR.get(s.kind, "#999"))
         extra = ""
         if s.kind == "llm":
-            extra = f" · {s.attributes.get('provider','?')}/{s.attributes.get('model','?')} · ${float(s.attributes.get('cost_usd',0)):.4f} · {s.attributes.get('input_tokens',0)}→{s.attributes.get('output_tokens',0)} tok"
+            mark = "≥ " if (unanswered_requests(s) and trace.metadata.get("mode") != "demo") else ("≈ " if s.attributes.get("cost_estimated") else "")
+            extra = f" · {s.attributes.get('provider','?')}/{s.attributes.get('model','?')} · {mark}${float(s.attributes.get('cost_usd',0)):.4f} · {s.attributes.get('input_tokens',0)}→{s.attributes.get('output_tokens',0)} tok"
         texts.append(f"{s.name} [{s.kind}] {s.status} {s.duration_ms}ms{extra}")
     fig.add_trace(go.Bar(y=labels, x=widths, base=bases, orientation="h", marker_color=colors, hovertext=texts, hoverinfo="text"))
     fig.update_layout(height=max(260, 22 * len(rows) + 60), margin=dict(l=10, r=10, t=10, b=30), xaxis_title="ms", yaxis=dict(autorange="reversed"),
@@ -48,7 +86,7 @@ def render(tracer: Tracer) -> None:
     st.caption("실행 하나가 기록 하나입니다. 막대 색: 파랑=처리 단계, 보라=모델 호출, 주황=검사·가로챔, 노랑=대체 경로, 빨강=오류.")
     sources: dict[str, Trace] = {}
     for t in reversed(tracer.traces):
-        sources[f"이 세션 · {t.trace_id} · {t.metadata.get('product','')} · ${t.total_cost_usd:.4f}"] = t
+        sources[f"이 세션 · {t.trace_id} · {t.metadata.get('product','')} · {cost_text(t)}"] = t
     if TRACES_DIR.exists():
         for p in sorted(TRACES_DIR.glob("sample_*.json")):
             try:
@@ -77,7 +115,7 @@ def render(tracer: Tracer) -> None:
     c[1].metric("기록 단계", len(trace.spans()))
     c[2].metric("모델 호출", len(llm))
     c[3].metric("토큰 in/out", f"{i_tok}/{o_tok}")
-    c[4].metric("비용", ("≈ " if any(x.attributes.get("cost_estimated") for x in llm) else "") + f"${trace.total_cost_usd:.4f}")
+    c[4].metric("비용", cost_text(trace), help=cost_help(trace))
     sc = trace.status_counts()
     c[5].metric("가로챔/대체 경로/오류", f"{sc.get('intercepted',0)}/{sc.get('fallback',0)}/{sc.get('error',0)}")
     st.markdown("**메타** " + " · ".join(f"`{k}={v}`" for k, v in trace.metadata.items() if k not in ("final_decisions",)))

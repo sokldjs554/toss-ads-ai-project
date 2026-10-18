@@ -133,6 +133,12 @@ def test_compare_commit_step_runs_even_after_an_incomplete_run_and_keeps_the_mea
     ("success", {}, {"compare_live.json": "{}"}, {"compare_live.json"}),                                             # 완료된 실행: compare_live.json
     ("failure", {}, {}, set()),                                                                                      # 아무 파일도 없어도 단계가 실패하지 않는다
     ("success", {}, {}, set()),
+    # 취소된 실행(앞 단계의 결과는 cancelled): 측정한 행을 담은 파일은 올리고, compare_live.json 은 올리지 않는다
+    ("cancelled", {}, {"compare_live_incomplete.json": "{}"}, {"compare_live_incomplete.json"}),
+    ("cancelled", {"compare_live.json": '{"old": 1}'}, {"compare_live_incomplete.json": "{}", "compare_live.json": '{"stray": 1}'}, {"compare_live_incomplete.json"}),
+    ("cancelled", {"compare_live_incomplete.json": '{"old": 1}'}, {"compare_live_incomplete.json": '{"new": 1}', "history/compare_live_incomplete_2026.json": '{"old": 1}'},
+     {"compare_live_incomplete.json", "compare_live_incomplete_2026.json"}),                                         # 덮어쓰기 전 옛 파일(history/)도 함께
+    ("cancelled", {}, {}, set()),
 ])
 def test_compare_commit_step_script_commits_the_right_files(tmp_path, outcome, pre, written, committed):
     """워크플로의 커밋 단계 스크립트를 로컬 저장소에서 실제로 돌려 본다 (원격은 로컬 bare 저장소)."""
@@ -154,6 +160,7 @@ def test_compare_commit_step_script_commits_the_right_files(tmp_path, outcome, p
     assert prep.returncode == 0, prep.stderr
     head_before = sh("git rev-parse HEAD", work).stdout.strip()
     for k, v in written.items():
+        (reports / k).parent.mkdir(parents=True, exist_ok=True)
         (reports / k).write_text(v, encoding="utf-8")
     r = sh(f"bash -e {tmp_path / 'step.sh'}", work)
     assert r.returncode == 0, r.stderr
@@ -162,6 +169,25 @@ def test_compare_commit_step_script_commits_the_right_files(tmp_path, outcome, p
     assert names == committed, (names, r.stdout, r.stderr)
     if committed:
         assert sh("git rev-parse origin/main", work).stdout.strip() == head_after          # 원격까지 올라갔다
+
+
+def test_compare_commit_step_condition_holds_for_a_cancelled_run_and_does_not_depend_on_the_run_steps_success():
+    """`always()` 는 취소된 실행에서도 참이다(`success()` 가 섞이면 취소된 실행의 측정 행이 커밋되지 않는다). 앞 단계의 결과는 compare_live.json 을 올릴지 정할 때만 본다."""
+    job = load("live-eval.yml")["jobs"]["compare"]
+    steps = job["steps"]
+    names = [s.get("id") or s.get("name", "") for s in steps]
+    commit = next(s for s in steps if s.get("name", "").startswith("결과 커밋"))
+    assert re.sub(r"^\$\{\{\s*|\s*\}\}$", "", commit["if"].strip()) == "always()"
+    assert names.index("run_compare") < steps.index(commit) and "needs" not in job and not steps[names.index("run_compare")].get("continue-on-error")
+    outcome_lines = [l for l in commit["run"].splitlines() if "RUN_OUTCOME" in l]
+    assert len(outcome_lines) == 1 and "compare_live.json" in outcome_lines[0] and "incomplete" not in outcome_lines[0]
+    assert "git add evals/reports/compare_live_incomplete.json" in commit["run"] and "history/compare_live" in commit["run"]
+
+
+def test_compare_run_step_replaces_the_shell_with_python_so_a_cancel_signal_reaches_it():
+    """셸이 자식을 기다리는 동안 받은 SIGINT 는 자식이 끝날 때까지 미뤄진다. exec 로 셸을 파이썬으로 바꿔야 취소 신호가 곧바로 파이썬에 닿아 측정한 행을 저장한다."""
+    run = next(s for s in load("live-eval.yml")["jobs"]["compare"]["steps"] if s.get("id") == "run_compare")["run"].strip()
+    assert run.startswith("exec python -m evals.compare ") and "\n" not in run
 
 
 def test_live_eval_compare_job_does_not_run_without_a_key():

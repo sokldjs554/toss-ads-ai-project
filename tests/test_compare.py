@@ -54,6 +54,14 @@ def test_summary_separates_human_review_from_correct_pass_and_excludes_failures(
     assert m["cost_is_lower_bound"] is True and m["failed_requests"] == 2             # 응답을 못 받은 요청이 있으면 비용은 '이상'
 
 
+def test_summary_cost_is_a_lower_bound_for_a_cost_estimated_from_text_length_too():
+    """사용량을 못 받아 글자 수로 추정한 호출이 있으면 비용은 정확한 값이 아니다. 대조: 응답을 다 받았으면 정확한 값."""
+    m = summarize_rows([row("APPROVE", "APPROVE", estimated_calls=2, cost_usd=0.01), row("APPROVE", "APPROVE", cost_usd=0.01)])
+    assert m["estimated_calls"] == 2 and m["cost_is_lower_bound"] is True and m["cost_usd"] == 0.02
+    clean = summarize_rows([row("APPROVE", "APPROVE", cost_usd=0.01)])
+    assert clean["estimated_calls"] == 0 and clean["cost_is_lower_bound"] is False
+
+
 def test_all_human_review_is_not_reported_as_good():
     rows = [row("REJECT", "REJECT"), row("REVISE", "REVISE"), row("APPROVE", "APPROVE"), row("APPROVE", "APPROVE")]
     t = trivial_baselines(rows)

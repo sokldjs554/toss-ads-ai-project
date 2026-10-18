@@ -14,6 +14,7 @@ from datetime import datetime
 
 import streamlit as st
 
+from agents import adjudicator
 from agents.pipeline import RunOptions, run_pipeline
 from agents.recheck import RecheckHistory, RecheckResult, build_edited_copy, recheck, recheck_categories, recheck_key
 from core.config import IN_BROWSER, Settings
@@ -25,7 +26,7 @@ from guardrails.policy import get_catalog
 from llm.router import Router
 from observability.tracer import Tracer
 from ui import theme
-from ui.funding import funded_by_server, server_cap as _server_cap, usd_text
+from ui.funding import DEFAULT_CAP_USD, funded_by_server, server_cap as _server_cap, usd_text
 from ui.components import (
     checklist_rows,
     evidence_lines,
@@ -134,6 +135,12 @@ def run_state(entry: dict) -> str:
 def settings_mode_is_demo(user_oa: str, user_an: str, server_status: dict) -> bool:
     """이 입력으로 실행하면 예시 실행(실제 모델 호출 없음)인가 — 서버 키도 사용자 키도 쓰이지 않을 때."""
     return not (bool(user_oa.strip()) or bool(user_an.strip()) or bool(server_status.get("openai")) or bool(server_status.get("anthropic"))) or IN_BROWSER
+
+
+def as_example_run(settings: Settings) -> Settings:
+    """예시 실행으로 바꾼 설정. 예시 실행은 모델을 부르지 않아 쓰는 돈이 없으므로 서버가 정한 비용 상한(0 포함)을 예산으로 걸지 않는다 —
+    상한이 $0 인 서버에서도 예시 실행은 그대로 되고(막는 것은 비용이 드는 실행뿐), 예산 검사가 대역 호출을 막아 광고안이 0개로 끝나는 일이 없다."""
+    return dataclasses.replace(settings, force_demo=True, run_budget_usd=DEFAULT_CAP_USD)
 
 
 # --- 입력 ---------------------------------------------------------------------
@@ -565,7 +572,7 @@ def _edit_and_recheck(rep: PreflightReport, entry: dict, catalog, tracer: Tracer
         settings: Settings = make_settings(*ss.get("user_keys", ("", "")), **entry.get("overrides", {}))
         live_recheck = entry.get("mode") != "demo"
         if not live_recheck:
-            settings = dataclasses.replace(settings, force_demo=True)   # 예시 실행의 재검사도 예시 실행 — 키가 있어도 비용이 들지 않는다
+            settings = as_example_run(settings)   # 예시 실행의 재검사도 예시 실행 — 키가 있어도 비용이 들지 않고, 서버 비용 상한은 걸지 않는다
         else:
             # 실제 모델 실행의 재검사: 지금 서버 키가 쓰이면 그 실행에서 올려 둔 비용 상한이 아니라 서버 상한을 넘지 못한다
             sstat = ss.get("_server_status", {})
@@ -670,6 +677,13 @@ def _recheck_result(res: RecheckResult, *, current: bool, hist: RecheckHistory, 
                           for i, a in enumerate(hist.attempts_for(key), start=1)], width="stretch", hide_index=True)
 
 
+def _provider_md(who: str, note: str) -> str:
+    """제공자 이름은 코드 서식으로, 형식 수리 설명은 그 뒤 괄호로 (‘다른 제공자’ 처럼 이름이 아닌 말은 서식 없이)."""
+    if not who:
+        return "—"
+    return (f"`{who}`" if who.isascii() else who) + (f" ({note})" if note else "")
+
+
 def _details(rep: PreflightReport, entry: dict, catalog) -> None:
     with st.expander("상세 기록 — 판단 근거, 검사 항목, 가상 사용자 반응, 검토 모델, 규칙 코드"):
         st.markdown("**판단 근거**")
@@ -691,8 +705,11 @@ def _details(rep: PreflightReport, entry: dict, catalog) -> None:
                 st.markdown(f"- **{f.persona_name}** · 끌림 {f.appeal} · 신뢰 {f.trust} · {'클릭함' if f.would_click else '클릭 안 함'} — “{f.quote}” (걱정: {f.concern})")
         v = rep.verdict
         st.markdown("**검토 모델**")
-        st.markdown(f"판정 {DECISION_LABEL[v.decision]} · 확신 {v.confidence:.2f} · `{v.provider}/{v.model}`"
-                    + (f" · 교차 확인 {DECISION_LABEL[v.second_opinion]} ({'다름' if v.disagreement else '같음'}, `{v.second_opinion_provider}`{'' if v.second_opinion_independent else ', 같은 제공자라 독립적이지 않음'})" if v.second_opinion else ""))
+        # 판단한 제공자를 적는다. 형식을 다른 제공자가 고쳤다면 그 제공자는 따로 적는다 (v.provider 는 응답을 돌려준 쪽이라 수리한 쪽일 수 있다)
+        who = _provider_md(*adjudicator.judged_by(v))
+        so_who = _provider_md(*adjudicator.second_opinion_judged_by(v))
+        st.markdown(f"판정 {DECISION_LABEL[v.decision]} · 확신 {v.confidence:.2f} · {who}"
+                    + (f" · 교차 확인 {DECISION_LABEL[v.second_opinion]} ({'다름' if v.disagreement else '같음'}, {so_who}{'' if v.second_opinion_independent else ', 같은 제공자라 독립적이지 않음'})" if v.second_opinion else ""))
         if v.rationale:
             st.caption(v.rationale)
         st.markdown("**규칙 코드 (내부 식별자)**")
@@ -811,7 +828,7 @@ def render(make_settings, tracer: Tracer, router_factory, server_status: dict) -
     if autorun:
         clicked = True
     if force_demo:
-        settings, mode = dataclasses.replace(settings, force_demo=True), "demo"   # 예시로 바로 실행 · 검사 사례의 '예시로 열기' 는 항상 AI 호출 없는 예시 실행
+        settings, mode = as_example_run(settings), "demo"   # 예시로 바로 실행 · 검사 사례의 '예시로 열기' 는 항상 AI 호출 없는 예시 실행
     if clicked and _execute(settings, options, tracer, router_factory, mode):
         st.rerun()   # 방금 쓴 비용 확인을 지운 상태로 입력 칸을 다시 그린다 (체크 칸은 이미 그려진 뒤라 이 실행 안에서는 바꿀 수 없다). 결과는 세션에 있어 그대로 나온다
     if not ss.runs:

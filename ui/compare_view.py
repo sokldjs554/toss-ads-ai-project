@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import streamlit as st
 
-from evals.compare import CONTROLLED_NAME, INCOMPLETE_NAME, LIVE_NAME, SYSTEM_LABEL, compare_allowed, estimate
+from evals.compare import CONTROLLED_NAME, INCOMPLETE_NAME, LIVE_NAME, SYSTEM_LABEL, compare_allowed, estimate, format_cost, report_cost_is_lower_bound
 from evals.runner import load_report
 from ui.labels import RUN_MODE_NAME, pct
 
@@ -13,6 +13,7 @@ REASON_LABEL = {
     "cost_cap_reached": "비용 상한에 닿아 멈춤", "cost_over_cap": "모든 사례를 마쳤지만 비용이 상한을 넘음", "consecutive_failures": "모델 호출 실패가 연속되어 멈춤",
     "consecutive_fallback": "다른 제공자가 연속으로 판정해 멈춤", "failed_rows": "모델 호출이 실패한 행이 있음", "mixed_provider": "기준 제공자가 아닌 제공자가 판정한 행이 있음",
     "partial_scope": "승인된 전체 범위를 실행하지 않음", "cases_not_run": "실행하지 못한 사례가 남음", "aborted": "중간에 멈춤",
+    "harness_error": "비교 프로그램 쪽 오류로 멈춤", "interrupted": "실행이 중단됨 (직접 멈췄거나 실행이 취소됨)", "report_error": "결과를 정리하다 오류가 나서 측정한 행의 원본만 남음",
 }
 
 
@@ -101,8 +102,13 @@ def _incomplete(rep: dict) -> None:
         st.dataframe([{"데이터": ds, "마친 사례": c["completed"], "전체 사례": c["total"], "호출이 실패한 행": c.get("failed_rows", 0)} for ds, c in counts.items()], width="stretch", hide_index=True)
     cost = rep.get("cost") or {}
     if cost:
+        lower = report_cost_is_lower_bound(rep)       # 응답을 받지 못한 요청의 비용은 알 수 없다 — 0 원이나 정확한 값처럼 적지 않고 ‘이상’
         cap = f" · 상한 ${cost['cap_usd']:.2f}" if cost.get("cap_usd") is not None else ""
-        st.caption(f"실행 {str(rep['generated_at'])[:10]} · 쓴 비용 ${cost.get('spent_usd', 0):.2f}{cap} · 모델 {rep.get('model', '?')}")
+        why = " (응답을 받지 못한 요청의 비용은 알 수 없어 실제로는 이보다 많을 수 있습니다)" if lower else ""
+        st.caption(f"실행 {str(rep['generated_at'])[:10]} · 쓴 비용 {format_cost(cost.get('spent_usd', 0), lower)}{why}{cap} · 모델 {rep.get('model', '?')}")
+    flight = (rep.get("aborted") or {}).get("in_flight")
+    if flight:
+        st.caption(f"끊긴 시점에 처리 중이던 사례 {flight['case']} ({SYSTEM_LABEL.get(flight['system'], flight['system'])}) — 그때까지 쓴 비용 ${flight['cost_usd']:.4f} 는 위 합계에 들어 있고, 이 사례는 결과로 세지 않았습니다.")
     _provider_line(rep)
     with st.expander("측정한 사례만의 수치 — 세 방식 비교의 결과로 읽지 마세요"):
         st.caption("아래 표는 이 실행이 마친 사례만 센 값입니다. 사례 수가 데이터마다 다르고 일부 데이터는 아예 없을 수 있어 방식끼리 비교하는 근거가 되지 않습니다.")
@@ -160,7 +166,7 @@ def render() -> None:
     for n in notes:
         st.warning(n, icon="⚠️")
     any_rep = live or inc or ctrl
-    if any_rep:
+    if any_rep and any_rep.get("systems"):
         with st.expander("각 방식이 받는 정보", expanded=False):
             names = list(any_rep["systems"].keys())
             keys = list(any_rep["systems"][names[0]]["info_given"].keys())

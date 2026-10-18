@@ -71,6 +71,41 @@ class Adjudication:
     rewrite_note: str = ""
 
 
+REPAIR_NOTE = "형식 수리"   # 판단은 한 제공자가 하고 응답 형식만 다른 제공자가 고친 경우의 표기
+
+
+def judged_by(verdict: ReviewVerdict) -> tuple[str, str]:
+    """의미 심사를 한 쪽과 (있다면) 형식을 고친 쪽. ReviewVerdict.provider 는 '응답을 돌려준 쪽' 이라 형식 수리를 거치면 수리한 제공자이고,
+    판단한 제공자는 origin_provider 다 — 보고서에는 판단한 쪽을 쓰고 수리한 쪽은 따로 적는다. 판단한 제공자의 모델 이름은 기록돼 있지 않다.
+    수리를 거치지 않았으면 예전과 같은 'provider/model', 돌려주는 값은 (판단한 쪽, 수리 설명 또는 빈 문자열)."""
+    origin = verdict.origin_provider or verdict.provider
+    if origin == verdict.provider:
+        return f"{verdict.provider}/{verdict.model}", ""
+    return origin, f"{REPAIR_NOTE}: {verdict.provider}/{verdict.model}"
+
+
+def second_opinion_judged_by(verdict: ReviewVerdict) -> tuple[str, str]:
+    """교차 확인을 한 쪽과 (있다면) 형식을 고친 쪽. second_opinion_provider 도 '응답을 돌려준 쪽' 이다.
+    독립성 없음(second_opinion_independent=False)은 두 판단이 같은 제공자의 것이라는 뜻이라 판단한 쪽은 1차 판단의 제공자와 같다.
+    독립이고 돌려준 쪽이 1차 판단의 제공자가 아니면 돌려준 쪽이 판단했다. 독립인데 돌려준 쪽이 1차 판단의 제공자와 같으면 다른 제공자가 판단하고
+    이쪽이 형식만 고친 것인데, 판단한 제공자의 이름은 기록돼 있지 않아 '다른 제공자' 로 적는다."""
+    got = verdict.second_opinion_provider
+    if not got:
+        return "", ""
+    primary = verdict.origin_provider or verdict.provider
+    if not verdict.second_opinion_independent:
+        judge = primary
+    elif got != primary:
+        judge = got
+    else:
+        return "다른 제공자", f"{REPAIR_NOTE}: {got}"
+    return (judge, f"{REPAIR_NOTE}: {got}") if judge != got else (judge, "")
+
+
+def with_repair_note(who: str, note: str) -> str:
+    return f"{who} ({note})" if note else who
+
+
 def inputs_from(det: OutputGuardResult, verdict: Optional[ReviewVerdict],
                 rewrite_recheck: Optional["OutputGuardResult | RewriteCheck"] = None) -> DecisionInputs:
     inp = DecisionInputs(det_block=any(f.severity == Severity.BLOCK for f in det.findings),
@@ -147,13 +182,13 @@ def adjudicate(copy: AdCopy, det: OutputGuardResult, verdict: Optional[ReviewVer
     checklist = list(det.checklist)
     if verdict is not None:
         checklist.append(ChecklistItem(name="의미 심사 (LLM)", passed=verdict.decision == Decision.APPROVE, layer=Layer.SEMANTIC,
-                                       detail=f"{verdict.decision.value} · 신뢰도 {verdict.confidence:.2f} · {verdict.provider}/{verdict.model}"))
+                                       detail=f"{verdict.decision.value} · 신뢰도 {verdict.confidence:.2f} · {with_repair_note(*judged_by(verdict))}"))
         if verdict.second_opinion_failed:
             checklist.append(ChecklistItem(name="교차 검증 (다른 모델 계열)", passed=False, layer=Layer.SEMANTIC,
                                            detail="필요한 교차 확인을 받지 못함 (호출 실패 또는 다른 모델 계열이 응답하지 못함) — 자동으로 확정하지 않음"))
         elif verdict.second_opinion is not None:
             checklist.append(ChecklistItem(name="교차 검증 (다른 모델 계열)", passed=not verdict.disagreement, layer=Layer.SEMANTIC,
-                                           detail=f"2차 의견 {verdict.second_opinion.value} · {verdict.second_opinion_provider}"
+                                           detail=f"2차 의견 {verdict.second_opinion.value} · {with_repair_note(*second_opinion_judged_by(verdict))}"
                                            + ("" if verdict.second_opinion_independent else " · ⚠️ 같은 제공자 — 독립성 없음 (키 하나뿐인 PARTIAL 모드)")))
     if inp.has_rewrite:
         checklist.append(ChecklistItem(name="자동 수정안 재검사", passed=adj.rewrite_status == RewriteStatus.VERIFIED, layer=Layer.STRUCTURAL,

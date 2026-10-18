@@ -129,7 +129,7 @@ python -m evals.compare --estimate                        # 방식 비교: 호�
 
 | 절차 | 무엇 | 실패 조건 |
 |---|---|---|
-| **품질 게이트** (`.github/workflows/ci.yml`, push 마다) | 테스트 1018개(개발자 셸의 `PREFLIGHT_*`·API 키 환경변수와 무관하게 같은 결과 — `tests/conftest.py`), 골든셋 코드 검사만·예시 실행 기준선 대비 회귀 게이트, adversarial·holdout·contrast 의 "문제 있는 광고 통과 0건", 숫자·조건 비교 회귀셋(`conditions`·`conditions_extra`) | 기준선보다 문제 있는 광고 통과율이 조금이라도 오르면, 수정 요청률 +5%p·담당자 확인률 +15%p 초과면, 통과 0건 조건이 깨지면 실패 |
+| **품질 게이트** (`.github/workflows/ci.yml`, push 마다) | 테스트 1630개(개발자 셸의 `PREFLIGHT_*`·API 키 환경변수와 무관하게 같은 결과 — `tests/conftest.py`), 골든셋 코드 검사만·예시 실행 기준선 대비 회귀 게이트, adversarial·holdout·contrast 의 "문제 있는 광고 통과 0건", 숫자·조건 비교 회귀셋(`conditions`·`conditions_extra`) | 기준선보다 문제 있는 광고 통과율이 조금이라도 오르면, 수정 요청률 +5%p·담당자 확인률 +15%p 초과면, 통과 0건 조건이 깨지면 실패 |
 | **기록 작업** (`.github/workflows/live-eval.yml`, 수동) | 실제 모델로 골든셋·holdout·contrast·우회 표현 검사·5개 사례 처리 기록을 돌려 `evals/reports/`·`traces/` 에 **커밋** (`evals` 입력을 끄면 골든셋 계열을 건너뛴다. 제공자 장애가 섞이면 저장하지 않고 종료 코드 2 — FM-24) | 실패시키지 않는다. 결과를 기록하고 문서에서 사람이 읽는다 |
 
 ## 현재 결과

@@ -29,6 +29,10 @@ def _clean_intent(text: str, findings: list[Finding]) -> tuple[str, list[str]]:
     removed = [text[f.start:f.end] for f in findings if f.start >= 0 and f.end > f.start]
     kept: list[str] = []
     cursor = 0
+    # 문장은 앞에서부터 보므로 구절도 시작 위치순으로 한 번만 훑는다 — 문장마다 모든 구절을 다시 비교하면 같은 구절이 수천 번 반복된 요청에서 제곱 시간이 된다
+    ordered = sorted((f for f in findings if f.start >= 0 and f.end > f.start), key=lambda f: f.start)
+    nxt = 0
+    live: list[Finding] = []      # 지금 문장 앞에서 시작했지만 아직 끝나지 않은 구절
     for sent in [x for x in _SENT.split(text) if x and x.strip()]:
         idx = text.find(sent, cursor)
         if idx < 0:
@@ -36,7 +40,11 @@ def _clean_intent(text: str, findings: list[Finding]) -> tuple[str, list[str]]:
             continue
         s_start, s_end = idx, idx + len(sent)
         cursor = s_end
-        hits = [f for f in findings if f.start >= 0 and f.start < s_end and f.end > s_start]
+        while nxt < len(ordered) and ordered[nxt].start < s_end:
+            live.append(ordered[nxt])
+            nxt += 1
+        live = [f for f in live if f.end > s_start]
+        hits = live
         if not hits:
             kept.append(sent)
         elif _WRITE_VERB.search(sent):

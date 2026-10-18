@@ -103,6 +103,8 @@ jobs:
     # 방식 비교(코드 검사만·검토 모델만·합친 방식)는 compare 입력을 켠 실행에서 이 작업 하나만 돈다 (live 작업은 건너뜀). 기본은 꺼짐: 승인된 호출 수·비용 범위에서만 켠다.
     # 완료된 결과만 compare_live.json 으로 커밋한다. 끝까지 마치지 못한 실행(비용 상한·호출 실패·다른 제공자 혼입·연속 실패 중단, 종료 코드 2)은
     # 측정한 행까지 compare_live_incomplete.json 에 남겨 커밋하고, compare_live.json 은 만들지 않는다.
+    # 실행을 취소해도 마찬가지다: 취소는 SIGINT(약 7.5초 뒤 SIGTERM, 그 뒤 곧 SIGKILL)로 전달되고, evals.compare 는 그 신호를 받으면 측정한 행을 compare_live_incomplete.json 에 저장한 뒤
+    # 중단된 채로 끝난다. 결과 커밋 단계는 always() 라 취소된 실행에서도 돌고 앞 단계의 성공에 매이지 않는다 (compare_live.json 만 앞 단계가 성공했을 때 올린다).
     if: ${{ github.event.inputs.compare == 'true' }}
     runs-on: ubuntu-latest
     env:
@@ -129,10 +131,12 @@ jobs:
         run: python -m evals.compare --estimate --datasets golden,holdout,contrast_g069,conditions --cost-cap "$COMPARE_COST_CAP"
       - name: 방식 비교 실행 (실제 모델) → 완료되면 compare_live.json, 아니면 compare_live_incomplete.json
         id: run_compare
-        # 비용 상한에 닿으면 즉시 멈추고, 호출 실패·다른 제공자 혼입·연속 실패로 끝나도 측정한 행은 compare_live_incomplete.json 에 남긴다. 완료되지 못한 실행은 종료 코드 2
-        run: python -m evals.compare --datasets golden,holdout,contrast_g069,conditions --cost-cap "$COMPARE_COST_CAP" --out compare_live.json
+        # 비용 상한에 닿으면 즉시 멈추고, 호출 실패·다른 제공자 혼입·연속 실패로 끝나도 측정한 행은 compare_live_incomplete.json 에 남긴다. 완료되지 못한 실행은 종료 코드 2.
+        # 실행 취소(SIGINT·SIGTERM)도 같은 파일에 남긴 뒤 중단된 채로 끝난다 (이 단계의 결과는 cancelled).
+        # exec: 셸을 파이썬으로 바꿔 신호가 곧바로 파이썬에 닿게 한다 — 셸이 자식을 기다리는 동안은 셸이 받은 SIGINT 를 자식이 끝날 때까지 미루므로, exec 가 없으면 취소가 파이썬에 닿기 전에 SIGKILL 이 올 수 있다
+        run: exec python -m evals.compare --datasets golden,holdout,contrast_g069,conditions --cost-cap "$COMPARE_COST_CAP" --out compare_live.json
       - name: 결과 커밋
-        # 앞 단계가 종료 코드 2 로 끝나도(완료되지 못한 실행) 측정한 행을 잃지 않게 항상 돈다. compare_live.json 은 종료 코드 0 인 실행의 것만 올린다
+        # 앞 단계가 종료 코드 2 로 끝나도(완료되지 못한 실행) 실행이 취소돼도 측정한 행을 잃지 않게 항상 돈다(always() 는 취소된 실행에서도 참). compare_live.json 은 종료 코드 0 인 실행의 것만 올린다
         if: ${{ always() }}
         env:
           RUN_OUTCOME: ${{ steps.run_compare.outcome }}

@@ -140,3 +140,27 @@ def test_unsupported_revise_routes_to_human():
     v.unsupported_decision = True
     r = adjudicate(CLEAN, det(), v, 0.8)
     assert r.final_decision == Decision.HUMAN_REVIEW and "근거" in r.decision_reason
+
+
+# ── 점검표의 제공자 표기: 판단한 쪽을 적고, 형식을 다른 제공자가 고쳤다면 따로 적는다 ──────────────────
+def _detail(report, prefix):
+    return next(c.detail for c in report.checklist if c.name.startswith(prefix))
+
+
+def test_checklist_names_the_judging_provider_when_another_provider_repaired_the_format():
+    v = verdict(conf=0.9, second=Decision.APPROVE)
+    v.provider, v.model, v.origin_provider = "anthropic", "controlled", "openai"              # 응답을 돌려준 쪽(수리) / 판단한 쪽
+    v.second_opinion_provider, v.second_opinion_independent = "anthropic", True
+    r = adjudicate(CLEAN, det(), v, 0.8)
+    assert _detail(r, "의미 심사") == "APPROVE · 신뢰도 0.90 · openai (형식 수리: anthropic/controlled)"
+    assert _detail(r, "교차 검증") == "2차 의견 APPROVE · anthropic"                          # 두 줄이 같은 제공자로 보이지 않는다
+
+
+def test_checklist_provider_text_is_unchanged_without_a_repair():
+    v = verdict(conf=0.9, second=Decision.APPROVE)
+    v.provider, v.model, v.origin_provider = "openai", "gpt-4o", "openai"
+    v.second_opinion_provider, v.second_opinion_independent = "anthropic", True
+    r = adjudicate(CLEAN, det(), v, 0.8)
+    assert _detail(r, "의미 심사") == "APPROVE · 신뢰도 0.90 · openai/gpt-4o" and _detail(r, "교차 검증") == "2차 의견 APPROVE · anthropic"
+    v.origin_provider = ""                                                                    # 예전 기록(판단한 제공자 미기록)은 돌려준 쪽을 그대로 쓴다
+    assert _detail(adjudicate(CLEAN, det(), v, 0.8), "의미 심사") == "APPROVE · 신뢰도 0.90 · openai/gpt-4o"

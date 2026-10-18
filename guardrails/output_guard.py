@@ -93,10 +93,12 @@ def check(copy: AdCopy, product: ProductFacts, categories: set[str], landing_tex
 
     grd = grounding.check(copy, product, landing_text, catalog)
     res.findings.extend(grd.findings)
-    res.checklist.append(ChecklistItem(name="숫자·주장의 근거 (사실 목록)", passed=not grd.numbers_unsupported and not grd.claims_unsupported,
+    unproven = grd.numbers_unsupported + grd.claims_unsupported
+    res.checklist.append(ChecklistItem(name="숫자·주장의 근거 (사실 목록)", passed=not unproven and not grd.unchecked,
                                        layer=Layer.GROUNDING,
-                                       detail=(f"근거 없음: {', '.join(grd.numbers_unsupported + grd.claims_unsupported)}"
-                                               if (grd.numbers_unsupported or grd.claims_unsupported) else f"숫자 {grd.numbers_checked}개 확인")))
+                                       detail="; ".join(([f"근거 없음: {', '.join(unproven)}"] if unproven else [])
+                                                        + ([f"확인하지 못한 뒷부분: {', '.join(grd.unchecked)}"] if grd.unchecked else []))
+                                       or f"숫자 {grd.numbers_checked}개 확인"))
     cond_bad = grd.conditions_omitted + grd.conditions_conflict
     res.checklist.append(ChecklistItem(name="상품 정보의 조건과 일치", passed=not cond_bad, layer=Layer.GROUNDING,
                                        detail=("; ".join(cond_bad)) if cond_bad else "확인한 조건에서 다른 점 없음 (코드가 비교하는 조건 6종류)"))

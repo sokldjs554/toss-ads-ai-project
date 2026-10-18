@@ -183,7 +183,7 @@ def test_cost_cap_stops_spending_at_once_and_keeps_the_rows_measured_so_far(env)
     assert rep["incomplete_note"].startswith("완료되지 않은 실행") and "상한" in rep["incomplete_note"]
     assert rep["case_counts"]["golden"] == {"total": 55, "completed": 8, "failed_rows": 0}
     assert rep["case_counts"]["conditions"]["completed"] == 0 and rep["datasets"]["conditions"]["n"] == 39       # 닿지 못한 데이터의 전체 건수도 남는다
-    assert rep["cost"] == {"spent_usd": 1.0, "cap_usd": 1.0, "over_cap": False}
+    assert rep["cost"] == {"spent_usd": 1.0, "cap_usd": 1.0, "over_cap": False, "lower_bound": False, "failed_requests": 0, "estimated_calls": 0}      # 실패한 요청이 없으면 정확한 값
 
 
 def test_a_fully_completed_run_that_ends_just_over_the_cap_is_kept_not_discarded(env):

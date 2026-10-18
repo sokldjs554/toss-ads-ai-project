@@ -7,6 +7,8 @@
   같은 값·같은 단위라도 주변 어휘가 '할인' vs '금리' 처럼 다른 뜻이면 뒷받침으로 보지 않는다 (어휘 목록에 있는 경우만).
   금액의 주기('월 19,900원' 과 '연 19,900원') 도 다르면 뒷받침이 아니다. 검사 대상은 헤드라인·본문·CTA **와 고지 문구** 이다.
   '할인5%'·'금리4.5%' 처럼 한글에 붙여 쓴 숫자도 (% · 원 · 배 · 일 · 개월 단위일 때) 잡는다. 전화번호·심의번호·사업자번호 같은 식별번호는 혜택 수치가 아니다.
+  '조' 는 금액 맥락('10조원' · '5조 원' · '1조 5천억')에서만 10^12 단위다 — '약관 5조' · '2인 1조' 는 번호다. 제로폭 같은 보이지 않는 문자는 빼고, 하이픈·물결 닮은꼴과 다른 문자 체계의 숫자는 접어서 읽는다(위치·인용은 원문 기준).
+  숫자와 조건을 읽는 곳은 모두 같은 글(_read_view: 보이는 글 + 식별번호 가림)을 본다. 분석 상한(MAX_ANALYZED_CHARS)을 넘어 읽지 못한 뒷부분이 있으면 GRND-NUM-01(수정 필요)로 알린다.
 - 주장→근거: 주장이 가리킨 fact_id 가 존재해야 하고, 그 사실이 실제로 그 주장을 뒷받침해야 한다 (주장의 숫자가 그 사실에 있거나, 핵심 어휘가 겹침).
 - 조건 (GRND-COND-01 · GRND-COND-02): 코드가 비교하는 조건은 아래 `_CONDITIONS` 의 여섯 종류뿐이다.
   · 빠짐(COND-01) — 광고가 가리킨 사실에 그 조건이 있는데 광고 문구·고지 어디에도 같은 조건이 없음. 단어가 있다고 충족이 아니다:
@@ -20,21 +22,22 @@ from __future__ import annotations
 import math
 import re
 import unicodedata
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Callable, Optional
 
 from core.schemas import AdCopy, Fact, Finding, Layer, ProductFacts, Severity
-from guardrails.normalize import loose_text
+from guardrails.normalize import is_invisible, loose_text
 from guardrails.policy import PolicyCatalog, get_catalog
 
-MAX_ANALYZED_CHARS = 20_000   # 이보다 긴 글은 앞부분만 본다 (정규식 비용이 글 길이에 비례해 커지는 입력을 막는다. 광고 문구·사실은 이보다 훨씬 짧다)
+MAX_ANALYZED_CHARS = 20_000   # 이보다 긴 글은 앞부분만 읽는다 (정규식 비용이 글 길이에 비례해 커지는 입력을 막는다. 광고 문구·사실은 이보다 훨씬 짧다). 읽지 못한 뒷부분이 있으면 check() 가 수정 필요(GRND-NUM-01)로 알린다 — 길게 써서 통과하는 길은 없다
 
 _MULT = {"십": 10, "백": 100, "천": 1_000, "만": 10_000, "억": 100_000_000, "조": 1_000_000_000_000}
 _NUMBER = r"(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?"
 # 숫자 (앞이 영문자·숫자·점이면 이름·버전의 일부라 읽지 않는다). 'A-12' 처럼 영문자 뒤 하이픈도 제외. 하이픈은 범위 구분자('50-60%')로 읽는다.
 _NUM_TOKEN = re.compile(rf"(?<![A-Za-z\d.])(?<![A-Za-z]-)({_NUMBER})(?!\d)")
-# 조(10^12) 는 '조건'·'조회'·'조합' 처럼 다른 낱말의 첫 글자일 수 있다 — 한글이 바로 이어지지 않거나('1조 5천억' · '5조 원') 금액 꼬리(원·달러…)가 올 때만 단위로 읽는다
-_MULT_RUN = re.compile(r"(?:[십백천만억]|조(?![가-힣])|조(?=원|달러|위안|엔|유로))+")
+# 조(10^12) 는 '조건'·'조회'·'조합' 처럼 다른 낱말의 첫 글자이기도 하고 '약관 5조'·'2인 1조' 처럼 조문·모둠 번호이기도 하다 — 금액 맥락일 때만 단위로 읽는다:
+# 금액 꼬리(원·달러…)가 오거나('10조원' · '5조 원'), 뒤에 억·만 단위의 수가 이어지는('1조 5천억원' · '3조 2,000억') 경우. 그냥 '5조 참고' · '3조(환불)' 는 숫자로 읽지 않는다
+_MULT_RUN = re.compile(r"(?:[십백천만억]|조(?=[ \t]*(?:원|달러|위안|엔|유로|\d[\d,.]*[ \t]*[십백천]*[만억])))+")
 _CHAIN = re.compile(rf"[ \t]*({_NUMBER})([십백천만억]*)")
 _RANGE_BETWEEN = re.compile(r"^[ \t]*[~\-–—〜][ \t]*$")
 _UNIT_NAMES = ("퍼센트", "프로", "개월", "포인트", "시간", "kg", "㎏", "퍼", "원", "명", "배", "일", "달", "년", "분", "초", "회", "건", "호", "개", "점", "주", "세", "p", "g")
@@ -58,9 +61,10 @@ _ID_LABEL = (r"(?:(?:광고[ \t]*)?심의[ \t]*(?:(?:필|번호|확인|완료)[ 
              r"[ \t]*[:：]?[ \t]*")
 _ID_BODY = r"(?:제[ \t]*)?(?:[0-9A-Za-z]{1,12}(?:[-–][0-9A-Za-z가-힣]{1,12}){1,5}|\d{4,})(?:[ \t]*호)?(?![\d%])"
 _REF_DATE = r"(?:\d{4}[ \t]*[.\-/년][ \t]*)?\d{1,2}[ \t]*[.\-/월][ \t]*\d{1,2}(?![\d%])(?![ \t]*일?\.?[ \t]*(?:까지|부터|종료|마감|이전|이후))[ \t]*일?\.?"   # 기준일 뒤에 까지·이후 같은 말이 오면 기준일이 아니라 약속하는 날짜
+_VALID_LABEL = r"(?:(?:유효|심의|사용)?[ \t]*기[간한][ \t]*[:：]?[ \t]*)?"   # 번호 옆 괄호 안의 '(유효기간 2026.10.1~2027.9.30)'
 _IDENT_PRE = re.compile(      # 날짜보다 먼저 지운다 — 심의필 유효기간·기준일은 광고가 약속하는 날짜가 아니다
-    rf"{_ID_LABEL}{_ID_BODY}(?:[ \t]*\([ \t]*\d{{4}}[^)\n]{{0,40}}\))?"
-    r"|제[ \t]*[\d\-–]+[ \t]*호(?:[ \t]*\([ \t]*\d{4}[^)\n]{0,40}\))?"
+    rf"{_ID_LABEL}{_ID_BODY}(?:[ \t]*\([ \t]*{_VALID_LABEL}\d{{4}}[^)\n]{{0,40}}\))?"
+    rf"|제[ \t]*[\d\-–]+[ \t]*호(?:[ \t]*\([ \t]*{_VALID_LABEL}\d{{4}}[^)\n]{{0,40}}\))?"
     r"|제[ \t]*\d{1,3}[ \t]*조(?:의[ \t]*\d{1,2})?(?![가-힣])"      # 약관·법 조문 번호('제5조') — 조(10^12) 단위로 읽지 않는다
     r"|심의[ \t]*기간[ \t]*:?[ \t]*\d{4}[\d.\-/년월일 \t~–]{4,40}"
     r"|(?:\d{4}[ \t]*[.\-/년][ \t]*)?\d{1,2}[ \t]*(?:[.\-/월][ \t]*\d{1,2}[ \t]*일?\.?자?|월)[ \t]*(?:기준|현재|말)"   # '2026.10.1 기준' · '2026년 10월 1일자 기준' · '9월 말'
@@ -83,7 +87,7 @@ _DATE_PARTS = (r"(?:(?P<y>\d{4})[ \t]*[.\-/년][ \t]*(?P<m>\d{1,2})[ \t]*[.\-/�
                r"|(?<![\d.\-/])(?P<m3>\d{1,2})[ \t]*[./][ \t]*(?P<d3>\d{1,2})(?=\.?[ \t]*(?:\([ \t]*[월화수목금토일][ \t]*\)|까지|종료|마감)))")
 _DATE = re.compile(rf"(?<![\d.]){_DATE_PARTS}[ \t]*일?(?![\d%]|,\d{{3}}(?!\d))")
 # 시각('오후 11시 59분' · '23:59') 은 혜택 수치도 기간도 아니다 — 분(分)을 기간으로 읽지 않게 먼저 지운다
-_TIME = re.compile(r"(?:오전|오후|밤|새벽|낮)?[ \t]*\d{1,2}[ \t]*시(?!간)(?:[ \t]*\d{1,2}[ \t]*분(?:[ \t]*\d{1,2}[ \t]*초)?)?|(?<![\d:])\d{1,2}:\d{2}(?::\d{2})?(?![\d:])")
+_TIME = re.compile(r"(?:오전|오후|밤|새벽|낮|(?<![ \t]))[ \t]*\d{1,2}[ \t]*시(?!간)(?:[ \t]*\d{1,2}[ \t]*분(?:[ \t]*\d{1,2}[ \t]*초)?)?|(?<![\d:])\d{1,2}:\d{2}(?::\d{2})?(?![\d:])")
 # '10.1 ~ 10.31' · '10/1~10/31' — 날짜일 수도 소수일 수도 있어 값(월·일)과 소수 읽기를 함께 갖는 수량으로 읽는다
 _MD_RANGE = re.compile(r"(?<![\d./])(\d{1,2})[./](\d{1,2})[ \t]*[~\-–—〜][ \t]*(\d{1,2})[./](\d{1,2})(?![\d./%]|[ \t]*(?:원|배|개|명|회|건|점|일|월|년|%))")
 # 앞에 숫자가 없는 '만원'·'천원' (= 1만원·1천원)
@@ -110,16 +114,22 @@ _SENSE_WORDS = tuple(w for ws in _SENSE_GROUPS.values() for w in ws)
 _SENSE_OF = {w: g for g, ws in _SENSE_GROUPS.items() for w in ws}
 
 
+# 범위·날짜·번호의 구분자로 쓰는 하이픈·물결과 모양이 같은 글자 (NFKC 로는 접히지 않는다): ‐ ‑ ‒ – — ― ⁃ ﹘ −  /  ∼ ˜ 〜 ⁓. 같은 한 글자로 바꿔 읽는다 — 아니면 '배송 3−14일' 의 14일이 사라진다
+_LOOKALIKE = {**{cp: "-" for cp in (0x2010, 0x2011, 0x2012, 0x2013, 0x2014, 0x2015, 0x2043, 0xFE58, 0x2212)}, **{cp: "~" for cp in (0x223C, 0x02DC, 0x301C, 0x2053)}}
+
+
 def _fold(text: str) -> str:
-    """글자 수를 바꾸지 않는 NFKC 접기 — 전각 숫자·％·～ 를 반각으로. 길이가 달라지는 글자(㎏→kg 등)는 그대로 둔다. 그래서 위치(start/end)가 원문과 같다."""
+    """글자 수를 바꾸지 않는 NFKC 접기 — 전각 숫자·％·～ 를 반각으로, 하이픈·물결 닮은꼴은 '-' · '~' 로. 길이가 달라지는 글자(㎏→kg 등)는 그대로 둔다. 그래서 위치(start/end)가 원문과 같다."""
     out = []
     for ch in text:
         if ord(ch) < 128:
             out.append(ch)
             continue
         n = unicodedata.normalize("NFKC", ch)
+        if len(n) == 1 and n.isdecimal():
+            n = str(unicodedata.decimal(n))                  # 다른 문자 체계의 숫자(아라비아 인도 숫자 등)도 0-9 로 — 정규식의 \d 는 읽는데 [0-9] 는 못 읽는 어긋남이 없게
         out.append(n if len(n) == 1 else ch)
-    return "".join(out)
+    return "".join(out).translate(_LOOKALIKE)
 
 
 @dataclass(frozen=True)
@@ -186,17 +196,53 @@ class GroundingResult:
     landing_checked: bool = False
     landing_mismatch: list[str] = field(default_factory=list)
     referenced_fact_ids: list[str] = field(default_factory=list)
+    unchecked: list[str] = field(default_factory=list)            # 분석 상한(MAX_ANALYZED_CHARS)을 넘어 뒷부분을 읽지 못한 글 — 광고 문구·주장·사실 (확인하지 못한 채 통과시키지 않는다)
 
 
 _SEG_DELIM = re.compile(r"[\n.,;()·~\-/]")
 
 
 def _squash(text: str) -> str:
-    """길이를 바꾸지 않고, 8칸을 넘는 공백·탭 나열의 나머지를 NUL 로 바꾼다 — 공백이 수만 개 이어진 입력에서 정규식 비용이 커지는 것을 막는다 (숫자와 단위 사이에 9칸 넘게 띄우는 글은 없다)."""
+    """길이를 바꾸지 않고, 8칸을 넘는 공백·탭 나열의 나머지를 NUL 로 바꾼다 — 공백이 수만 개 이어진 입력에서 정규식 비용이 커지는 것을 막는다 (숫자와 단위 사이에 9칸 넘게 띄우는 글은 없다).
+    글을 처음 읽을 때 한 번만 쓴다. 가려 낸 자리(_blank)를 다시 줄이면 가린 글자가 만든 공백이 NUL 로 바뀌어 뒤따르는 '까지' 표식을 앞의 정규식이 보지 못한다."""
     return _LONG_WS.sub(lambda m: m.group()[:8] + "\x00" * (len(m.group()) - 8), text)
 
 
 _LONG_WS = re.compile(r"[ \t]{9,}")
+_PLAIN = frozenset(chr(c) for c in range(32, 127)) | {"\n", "\t", "\r"}
+
+
+def _visible(text: str) -> tuple[str, Optional[list[int]]]:
+    """제로폭·형식·제어 문자(normalize.is_invisible)를 뺀 글과, 남은 글자가 원문의 몇 번째 글자였는지의 표. 뺄 것이 없으면 (text, None).
+    '99[U+200B]%' 처럼 숫자 사이나 숫자와 단위 사이에 보이지 않는 문자가 끼면 사람 눈에는 '99%' 인데 추출기는 단위 없는 두 자리 숫자로 보고 버렸다.
+    그래서 사람이 보는 글을 읽고, 찾은 위치는 이 표로 원문에 되돌린다 (인용·위치는 원문 기준이다)."""
+    keep: list[int] = []
+    hidden = False
+    for i, ch in enumerate(text):
+        if ch in _PLAIN or "가" <= ch <= "힣" or not is_invisible(ch):
+            keep.append(i)
+        else:
+            hidden = True
+    if not hidden:
+        return text, None
+    return "".join(text[i] for i in keep), keep
+
+
+def _read_view(text: str) -> tuple[str, str, Optional[list[int]]]:
+    """숫자와 조건을 읽는 곳이 모두 같은 글을 보게 하는 하나의 입구: (읽는 글, 보이는 글, 위치표).
+    읽는 글 = 보이는 글(분석 상한까지)을 NFKC 로 접고(길이 그대로), 긴 공백을 줄이고, 심의필 유효기간·기준일·조문 번호 같은 식별번호를 공백으로 지운 것.
+    위치는 읽는 글·보이는 글이 같고, 위치표(src)로 원문에 되돌린다 (None 이면 원문과 같다)."""
+    clean, src = _visible(text[:MAX_ANALYZED_CHARS])
+    return _mask(_squash(_fold(clean)), _IDENT_PRE), clean, src
+
+
+def _to_original(src: Optional[list[int]], original: str, start: int, end: int) -> tuple[int, int]:
+    """보이는 글의 [start, end) → 원문 구간. 사이에 낀 보이지 않는 문자는 구간 안에 들어간다."""
+    if src is None or end <= start:
+        return start, end
+    return src[start], src[end - 1] + 1
+
+
 _SENSE_WINDOW = 120   # 뜻을 찾는 구절의 바깥 한계 (구분자가 없는 긴 글에서 숫자마다 글 전체를 훑지 않는다)
 
 
@@ -215,22 +261,31 @@ def _overlaps(start: int, end: int, spans: list[tuple[int, int]]) -> bool:
 
 
 def _blank(text: str, spans: list[tuple[int, int]]) -> str:
-    """spans 를 공백으로 지운다 (길이·위치는 그대로). 지운 자리가 길게 이어진 공백이 되어 뒤따르는 정규식이 그 공백 위에서 느려지지 않도록 다시 _squash 한다."""
+    """spans 를 공백으로 지운다 (길이·위치는 그대로). 가린 자리는 그냥 공백이다 — 뒤따르는 정규식이 보는 글을 바꾸지 않는다.
+    길게 이어진 공백 위에서 정규식이 느려지는 것은 공백으로 시작하는 정규식(_TIME)을 공백 덩어리의 첫 칸에서만 시작하게 해 막는다."""
     chars = list(text)
     for a, b in spans:
         for i in range(a, b):
             chars[i] = " "
-    return _squash("".join(chars))
+    return "".join(chars)
 
 
 def _mask(text: str, pat: re.Pattern) -> str:
     return _blank(text, [(m.start(), m.end()) for m in pat.finditer(text)])
 
 
+def _unit_follows(text: str, pos: int) -> bool:
+    """pos 뒤에 단위가 오는가 — 단위(_read_unit 이 읽는 것 전부)가 바로 오거나, 자릿수 단위(만·천·억…)를 지나 단위가 온다('3000만원' · '3000억 원')."""
+    if _read_unit(text, pos)[0]:
+        return True
+    m = _MULT_RUN.match(text, pos)
+    return bool(m and _read_unit(text, m.end())[0])
+
+
 def _mask_identifiers(text: str) -> str:
-    """식별번호(URL·이메일·도메인·버전·사업자번호)와 전화번호 꼴을 공백으로 지운다. 전화번호 꼴 바로 뒤에 단위(_read_unit 이 읽는 것 전부)가 오면 범위('1500-3000포인트')라 지우지 않는다."""
+    """식별번호(URL·이메일·도메인·버전·사업자번호)와 전화번호 꼴을 공백으로 지운다. 전화번호 꼴 바로 뒤에 단위(_read_unit 이 읽는 것 전부, 자릿수 단위를 지난 '3000만원' 포함)가 오면 범위('1500-3000포인트' · '1500-3000만원')라 지우지 않는다."""
     spans = [(m.start(), m.end()) for m in _IDENT.finditer(text)]
-    spans += [(m.start(), m.end()) for m in _PHONE.finditer(text) if not _read_unit(text, m.end())[0]]
+    spans += [(m.start(), m.end()) for m in _PHONE.finditer(text) if not _unit_follows(text, m.end())]
     return _blank(text, spans)
 
 
@@ -375,8 +430,19 @@ def _sign_before(t: str, start: int) -> bool:
 
 def extract_quantities(text: str) -> list[Quantity]:
     text = text[:MAX_ANALYZED_CHARS]
-    folded = _squash(_fold(text))
-    folded = _mask(folded, _IDENT_PRE)               # 심의필 유효기간·기준일은 날짜보다 먼저 지운다
+    folded, clean, src = _read_view(text)            # 심의필 유효기간·기준일은 날짜보다 먼저 지운다 (조건을 읽는 곳과 같은 글)
+    out = _quantities(folded, clean)
+    if src is None:
+        return out
+    mapped = []
+    for q in out:                                     # 보이지 않는 문자를 뺀 글에서 찾았으니 위치·인용을 원문으로 되돌린다
+        start, end = _to_original(src, text, q.start, q.end)
+        mapped.append(replace(q, start=start, end=end, raw=text[start:end]))
+    return mapped
+
+
+def _quantities(folded: str, text: str) -> list[Quantity]:
+    """읽는 글(folded)과 같은 위치의 보이는 글(text)에서 수량을 뽑는다."""
     folded = _mask(folded, _TIME)                    # 시각은 혜택 수치가 아니다
     dates, blanked = _dates(folded, text)
     blanked = _mask_identifiers(blanked)             # 전화·심의번호·URL·버전 등은 혜택 수치가 아니다
@@ -388,7 +454,7 @@ def extract_quantities(text: str) -> list[Quantity]:
         if all(1 <= mo <= 12 and 1 <= d <= 31 for mo, d, _, _ in parts):
             for mo, d, a, z in parts:
                 raw = text[a:z]
-                alt = float(raw) if "." in raw else -1.0
+                alt = float(blanked[a:z]) if "." in blanked[a:z] else -1.0       # 숫자 값은 접은 글에서 읽는다 (원문이 '₁₀.₁' 처럼 아래첨자 숫자여도 float() 가 실패하지 않게)
                 out.append(Quantity(value=float(mo * 100 + d), cls="mdlike", unit="", sense=frozenset(), start=a, end=z, raw=raw, alt=alt))
             md_spans.append((m.start(), m.end()))
     blanked = _blank(blanked, md_spans)
@@ -449,9 +515,9 @@ def _supported(q: Quantity, pool: list[Quantity]) -> bool:
 
 
 # ─────────────────────────── 조건 비교 (코드가 확인하는 여섯 종류만) ───────────────────────────
-# 부정: 조건 표식 바로 뒤에 '없음·않음·아님·안 함' 같은 말이 오면 조건이 아니라 조건이 없다는 말이다 ('제외 품목 없음', '자동결제 없이', '자동결제 되지 않아요',
+# 부정: 조건 표식 바로 뒤에 '없음·않음·아님·안 함·안 됨' 같은 말이 오면 조건이 아니라 조건이 없다는 말이다 ('제외 품목 없음', '자동결제 없이', '자동결제 되지 않아요',
 # '제외 상품이 없어요', '심사 불필요', '자동결제 안 해요', '자동결제 NO'). 이 목록에 있는 표현만 부정으로 읽는다 — 그 밖의 돌려 말하기는 의미 심사와 사람의 몫이다.
-_NEG_WORD = (r"(?:없|않|아님|아닙|아니|아닌|안[ \t]*(?:돼|됩|되|됐|해|합|함|하|했)|안[ \t]*(?:된|한)(?=다|답|대|단|담|데)|불가|제로|0[ \t]*건|면제|생략|불필요|필요[ \t]*없|미적용|미부과|미청구|해당[ \t]*없"
+_NEG_WORD = (r"(?:없|않|아님|아닙|아니|아닌|안[ \t]*(?:돼|됩|되|됐|됨|해|합|함|하|했)|안[ \t]*(?:된|한)(?=다|답|대|단|담|데)|불가|제로|0[ \t]*건|면제|생략|불필요|필요[ \t]*없|미적용|미부과|미청구|해당[ \t]*없"
              r"|해제[ \t]*(?:됨|돼|되|됐)|no(?![A-Za-z]))")
 _NEG_NOUN = r"(?:품목|상품|대상|항목|걱정|부담|절차|과정|조건|요금|비용|결제|과금|탈락|거절|자체|경우|일)"
 _NEG_PART = r"(?:이|가|은|는|도|를|을|엔|에는)"
@@ -695,7 +761,15 @@ class CondIssue:
 
 # 부정이 어떤 때·기간으로 한정됐는가: '체험 기간 중 자동결제 없음' · '체험 기간에는 과금 없음' · '체험 동안 …' · '처음 7일은 …'. '체험'·'기간' 이라는 낱말만으로는 한정이 아니다 —
 # '7일 무료 체험, 자동결제 없음!' 의 '무료 체험' 은 상품 이름이고, 이 부정은 어느 때에 한정되지 않은 말이다.
-_SCOPED_BEFORE = re.compile(r"동안|이전|전에|처음|첫[ \t]*달|(?:체험|기간)[ \t]*(?:중|내|내내|에는|엔|에서는|에서만|에만)|[ \t]중[ \t]*$")
+# 한정하는 말도 낱말째, 체험·기간·기간 길이에 붙은 꼴일 때만 읽는다 ('오랫동안 사랑받은 앱' · '처음부터 끝까지' · '이전과 달리' · '전에 없던' · '인기 급상승 중' 은 한정이 아니다).
+_PERIOD_LEN = r"(?:\d+(?:\.\d+)?[ \t]*(?:일|개월|주|달|시간)|한[ \t]*달)"
+_SCOPED_BEFORE = re.compile(
+    r"(?:체험|기간)[ \t]*(?:중|내|내내|동안|에는|엔|에서는|에서만|에만)"
+    r"|무료[ \t]*(?:이용|사용|구독)[ \t]*(?:중|동안)"
+    r"|(?:체험|기간|종료|만료)[ \t]*(?:이전|전에)"
+    rf"|{_PERIOD_LEN}[ \t]*동안"
+    rf"|(?<![가-힣])처음[ \t]*{_PERIOD_LEN}"
+    r"|(?<![가-힣])첫[ \t]*달")
 _CLAUSE_CUT = re.compile(r"[\n!?·;]|\.(?!\d)")   # 문장·줄이 끝나는 자리 — 앞 문장의 한정어는 뒤 문장의 부정을 한정하지 않는다
 
 
@@ -722,6 +796,12 @@ def _subtype(c: Cond) -> Optional[str]:
     return c.value[0] if c.kind == "기간 한정" and c.value else None   # 마감 날짜(date)와 기간(dur)은 서로 다른 말이라 값을 맞대지 않는다
 
 
+def _issue(kind: str, code: str, fact: Fact, fact_raw: str, ad: Cond, src: Optional[list[int]], full: str, why: str) -> CondIssue:
+    """광고 쪽 조건의 위치·인용은 원문(full_text) 기준으로 되돌려 담는다."""
+    start, end = _to_original(src, full, ad.start, ad.end)
+    return CondIssue(kind, code, fact, fact_raw, full[start:end] if src is not None else ad.raw, start, end, why)
+
+
 def condition_issues(copy: AdCopy, all_facts: list[Fact], refs: list[Fact]) -> list[CondIssue]:
     """사실의 조건과 광고(문구+고지)의 조건 비교.
 
@@ -729,8 +809,9 @@ def condition_issues(copy: AdCopy, all_facts: list[Fact], refs: list[Fact]) -> l
     - omitted: 광고가 가리킨 사실의 조건이 광고에 같은 값으로 없는 경우. 단어만 있다고 충족이 아니다 (값이 다르거나 부정되면 충족이 아니다).
     같은 종류의 조건에 conflict 가 있으면 omitted 는 따로 내지 않는다 (같은 문제를 두 번 말하지 않는다).
     """
-    orig = copy.full_text()[:MAX_ANALYZED_CHARS]
-    text = _squash(_fold(orig))
+    full = copy.full_text()[:MAX_ANALYZED_CHARS]
+    text, orig, src = _read_view(full)       # 숫자를 읽는 곳(extract_quantities)과 같은 글 — 심의필 유효기간 같은 식별번호는 지워져 있고, 보이지 않는 문자는 빠져 있다
+    views = {id(f): _read_view(f.text) for f in all_facts}
     out: list[CondIssue] = []
     for name, finder in _CONDITIONS:
         ad = finder(text, orig, False)
@@ -738,7 +819,7 @@ def condition_issues(copy: AdCopy, all_facts: list[Fact], refs: list[Fact]) -> l
         # 해지·취소·환불을 말하는 부정('해지 수수료 없음')은 조건이 반대라는 말이 아니다
         # '체험 기간 중 과금 없음' 처럼 범위를 한정한 부정도 조건이 반대라는 말이 아니다 (사실이 '체험 후 자동결제' 라면 체험 중에 없다는 말은 맞다)
         ad_neg = [c for c in ad if c.negated and not _CANCEL_NEAR.search(text[max(0, c.start - 12):c.end + 12]) and not _SCOPED_BEFORE.search(_same_line_before(text, c.start))]
-        fact_conds = [(f, c) for f in all_facts for c in finder(_squash(_fold(f.text[:MAX_ANALYZED_CHARS])), f.text[:MAX_ANALYZED_CHARS], True)]
+        fact_conds = [(f, c) for f in all_facts for c in finder(views[id(f)][0], views[id(f)][1], True)]
         fact_aff = [(f, c) for f, c in fact_conds if not c.negated]
         fact_neg = [(f, c) for f, c in fact_conds if c.negated]
         conflict = False
@@ -749,23 +830,24 @@ def condition_issues(copy: AdCopy, all_facts: list[Fact], refs: list[Fact]) -> l
                 same_kind = [(f, c) for f, c in fact_aff if _subtype(c) == _subtype(a)]
                 if same_kind and not any(_same(a.value, c.value) for _, c in same_kind):
                     f, fc = same_kind[0]
-                    out.append(CondIssue(name, "conflict", f, fc.raw, a.raw, a.start, a.end,
-                                         f"광고의 {_cond_text(a)} 이(가) 근거 {f.id}('{f.text}')의 {name} {_cond_text(fc)} 과(와) 값이 다름"))
+                    out.append(_issue(name, "conflict", f, fc.raw, a, src, full,
+                                      f"광고의 {_cond_text(a)} 이(가) 근거 {f.id}('{f.text}')의 {name} {_cond_text(fc)} 과(와) 값이 다름"))
                     conflict = True
             if ad_neg and not fact_neg:   # 광고 어딘가에 같은 조건을 긍정하는 말이 함께 있어도, 부정한 말이 있으면 뜻이 반대인 문장이 광고에 있는 것이다. 단 사실 자신이 같은 조건의 부정('7일간 자동결제 없이 체험')을 함께 말하면 광고의 부정은 그 옮겨 적음일 수 있어 뜻이 반대라고 보지 않는다
                 a, (f, fc) = ad_neg[0], fact_aff[0]
-                out.append(CondIssue(name, "conflict", f, fc.raw, a.raw, a.start, a.end,
-                                     f"광고는 {_cond_text(a)} 라고 하지만 근거 {f.id}('{f.text}')에는 {name} {_cond_text(fc)} 이(가) 있음 — 뜻이 반대"))
+                out.append(_issue(name, "conflict", f, fc.raw, a, src, full,
+                                  f"광고는 {_cond_text(a)} 라고 하지만 근거 {f.id}('{f.text}')에는 {name} {_cond_text(fc)} 이(가) 있음 — 뜻이 반대"))
                 conflict = True
         if fact_neg and not fact_aff and ad_aff and not ad_neg:
             a, (f, fc) = ad_aff[0], fact_neg[0]
-            out.append(CondIssue(name, "conflict", f, fc.raw, a.raw, a.start, a.end,
-                                 f"광고는 {_cond_text(a)} 를 말하지만 근거 {f.id}('{f.text}')는 {_cond_text(fc)} (없음) — 뜻이 반대"))
+            out.append(_issue(name, "conflict", f, fc.raw, a, src, full,
+                              f"광고는 {_cond_text(a)} 를 말하지만 근거 {f.id}('{f.text}')는 {_cond_text(fc)} (없음) — 뜻이 반대"))
             conflict = True
         if conflict:
             continue
         for f in refs:
-            for fc in finder(_squash(_fold(f.text[:MAX_ANALYZED_CHARS])), f.text[:MAX_ANALYZED_CHARS], True):
+            fview = views[id(f)] if id(f) in views else _read_view(f.text)
+            for fc in finder(fview[0], fview[1], True):
                 if fc.negated or not fc.binding:
                     continue
                 if any(_same(a.value, fc.value) for a in ad_aff):
@@ -874,6 +956,22 @@ def omitted_conditions(copy: AdCopy, facts: list[Fact]) -> list[tuple[Fact, str,
     return [(i.fact, i.kind, i.fact_raw) for i in condition_issues(copy, facts, facts) if i.code == "omitted"]
 
 
+def _beyond_the_cap(copy: AdCopy, product: ProductFacts) -> list[tuple[str, int]]:
+    """분석 상한(MAX_ANALYZED_CHARS)보다 길어 뒷부분을 읽지 못하는 글: [(이름, 글자 수)] — 광고 문구(고지 포함) · 주장 · 사실 각각 첫 하나씩.
+    랜딩 글은 숫자의 근거로만 쓰여 잘리면 근거가 줄어 더 엄격해질 뿐이라 여기에 넣지 않는다."""
+    out: list[tuple[str, int]] = []
+    full = len(copy.full_text())
+    if full > MAX_ANALYZED_CHARS:
+        out.append(("광고 문구(고지 포함)", full))
+    over_claim = next((c for c in copy.claims if len(c.text) > MAX_ANALYZED_CHARS), None)
+    if over_claim is not None:
+        out.append(("주장", len(over_claim.text)))
+    over_fact = next((f for f in product.facts if len(f.text) > MAX_ANALYZED_CHARS), None)
+    if over_fact is not None:
+        out.append((f"사실 {over_fact.id}", len(over_fact.text)))
+    return out
+
+
 def check(copy: AdCopy, product: ProductFacts, landing_text: str = "", catalog: PolicyCatalog | None = None) -> GroundingResult:
     catalog = catalog or get_catalog()
     res = GroundingResult()
@@ -890,6 +988,13 @@ def check(copy: AdCopy, product: ProductFacts, landing_text: str = "", catalog: 
     res.referenced_fact_ids = [f.id for f in refs]
     issues = condition_issues(copy, product.facts, refs) if (cond_rule is not None or diff_rule is not None) else []
     conflict_spans = [(i.start, i.end) for i in issues if i.code == "conflict" and i.start >= 0]
+
+    # 0) 상한 밖: 읽지 못한 뒷부분에 틀린 숫자·반대 조건이 있어도 알 수 없으므로 통과시키지 않는다 (길이 규칙 TA-LENGTH-01 은 제목·본문·버튼만 재서 고지·사실·주장은 막지 못한다)
+    for name, n in _beyond_the_cap(copy, product):
+        res.unchecked.append(f"{name} {n:,}자")
+        if num_rule is not None:
+            res.findings.append(Finding(rule_id=num_rule.id, severity=num_rule.severity, layer=Layer.GROUNDING, quote="", start=-1, end=-1,
+                                        explanation=f"{name} {n:,}자 — {MAX_ANALYZED_CHARS:,}자를 넘는 뒷부분은 숫자·조건을 확인하지 못함 (줄여서 다시 검사)", verified_quote=True))
 
     # 1) 숫자: 값 전체 + 단위 종류 + 주기 + (있으면) 뜻 이 같은 수치가 사실/랜딩에 있어야 한다
     ad_q = extract_quantities(text)

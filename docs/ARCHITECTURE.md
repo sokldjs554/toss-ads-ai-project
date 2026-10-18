@@ -38,7 +38,7 @@ flowchart LR
 | `observability/` | 의존성 없는 트레이서(`tracer.py`: Trace/Span, contextvars, JSON 직렬화), 가격표, 저장된 기록을 화면용으로 되살리는 `replay.py` |
 | `evals/` | 데이터셋(golden dev · holdout · contrast · conditions · adversarial, 출처는 `PROVENANCE.json`), 지표, 실행기(판정 원본 입력 저장·추천 τ 유효성·재시도 기록), 방식 비교(`compare.py`), 회귀 게이트, 레드팀, 쌍대 판정자, CLI |
 | `ui/` | Streamlit 화면 세 영역 — `workbench.py`(광고 작업) · `cases.py`(검사 사례) · `quality.py`(품질 확인, 방식 비교는 `compare_view.py`). 화면 문구는 `labels.py` 한 곳, 디자인 토큰은 `theme.py`. 계산·판정은 하지 않는다 |
-| `tests/` | 1018개 단위·통합·화면(AppTest) 테스트 (네트워크 없음) |
+| `tests/` | 1630개 단위·통합·화면(AppTest) 테스트 (네트워크 없음) |
 | `scripts/` | 사이트·재생 페이지 빌드, 처리 기록 저장, 문서 생성, 스크린샷, **`e2e_flow.py`**(브라우저로 데스크톱·모바일에서 예시 실행→재검사→확인 요청→재시도까지 끝까지 누르며 검사) |
 | `traces/` | 재생용 샘플 트레이스 |
 

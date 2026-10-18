@@ -570,6 +570,7 @@ def test_zero_server_cap_blocks_paid_runs_and_the_screen_still_works(monkeypatch
     # 예시 실행은 그대로 된다 (모델을 부르지 않는다)
     at.button(key="example_run").click().run()
     assert not at.exception and len(at.session_state["runs"]) == 1 and at.session_state["runs"][0]["mode"] == "demo"
+    assert not at.session_state["runs"][0]["run"].halted and at.session_state["runs"][0]["run"].reports      # 광고안이 실제로 나온다 (상한 $0 에서 FM-20 으로 0개로 끝나지 않는다)
     assert at.button(key="run_button").disabled is True and calls["n"] == 0
     # 직접 넣은 키(두 제공자 모두)는 서버 상한과 무관하게 쓸 수 있다
     at.text_input(key="user_openai_key").set_value("sk-user-own-key-0123456789")

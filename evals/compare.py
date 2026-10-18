@@ -12,8 +12,8 @@
 
 저장 규칙 — 돈을 쓴 측정은 버리지 않되 완료된 결과와 섞지 않는다:
   compare_live.json              끝까지 마쳤고 · 상한 안이고 · 호출 실패가 없고 · 기준 제공자 하나가 전부 판정한 실제 모델 결과만 (run_kind live)
-  compare_live_incomplete.json   그 밖의 모든 실행(상한 도달·초과, 호출 실패, 다른 제공자 혼입, 연속 실패 중단, 일부 범위만 실행)이 측정한 행까지 (run_kind live_incomplete, complete false,
-                                 incomplete_reason 목록). 세 방식 비교의 결과가 아니다. 종료 코드는 2
+  compare_live_incomplete.json   그 밖의 모든 실행(상한 도달·초과, 호출 실패, 다른 제공자 혼입, 연속 실패 중단, 일부 범위만 실행, 중단 신호)이 측정한 행까지 (run_kind live_incomplete,
+                                 complete false, incomplete_reason 목록). 세 방식 비교의 결과가 아니다. 종료 코드는 2 (중단 신호는 저장한 뒤 신호를 다시 일으켜 중단된 채로 끝낸다)
   compare_controlled.json        대역(통제된 응답)으로 돌린 하네스 검증용 (run_kind controlled). 실제 결과 파일로는 절대 저장하지 않는다
 
     python -m evals.compare --datasets golden,holdout,contrast_g069,conditions --out compare_controlled.json
@@ -22,8 +22,13 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import signal
 import sys
+import tempfile
+import threading
 import time
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -35,7 +40,7 @@ from core.llm_schemas import build_review_schema
 from core.schemas import AdCopy
 from evals import runner as _runner
 from evals.metrics import UNSAFE_LABELS, wilson
-from evals.runner import (REPORTS, EvalAborted, EvalCase, _wait_for_breaker, dataset_fingerprint, dataset_path, evaluate_with_retry, load_dataset, load_report, save_report)
+from evals.runner import REPORTS, EvalAborted, EvalCase, _wait_for_breaker, dataset_fingerprint, dataset_path, evaluate_with_retry, load_dataset, load_report
 from guardrails import output_guard
 from guardrails.failsafe import classify_exception
 from guardrails.policy import PolicyCatalog, get_catalog
@@ -87,6 +92,7 @@ class Row:
     calls: int = 0
     attempts: int = 0
     failed_requests: int = 0
+    estimated_calls: int = 0        # 응답은 받았지만 제공자가 사용량을 주지 않아 글자 수로 비용을 추정한 호출 수 — 이 행의 비용은 추정을 포함한다
     latency_ms: float = 0.0
     cost_usd: float = 0.0
     error: str = ""
@@ -151,6 +157,18 @@ class _Attribution:
 
 
 # ───────────────────────────── 방식별 판정 ─────────────────────────────
+def _marks(router: Optional[Router]) -> Optional[tuple]:
+    """행을 시작하기 전 예산 계량기 값 — 끝났을 때(또는 중간에 끊겼을 때) 그 행이 쓴 비용·요청을 차이로 구한다."""
+    b = getattr(router, "budget", None)
+    return None if b is None else (b.spent_usd, b.calls, b.attempts, b.failed_attempts, b.estimated_calls)
+
+
+def _charge_since(row: Row, router: Router, marks: tuple) -> None:
+    b = router.budget
+    row.cost_usd = round(b.spent_usd - marks[0], 6)
+    row.calls, row.attempts, row.failed_requests, row.estimated_calls = b.calls - marks[1], b.attempts - marks[2], b.failed_attempts - marks[3], b.estimated_calls - marks[4]
+
+
 def run_code_only(case: EvalCase, catalog: PolicyCatalog) -> Row:
     copy, product = case.to_copy(), case.to_product()
     t0 = time.perf_counter()
@@ -177,7 +195,7 @@ def run_llm_only(case: EvalCase, settings: Settings, router: Router, catalog: Po
                      schema=build_review_schema(rule_ids), max_tokens=1800, temperature=0.0, context={"rule_ids": rule_ids, "copy": copy.model_dump(mode="json"), "required_disclosures": []},
                      label=f"compare_llm_only:{case.id}")
     b = router.budget
-    before = (b.spent_usd, b.calls, b.attempts, b.failed_attempts)
+    before = _marks(router)
     t0 = time.perf_counter()
     row = Row(dataset="", system="llm_only", case_id=case.id, label=case.label, difficulty=case.difficulty, predicted="")
     try:
@@ -202,21 +220,20 @@ def run_llm_only(case: EvalCase, settings: Settings, router: Router, catalog: Po
         row.error = f"{classify_exception(e)} {type(e).__name__}: {str(e)[:200]}"
         row.predicted = "ERROR"
     row.latency_ms = round((time.perf_counter() - t0) * 1000, 1)
-    row.cost_usd = round(b.spent_usd - before[0], 6)
-    row.calls, row.attempts, row.failed_requests = b.calls - before[1], b.attempts - before[2], b.failed_attempts - before[3]
+    _charge_since(row, router, before)
     return row
 
 
 def run_combined(case: EvalCase, settings: Settings, router: Router, catalog: PolicyCatalog, breaker_wait_s: float = 0.0) -> Row:
     b = router.budget
-    before = (b.spent_usd, b.calls, b.attempts, b.failed_attempts)
+    before = _marks(router)
     with _Attribution(router) as att:
         r = evaluate_with_retry(case, settings, router, catalog, use_llm=True, breaker_wait_s=breaker_wait_s)
     err = r.error or r.rewrite_error
     row = Row(dataset="", system="combined", case_id=case.id, label=case.label, difficulty=case.difficulty, predicted=("ERROR" if err else r.predicted), confidence=r.confidence,
               rules=list(r.predicted_rules), reason=r.reason[:200], latency_ms=r.latency_ms, cost_usd=r.cost_usd, error=err, model_decision=r.model_decision,
               failed_requests=r.failed_requests)
-    row.calls, row.attempts = b.calls - before[1], b.attempts - before[2]
+    row.calls, row.attempts, row.estimated_calls = b.calls - before[1], b.attempts - before[2], b.estimated_calls - before[4]
     _fill_attribution(row, att.seen, r.served_by)
     return row
 
@@ -234,6 +251,7 @@ def summarize_rows(rows: list[dict], predicted_key: str = "predicted") -> dict:
     pred = lambda r: r.get(predicted_key) or r["predicted"]        # noqa: E731
     cost = round(sum(r.get("cost_usd", 0.0) for r in rows), 6)
     failed_requests = sum(r.get("failed_requests", 0) for r in rows)
+    estimated_calls = sum(r.get("estimated_calls", 0) for r in rows)
     return {
         "n": len(rows), "scored": len(scored), "failed": len(rows) - len(scored),
         "unsafe_pass": _rate(sum(pred(r) == "APPROVE" for r in bad), len(bad)),             # 잘못 통과한 광고
@@ -245,7 +263,7 @@ def summarize_rows(rows: list[dict], predicted_key: str = "predicted") -> dict:
         "human_review": _rate(sum(pred(r) == "HUMAN_REVIEW" for r in scored), len(scored)),
         "calls": sum(r.get("calls", 0) for r in rows), "attempts": sum(r.get("attempts", 0) for r in rows), "failed_requests": failed_requests,
         "latency_ms_total": round(sum(r.get("latency_ms", 0.0) for r in rows), 1), "latency_ms_mean": round(sum(r.get("latency_ms", 0.0) for r in rows) / len(rows), 2) if rows else 0.0,
-        "cost_usd": cost, "cost_is_lower_bound": failed_requests > 0,
+        "cost_usd": cost, "estimated_calls": estimated_calls, "cost_is_lower_bound": failed_requests > 0 or estimated_calls > 0,    # 응답을 못 받은 요청·사용량을 추정한 호출이 있으면 비용은 ‘이상’
     }
 
 
@@ -356,6 +374,50 @@ def separate_g069_effects() -> Optional[dict]:
                                       "잡는 주체가 바뀐 것에 한정된다."}
 
 
+# ───────────────────────────── 입력 검사 · 비용 표시 ─────────────────────────────
+def known_datasets() -> list[str]:
+    """evals/datasets 에 실제로 있는 데이터 이름 (확장자 뺀 파일 이름)."""
+    return sorted(p.stem for p in DATASETS_DIR.glob("*.jsonl"))
+
+
+def split_names(text: str) -> list[str]:
+    """쉼표로 나눠 이름마다 앞뒤 공백만 걷어 낸다. 빈 이름은 걸러 내지 않고 남겨 둔다 — 검사에서 오류로 알린다."""
+    return [x.strip() for x in text.split(",")]
+
+
+def selection_problems(flag: str, names: list[str], allowed: Optional[list[str]] = None) -> list[str]:
+    """--datasets / --systems 로 받은 이름의 문제 목록 (비어 있으면 통과). 호출을 하기 전에 본다: 비어 있거나, 빈 이름이 있거나, 같은 이름이 두 번 나오거나
+    (같은 일을 두 번 하고도 완료된 결과로 저장되기 때문), 알려진 이름이 아닌 경우 (대소문자까지 정확히 같아야 한다). allowed 가 없으면 이름의 알려짐은 보지 않는다."""
+    if not names or names == [""]:
+        return [f"{flag} 가 비어 있다"]
+    out: list[str] = []
+    if "" in names:
+        out.append(f"{flag} 에 빈 이름이 있다 (쉼표가 겹쳤거나 끝에 붙었는지 확인)")
+    dup = [n for n in dict.fromkeys(names) if n and names.count(n) > 1]
+    if dup:
+        out.append(f"{flag} 에 같은 이름이 두 번 이상 있다: {', '.join(dup)}")
+    if allowed is not None:
+        unknown = [n for n in dict.fromkeys(names) if n and n not in allowed]
+        if unknown:
+            out.append(f"{flag} 에 알 수 없는 이름: {', '.join(unknown)} (가능한 값: {', '.join(allowed)} — 대소문자까지 정확히)")
+    return out
+
+
+def format_cost(usd: float, lower_bound: bool) -> str:
+    """쓴 비용 표기. 응답을 받지 못한 요청(비용을 알 수 없음)이 있으면 정확한 값처럼 적지 않고 ‘이상’ 을 붙인다."""
+    return f"${float(usd or 0):.2f}" + (" 이상" if lower_bound else "")
+
+
+def report_cost_is_lower_bound(rep: dict) -> bool:
+    """이 리포트의 누적 비용이 ‘이상’ 으로 읽혀야 하는가. cost.lower_bound 가 있으면 그 값을, 없는 옛 리포트는 방식별 사용량의 실패 요청·추정 호출과 중단 여부에서 읽는다."""
+    cost = rep.get("cost") or {}
+    if "lower_bound" in cost:
+        return bool(cost["lower_bound"])
+    usage = rep.get("usage") or {}
+    return (any((u or {}).get("failed_requests", 0) or (u or {}).get("estimated_calls", 0) for u in usage.values())
+            or bool((rep.get("failures") or {}).get("n")) or (rep.get("aborted") or {}).get("kind") == "interrupted")
+
+
 # ───────────────────────────── 완료 여부 ─────────────────────────────
 def unapproved_datasets(names: list[str]) -> list[str]:
     """실제 모델 비교에 승인되지 않은 데이터 이름 (conditions_extra 등)."""
@@ -366,11 +428,15 @@ def incomplete_reasons(rep: dict) -> list[str]:
     """이 결과가 '끝까지 마친 실제 모델 결과' 가 아닌 이유 코드 목록 (비어 있으면 완료). 리포트의 필드에서 직접 읽으므로 라벨이 잘못 붙은 파일도 걸러진다.
     cost_cap_reached 상한에 닿아 남은 호출을 하지 않음 · cost_over_cap 모두 마쳤지만 누적 비용이 상한 초과 · consecutive_failures 호출 실패가 연속되어 중단 ·
     consecutive_fallback 기준 제공자가 아닌 쪽이 연속으로 판정해 중단 · harness_error 하네스 자체의 오류로 중단 · failed_rows 호출이 실패한 행이 있음 · mixed_provider 기준 제공자가 아닌 쪽이 판정한 행이 있음 ·
-    partial_scope 승인된 전체 범위(네 데이터 전부·세 방식·사례 수 제한 없음)가 아님 · cases_not_run 실행하지 못한 사례가 남음"""
+    partial_scope 승인된 전체 범위(네 데이터 전부·세 방식·사례 수 제한 없음)가 아님 · cases_not_run 실행하지 못한 사례가 남음 ·
+    interrupted 중단 신호(Ctrl-C·취소된 실행)로 멈춤 · report_error 결과를 정리하다 오류가 나서 측정한 행의 원본만 남김"""
     out: list[str] = []
     ab = rep.get("aborted") or {}
     if ab:
-        out.append({"cost_cap": "cost_cap_reached", "consecutive_failures": "consecutive_failures", "consecutive_fallback": "consecutive_fallback", "harness_error": "harness_error"}.get(ab.get("kind"), "aborted"))
+        out.append({"cost_cap": "cost_cap_reached", "consecutive_failures": "consecutive_failures", "consecutive_fallback": "consecutive_fallback", "harness_error": "harness_error",
+                    "interrupted": "interrupted"}.get(ab.get("kind"), "aborted"))
+    if rep.get("report_error"):
+        out.append("report_error")
     if (rep.get("cost") or {}).get("over_cap") and not ab:
         out.append("cost_over_cap")
     if (rep.get("failures") or {}).get("n"):
@@ -399,13 +465,18 @@ def _incomplete_note(rep: dict, reasons: Optional[list[str]] = None) -> str:
         if code == "cost_cap_reached":
             parts.append(f"누적 비용이 상한(${(cap or 0):.2f})에 닿아 {where} 에서 멈췄다")
         elif code == "cost_over_cap":
-            parts.append(f"모든 사례를 마쳤지만 누적 비용 ${cost.get('spent_usd', 0):.2f} 가 상한 ${(cap or 0):.2f} 를 넘었다")
+            spent_txt = f"누적 비용이 ${cost.get('spent_usd', 0):.2f} 이상으로" if report_cost_is_lower_bound(rep) else f"누적 비용 ${cost.get('spent_usd', 0):.2f} 가"
+            parts.append(f"모든 사례를 마쳤지만 {spent_txt} 상한 ${(cap or 0):.2f} 를 넘었다")
         elif code == "consecutive_failures":
             parts.append(f"모델 호출 실패가 연속으로 이어져 {where} 에서 멈췄다")
         elif code == "consecutive_fallback":
             parts.append(f"기준 제공자({stamped}) 대신 다른 제공자가 연속으로 판정해 {where} 에서 멈췄다")
         elif code == "harness_error":
             parts.append(f"하네스 오류로 {where} 에서 멈췄다 ({ab.get('reason', '')})")
+        elif code == "interrupted":
+            parts.append(f"실행이 중단 신호로 {where or '시작 전'} 에서 끊겼다 ({ab.get('exception', '?')})" + (" — 끊긴 시점에 처리 중이던 사례는 행으로 세지 않았다" if ab.get("in_flight") else ""))
+        elif code == "report_error":
+            parts.append(f"결과를 정리하다 오류가 나서 측정한 행의 원본만 남겼다 ({rep.get('report_error', '')})")
         elif code == "failed_rows":
             parts.append(f"모델 호출이 실패한 행이 {(rep.get('failures') or {}).get('n', 0)}건 있다")
         elif code == "mixed_provider":
@@ -430,13 +501,51 @@ def compare_allowed(report: dict) -> tuple[bool, str]:
 
 
 # ───────────────────────────── 실행 ─────────────────────────────
+def _run_one(system: str, case: EvalCase, settings: Settings, router: Optional[Router], catalog: PolicyCatalog, breaker_wait_s: float) -> Row:
+    """방식 이름마다 한 갈래씩 — 알려진 세 이름 말고는 모델을 부르는 갈래로 흘려보내지 않고 오류로 멈춘다."""
+    if system == "code_only":
+        return run_code_only(case, catalog)
+    if system == "llm_only":
+        return run_llm_only(case, settings, router, catalog, breaker_wait_s)
+    if system == "combined":
+        return run_combined(case, settings, router, catalog, breaker_wait_s)
+    raise ValueError(f"알 수 없는 방식: {system!r} (가능한 값: {', '.join(SYSTEMS)})")
+
+
+def _interruption(exc: BaseException, where: str) -> dict:
+    """중단 신호(KeyboardInterrupt·SystemExit·SIGTERM 으로 바뀐 SystemExit 등)를 리포트의 aborted 로. 예외 이름을 적고, 종료 코드가 있는 종류는 코드도 적는다."""
+    name = type(exc).__name__
+    out = {"kind": "interrupted", "exception": name, "reason": f"{name} — 사용자가 멈췄거나 실행 환경이 취소함", "after_case": where}
+    if isinstance(exc, SystemExit):
+        code = exc.code if isinstance(exc.code, int) else 1
+        out["exit_code"] = code or 1
+    return out
+
+
+def _in_flight(ds: str, case: EvalCase, system: str, router: Router, marks: tuple) -> dict:
+    """끊긴 시점에 처리 중이던 행이 그때까지 쓴 비용·요청. 끝까지 마치지 못한 사례라 행으로 세지 않지만, 쓴 돈을 기록에서 빠뜨리지 않는다."""
+    b = router.budget
+    spent, calls, attempts, failed = round(b.spent_usd - marks[0], 6), b.calls - marks[1], b.attempts - marks[2], b.failed_attempts - marks[3]
+    return {"case": f"{ds}:{case.id}", "system": system, "cost_usd": spent, "calls": calls, "attempts": attempts, "failed_requests": failed, "estimated_calls": b.estimated_calls - marks[4],
+            "unanswered_requests": max(0, attempts - calls - failed),
+            "note": "이 사례는 끝까지 마치지 못해 행으로 세지 않았다. 쓴 비용·요청만 적는다 — 응답을 받기 전에 끊긴 요청의 비용은 알 수 없어 누적 비용은 ‘이상’ 이다"}
+
+
 def run_compare(datasets: list[str], settings: Settings, router: Optional[Router] = None, catalog: Optional[PolicyCatalog] = None, systems: tuple[str, ...] = SYSTEMS,
                 limit: Optional[int] = None, cost_cap_usd: Optional[float] = None, progress: Optional[Callable[[str, str, int, int], None]] = None,
                 run_kind: Optional[str] = None, breaker_wait_s: float = 0.0, abort_after: int = 0, approved_scope: bool = False) -> dict:
     """breaker_wait_s: 호출이 실패하면 제공자 서킷이 닫힐 때까지(최대) 기다렸다가 같은 사례를 한 번 더 시도한다. abort_after: 호출 실패 행(또는 기준 제공자가 아닌 쪽이 판정한 행)이
     이 수만큼 연속되면 중단한다 (FM-24). 비용 상한(cost_cap_usd)에 닿으면 그 행에서 바로 멈춘다 — 남은 호출은 하지 않는다.
     approved_scope: 이 실행이 '승인된 전체 범위' 여야 하는가 (워크플로·CLI 실행). 실제 모델 실행이 그 범위를 채우지 못하면 완료된 결과로 세지 않는다.
-    어떤 경우에도 측정한 행은 리포트에 남는다 — 완료 여부는 리포트의 complete·incomplete_reason 이 말한다 (저장 위치는 main 이 정한다)."""
+    datasets·systems 는 호출을 하기 전에 검사한다: 비어 있거나 같은 이름이 두 번 나오거나 알려진 방식 이름이 아니면 ValueError.
+    어떤 경우에도 측정한 행은 리포트에 남는다 — 완료 여부는 리포트의 complete·incomplete_reason 이 말한다 (저장 위치는 main 이 정한다).
+    중단 신호(KeyboardInterrupt·SystemExit 등 BaseException)도 마찬가지다: 신호를 삼키지 않고 호출한 쪽에 알리되, 알리는 방법은 리포트다 —
+    aborted.kind 가 interrupted 이고 aborted.exception 에 예외 이름이 있다. 신호를 다시 일으켜 프로세스를 중단된 채로 끝내는 일은 저장을 마친 main 이 한다."""
+    if isinstance(systems, str):
+        raise ValueError("systems 는 이름의 튜플이어야 한다")
+    problems = selection_problems("systems", list(systems), list(SYSTEMS)) + selection_problems("datasets", list(datasets))
+    if problems:   # 어떤 호출도 하기 전에 막는다 — 틀린 이름이 모델을 부르는 갈래로 흘러가 돈만 쓰고 결과를 못 남기는 일이 없게
+        raise ValueError("; ".join(problems))
     catalog = catalog or get_catalog()
     needs_model = any(s in systems for s in ("llm_only", "combined"))
     kind = run_kind or ("controlled" if settings.mode.value == "demo" else "live")
@@ -462,22 +571,26 @@ def run_compare(datasets: list[str], settings: Settings, router: Optional[Router
     aborted = None
     consecutive = foreign = 0
     where = ""
+    ds = ""
+    cur: Optional[Row] = None           # 방금 끝낸 행 — 목록에 넣기 전에 신호가 와도 잃지 않는다
+    flight: Optional[tuple] = None      # (데이터, 사례, 방식, 시작 전 계량기) — 모델을 부르는 행이 진행 중일 때만
     try:
         for ds, cases in plan:
             for i, case in enumerate(cases, start=1):
                 for system in systems:
                     where = f"{ds}:{case.id}"
+                    marks = _marks(router) if system != "code_only" else None
+                    cur, flight = None, ((ds, case, system, marks) if marks is not None else None)
                     try:
-                        if system == "code_only":
-                            row = run_code_only(case, catalog)
-                        elif system == "llm_only":
-                            row = run_llm_only(case, settings, router, catalog, breaker_wait_s)
-                        else:
-                            row = run_combined(case, settings, router, catalog, breaker_wait_s)
-                    except Exception as e:  # noqa: BLE001 — 하네스 쪽 오류도 이미 쓴 비용을 버릴 이유가 아니다: 이 행만 실패로 남기고 계속한다
-                        row = Row(dataset="", system=system, case_id=case.id, label=case.label, difficulty=case.difficulty, predicted="ERROR", error=f"하네스 오류 {type(e).__name__}: {str(e)[:200]}")
+                        cur = _run_one(system, case, settings, router, catalog, breaker_wait_s)
+                    except Exception as e:  # noqa: BLE001 — 하네스 쪽 오류도 이미 쓴 비용을 버릴 이유가 아니다: 이 행만 실패로 남기고 계속한다 (그 행이 쓴 비용·요청은 그대로 적는다)
+                        cur = Row(dataset="", system=system, case_id=case.id, label=case.label, difficulty=case.difficulty, predicted="ERROR", error=f"하네스 오류 {type(e).__name__}: {str(e)[:200]}")
+                        if marks is not None:
+                            _charge_since(cur, router, marks)
+                    row = cur
                     row.dataset = ds
                     rows.append(row)
+                    flight = None
                     if system != "code_only":
                         consecutive = consecutive + 1 if row.error else 0
                         if abort_after and consecutive >= abort_after:
@@ -494,18 +607,84 @@ def run_compare(datasets: list[str], settings: Settings, router: Optional[Router
                         progress(ds, system, i, len(cases))
                     if cost_cap_usd is not None and router is not None and len(rows) < total_rows and router.budget.spent_usd >= cost_cap_usd:
                         # 상한에 닿았다 — 다음 호출은 어차피 거절되므로 여기서 멈춘다. 마친 행은 버리지 않고 리포트에 남긴다
-                        aborted = {"kind": "cost_cap", "reason": f"누적 비용 ${router.budget.spent_usd:.2f} 가 상한 ${cost_cap_usd:.2f} 에 닿음", "after_case": where}
+                        spent_now = router.budget.spent_usd
+                        lower = router.budget.failed_attempts > 0 or router.budget.estimated_calls > 0
+                        reached = f"누적 비용이 ${spent_now:.2f} 이상으로" if lower else f"누적 비용 ${spent_now:.2f} 가"
+                        aborted = {"kind": "cost_cap", "reason": f"{reached} 상한 ${cost_cap_usd:.2f} 에 닿음", "after_case": where}
                         raise EvalAborted(aborted["reason"], {})
     except EvalAborted:
         pass
     except Exception as e:  # noqa: BLE001 — 반복문 자체의 오류(진행 표시 등)가 나도 지금까지 측정한 행은 리포트로 남긴다
         aborted = {"kind": "harness_error", "reason": f"{type(e).__name__}: {str(e)[:200]}", "after_case": where}
+    except BaseException as e:  # noqa: BLE001 — KeyboardInterrupt(Ctrl-C·취소된 Actions 실행의 SIGINT)·SystemExit(SIGTERM): 삼키지 않되 측정한 행은 리포트에 남긴다
+        aborted = _interruption(e, where)
+        if cur is not None and (not rows or rows[-1] is not cur):   # 행은 끝났는데 목록에 넣기 전에 신호가 왔다 — 그 측정은 버리지 않는다
+            cur.dataset = ds
+            rows.append(cur)
+            flight = None
+        if flight is not None and router is not None:
+            aborted["in_flight"] = _in_flight(*flight[:3], router, flight[3])
     spent = round(router.budget.spent_usd, 6) if router is not None and needs_model else None
-    return build_report(rows, ds_info, settings, catalog, systems, kind, aborted, cost_cap_usd, spent_usd=spent, approved_scope=approved_scope, limit=limit)
+    try:
+        return build_report(rows, ds_info, settings, catalog, systems, kind, aborted, cost_cap_usd, spent_usd=spent, approved_scope=approved_scope, limit=limit)
+    except BaseException as e:  # noqa: BLE001 — 리포트를 정리하다 오류가 나도(두 번째 중단 신호 포함) 이미 쓴 돈의 측정 행은 버리지 않는다: 행 원본만 담은 최소 리포트로
+        if aborted is None and isinstance(e, (KeyboardInterrupt, SystemExit)):
+            aborted = _interruption(e, where)
+        try:
+            return fallback_report(rows, ds_info, settings, systems, kind, aborted, cost_cap_usd, spent_usd=spent, error=e, policy_version=catalog.version, approved_scope=approved_scope, limit=limit)
+        except BaseException:  # noqa: BLE001 — 최소 리포트마저 실패하면 행 원본만이라도
+            return _bare_report(rows, kind, aborted, spent, e)
+
+
+def _safe(fn: Callable, default):
+    """리포트의 곁가지(대표 사례·라벨 변경 이력·G-069 분리)는 만들다 실패해도 측정한 행과 지표를 막지 않는다."""
+    try:
+        return fn()
+    except Exception:  # noqa: BLE001
+        return default
+
+
+def _attribution(dicts: list[dict], stamped: str) -> tuple[dict, dict]:
+    """누가 판정했는가 — 기준 제공자가 아닌 쪽(대체 경로·수리 전 판단)이 한 행이 있으면 그 모델의 측정이 아니다 (평가 실행기의 served_by 와 같은 규칙)."""
+    served = _tally(p for r in dicts for p, k in (r.get("judged_by") or {}).items() for _ in range(k))
+    mixed_rows = [r for r in dicts if any(p != stamped for p in (r.get("judged_by") or {}))]
+    return served, {"n": len(mixed_rows), "cases": [f"{r['dataset']}:{r['case_id']}:{r['system']}" for r in mixed_rows], "by_provider": {p: k for p, k in served.items() if p != stamped}}
+
+
+def _case_counts(dicts: list[dict], ds_info: dict, systems: tuple[str, ...]) -> dict:
+    """데이터별 사례 수(전체)와 모든 방식을 마친 사례 수, 호출이 실패한 행 수."""
+    counts: dict[str, dict] = {}
+    for ds, info in ds_info.items():
+        seen: dict[str, set] = {}
+        for r in dicts:
+            if r["dataset"] == ds:
+                seen.setdefault(r["case_id"], set()).add(r["system"])
+        counts[ds] = {"total": info.get("n", 0), "completed": sum(1 for v in seen.values() if v >= set(systems)),
+                      "failed_rows": sum(1 for r in dicts if r["dataset"] == ds and r["error"])}
+    return counts
+
+
+def _is_full_scope(ds_info: dict, systems: tuple[str, ...], limit: Optional[int]) -> bool:
+    """승인된 전체 범위(네 데이터 전부·세 방식·사례 수 제한 없음)를 다 돌렸는가."""
+    return set(ds_info) == set(APPROVED_DATASETS) and set(systems) == set(SYSTEMS) and not limit and all(i.get("n") == i.get("n_total", i.get("n")) for i in ds_info.values())
+
+
+def _cost_block(dicts: list[dict], spent: float, cap: Optional[float], aborted: Optional[dict]) -> dict:
+    """누적 비용 블록. spent_usd·cap_usd·over_cap 은 예전과 같고, lower_bound 가 true 면 spent_usd 는 ‘이상’ 이다 — 응답을 받지 못한 요청의 비용은 알 수 없어서
+    (실패한 요청·사용량을 글자 수로 추정한 호출·끊긴 요청이 하나라도 있으면). failed_requests·estimated_calls 는 그 근거 수다."""
+    flight = (aborted or {}).get("in_flight") or {}
+    failed = sum(r.get("failed_requests", 0) for r in dicts) + flight.get("failed_requests", 0)
+    estimated = sum(r.get("estimated_calls", 0) for r in dicts) + flight.get("estimated_calls", 0)
+    interrupted = (aborted or {}).get("kind") == "interrupted"
+    return {"spent_usd": spent, "cap_usd": cap, "over_cap": bool(cap is not None and spent > cap + 1e-9),
+            "lower_bound": bool(failed or estimated or interrupted or flight.get("unanswered_requests", 0)), "failed_requests": failed, "estimated_calls": estimated}
 
 
 def build_report(rows: list[Row], ds_info: dict, settings: Settings, catalog: PolicyCatalog, systems: tuple[str, ...], kind: str, aborted: Optional[dict] = None,
                  cost_cap_usd: Optional[float] = None, *, spent_usd: Optional[float] = None, approved_scope: bool = False, limit: Optional[int] = None) -> dict:
+    unknown = [s for s in systems if s not in SYSTEMS]
+    if unknown:
+        raise ValueError(f"알 수 없는 방식: {', '.join(map(repr, unknown))} (가능한 값: {', '.join(SYSTEMS)})")
     dicts = [r.to_dict() for r in rows]
     results: dict[str, dict] = {}
     for ds in ds_info:
@@ -522,21 +701,10 @@ def build_report(rows: list[Row], ds_info: dict, settings: Settings, catalog: Po
                           "_trivial": trivial_baselines([r for r in sel if r["system"] == systems[0]])}
     failed = [r for r in dicts if r["error"]]
     stamped = stamped_provider(settings)
-    # 누가 판정했는가 — 기준 제공자가 아닌 쪽(대체 경로·수리 전 판단)이 한 행이 있으면 그 모델의 측정이 아니다 (평가 실행기의 served_by 와 같은 규칙)
-    served = _tally(p for r in dicts for p, k in (r.get("judged_by") or {}).items() for _ in range(k))
-    mixed_rows = [r for r in dicts if any(p != stamped for p in (r.get("judged_by") or {}))]
-    mixed = {"n": len(mixed_rows), "cases": [f"{r['dataset']}:{r['case_id']}:{r['system']}" for r in mixed_rows],
-             "by_provider": {p: k for p, k in served.items() if p != stamped}}
-    counts: dict[str, dict] = {}
-    for ds, info in ds_info.items():
-        seen: dict[str, set] = {}
-        for r in dicts:
-            if r["dataset"] == ds:
-                seen.setdefault(r["case_id"], set()).add(r["system"])
-        counts[ds] = {"total": info.get("n", 0), "completed": sum(1 for v in seen.values() if v >= set(systems)),
-                      "failed_rows": sum(1 for r in dicts if r["dataset"] == ds and r["error"])}
-    full = set(ds_info) == set(APPROVED_DATASETS) and set(systems) == set(SYSTEMS) and not limit and all(i.get("n") == i.get("n_total", i.get("n")) for i in ds_info.values())
-    spent = round(sum(r["cost_usd"] for r in dicts), 6) if spent_usd is None else spent_usd
+    served, mixed = _attribution(dicts, stamped)
+    counts = _case_counts(dicts, ds_info, systems)
+    full = _is_full_scope(ds_info, systems, limit)
+    spent = round(sum(r["cost_usd"] for r in dicts) + ((aborted or {}).get("in_flight") or {}).get("cost_usd", 0.0), 6) if spent_usd is None else spent_usd
     rep = {
         "kind": "comparison", "run_kind": kind, "generated_at": datetime.now(timezone.utc).isoformat(), "aborted": aborted,
         "provider": stamped, "model": stamped_model(settings),
@@ -545,13 +713,13 @@ def build_report(rows: list[Row], ds_info: dict, settings: Settings, catalog: Po
         "settings": {"mode": settings.mode.value, "openai_model": settings.openai_model, "anthropic_model": settings.anthropic_model, "threshold": settings.auto_decision_confidence,
                      "reviewer_prompt_version": PROMPT_VERSION, "llm_only_prompt_version": LLM_ONLY_PROMPT_VERSION, "policy_version": catalog.version, "cost_cap_usd": cost_cap_usd},
         "scope": {"datasets": list(ds_info), "systems": list(systems), "limit": limit, "full_approved_scope": full, "required": bool(approved_scope and kind == "live")},
-        "cost": {"spent_usd": spent, "cap_usd": cost_cap_usd, "over_cap": bool(cost_cap_usd is not None and spent > cost_cap_usd + 1e-9)},
+        "cost": _cost_block(dicts, spent, cost_cap_usd, aborted),
         "caveats": CAVEATS,
         "systems": {s: {"label": SYSTEM_LABEL[s], "info_given": INFO_GIVEN[s], **({"controlled_note": CONTROLLED_NOTES[s]} if kind == "controlled" else {})} for s in systems},
         "datasets": ds_info, "case_counts": counts, "results": results, "overall_by_split": overall,
         "failures": {"n": len(failed), "cases": [f"{r['dataset']}:{r['case_id']}:{r['system']}" for r in failed], "by_error": _tally(r["error"].split(" ")[0] for r in failed)},
         "served_by": served, "repaired_by": _tally(p for r in dicts for p, k in (r.get("repaired_by") or {}).items() for _ in range(k)), "mixed_provider": mixed,
-        "examples": pick_examples(dicts), "label_changes": label_changes(list(ds_info)), "g069_effects": separate_g069_effects(),
+        "examples": _safe(lambda: pick_examples(dicts), {}), "label_changes": _safe(lambda: label_changes(list(ds_info)), []), "g069_effects": _safe(separate_g069_effects, None),
         "usage": {s: {"calls": sum(r["calls"] for r in dicts if r["system"] == s), "attempts": sum(r["attempts"] for r in dicts if r["system"] == s),
                       "cost_usd": round(sum(r["cost_usd"] for r in dicts if r["system"] == s), 6), "failed_requests": sum(r["failed_requests"] for r in dicts if r["system"] == s),
                       "judged_by": _tally(p for r in dicts if r["system"] == s for p, k in (r.get("judged_by") or {}).items() for _ in range(k))} for s in systems},
@@ -565,6 +733,51 @@ def build_report(rows: list[Row], ds_info: dict, settings: Settings, catalog: Po
         # 끝까지 마치지 못한 실제 모델 실행은 'live' 가 아니다 — 측정한 행은 남기되 세 방식 비교의 결과로 읽히지 않게 이름부터 다르게 붙인다
         rep["run_kind"] = "live_incomplete"
         rep["run_kind_note"] = "실제 모델로 돌렸지만 끝까지 마치지 못했거나 장애·다른 제공자가 섞인 실행 — 측정한 사례만의 수치이며 세 방식 비교의 결과가 아니다"
+    return rep
+
+
+
+
+def _bare_report(rows: list[Row], kind: str, aborted: Optional[dict], spent: Optional[float], error: BaseException) -> dict:
+    """최후의 수단 — 행 원본과 화면·저장 로직이 읽는 최소한의 키만. 여기까지 와도 돈을 쓴 행은 사라지지 않는다."""
+    dicts = [r.to_dict() for r in rows]
+    rep = {"kind": "comparison", "run_kind": "live_incomplete" if kind == "live" else kind, "generated_at": datetime.now(timezone.utc).isoformat(), "aborted": aborted,
+           "report_error": f"{type(error).__name__}: {str(error)[:200]}", "run_kind_note": "측정한 행의 원본만 남은 실행 — 세 방식 비교의 결과가 아니다", "complete": False,
+           "cost": {"spent_usd": spent if spent is not None else round(sum(r.get("cost_usd", 0.0) for r in dicts), 6), "cap_usd": None, "over_cap": False, "lower_bound": True,
+                    "failed_requests": 0, "estimated_calls": 0},
+           "systems": {}, "datasets": {}, "case_counts": {}, "overall_by_split": {}, "failures": {"n": 0, "cases": [], "by_error": {}}, "rows": dicts}
+    rep["incomplete_reason"] = ["report_error"] + (["interrupted"] if (aborted or {}).get("kind") == "interrupted" else [])
+    rep["incomplete_note"] = f"완료되지 않은 실행 — 결과를 정리하다 오류가 나서 측정한 행의 원본만 남겼다 ({rep['report_error']}). 세 방식 비교의 결과가 아닙니다."
+    return rep
+
+
+def fallback_report(rows: list[Row], ds_info: dict, settings: Settings, systems: tuple[str, ...], kind: str, aborted: Optional[dict], cost_cap_usd: Optional[float], *,
+                    spent_usd: Optional[float], error: BaseException, policy_version: str = "", approved_scope: bool = False, limit: Optional[int] = None) -> dict:
+    """build_report 가 실패했을 때의 최소 리포트 — 측정한 행 원본(rows)과 합계만 담고, 지표·대표 사례처럼 만들다 실패할 수 있는 것은 담지 않는다.
+    complete 는 항상 false 이고 report_error 사유가 붙는다: 돈을 쓴 행을 잃지 않는 것이 목적이지 결과로 읽히는 것이 목적이 아니다."""
+    dicts = [r.to_dict() for r in rows]
+    names = [s for s in systems if s in SYSTEMS]
+    spent = round(sum(r.get("cost_usd", 0.0) for r in dicts) + ((aborted or {}).get("in_flight") or {}).get("cost_usd", 0.0), 6) if spent_usd is None else spent_usd
+    failed = [r for r in dicts if r.get("error")]
+    attribution = _safe(lambda: _attribution(dicts, stamped_provider(settings)), ({}, {"n": 0, "cases": [], "by_provider": {}}))
+    rep = {
+        "kind": "comparison", "run_kind": "live_incomplete" if kind == "live" else kind, "generated_at": datetime.now(timezone.utc).isoformat(), "aborted": aborted,
+        "provider": stamped_provider(settings), "model": stamped_model(settings), "report_error": f"{type(error).__name__}: {str(error)[:200]}",
+        "run_kind_note": "결과를 정리하다 오류가 나서 측정한 행의 원본만 남긴 실행 — 지표를 계산하지 않았고 세 방식 비교의 결과가 아니다",
+        "settings": {"mode": settings.mode.value, "openai_model": settings.openai_model, "anthropic_model": settings.anthropic_model, "threshold": settings.auto_decision_confidence,
+                     "reviewer_prompt_version": PROMPT_VERSION, "llm_only_prompt_version": LLM_ONLY_PROMPT_VERSION, "policy_version": policy_version, "cost_cap_usd": cost_cap_usd},
+        "scope": {"datasets": list(ds_info), "systems": list(systems), "limit": limit, "full_approved_scope": _safe(lambda: _is_full_scope(ds_info, systems, limit), False),
+                  "required": bool(approved_scope and kind == "live")},
+        "cost": _cost_block(dicts, spent, cost_cap_usd, aborted),
+        "caveats": CAVEATS, "systems": {s: {"label": SYSTEM_LABEL[s], "info_given": INFO_GIVEN[s]} for s in names},
+        "datasets": ds_info, "case_counts": _safe(lambda: _case_counts(dicts, ds_info, systems), {}), "results": {}, "overall_by_split": {},
+        "failures": {"n": len(failed), "cases": [f"{r.get('dataset')}:{r.get('case_id')}:{r.get('system')}" for r in failed], "by_error": _tally(str(r["error"]).split(" ")[0] for r in failed)},
+        "served_by": attribution[0], "repaired_by": {}, "mixed_provider": attribution[1], "examples": {}, "label_changes": [], "g069_effects": None,
+        "usage": {}, "rows": dicts,
+    }
+    reasons = incomplete_reasons(rep)
+    rep["complete"], rep["incomplete_reason"] = False, reasons
+    rep["incomplete_note"] = _incomplete_note(rep, reasons)
     return rep
 
 
@@ -588,27 +801,126 @@ def _result_file(kind: str, out: Optional[str]) -> tuple[str, str]:
     return name, ""
 
 
+def _write_atomic(path: Path, data: bytes) -> None:
+    """같은 폴더의 임시 파일에 다 쓰고 fsync 한 뒤 이름을 바꿔치기한다 — 쓰는 도중 끊기거나 실패해도 같은 이름의 옛 파일은 온전하고, 반쯤 쓴 파일이 그 이름으로 남지 않는다."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(f".{path.name}.{os.getpid()}.tmp")
+    try:
+        with open(tmp, "wb") as f:
+            f.write(data)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp, path)
+    except BaseException:
+        try:
+            tmp.unlink()
+        except OSError:
+            pass
+        raise
+
+
+def save_report(report: dict, name: str = "latest.json") -> Path:
+    """evals.runner.save_report 와 같은 형식(UTF-8 JSON, 들여쓰기 2)으로 reports 폴더에 쓰되 원자적으로 쓴다. 돈을 쓴 측정이 담기는 파일이라 반쯤 쓰인 상태가 없어야 한다."""
+    path = _runner.REPORTS / name
+    _write_atomic(path, json.dumps(report, ensure_ascii=False, indent=2).encode("utf-8"))
+    return path
+
+
 def _keep_previous(old: bytes, name: str, directory: Path) -> None:
     """같은 이름의 이전 결과를 history/ 에 한 부 남긴다 — 돈을 쓴 측정을 덮어써서 잃지 않게. 보관이 실패해도 새 결과의 저장은 막지 않는다."""
     try:
         stamp = str(json.loads(old).get("generated_at", ""))[:19]
         stamp = "".join(ch for ch in stamp if ch.isdigit() or ch == "T").replace("T", "_") or "prev"
         dest = directory / "history" / f"{Path(name).stem}_{stamp}.json"
-        dest.parent.mkdir(parents=True, exist_ok=True)
         if not dest.exists():
-            dest.write_bytes(old)
+            _write_atomic(dest, old)
     except Exception:  # noqa: BLE001
         pass
 
 
 def persist(rep: dict, name: str) -> Path:
-    """리포트를 저장한다. 돈을 쓴 결과 이름(compare_live·compare_live_incomplete)은 덮어쓰기 전에 이전 파일을 history/ 에 남긴다."""
+    """리포트를 저장한다. 돈을 쓴 결과 이름(compare_live·compare_live_incomplete)은 덮어쓰기 전에 이전 파일을 history/ 에 먼저 남긴다 (새 파일을 쓰는 도중 끊겨도 옛 결과가 두 곳에 있다)."""
     directory = _runner.REPORTS
     old = (directory / name).read_bytes() if name in (LIVE_NAME, INCOMPLETE_NAME) and (directory / name).exists() else None
-    path = save_report(rep, name)
     if old is not None:
         _keep_previous(old, name, directory)
-    return path
+    return save_report(rep, name)
+
+
+# ───────────────────────────── 중단 신호 ─────────────────────────────
+class TerminatedBySignal(SystemExit):
+    """SIGTERM 을 받았다. 취소된 GitHub Actions 실행은 SIGINT 를 보낸 뒤 약 7.5초 뒤 SIGTERM, 그 뒤 곧 SIGKILL 을 보낸다 — 그 안에 측정한 행을 저장해야 한다."""
+
+
+@contextmanager
+def _terminate_as_exit():
+    """SIGTERM 의 기본 동작(저장 없이 즉시 종료)을 SystemExit(128+15) 로 바꾼다 — 그래야 반복문이 끊겨도 측정한 행을 리포트로 남길 수 있다. 메인 스레드가 아니거나 이미 다른 처리기가 있으면 건드리지 않는다."""
+    if threading.current_thread() is not threading.main_thread() or not hasattr(signal, "SIGTERM"):
+        yield
+        return
+    try:
+        old = signal.getsignal(signal.SIGTERM)
+        if old is not signal.SIG_DFL:
+            yield
+            return
+
+        def handler(signum, frame):
+            raise TerminatedBySignal(128 + signum)
+
+        signal.signal(signal.SIGTERM, handler)
+    except (ValueError, OSError):
+        yield
+        return
+    try:
+        yield
+    finally:
+        signal.signal(signal.SIGTERM, old)
+
+
+@contextmanager
+def _deferred_interrupts():
+    """결과를 저장하고 요약을 찍는 동안 도착한 SIGINT·SIGTERM 은 끝날 때까지 미룬다 (받은 신호 번호를 돌려주는 목록에 쌓는다). 저장 도중에 신호가 와서 이미 쓴 돈의 행을 잃는 일이 없게 —
+    끝난 뒤에 main 이 그 신호를 다시 일으킨다. 메인 스레드가 아니면 아무것도 하지 않는다."""
+    held: list[int] = []
+    old: dict[int, object] = {}
+    if threading.current_thread() is threading.main_thread():
+        def hold(signum, frame):
+            held.append(signum)
+
+        try:
+            for sig in (signal.SIGINT, signal.SIGTERM):
+                old[sig] = signal.signal(sig, hold)
+        except (ValueError, OSError):
+            pass
+    try:
+        yield held
+    finally:
+        for sig, handler in old.items():
+            if handler is not None:
+                signal.signal(sig, handler)
+
+
+def _signal_error(rep: dict, held: list[int]) -> BaseException:
+    """저장을 마친 뒤 프로세스를 ‘중단된 채로’ 끝내기 위해 다시 일으킬 예외. 처음 중단시킨 신호가 우선이고, 저장 중에 미뤄 둔 신호만 있으면 그 신호."""
+    ab = rep.get("aborted") or {}
+    if ab.get("kind") == "interrupted":
+        return SystemExit(ab["exit_code"]) if "exit_code" in ab else KeyboardInterrupt()
+    return KeyboardInterrupt() if held[0] == signal.SIGINT else TerminatedBySignal(128 + held[0])
+
+
+def _save(rep: dict, name: str) -> tuple[bool, str]:
+    """persist 하되, 저장이 실패해도(디스크·권한) 돈을 쓴 행이 사라지지 않게 임시 폴더에 한 부를 남긴다. 그것도 안 되면 행 전부를 출력에 싣는다. (성공 여부, 위치 또는 사정)"""
+    try:
+        persist(rep, name)
+        return True, f"evals/reports/{name}"
+    except Exception as e:  # noqa: BLE001
+        msg = f"저장 실패 ({type(e).__name__}: {str(e)[:120]})"
+        try:
+            path = Path(tempfile.gettempdir()) / name
+            _write_atomic(path, json.dumps(rep, ensure_ascii=False, indent=2).encode("utf-8"))
+            return False, f"{msg} — 임시 폴더에 한 부 남겼다: {path}"
+        except Exception as e2:  # noqa: BLE001
+            return False, f"{msg}; 임시 폴더 저장도 실패 ({type(e2).__name__}) — 측정한 행 전부: {json.dumps(rep.get('rows', []), ensure_ascii=False, default=str)}"
 
 
 def _positive_float(text: str) -> float:
@@ -630,45 +942,72 @@ def build_parser() -> argparse.ArgumentParser:
     return ap
 
 
+def _check_selection(datasets_arg: str, systems_arg: str, estimating: bool, mode_is_demo: bool) -> tuple[list[str], tuple[str, ...], list[str]]:
+    """--datasets·--systems 를 호출 전에 검사한다. (데이터 이름, 방식 이름, 문제 목록)
+    방식은 알려진 세 이름만 — 대소문자까지 정확히, 앞뒤 공백만 걷어 낸다, 빈 이름·같은 이름 두 번은 오류.
+    데이터는 실제 모델을 부르는 실행이면 승인된 네 데이터만, 그 밖(대역 실행·추정)이면 evals/datasets 에 있는 이름만."""
+    names, systems = split_names(datasets_arg), split_names(systems_arg)
+    problems = selection_problems("--systems", systems, list(SYSTEMS))
+    spends = not estimating and not mode_is_demo and any(s in systems for s in ("llm_only", "combined"))
+    if spends:
+        problems += selection_problems("--datasets", names)
+        bad = unapproved_datasets([n for n in names if n])
+        if bad:
+            problems.append(f"승인되지 않은 데이터는 실제 모델 비교에 쓸 수 없다: {', '.join(bad)} (승인된 범위: {', '.join(APPROVED_DATASETS)})")
+    else:
+        problems += selection_problems("--datasets", names, known_datasets())
+    return names, tuple(systems), problems
+
+
+def _store(rep: dict, out_arg: Optional[str]) -> tuple[int, str]:
+    """리포트를 어디에 저장할지 정해 저장하고 (종료 코드, 마지막 안내문) 을 돌려준다. 완료된 결과만 compare_live.json(또는 대역이면 compare_controlled.json)."""
+    ok, why = compare_allowed(rep)
+    interrupted = (rep.get("aborted") or {}).get("kind") == "interrupted"
+    if ok:
+        out, note = _result_file(rep["run_kind"], out_arg)
+        saved, where = _save(rep, out)
+        return (0, f"{note}\n" * bool(note) + f"saved {where}") if saved else (2, f"결과 {where}")
+    if rep["run_kind"] == "live_incomplete":
+        # 돈을 쓴 측정은 버리지 않는다: 측정한 행까지 compare_live_incomplete.json 에 남기고, compare_live.json 은 만들지도 덮어쓰지도 않는다. 종료 코드 2 = 완료되지 않음
+        saved, where = _save(rep, INCOMPLETE_NAME)
+        tail = (f"{why}\n  측정한 부분: {where} (run_kind live_incomplete — 세 방식 비교의 결과가 아님). {LIVE_NAME} 은 만들지 않았다" if saved else f"{why}\n  {where}")
+        if interrupted:
+            tail += "\n  중단 신호를 받아 측정한 행을 먼저 저장했다 — 이 프로세스는 중단된 채로 끝낸다"
+        return 2, tail
+    return 2, f"결과를 저장하지 않음 — {why}\n  (대역 실행은 완료되지 않은 결과를 실제 결과 파일에 남기지 않는다)"
+
+
 def main(argv: Optional[list[str]] = None) -> int:
     args = build_parser().parse_args(argv)
     settings = Settings.from_env()
-    names = [d.strip() for d in args.datasets.split(",") if d.strip()]
-    systems = tuple(s.strip() for s in args.systems.split(",") if s.strip())
+    names, systems, problems = _check_selection(args.datasets, args.systems, args.estimate, settings.mode.value == "demo")
+    if problems:   # 호출도 저장도 하기 전에 막는다 — 틀린 이름이 돈을 쓰는 갈래로 흘러가지 않게
+        print("실행하지 않음 — " + "; ".join(problems))
+        return 2
     if args.estimate:
         e = estimate(names, systems, args.limit, args.cost_cap)
         print(json.dumps(e, ensure_ascii=False, indent=1) if args.json else format_estimate(e))
         return 0
     spends = settings.mode.value != "demo" and any(s in systems for s in ("llm_only", "combined"))
-    bad = unapproved_datasets(names) if spends else []
-    if bad:
-        print(f"실행하지 않음 — 승인되지 않은 데이터는 실제 모델 비교에 쓸 수 없다: {', '.join(bad)} (승인된 범위: {', '.join(APPROVED_DATASETS)})")
-        return 2
     cap = args.cost_cap if args.cost_cap is not None else (APPROVED_COST_CAP_USD if spends else None)
 
     def progress(ds: str, system: str, i: int, n: int) -> None:
         if system == systems[-1] and (i % 10 == 0 or i == n):
             print(f"  {ds} {i}/{n}", file=sys.stderr)
 
-    rep = run_compare(names, settings, systems=systems, limit=args.limit, cost_cap_usd=cap, progress=progress,
-                      breaker_wait_s=(60.0 if settings.mode.value != "demo" else 0.0), abort_after=3, approved_scope=True)
-    ok, why = compare_allowed(rep)
-    # 저장이 먼저, 요약 출력은 그 다음 — 출력 중 오류가 나도 돈을 쓴 측정을 잃지 않는다
-    if ok:
-        out, note = _result_file(rep["run_kind"], args.out)
-        persist(rep, out)
-        code, tail = 0, f"{note}\n" * bool(note) + f"saved evals/reports/{out}"
-    elif rep["run_kind"] == "live_incomplete":
-        # 돈을 쓴 측정은 버리지 않는다: 측정한 행까지 compare_live_incomplete.json 에 남기고, compare_live.json 은 만들지도 덮어쓰지도 않는다. 종료 코드 2 = 완료되지 않음
-        persist(rep, INCOMPLETE_NAME)
-        code, tail = 2, f"{why}\n  측정한 부분: evals/reports/{INCOMPLETE_NAME} (run_kind live_incomplete — 세 방식 비교의 결과가 아님). {LIVE_NAME} 은 만들지 않았다"
-    else:
-        code, tail = 2, f"결과를 저장하지 않음 — {why}\n  (대역 실행은 완료되지 않은 결과를 실제 결과 파일에 남기지 않는다)"
-    try:
-        print_summary(rep)
-    except Exception as e:  # noqa: BLE001
-        print(f"요약 출력 실패 ({type(e).__name__}: {e}) — 결과 파일은 이미 저장됐다")
-    print(tail)
+    with _terminate_as_exit():
+        rep = run_compare(names, settings, systems=systems, limit=args.limit, cost_cap_usd=cap, progress=progress,
+                          breaker_wait_s=(60.0 if settings.mode.value != "demo" else 0.0), abort_after=3, approved_scope=True)
+        # 저장이 먼저, 요약 출력은 그 다음 — 출력 중 오류가 나도 돈을 쓴 측정을 잃지 않는다. 저장하는 동안 도착한 중단 신호는 끝난 뒤로 미룬다
+        with _deferred_interrupts() as held:
+            code, tail = _store(rep, args.out)
+            try:
+                print_summary(rep)
+            except Exception as e:  # noqa: BLE001
+                print(f"요약 출력 실패 ({type(e).__name__}: {e}) — 결과 파일은 이미 저장됐다")
+            print(tail)
+    if (rep.get("aborted") or {}).get("kind") == "interrupted" or held:
+        raise _signal_error(rep, held)   # 측정한 행은 저장했다 — 이제 신호를 되살려 프로세스가 (종료 코드 2 로 얼버무리지 않고) 중단된 채로 끝나게 한다
     return code
 
 
@@ -803,6 +1142,14 @@ def print_summary(rep: dict) -> None:
     f = rep["failures"]
     if f["n"]:
         print(f"   모델 호출 실패 {f['n']}건: {f['by_error']}")
+    cost = rep.get("cost")
+    if cost:
+        cap = cost.get("cap_usd")
+        print(f"   누적 비용 {format_cost(cost.get('spent_usd', 0), report_cost_is_lower_bound(rep))}" + (f" · 상한 ${cap:.2f}" if cap is not None else "")
+              + (" · 응답을 받지 못한 요청의 비용은 알 수 없어 실제로는 이 값 이상" if report_cost_is_lower_bound(rep) else ""))
+    flight = (rep.get("aborted") or {}).get("in_flight")
+    if flight:
+        print(f"   끊긴 시점에 처리 중이던 사례 {flight['case']} ({flight['system']}) — 쓴 비용 ${flight['cost_usd']:.4f} 는 위 누적 비용에 들어 있고 행으로는 세지 않았다")
     if rep.get("served_by"):
         print(f"   판정한 제공자: {rep['served_by']} (기준 제공자 {rep.get('provider')})")
     if rep.get("case_counts"):
