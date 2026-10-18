@@ -1,8 +1,10 @@
 {
   "kind": "comparison",
   "run_kind": "controlled",
-  "generated_at": "2026-10-18T11:14:08.120276+00:00",
+  "generated_at": "2026-10-18T14:59:09.574867+00:00",
   "aborted": null,
+  "provider": "mock",
+  "model": "mock",
   "run_kind_note": "대역(통제된 응답)으로 돌린 결과 — 하네스가 맞게 움직이는지 보는 용도이며 모델 품질이 아니다",
   "settings": {
     "mode": "demo",
@@ -13,6 +15,27 @@
     "llm_only_prompt_version": "compare-1",
     "policy_version": "2026.10.4",
     "cost_cap_usd": null
+  },
+  "scope": {
+    "datasets": [
+      "golden",
+      "holdout",
+      "contrast_g069",
+      "conditions"
+    ],
+    "systems": [
+      "code_only",
+      "llm_only",
+      "combined"
+    ],
+    "limit": null,
+    "full_approved_scope": true,
+    "required": false
+  },
+  "cost": {
+    "spent_usd": 0.0,
+    "cap_usd": null,
+    "over_cap": false
   },
   "caveats": [
     "라벨은 ‘코드가 내야 할 판정’ 이고 규칙과 라벨을 같은 저자가 썼다. 그래서 코드 검사에 유리하고, 개발용 사례의 코드 검사 수치는 일반화의 증거가 아니다.",
@@ -67,6 +90,7 @@
   "datasets": {
     "golden": {
       "n": 55,
+      "n_total": 55,
       "dataset_version": "1.2",
       "dataset_sha256": "9b45c5d5d708a150",
       "split": "dev",
@@ -79,6 +103,7 @@
     },
     "holdout": {
       "n": 12,
+      "n_total": 12,
       "dataset_version": "1",
       "dataset_sha256": "1c2f58b727b2d2d6",
       "split": "holdout",
@@ -91,6 +116,7 @@
     },
     "contrast_g069": {
       "n": 4,
+      "n_total": 4,
       "dataset_version": "1",
       "dataset_sha256": "c5c71901dda0dfd7",
       "split": "dev",
@@ -103,6 +129,7 @@
     },
     "conditions": {
       "n": 39,
+      "n_total": 39,
       "dataset_version": "1.0",
       "dataset_sha256": "a0fec93ef91f173e",
       "split": "dev",
@@ -112,6 +139,28 @@
       "used_for_tuning": true,
       "derived_from": "리뷰 재현 입력 + 저자가 같은 사실로 만든 변형 — 이 규칙을 고치려고 만든 회귀셋이라 독립 평가가 아님. 실제 모델 비교의 고정 사례 110건에 포함",
       "independent_real_data": false
+    }
+  },
+  "case_counts": {
+    "golden": {
+      "total": 55,
+      "completed": 55,
+      "failed_rows": 0
+    },
+    "holdout": {
+      "total": 12,
+      "completed": 12,
+      "failed_rows": 0
+    },
+    "contrast_g069": {
+      "total": 4,
+      "completed": 4,
+      "failed_rows": 0
+    },
+    "conditions": {
+      "total": 39,
+      "completed": 39,
+      "failed_rows": 0
     }
   },
   "results": {
@@ -158,8 +207,8 @@
         "calls": 0,
         "attempts": 0,
         "failed_requests": 0,
-        "latency_ms_total": 101.1,
-        "latency_ms_mean": 1.84,
+        "latency_ms_total": 112.8,
+        "latency_ms_mean": 2.05,
         "cost_usd": 0.0,
         "cost_is_lower_bound": false
       },
@@ -205,8 +254,8 @@
         "calls": 55,
         "attempts": 55,
         "failed_requests": 0,
-        "latency_ms_total": 7.5,
-        "latency_ms_mean": 0.14,
+        "latency_ms_total": 7.0,
+        "latency_ms_mean": 0.13,
         "cost_usd": 0.0,
         "cost_is_lower_bound": false
       },
@@ -252,8 +301,8 @@
         "calls": 73,
         "attempts": 73,
         "failed_requests": 0,
-        "latency_ms_total": 354.3,
-        "latency_ms_mean": 6.44,
+        "latency_ms_total": 369.3,
+        "latency_ms_mean": 6.71,
         "cost_usd": 0.0,
         "cost_is_lower_bound": false
       },
@@ -349,8 +398,8 @@
         "calls": 0,
         "attempts": 0,
         "failed_requests": 0,
-        "latency_ms_total": 24.2,
-        "latency_ms_mean": 2.02,
+        "latency_ms_total": 23.1,
+        "latency_ms_mean": 1.92,
         "cost_usd": 0.0,
         "cost_is_lower_bound": false
       },
@@ -396,8 +445,8 @@
         "calls": 12,
         "attempts": 12,
         "failed_requests": 0,
-        "latency_ms_total": 1.5,
-        "latency_ms_mean": 0.12,
+        "latency_ms_total": 1.2,
+        "latency_ms_mean": 0.1,
         "cost_usd": 0.0,
         "cost_is_lower_bound": false
       },
@@ -443,8 +492,8 @@
         "calls": 18,
         "attempts": 18,
         "failed_requests": 0,
-        "latency_ms_total": 69.7,
-        "latency_ms_mean": 5.81,
+        "latency_ms_total": 69.5,
+        "latency_ms_mean": 5.79,
         "cost_usd": 0.0,
         "cost_is_lower_bound": false
       },
@@ -540,8 +589,8 @@
         "calls": 0,
         "attempts": 0,
         "failed_requests": 0,
-        "latency_ms_total": 5.9,
-        "latency_ms_mean": 1.48,
+        "latency_ms_total": 6.1,
+        "latency_ms_mean": 1.52,
         "cost_usd": 0.0,
         "cost_is_lower_bound": false
       },
@@ -587,8 +636,8 @@
         "calls": 4,
         "attempts": 4,
         "failed_requests": 0,
-        "latency_ms_total": 0.5,
-        "latency_ms_mean": 0.12,
+        "latency_ms_total": 0.4,
+        "latency_ms_mean": 0.1,
         "cost_usd": 0.0,
         "cost_is_lower_bound": false
       },
@@ -634,8 +683,8 @@
         "calls": 6,
         "attempts": 6,
         "failed_requests": 0,
-        "latency_ms_total": 19.1,
-        "latency_ms_mean": 4.78,
+        "latency_ms_total": 18.0,
+        "latency_ms_mean": 4.5,
         "cost_usd": 0.0,
         "cost_is_lower_bound": false
       },
@@ -731,8 +780,8 @@
         "calls": 0,
         "attempts": 0,
         "failed_requests": 0,
-        "latency_ms_total": 45.2,
-        "latency_ms_mean": 1.16,
+        "latency_ms_total": 52.1,
+        "latency_ms_mean": 1.34,
         "cost_usd": 0.0,
         "cost_is_lower_bound": false
       },
@@ -778,8 +827,8 @@
         "calls": 39,
         "attempts": 39,
         "failed_requests": 0,
-        "latency_ms_total": 4.5,
-        "latency_ms_mean": 0.12,
+        "latency_ms_total": 5.2,
+        "latency_ms_mean": 0.13,
         "cost_usd": 0.0,
         "cost_is_lower_bound": false
       },
@@ -825,8 +874,8 @@
         "calls": 61,
         "attempts": 61,
         "failed_requests": 0,
-        "latency_ms_total": 178.2,
-        "latency_ms_mean": 4.57,
+        "latency_ms_total": 187.4,
+        "latency_ms_mean": 4.81,
         "cost_usd": 0.0,
         "cost_is_lower_bound": false
       },
@@ -929,8 +978,8 @@
         "calls": 0,
         "attempts": 0,
         "failed_requests": 0,
-        "latency_ms_total": 152.2,
-        "latency_ms_mean": 1.55,
+        "latency_ms_total": 170.9,
+        "latency_ms_mean": 1.74,
         "cost_usd": 0.0,
         "cost_is_lower_bound": false
       },
@@ -976,7 +1025,7 @@
         "calls": 98,
         "attempts": 98,
         "failed_requests": 0,
-        "latency_ms_total": 12.5,
+        "latency_ms_total": 12.6,
         "latency_ms_mean": 0.13,
         "cost_usd": 0.0,
         "cost_is_lower_bound": false
@@ -1023,8 +1072,8 @@
         "calls": 140,
         "attempts": 140,
         "failed_requests": 0,
-        "latency_ms_total": 551.6,
-        "latency_ms_mean": 5.63,
+        "latency_ms_total": 574.7,
+        "latency_ms_mean": 5.86,
         "cost_usd": 0.0,
         "cost_is_lower_bound": false
       },
@@ -1072,8 +1121,8 @@
             "calls": 0,
             "attempts": 0,
             "failed_requests": 0,
-            "latency_ms_total": 54.2,
-            "latency_ms_mean": 1.69,
+            "latency_ms_total": 64.9,
+            "latency_ms_mean": 2.03,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           },
@@ -1119,8 +1168,8 @@
             "calls": 32,
             "attempts": 32,
             "failed_requests": 0,
-            "latency_ms_total": 107.7,
-            "latency_ms_mean": 3.37,
+            "latency_ms_total": 120.9,
+            "latency_ms_mean": 3.78,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           },
@@ -1166,8 +1215,8 @@
             "calls": 32,
             "attempts": 32,
             "failed_requests": 0,
-            "latency_ms_total": 3.6,
-            "latency_ms_mean": 0.11,
+            "latency_ms_total": 3.9,
+            "latency_ms_mean": 0.12,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           }
@@ -1215,8 +1264,8 @@
             "calls": 0,
             "attempts": 0,
             "failed_requests": 0,
-            "latency_ms_total": 43.1,
-            "latency_ms_mean": 1.16,
+            "latency_ms_total": 48.2,
+            "latency_ms_mean": 1.3,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           },
@@ -1262,8 +1311,8 @@
             "calls": 61,
             "attempts": 61,
             "failed_requests": 0,
-            "latency_ms_total": 206.4,
-            "latency_ms_mean": 5.58,
+            "latency_ms_total": 225.1,
+            "latency_ms_mean": 6.08,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           },
@@ -1309,8 +1358,8 @@
             "calls": 37,
             "attempts": 37,
             "failed_requests": 0,
-            "latency_ms_total": 4.3,
-            "latency_ms_mean": 0.12,
+            "latency_ms_total": 5.2,
+            "latency_ms_mean": 0.14,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           }
@@ -1358,8 +1407,8 @@
             "calls": 0,
             "attempts": 0,
             "failed_requests": 0,
-            "latency_ms_total": 8.1,
-            "latency_ms_mean": 1.15,
+            "latency_ms_total": 10.5,
+            "latency_ms_mean": 1.5,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           },
@@ -1405,8 +1454,8 @@
             "calls": 7,
             "attempts": 7,
             "failed_requests": 0,
-            "latency_ms_total": 39.7,
-            "latency_ms_mean": 5.67,
+            "latency_ms_total": 45.0,
+            "latency_ms_mean": 6.43,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           },
@@ -1452,8 +1501,8 @@
             "calls": 7,
             "attempts": 7,
             "failed_requests": 0,
-            "latency_ms_total": 0.7,
-            "latency_ms_mean": 0.1,
+            "latency_ms_total": 0.8,
+            "latency_ms_mean": 0.11,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           }
@@ -1501,8 +1550,8 @@
             "calls": 0,
             "attempts": 0,
             "failed_requests": 0,
-            "latency_ms_total": 38.3,
-            "latency_ms_mean": 2.13,
+            "latency_ms_total": 38.8,
+            "latency_ms_mean": 2.15,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           },
@@ -1548,8 +1597,8 @@
             "calls": 35,
             "attempts": 35,
             "failed_requests": 0,
-            "latency_ms_total": 168.4,
-            "latency_ms_mean": 9.36,
+            "latency_ms_total": 156.6,
+            "latency_ms_mean": 8.7,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           },
@@ -1595,8 +1644,8 @@
             "calls": 18,
             "attempts": 18,
             "failed_requests": 0,
-            "latency_ms_total": 3.3,
-            "latency_ms_mean": 0.18,
+            "latency_ms_total": 2.3,
+            "latency_ms_mean": 0.13,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           }
@@ -1644,8 +1693,8 @@
             "calls": 0,
             "attempts": 0,
             "failed_requests": 0,
-            "latency_ms_total": 6.4,
-            "latency_ms_mean": 2.12,
+            "latency_ms_total": 5.8,
+            "latency_ms_mean": 1.94,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           },
@@ -1691,8 +1740,8 @@
             "calls": 3,
             "attempts": 3,
             "failed_requests": 0,
-            "latency_ms_total": 21.2,
-            "latency_ms_mean": 7.07,
+            "latency_ms_total": 18.4,
+            "latency_ms_mean": 6.13,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           },
@@ -1738,8 +1787,8 @@
             "calls": 3,
             "attempts": 3,
             "failed_requests": 0,
-            "latency_ms_total": 0.5,
-            "latency_ms_mean": 0.17,
+            "latency_ms_total": 0.3,
+            "latency_ms_mean": 0.1,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           }
@@ -1787,8 +1836,8 @@
             "calls": 0,
             "attempts": 0,
             "failed_requests": 0,
-            "latency_ms_total": 2.2,
-            "latency_ms_mean": 2.16,
+            "latency_ms_total": 2.8,
+            "latency_ms_mean": 2.78,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           },
@@ -1834,8 +1883,8 @@
             "calls": 2,
             "attempts": 2,
             "failed_requests": 0,
-            "latency_ms_total": 8.2,
-            "latency_ms_mean": 8.2,
+            "latency_ms_total": 8.7,
+            "latency_ms_mean": 8.7,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           },
@@ -1930,7 +1979,7 @@
         "calls": 98,
         "attempts": 98,
         "failed_requests": 0,
-        "latency_ms_total": 12.5,
+        "latency_ms_total": 12.6,
         "latency_ms_mean": 0.13,
         "cost_usd": 0.0,
         "cost_is_lower_bound": false
@@ -2030,8 +2079,8 @@
         "calls": 0,
         "attempts": 0,
         "failed_requests": 0,
-        "latency_ms_total": 24.2,
-        "latency_ms_mean": 2.02,
+        "latency_ms_total": 23.1,
+        "latency_ms_mean": 1.92,
         "cost_usd": 0.0,
         "cost_is_lower_bound": false
       },
@@ -2077,8 +2126,8 @@
         "calls": 12,
         "attempts": 12,
         "failed_requests": 0,
-        "latency_ms_total": 1.5,
-        "latency_ms_mean": 0.12,
+        "latency_ms_total": 1.2,
+        "latency_ms_mean": 0.1,
         "cost_usd": 0.0,
         "cost_is_lower_bound": false
       },
@@ -2124,8 +2173,8 @@
         "calls": 18,
         "attempts": 18,
         "failed_requests": 0,
-        "latency_ms_total": 69.7,
-        "latency_ms_mean": 5.81,
+        "latency_ms_total": 69.5,
+        "latency_ms_mean": 5.79,
         "cost_usd": 0.0,
         "cost_is_lower_bound": false
       },
@@ -2173,8 +2222,8 @@
             "calls": 0,
             "attempts": 0,
             "failed_requests": 0,
-            "latency_ms_total": 7.0,
-            "latency_ms_mean": 3.52,
+            "latency_ms_total": 5.3,
+            "latency_ms_mean": 2.66,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           },
@@ -2220,8 +2269,8 @@
             "calls": 2,
             "attempts": 2,
             "failed_requests": 0,
-            "latency_ms_total": 9.9,
-            "latency_ms_mean": 4.95,
+            "latency_ms_total": 8.3,
+            "latency_ms_mean": 4.15,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           },
@@ -2267,8 +2316,8 @@
             "calls": 2,
             "attempts": 2,
             "failed_requests": 0,
-            "latency_ms_total": 0.3,
-            "latency_ms_mean": 0.15,
+            "latency_ms_total": 0.2,
+            "latency_ms_mean": 0.1,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           }
@@ -2316,8 +2365,8 @@
             "calls": 0,
             "attempts": 0,
             "failed_requests": 0,
-            "latency_ms_total": 7.6,
-            "latency_ms_mean": 1.53,
+            "latency_ms_total": 8.3,
+            "latency_ms_mean": 1.65,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           },
@@ -2363,8 +2412,8 @@
             "calls": 9,
             "attempts": 9,
             "failed_requests": 0,
-            "latency_ms_total": 32.9,
-            "latency_ms_mean": 6.58,
+            "latency_ms_total": 31.3,
+            "latency_ms_mean": 6.26,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           },
@@ -2410,8 +2459,8 @@
             "calls": 5,
             "attempts": 5,
             "failed_requests": 0,
-            "latency_ms_total": 0.7,
-            "latency_ms_mean": 0.14,
+            "latency_ms_total": 0.5,
+            "latency_ms_mean": 0.1,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           }
@@ -2459,8 +2508,8 @@
             "calls": 0,
             "attempts": 0,
             "failed_requests": 0,
-            "latency_ms_total": 5.8,
-            "latency_ms_mean": 2.9,
+            "latency_ms_total": 5.1,
+            "latency_ms_mean": 2.55,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           },
@@ -2506,8 +2555,8 @@
             "calls": 4,
             "attempts": 4,
             "failed_requests": 0,
-            "latency_ms_total": 17.0,
-            "latency_ms_mean": 8.5,
+            "latency_ms_total": 18.5,
+            "latency_ms_mean": 9.25,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           },
@@ -2602,8 +2651,8 @@
             "calls": 0,
             "attempts": 0,
             "failed_requests": 0,
-            "latency_ms_total": 1.0,
-            "latency_ms_mean": 0.98,
+            "latency_ms_total": 1.2,
+            "latency_ms_mean": 1.21,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           },
@@ -2649,8 +2698,8 @@
             "calls": 1,
             "attempts": 1,
             "failed_requests": 0,
-            "latency_ms_total": 3.5,
-            "latency_ms_mean": 3.5,
+            "latency_ms_total": 3.7,
+            "latency_ms_mean": 3.7,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           },
@@ -2745,8 +2794,8 @@
             "calls": 0,
             "attempts": 0,
             "failed_requests": 0,
-            "latency_ms_total": 2.8,
-            "latency_ms_mean": 1.38,
+            "latency_ms_total": 3.2,
+            "latency_ms_mean": 1.59,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           },
@@ -2792,8 +2841,8 @@
             "calls": 2,
             "attempts": 2,
             "failed_requests": 0,
-            "latency_ms_total": 6.4,
-            "latency_ms_mean": 3.2,
+            "latency_ms_total": 7.7,
+            "latency_ms_mean": 3.85,
             "cost_usd": 0.0,
             "cost_is_lower_bound": false
           },
@@ -2888,8 +2937,8 @@
         "calls": 12,
         "attempts": 12,
         "failed_requests": 0,
-        "latency_ms_total": 1.5,
-        "latency_ms_mean": 0.12,
+        "latency_ms_total": 1.2,
+        "latency_ms_mean": 0.1,
         "cost_usd": 0.0,
         "cost_is_lower_bound": false
       },
@@ -2947,6 +2996,15 @@
     "n": 0,
     "cases": [],
     "by_error": {}
+  },
+  "served_by": {
+    "mock": 268
+  },
+  "repaired_by": {},
+  "mixed_provider": {
+    "n": 0,
+    "cases": [],
+    "by_provider": {}
   },
   "examples": {
     "코드 검사가 잡고 검토 모델만으로는 통과시킨 사례": [
@@ -3144,19 +3202,26 @@
       "calls": 0,
       "attempts": 0,
       "cost_usd": 0.0,
-      "failed_requests": 0
+      "failed_requests": 0,
+      "judged_by": {}
     },
     "llm_only": {
       "calls": 110,
       "attempts": 110,
       "cost_usd": 0.0,
-      "failed_requests": 0
+      "failed_requests": 0,
+      "judged_by": {
+        "mock": 110
+      }
     },
     "combined": {
       "calls": 158,
       "attempts": 158,
       "cost_usd": 0.0,
-      "failed_requests": 0
+      "failed_requests": 0,
+      "judged_by": {
+        "mock": 158
+      }
     }
   },
   "rows": [
@@ -3178,11 +3243,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.92,
+      "latency_ms": 2.4,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3201,7 +3269,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3221,11 +3294,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 9.6,
+      "latency_ms": 11.7,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3247,11 +3325,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.38,
+      "latency_ms": 1.65,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3266,11 +3347,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.1,
+      "latency_ms": 0.2,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3292,11 +3378,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 5.9,
+      "latency_ms": 6.6,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3315,11 +3406,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.23,
+      "latency_ms": 1.65,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3334,11 +3428,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.1,
+      "latency_ms": 0.2,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3357,11 +3456,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 5.0,
+      "latency_ms": 6.2,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3380,11 +3484,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 0.71,
+      "latency_ms": 0.85,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3399,11 +3506,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.1,
+      "latency_ms": 0.2,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3422,11 +3534,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 4.9,
+      "latency_ms": 5.4,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3444,11 +3561,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 0.77,
+      "latency_ms": 0.9,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3467,7 +3587,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3485,11 +3610,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 3.2,
+      "latency_ms": 3.4,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3506,11 +3636,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 0.68,
+      "latency_ms": 0.88,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3529,7 +3662,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3546,11 +3684,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 3.1,
+      "latency_ms": 3.6,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3571,11 +3714,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 2.44,
+      "latency_ms": 1.87,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3590,11 +3736,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.1,
+      "latency_ms": 0.2,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3615,11 +3766,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 5.4,
+      "latency_ms": 6.5,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3639,11 +3795,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.21,
+      "latency_ms": 1.58,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3662,7 +3821,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3682,11 +3846,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 6.4,
+      "latency_ms": 7.9,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3703,11 +3872,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 0.66,
+      "latency_ms": 0.93,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3726,7 +3898,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3743,11 +3920,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 2.9,
+      "latency_ms": 3.4,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3765,11 +3947,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.24,
+      "latency_ms": 1.49,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3788,7 +3973,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3806,11 +3996,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 6.6,
+      "latency_ms": 8.1,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3829,11 +4024,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.5,
+      "latency_ms": 1.98,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3852,7 +4050,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3871,11 +4074,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 5.7,
+      "latency_ms": 5.3,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3894,11 +4102,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.65,
+      "latency_ms": 1.31,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3917,7 +4128,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3936,11 +4152,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 5.4,
+      "latency_ms": 6.0,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3962,11 +4183,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.31,
+      "latency_ms": 1.64,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -3985,7 +4209,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4007,11 +4236,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 6.4,
+      "latency_ms": 7.7,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4029,11 +4263,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 0.94,
+      "latency_ms": 1.19,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4048,11 +4285,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.1,
+      "latency_ms": 0.2,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4070,11 +4312,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 4.8,
+      "latency_ms": 6.1,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4091,11 +4338,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 0.67,
+      "latency_ms": 0.66,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4114,7 +4364,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4131,11 +4386,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 3.0,
+      "latency_ms": 3.3,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4155,11 +4415,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 0.77,
+      "latency_ms": 0.91,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4178,7 +4441,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4198,11 +4466,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 6.2,
+      "latency_ms": 6.8,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4222,11 +4495,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.15,
+      "latency_ms": 1.47,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4245,7 +4521,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4265,11 +4546,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 5.4,
+      "latency_ms": 5.6,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4288,11 +4574,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 0.93,
+      "latency_ms": 1.14,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4311,7 +4600,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4330,11 +4624,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 4.8,
+      "latency_ms": 5.0,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4353,11 +4652,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 0.98,
+      "latency_ms": 1.27,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4376,7 +4678,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4395,11 +4702,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 4.6,
+      "latency_ms": 5.6,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4417,11 +4729,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 0.94,
+      "latency_ms": 1.42,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4440,7 +4755,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4458,11 +4778,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 6.2,
+      "latency_ms": 6.7,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4482,11 +4807,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.11,
+      "latency_ms": 1.5,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4505,12 +4833,97 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
       "system": "combined",
       "case_id": "G-024",
+      "label": "REJECT",
+      "difficulty": "evasion",
+      "predicted": "REJECT",
+      "confidence": 0.93,
+      "rules": [
+        "FIN-DISCLOSE-INV-01",
+        "FIN-GUARANTEE-01",
+        "FIN-RETURN-01",
+        "GRND-NUM-01"
+      ],
+      "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
+      "calls": 1,
+      "attempts": 1,
+      "failed_requests": 0,
+      "latency_ms": 6.8,
+      "cost_usd": 0.0,
+      "error": "",
+      "model_decision": "REJECT",
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
+    },
+    {
+      "dataset": "golden",
+      "system": "code_only",
+      "case_id": "G-025",
+      "label": "REJECT",
+      "difficulty": "evasion",
+      "predicted": "REJECT",
+      "confidence": 1.0,
+      "rules": [
+        "FIN-DISCLOSE-INV-01",
+        "FIN-GUARANTEE-01",
+        "FIN-RETURN-01",
+        "GRND-NUM-01"
+      ],
+      "reason": "코드 검사 결과 그대로 (FIN-DISCLOSE-INV-01, FIN-GUARANTEE-01, FIN-RETURN-01, GRND-NUM-01)",
+      "calls": 0,
+      "attempts": 0,
+      "failed_requests": 0,
+      "latency_ms": 1.43,
+      "cost_usd": 0.0,
+      "error": "",
+      "model_decision": "",
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
+    },
+    {
+      "dataset": "golden",
+      "system": "llm_only",
+      "case_id": "G-025",
+      "label": "REJECT",
+      "difficulty": "evasion",
+      "predicted": "APPROVE",
+      "confidence": 0.91,
+      "rules": [],
+      "reason": "[대역] 결정론 계층의 finding 을 그대로 채택하고, 심각도에 따라 판정했다.",
+      "calls": 1,
+      "attempts": 1,
+      "failed_requests": 0,
+      "latency_ms": 0.1,
+      "cost_usd": 0.0,
+      "error": "",
+      "model_decision": "APPROVE",
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
+    },
+    {
+      "dataset": "golden",
+      "system": "combined",
+      "case_id": "G-025",
       "label": "REJECT",
       "difficulty": "evasion",
       "predicted": "REJECT",
@@ -4529,74 +4942,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
-    },
-    {
-      "dataset": "golden",
-      "system": "code_only",
-      "case_id": "G-025",
-      "label": "REJECT",
-      "difficulty": "evasion",
-      "predicted": "REJECT",
-      "confidence": 1.0,
-      "rules": [
-        "FIN-DISCLOSE-INV-01",
-        "FIN-GUARANTEE-01",
-        "FIN-RETURN-01",
-        "GRND-NUM-01"
-      ],
-      "reason": "코드 검사 결과 그대로 (FIN-DISCLOSE-INV-01, FIN-GUARANTEE-01, FIN-RETURN-01, GRND-NUM-01)",
-      "calls": 0,
-      "attempts": 0,
-      "failed_requests": 0,
-      "latency_ms": 1.16,
-      "cost_usd": 0.0,
-      "error": "",
-      "model_decision": "",
-      "predicted_tau": ""
-    },
-    {
-      "dataset": "golden",
-      "system": "llm_only",
-      "case_id": "G-025",
-      "label": "REJECT",
-      "difficulty": "evasion",
-      "predicted": "APPROVE",
-      "confidence": 0.91,
-      "rules": [],
-      "reason": "[대역] 결정론 계층의 finding 을 그대로 채택하고, 심각도에 따라 판정했다.",
-      "calls": 1,
-      "attempts": 1,
-      "failed_requests": 0,
-      "latency_ms": 0.1,
-      "cost_usd": 0.0,
-      "error": "",
-      "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
-    },
-    {
-      "dataset": "golden",
-      "system": "combined",
-      "case_id": "G-025",
-      "label": "REJECT",
-      "difficulty": "evasion",
-      "predicted": "REJECT",
-      "confidence": 0.93,
-      "rules": [
-        "FIN-DISCLOSE-INV-01",
-        "FIN-GUARANTEE-01",
-        "FIN-RETURN-01",
-        "GRND-NUM-01"
-      ],
-      "reason": "결정론 가드레일에서 반려 사유(block)가 확인됨 — 모델 판정과 무관하게 반려",
-      "calls": 1,
-      "attempts": 1,
-      "failed_requests": 0,
-      "latency_ms": 5.4,
-      "cost_usd": 0.0,
-      "error": "",
-      "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4615,11 +4966,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.81,
+      "latency_ms": 2.25,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4634,11 +4988,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.1,
+      "latency_ms": 0.2,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4657,11 +5016,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 7.6,
+      "latency_ms": 9.6,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4678,11 +5042,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 2.0,
+      "latency_ms": 1.52,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4697,11 +5064,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.2,
+      "latency_ms": 0.1,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4718,11 +5090,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 6.6,
+      "latency_ms": 5.2,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4741,11 +5118,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 2.87,
+      "latency_ms": 2.33,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4760,11 +5140,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.2,
+      "latency_ms": 0.1,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4783,11 +5168,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 8.9,
+      "latency_ms": 7.9,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4808,11 +5198,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 2.23,
+      "latency_ms": 1.95,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4827,11 +5220,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.2,
+      "latency_ms": 0.1,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4852,11 +5250,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 14.6,
+      "latency_ms": 14.8,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4874,11 +5277,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.7,
+      "latency_ms": 1.28,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4893,11 +5299,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.2,
+      "latency_ms": 0.1,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4915,11 +5326,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 10.0,
+      "latency_ms": 9.8,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4936,11 +5352,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.58,
+      "latency_ms": 1.45,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4955,11 +5374,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.3,
+      "latency_ms": 0.1,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4976,11 +5400,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 8.3,
+      "latency_ms": 7.3,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -4999,11 +5428,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 2.13,
+      "latency_ms": 1.71,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5018,11 +5450,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.2,
+      "latency_ms": 0.1,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5041,11 +5478,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 12.3,
+      "latency_ms": 9.4,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5063,11 +5505,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.99,
+      "latency_ms": 1.6,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5082,11 +5527,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.2,
+      "latency_ms": 0.1,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5104,11 +5554,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 10.6,
+      "latency_ms": 7.4,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5126,11 +5581,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 2.23,
+      "latency_ms": 1.85,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5145,11 +5603,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.2,
+      "latency_ms": 0.1,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5167,11 +5630,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 9.2,
+      "latency_ms": 7.8,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5189,11 +5657,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 2.21,
+      "latency_ms": 1.88,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5208,11 +5679,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.2,
+      "latency_ms": 0.1,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5230,11 +5706,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 9.8,
+      "latency_ms": 7.7,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5251,11 +5732,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 4.65,
+      "latency_ms": 5.91,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5274,7 +5758,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5291,11 +5780,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 11.0,
+      "latency_ms": 11.6,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5313,11 +5807,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.0,
+      "latency_ms": 1.16,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5336,7 +5833,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5354,11 +5856,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 4.8,
+      "latency_ms": 5.3,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5375,11 +5882,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.77,
+      "latency_ms": 2.19,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5398,7 +5908,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5415,11 +5930,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 12.6,
+      "latency_ms": 10.0,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5438,11 +5958,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.22,
+      "latency_ms": 0.78,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5457,11 +5980,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.2,
+      "latency_ms": 0.1,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5480,11 +6008,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 7.4,
+      "latency_ms": 5.0,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5501,11 +6034,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 5.2,
+      "latency_ms": 3.8,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5520,11 +6056,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.2,
+      "latency_ms": 0.1,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5541,11 +6082,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 17.0,
+      "latency_ms": 12.9,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5562,11 +6108,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 2.86,
+      "latency_ms": 2.89,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5585,7 +6134,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5602,11 +6156,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 9.6,
+      "latency_ms": 13.1,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5623,11 +6182,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.77,
+      "latency_ms": 4.39,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5642,11 +6204,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.1,
+      "latency_ms": 0.2,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5663,11 +6230,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 6.2,
+      "latency_ms": 8.0,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5682,11 +6254,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 3.61,
+      "latency_ms": 4.28,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5705,7 +6280,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5720,11 +6300,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 4.9,
+      "latency_ms": 6.2,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5739,11 +6324,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 3.42,
+      "latency_ms": 3.85,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5762,7 +6350,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5777,11 +6370,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 4.6,
+      "latency_ms": 4.7,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5796,11 +6394,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 2.48,
+      "latency_ms": 3.12,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5819,7 +6420,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5834,11 +6440,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 4.5,
+      "latency_ms": 6.8,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5853,11 +6464,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 3.51,
+      "latency_ms": 2.95,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5876,7 +6490,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5891,11 +6510,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 4.0,
+      "latency_ms": 4.3,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5910,11 +6534,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.25,
+      "latency_ms": 3.46,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5929,11 +6556,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.1,
+      "latency_ms": 0.2,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5948,11 +6580,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 3.4,
+      "latency_ms": 6.7,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5967,11 +6604,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.85,
+      "latency_ms": 2.26,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -5990,7 +6630,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6005,11 +6650,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 3.4,
+      "latency_ms": 3.7,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6024,11 +6674,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 2.43,
+      "latency_ms": 2.85,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6047,7 +6700,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6062,11 +6720,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 4.0,
+      "latency_ms": 4.3,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6081,11 +6744,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 3.58,
+      "latency_ms": 3.97,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6104,7 +6770,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6123,7 +6794,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6138,11 +6814,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.72,
+      "latency_ms": 2.14,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6161,7 +6840,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6176,11 +6860,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 3.3,
+      "latency_ms": 3.2,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6197,11 +6886,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.2,
+      "latency_ms": 1.46,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6220,7 +6912,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6237,11 +6934,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 6.2,
+      "latency_ms": 7.8,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6256,11 +6958,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 3.09,
+      "latency_ms": 3.83,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6279,7 +6984,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6298,7 +7008,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6313,11 +7028,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 0.93,
+      "latency_ms": 1.2,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6332,11 +7050,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.2,
+      "latency_ms": 0.1,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6351,11 +7074,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 2.3,
+      "latency_ms": 2.5,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6370,11 +7098,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.08,
+      "latency_ms": 1.1,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6393,7 +7124,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6408,11 +7144,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 2.3,
+      "latency_ms": 2.4,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6427,11 +7168,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 2.95,
+      "latency_ms": 2.98,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6450,7 +7194,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6465,11 +7214,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 4.0,
+      "latency_ms": 4.7,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6486,11 +7240,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 2.16,
+      "latency_ms": 2.78,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6509,7 +7266,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6526,11 +7288,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 8.2,
+      "latency_ms": 8.7,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6547,11 +7314,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.25,
+      "latency_ms": 1.49,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6570,7 +7340,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "golden",
@@ -6587,11 +7362,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 5.5,
+      "latency_ms": 6.5,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -6606,11 +7386,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 6.06,
+      "latency_ms": 4.05,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -6625,11 +7408,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.2,
+      "latency_ms": 0.1,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -6644,11 +7432,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 7.7,
+      "latency_ms": 5.8,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -6666,11 +7459,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 2.64,
+      "latency_ms": 2.33,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -6685,11 +7481,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.2,
+      "latency_ms": 0.1,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -6707,11 +7508,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 12.4,
+      "latency_ms": 8.0,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -6730,11 +7536,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.49,
+      "latency_ms": 1.67,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -6749,11 +7558,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.2,
+      "latency_ms": 0.1,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -6772,11 +7586,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 6.2,
+      "latency_ms": 6.8,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -6793,11 +7612,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.8,
+      "latency_ms": 2.09,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -6816,7 +7638,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -6833,11 +7660,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 6.4,
+      "latency_ms": 7.3,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -6852,11 +7684,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.75,
+      "latency_ms": 2.04,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -6875,7 +7710,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -6890,11 +7730,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 3.1,
+      "latency_ms": 4.2,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -6909,11 +7754,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 0.99,
+      "latency_ms": 1.27,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -6932,7 +7780,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -6947,11 +7800,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 2.2,
+      "latency_ms": 2.5,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -6969,11 +7827,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.11,
+      "latency_ms": 1.25,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -6992,7 +7853,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -7010,11 +7876,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 5.0,
+      "latency_ms": 5.6,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -7033,11 +7904,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.09,
+      "latency_ms": 1.48,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -7056,7 +7930,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -7075,11 +7954,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 5.1,
+      "latency_ms": 5.7,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -7096,11 +7980,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 0.98,
+      "latency_ms": 1.21,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -7119,7 +8006,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -7136,11 +8028,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 3.5,
+      "latency_ms": 3.7,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -7157,11 +8054,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 0.61,
+      "latency_ms": 0.7,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -7180,7 +8080,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -7197,11 +8102,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 2.8,
+      "latency_ms": 3.5,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REJECT",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -7219,11 +8129,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 4.69,
+      "latency_ms": 3.85,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -7242,7 +8155,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -7260,11 +8178,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 12.0,
+      "latency_ms": 12.9,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -7279,11 +8202,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.0,
+      "latency_ms": 1.15,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -7302,7 +8228,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "holdout",
@@ -7317,11 +8248,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 3.3,
+      "latency_ms": 3.5,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "contrast_g069",
@@ -7338,11 +8274,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 2.0,
+      "latency_ms": 1.56,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "contrast_g069",
@@ -7357,11 +8296,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.2,
+      "latency_ms": 0.1,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "contrast_g069",
@@ -7378,11 +8322,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 7.4,
+      "latency_ms": 6.3,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "contrast_g069",
@@ -7397,11 +8346,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.41,
+      "latency_ms": 1.61,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "contrast_g069",
@@ -7420,7 +8372,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "contrast_g069",
@@ -7435,11 +8392,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 2.8,
+      "latency_ms": 3.0,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "contrast_g069",
@@ -7456,11 +8418,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.27,
+      "latency_ms": 1.41,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "contrast_g069",
@@ -7479,7 +8444,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "contrast_g069",
@@ -7500,7 +8470,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "contrast_g069",
@@ -7515,11 +8490,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.23,
+      "latency_ms": 1.48,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "contrast_g069",
@@ -7538,7 +8516,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "contrast_g069",
@@ -7553,11 +8536,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 3.0,
+      "latency_ms": 2.8,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -7574,11 +8562,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 2.66,
+      "latency_ms": 1.18,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -7593,11 +8584,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.1,
+      "latency_ms": 0.2,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -7614,11 +8610,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 5.1,
+      "latency_ms": 5.7,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -7633,11 +8634,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.32,
+      "latency_ms": 1.17,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -7656,7 +8660,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -7671,11 +8680,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 2.6,
+      "latency_ms": 2.4,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -7690,11 +8704,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.08,
+      "latency_ms": 1.1,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -7713,7 +8730,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -7728,11 +8750,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 2.2,
+      "latency_ms": 2.3,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -7749,11 +8776,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.08,
+      "latency_ms": 1.24,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -7772,7 +8802,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -7789,11 +8824,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 5.6,
+      "latency_ms": 5.2,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -7810,11 +8850,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.42,
+      "latency_ms": 1.14,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -7833,7 +8876,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -7850,11 +8898,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 5.0,
+      "latency_ms": 5.2,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -7871,11 +8924,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.04,
+      "latency_ms": 1.21,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -7894,12 +8950,91 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
       "system": "combined",
       "case_id": "K-A6",
+      "label": "REVISE",
+      "difficulty": "clear",
+      "predicted": "REVISE",
+      "confidence": 0.86,
+      "rules": [
+        "GRND-COND-02"
+      ],
+      "reason": "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급",
+      "calls": 2,
+      "attempts": 2,
+      "failed_requests": 0,
+      "latency_ms": 6.2,
+      "cost_usd": 0.0,
+      "error": "",
+      "model_decision": "REVISE",
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
+    },
+    {
+      "dataset": "conditions",
+      "system": "code_only",
+      "case_id": "K-A7",
+      "label": "REVISE",
+      "difficulty": "clear",
+      "predicted": "REVISE",
+      "confidence": 1.0,
+      "rules": [
+        "GRND-COND-02"
+      ],
+      "reason": "코드 검사 결과 그대로 (GRND-COND-02)",
+      "calls": 0,
+      "attempts": 0,
+      "failed_requests": 0,
+      "latency_ms": 1.21,
+      "cost_usd": 0.0,
+      "error": "",
+      "model_decision": "",
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
+    },
+    {
+      "dataset": "conditions",
+      "system": "llm_only",
+      "case_id": "K-A7",
+      "label": "REVISE",
+      "difficulty": "clear",
+      "predicted": "APPROVE",
+      "confidence": 0.91,
+      "rules": [],
+      "reason": "[대역] 결정론 계층의 finding 을 그대로 채택하고, 심각도에 따라 판정했다.",
+      "calls": 1,
+      "attempts": 1,
+      "failed_requests": 0,
+      "latency_ms": 0.1,
+      "cost_usd": 0.0,
+      "error": "",
+      "model_decision": "APPROVE",
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
+    },
+    {
+      "dataset": "conditions",
+      "system": "combined",
+      "case_id": "K-A7",
       "label": "REVISE",
       "difficulty": "clear",
       "predicted": "REVISE",
@@ -7915,68 +9050,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
-    },
-    {
-      "dataset": "conditions",
-      "system": "code_only",
-      "case_id": "K-A7",
-      "label": "REVISE",
-      "difficulty": "clear",
-      "predicted": "REVISE",
-      "confidence": 1.0,
-      "rules": [
-        "GRND-COND-02"
-      ],
-      "reason": "코드 검사 결과 그대로 (GRND-COND-02)",
-      "calls": 0,
-      "attempts": 0,
-      "failed_requests": 0,
-      "latency_ms": 1.06,
-      "cost_usd": 0.0,
-      "error": "",
-      "model_decision": "",
-      "predicted_tau": ""
-    },
-    {
-      "dataset": "conditions",
-      "system": "llm_only",
-      "case_id": "K-A7",
-      "label": "REVISE",
-      "difficulty": "clear",
-      "predicted": "APPROVE",
-      "confidence": 0.91,
-      "rules": [],
-      "reason": "[대역] 결정론 계층의 finding 을 그대로 채택하고, 심각도에 따라 판정했다.",
-      "calls": 1,
-      "attempts": 1,
-      "failed_requests": 0,
-      "latency_ms": 0.1,
-      "cost_usd": 0.0,
-      "error": "",
-      "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
-    },
-    {
-      "dataset": "conditions",
-      "system": "combined",
-      "case_id": "K-A7",
-      "label": "REVISE",
-      "difficulty": "clear",
-      "predicted": "REVISE",
-      "confidence": 0.86,
-      "rules": [
-        "GRND-COND-02"
-      ],
-      "reason": "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급",
-      "calls": 2,
-      "attempts": 2,
-      "failed_requests": 0,
-      "latency_ms": 6.2,
-      "cost_usd": 0.0,
-      "error": "",
-      "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -7991,11 +9070,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.03,
+      "latency_ms": 1.07,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8014,7 +9096,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8029,11 +9116,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 3.1,
+      "latency_ms": 2.5,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8050,11 +9142,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 0.85,
+      "latency_ms": 0.9,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8073,7 +9168,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8090,11 +9190,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 4.7,
+      "latency_ms": 4.6,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8109,11 +9214,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 0.91,
+      "latency_ms": 1.04,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8132,7 +9240,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8151,7 +9264,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8168,11 +9286,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 0.88,
+      "latency_ms": 1.01,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8191,7 +9312,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8208,11 +9334,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 4.9,
+      "latency_ms": 5.7,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8229,11 +9360,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 0.95,
+      "latency_ms": 1.16,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8252,7 +9386,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8269,11 +9408,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 6.1,
+      "latency_ms": 5.2,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8290,11 +9434,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.4,
+      "latency_ms": 1.19,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8313,7 +9460,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8330,11 +9482,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 5.5,
+      "latency_ms": 5.3,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8351,11 +9508,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.37,
+      "latency_ms": 1.02,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8374,7 +9534,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8391,11 +9556,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 5.5,
+      "latency_ms": 5.2,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8410,11 +9580,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.7,
+      "latency_ms": 1.16,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8433,7 +9606,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8448,11 +9626,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 2.5,
+      "latency_ms": 2.4,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8469,11 +9652,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.16,
+      "latency_ms": 1.02,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8492,7 +9678,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8509,11 +9700,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 4.5,
+      "latency_ms": 5.6,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8528,11 +9724,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.24,
+      "latency_ms": 1.33,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8551,12 +9750,87 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
       "system": "combined",
       "case_id": "K-B9",
+      "label": "APPROVE",
+      "difficulty": "benign_scary",
+      "predicted": "APPROVE",
+      "confidence": 0.91,
+      "rules": [],
+      "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
+      "calls": 1,
+      "attempts": 1,
+      "failed_requests": 0,
+      "latency_ms": 4.6,
+      "cost_usd": 0.0,
+      "error": "",
+      "model_decision": "APPROVE",
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
+    },
+    {
+      "dataset": "conditions",
+      "system": "code_only",
+      "case_id": "K-B10",
+      "label": "APPROVE",
+      "difficulty": "benign_scary",
+      "predicted": "APPROVE",
+      "confidence": 0.0,
+      "rules": [],
+      "reason": "코드 검사 결과 그대로 (finding 없음 → 통과)",
+      "calls": 0,
+      "attempts": 0,
+      "failed_requests": 0,
+      "latency_ms": 1.21,
+      "cost_usd": 0.0,
+      "error": "",
+      "model_decision": "",
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
+    },
+    {
+      "dataset": "conditions",
+      "system": "llm_only",
+      "case_id": "K-B10",
+      "label": "APPROVE",
+      "difficulty": "benign_scary",
+      "predicted": "APPROVE",
+      "confidence": 0.91,
+      "rules": [],
+      "reason": "[대역] 결정론 계층의 finding 을 그대로 채택하고, 심각도에 따라 판정했다.",
+      "calls": 1,
+      "attempts": 1,
+      "failed_requests": 0,
+      "latency_ms": 0.1,
+      "cost_usd": 0.0,
+      "error": "",
+      "model_decision": "APPROVE",
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
+    },
+    {
+      "dataset": "conditions",
+      "system": "combined",
+      "case_id": "K-B10",
       "label": "APPROVE",
       "difficulty": "benign_scary",
       "predicted": "APPROVE",
@@ -8570,64 +9844,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
-    },
-    {
-      "dataset": "conditions",
-      "system": "code_only",
-      "case_id": "K-B10",
-      "label": "APPROVE",
-      "difficulty": "benign_scary",
-      "predicted": "APPROVE",
-      "confidence": 0.0,
-      "rules": [],
-      "reason": "코드 검사 결과 그대로 (finding 없음 → 통과)",
-      "calls": 0,
-      "attempts": 0,
-      "failed_requests": 0,
-      "latency_ms": 0.97,
-      "cost_usd": 0.0,
-      "error": "",
-      "model_decision": "",
-      "predicted_tau": ""
-    },
-    {
-      "dataset": "conditions",
-      "system": "llm_only",
-      "case_id": "K-B10",
-      "label": "APPROVE",
-      "difficulty": "benign_scary",
-      "predicted": "APPROVE",
-      "confidence": 0.91,
-      "rules": [],
-      "reason": "[대역] 결정론 계층의 finding 을 그대로 채택하고, 심각도에 따라 판정했다.",
-      "calls": 1,
-      "attempts": 1,
-      "failed_requests": 0,
-      "latency_ms": 0.1,
-      "cost_usd": 0.0,
-      "error": "",
-      "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
-    },
-    {
-      "dataset": "conditions",
-      "system": "combined",
-      "case_id": "K-B10",
-      "label": "APPROVE",
-      "difficulty": "benign_scary",
-      "predicted": "APPROVE",
-      "confidence": 0.91,
-      "rules": [],
-      "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
-      "calls": 1,
-      "attempts": 1,
-      "failed_requests": 0,
-      "latency_ms": 7.2,
-      "cost_usd": 0.0,
-      "error": "",
-      "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8644,11 +9866,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 0.68,
+      "latency_ms": 0.72,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8667,7 +9892,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8688,7 +9918,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8705,11 +9940,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 0.57,
+      "latency_ms": 0.76,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8728,7 +9966,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8745,11 +9988,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 6.9,
+      "latency_ms": 4.3,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8764,11 +10012,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 0.67,
+      "latency_ms": 0.79,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8787,7 +10038,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8806,7 +10062,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8821,11 +10082,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 0.97,
+      "latency_ms": 0.7,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8844,7 +10108,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8859,11 +10128,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 2.3,
+      "latency_ms": 2.9,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8878,11 +10152,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 0.8,
+      "latency_ms": 0.81,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -8901,191 +10178,17 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
       "system": "combined",
       "case_id": "K-D1",
-      "label": "APPROVE",
-      "difficulty": "benign_scary",
-      "predicted": "APPROVE",
-      "confidence": 0.91,
-      "rules": [],
-      "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
-      "calls": 1,
-      "attempts": 1,
-      "failed_requests": 0,
-      "latency_ms": 2.3,
-      "cost_usd": 0.0,
-      "error": "",
-      "model_decision": "APPROVE",
-      "predicted_tau": ""
-    },
-    {
-      "dataset": "conditions",
-      "system": "code_only",
-      "case_id": "K-D2",
-      "label": "REVISE",
-      "difficulty": "clear",
-      "predicted": "REVISE",
-      "confidence": 1.0,
-      "rules": [
-        "GRND-NUM-01"
-      ],
-      "reason": "코드 검사 결과 그대로 (GRND-NUM-01)",
-      "calls": 0,
-      "attempts": 0,
-      "failed_requests": 0,
-      "latency_ms": 0.97,
-      "cost_usd": 0.0,
-      "error": "",
-      "model_decision": "",
-      "predicted_tau": ""
-    },
-    {
-      "dataset": "conditions",
-      "system": "llm_only",
-      "case_id": "K-D2",
-      "label": "REVISE",
-      "difficulty": "clear",
-      "predicted": "APPROVE",
-      "confidence": 0.91,
-      "rules": [],
-      "reason": "[대역] 결정론 계층의 finding 을 그대로 채택하고, 심각도에 따라 판정했다.",
-      "calls": 1,
-      "attempts": 1,
-      "failed_requests": 0,
-      "latency_ms": 0.1,
-      "cost_usd": 0.0,
-      "error": "",
-      "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
-    },
-    {
-      "dataset": "conditions",
-      "system": "combined",
-      "case_id": "K-D2",
-      "label": "REVISE",
-      "difficulty": "clear",
-      "predicted": "REVISE",
-      "confidence": 0.86,
-      "rules": [
-        "GRND-NUM-01"
-      ],
-      "reason": "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급",
-      "calls": 2,
-      "attempts": 2,
-      "failed_requests": 0,
-      "latency_ms": 5.4,
-      "cost_usd": 0.0,
-      "error": "",
-      "model_decision": "REVISE",
-      "predicted_tau": ""
-    },
-    {
-      "dataset": "conditions",
-      "system": "code_only",
-      "case_id": "K-D3",
-      "label": "REVISE",
-      "difficulty": "clear",
-      "predicted": "REVISE",
-      "confidence": 1.0,
-      "rules": [
-        "GRND-NUM-01"
-      ],
-      "reason": "코드 검사 결과 그대로 (GRND-NUM-01)",
-      "calls": 0,
-      "attempts": 0,
-      "failed_requests": 0,
-      "latency_ms": 0.68,
-      "cost_usd": 0.0,
-      "error": "",
-      "model_decision": "",
-      "predicted_tau": ""
-    },
-    {
-      "dataset": "conditions",
-      "system": "llm_only",
-      "case_id": "K-D3",
-      "label": "REVISE",
-      "difficulty": "clear",
-      "predicted": "APPROVE",
-      "confidence": 0.91,
-      "rules": [],
-      "reason": "[대역] 결정론 계층의 finding 을 그대로 채택하고, 심각도에 따라 판정했다.",
-      "calls": 1,
-      "attempts": 1,
-      "failed_requests": 0,
-      "latency_ms": 0.1,
-      "cost_usd": 0.0,
-      "error": "",
-      "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
-    },
-    {
-      "dataset": "conditions",
-      "system": "combined",
-      "case_id": "K-D3",
-      "label": "REVISE",
-      "difficulty": "clear",
-      "predicted": "REVISE",
-      "confidence": 0.86,
-      "rules": [
-        "GRND-NUM-01"
-      ],
-      "reason": "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급",
-      "calls": 2,
-      "attempts": 2,
-      "failed_requests": 0,
-      "latency_ms": 5.4,
-      "cost_usd": 0.0,
-      "error": "",
-      "model_decision": "REVISE",
-      "predicted_tau": ""
-    },
-    {
-      "dataset": "conditions",
-      "system": "code_only",
-      "case_id": "K-D4",
-      "label": "APPROVE",
-      "difficulty": "benign_scary",
-      "predicted": "APPROVE",
-      "confidence": 0.0,
-      "rules": [],
-      "reason": "코드 검사 결과 그대로 (finding 없음 → 통과)",
-      "calls": 0,
-      "attempts": 0,
-      "failed_requests": 0,
-      "latency_ms": 0.69,
-      "cost_usd": 0.0,
-      "error": "",
-      "model_decision": "",
-      "predicted_tau": ""
-    },
-    {
-      "dataset": "conditions",
-      "system": "llm_only",
-      "case_id": "K-D4",
-      "label": "APPROVE",
-      "difficulty": "benign_scary",
-      "predicted": "APPROVE",
-      "confidence": 0.91,
-      "rules": [],
-      "reason": "[대역] 결정론 계층의 finding 을 그대로 채택하고, 심각도에 따라 판정했다.",
-      "calls": 1,
-      "attempts": 1,
-      "failed_requests": 0,
-      "latency_ms": 0.1,
-      "cost_usd": 0.0,
-      "error": "",
-      "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
-    },
-    {
-      "dataset": "conditions",
-      "system": "combined",
-      "case_id": "K-D4",
       "label": "APPROVE",
       "difficulty": "benign_scary",
       "predicted": "APPROVE",
@@ -9099,7 +10202,230 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
+    },
+    {
+      "dataset": "conditions",
+      "system": "code_only",
+      "case_id": "K-D2",
+      "label": "REVISE",
+      "difficulty": "clear",
+      "predicted": "REVISE",
+      "confidence": 1.0,
+      "rules": [
+        "GRND-NUM-01"
+      ],
+      "reason": "코드 검사 결과 그대로 (GRND-NUM-01)",
+      "calls": 0,
+      "attempts": 0,
+      "failed_requests": 0,
+      "latency_ms": 0.79,
+      "cost_usd": 0.0,
+      "error": "",
+      "model_decision": "",
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
+    },
+    {
+      "dataset": "conditions",
+      "system": "llm_only",
+      "case_id": "K-D2",
+      "label": "REVISE",
+      "difficulty": "clear",
+      "predicted": "APPROVE",
+      "confidence": 0.91,
+      "rules": [],
+      "reason": "[대역] 결정론 계층의 finding 을 그대로 채택하고, 심각도에 따라 판정했다.",
+      "calls": 1,
+      "attempts": 1,
+      "failed_requests": 0,
+      "latency_ms": 0.1,
+      "cost_usd": 0.0,
+      "error": "",
+      "model_decision": "APPROVE",
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
+    },
+    {
+      "dataset": "conditions",
+      "system": "combined",
+      "case_id": "K-D2",
+      "label": "REVISE",
+      "difficulty": "clear",
+      "predicted": "REVISE",
+      "confidence": 0.86,
+      "rules": [
+        "GRND-NUM-01"
+      ],
+      "reason": "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급",
+      "calls": 2,
+      "attempts": 2,
+      "failed_requests": 0,
+      "latency_ms": 4.9,
+      "cost_usd": 0.0,
+      "error": "",
+      "model_decision": "REVISE",
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
+    },
+    {
+      "dataset": "conditions",
+      "system": "code_only",
+      "case_id": "K-D3",
+      "label": "REVISE",
+      "difficulty": "clear",
+      "predicted": "REVISE",
+      "confidence": 1.0,
+      "rules": [
+        "GRND-NUM-01"
+      ],
+      "reason": "코드 검사 결과 그대로 (GRND-NUM-01)",
+      "calls": 0,
+      "attempts": 0,
+      "failed_requests": 0,
+      "latency_ms": 0.86,
+      "cost_usd": 0.0,
+      "error": "",
+      "model_decision": "",
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
+    },
+    {
+      "dataset": "conditions",
+      "system": "llm_only",
+      "case_id": "K-D3",
+      "label": "REVISE",
+      "difficulty": "clear",
+      "predicted": "APPROVE",
+      "confidence": 0.91,
+      "rules": [],
+      "reason": "[대역] 결정론 계층의 finding 을 그대로 채택하고, 심각도에 따라 판정했다.",
+      "calls": 1,
+      "attempts": 1,
+      "failed_requests": 0,
+      "latency_ms": 0.1,
+      "cost_usd": 0.0,
+      "error": "",
+      "model_decision": "APPROVE",
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
+    },
+    {
+      "dataset": "conditions",
+      "system": "combined",
+      "case_id": "K-D3",
+      "label": "REVISE",
+      "difficulty": "clear",
+      "predicted": "REVISE",
+      "confidence": 0.86,
+      "rules": [
+        "GRND-NUM-01"
+      ],
+      "reason": "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급",
+      "calls": 2,
+      "attempts": 2,
+      "failed_requests": 0,
+      "latency_ms": 4.5,
+      "cost_usd": 0.0,
+      "error": "",
+      "model_decision": "REVISE",
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
+    },
+    {
+      "dataset": "conditions",
+      "system": "code_only",
+      "case_id": "K-D4",
+      "label": "APPROVE",
+      "difficulty": "benign_scary",
+      "predicted": "APPROVE",
+      "confidence": 0.0,
+      "rules": [],
+      "reason": "코드 검사 결과 그대로 (finding 없음 → 통과)",
+      "calls": 0,
+      "attempts": 0,
+      "failed_requests": 0,
+      "latency_ms": 0.81,
+      "cost_usd": 0.0,
+      "error": "",
+      "model_decision": "",
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
+    },
+    {
+      "dataset": "conditions",
+      "system": "llm_only",
+      "case_id": "K-D4",
+      "label": "APPROVE",
+      "difficulty": "benign_scary",
+      "predicted": "APPROVE",
+      "confidence": 0.91,
+      "rules": [],
+      "reason": "[대역] 결정론 계층의 finding 을 그대로 채택하고, 심각도에 따라 판정했다.",
+      "calls": 1,
+      "attempts": 1,
+      "failed_requests": 0,
+      "latency_ms": 0.2,
+      "cost_usd": 0.0,
+      "error": "",
+      "model_decision": "APPROVE",
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
+    },
+    {
+      "dataset": "conditions",
+      "system": "combined",
+      "case_id": "K-D4",
+      "label": "APPROVE",
+      "difficulty": "benign_scary",
+      "predicted": "APPROVE",
+      "confidence": 0.91,
+      "rules": [],
+      "reason": "모든 가드레일 통과, 심사 신뢰도 0.91 ≥ 0.80",
+      "calls": 1,
+      "attempts": 1,
+      "failed_requests": 0,
+      "latency_ms": 3.6,
+      "cost_usd": 0.0,
+      "error": "",
+      "model_decision": "APPROVE",
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9114,11 +10440,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.32,
+      "latency_ms": 2.99,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9137,7 +10466,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9152,11 +10486,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 3.3,
+      "latency_ms": 4.9,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9171,11 +10510,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.9,
+      "latency_ms": 2.85,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9190,11 +10532,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.1,
+      "latency_ms": 0.2,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9209,11 +10556,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 3.4,
+      "latency_ms": 6.1,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9230,11 +10582,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.53,
+      "latency_ms": 2.54,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9249,11 +10604,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.1,
+      "latency_ms": 0.2,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9270,11 +10630,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 6.2,
+      "latency_ms": 9.5,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9289,11 +10654,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.0,
+      "latency_ms": 2.05,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9308,11 +10676,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.1,
+      "latency_ms": 0.2,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9327,11 +10700,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 3.4,
+      "latency_ms": 4.1,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9348,11 +10726,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 0.95,
+      "latency_ms": 2.08,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9371,7 +10752,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9388,11 +10774,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 5.9,
+      "latency_ms": 8.7,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9409,11 +10800,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.0,
+      "latency_ms": 1.98,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9428,11 +10822,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.1,
+      "latency_ms": 0.2,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9449,11 +10848,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 7.2,
+      "latency_ms": 8.8,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9470,11 +10874,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.48,
+      "latency_ms": 1.91,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9493,7 +10900,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9510,11 +10922,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 7.6,
+      "latency_ms": 9.6,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9529,11 +10946,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.57,
+      "latency_ms": 2.06,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9552,7 +10972,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9567,11 +10992,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 3.5,
+      "latency_ms": 4.0,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9588,11 +11018,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.39,
+      "latency_ms": 1.74,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9611,7 +11044,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9628,11 +11066,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 8.3,
+      "latency_ms": 7.8,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9647,11 +11090,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.44,
+      "latency_ms": 1.83,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9670,7 +11116,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9685,11 +11136,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 3.3,
+      "latency_ms": 3.6,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9706,11 +11162,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.3,
+      "latency_ms": 1.7,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9725,11 +11184,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 0.2,
+      "latency_ms": 0.3,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9746,11 +11210,16 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 6.8,
+      "latency_ms": 5.1,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9765,11 +11234,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.08,
+      "latency_ms": 0.86,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9788,7 +11260,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9803,11 +11280,16 @@
       "calls": 1,
       "attempts": 1,
       "failed_requests": 0,
-      "latency_ms": 2.1,
+      "latency_ms": 2.2,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9824,11 +11306,14 @@
       "calls": 0,
       "attempts": 0,
       "failed_requests": 0,
-      "latency_ms": 1.08,
+      "latency_ms": 0.9,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "",
+      "judged_by": {},
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9847,7 +11332,12 @@
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "APPROVE",
-      "predicted_tau": "APPROVE"
+      "predicted_tau": "APPROVE",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 1
+      },
+      "repaired_by": {}
     },
     {
       "dataset": "conditions",
@@ -9864,11 +11354,19 @@
       "calls": 2,
       "attempts": 2,
       "failed_requests": 0,
-      "latency_ms": 5.0,
+      "latency_ms": 5.5,
       "cost_usd": 0.0,
       "error": "",
       "model_decision": "REVISE",
-      "predicted_tau": ""
+      "predicted_tau": "",
+      "served_by": "mock",
+      "judged_by": {
+        "mock": 2
+      },
+      "repaired_by": {}
     }
-  ]
+  ],
+  "complete": true,
+  "incomplete_reason": [],
+  "incomplete_note": ""
 }

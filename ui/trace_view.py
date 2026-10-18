@@ -11,6 +11,7 @@ from core.config import IN_BROWSER
 from observability.tracer import Span, Trace, Tracer
 
 from .components import KIND_COLOR, STATUS_COLOR
+from .trace_redact import redacted_copy
 
 TRACES_DIR = Path(__file__).resolve().parents[1] / "traces"
 
@@ -66,7 +67,9 @@ def render(tracer: Tracer) -> None:
         st.info("아직 처리 기록이 없습니다. 광고 작업에서 실행하거나 JSON 을 불러오세요.")
         return
     key = st.selectbox("처리 기록 선택", list(sources.keys()))
-    trace = sources[key]
+    stored = sources[key]
+    # 재검사를 통과하지 못한 자동 수정안은 어느 화면에도 보여 주지 않는다 (FM-19) — 모델 입출력 원문은 사본에서 그 부분만 가려 그린다. 저장된 기록·내려받는 파일은 그대로다
+    trace = redacted_copy(stored)
     llm = trace.llm_spans()
     i_tok, o_tok = trace.total_tokens
     c = st.columns(6)
@@ -113,7 +116,7 @@ def render(tracer: Tracer) -> None:
         with st.expander("처리 기록 JSON (복사용 — 브라우저 실행판은 파일 다운로드 대신 표시)"):
             st.code(trace.to_json(), language="json")
     else:
-        st.download_button("처리 기록 JSON 내보내기", data=trace.to_json(), file_name=f"{trace.trace_id}.json", mime="application/json")
+        st.download_button("처리 기록 JSON 내보내기", data=stored.to_json(), file_name=f"{stored.trace_id}.json", mime="application/json")   # 파일은 기록 원본 그대로 (화면용 가림은 하지 않음)
     with st.expander("모델 호출 표"):
         st.dataframe([{"스팬": x.name, "task": x.attributes.get("task"), "provider": x.attributes.get("provider"), "model": x.attributes.get("model"),
                        "체인": " → ".join(x.attributes.get("fallback_chain") or []), "status": x.status, "ms": x.duration_ms,

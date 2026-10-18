@@ -3,7 +3,7 @@
 
     pip install playwright pillow && python scripts/e2e_flow.py [--out docs/screenshots]
 화면 캡처만으로 검증을 대신하지 않기 위한 스크립트다: 단계마다 기대한 글자가 보이는지, 예외 표시와 가로 넘침이 없는지, 스타일이 실제로 적용됐는지 확인하고 하나라도 어긋나면 실패(종료 코드 1)한다.
-실행 결과(검사 목록과 통과 여부)는 <out>/e2e_report.json 에 남는다. flow_*.png 여섯 장이 이 스크립트가 찍은 화면이고, 05_cases.png·06_quality.png 는 scripts/screenshot.py 가 찍는다.
+실행 결과(검사 목록과 통과 여부)는 <out>/e2e_report.json 에 남는다. flow_*.png 열 장(다섯 단계 × 데스크톱·모바일)이 이 스크립트가 찍은 화면이고, 01·02·03·04·05_cases·06_quality·07_mobile_result·08_compare 는 scripts/screenshot.py 가 찍는다.
 """
 from __future__ import annotations
 

@@ -25,7 +25,7 @@ from guardrails.policy import get_catalog
 from llm.router import Router
 from observability.tracer import Tracer
 from ui import theme
-from ui.funding import funded_by_server, server_cap as _server_cap
+from ui.funding import funded_by_server, server_cap as _server_cap, usd_text
 from ui.components import (
     checklist_rows,
     evidence_lines,
@@ -242,12 +242,18 @@ def _inputs(make_settings, server_status: dict) -> tuple[Settings, RunOptions, s
             # 서버 키를 쓰는 실행은 서버가 정한 상한(PREFLIGHT_RUN_BUDGET_USD)을 넘을 수 없다. 자기 키를 넣은 경우에만 자유롭다.
             using_server_key = funded_by_server(server_status, user_oa, user_an)   # 서버 키로 호출되는 제공자가 하나라도 있으면 서버 상한이 적용된다
             server_cap = _server_cap(server_status)
+            # 입력 칸의 범위는 상한에서 정한다: 서버 상한이 $0.01 보다 작으면 최솟값도 그 상한이고, 0 이면 0 하나뿐이다 (칸 자체가 화면을 깨뜨리지 않게)
+            lo = min(0.01, server_cap) if using_server_key else 0.01
             ss.setdefault("opt_budget", min(server_cap, 0.5) if using_server_key else 0.5)
             if using_server_key and ss.opt_budget > server_cap:
                 ss.opt_budget = server_cap
-            budget = st.number_input("실행당 비용 상한 (USD)", min_value=0.01, max_value=(server_cap if using_server_key else None), step=0.05, key="opt_budget",
+            if ss.opt_budget < lo:   # 서버 키 → 직접 넣은 키로 바뀌며 최솟값이 올라간 경우
+                ss.opt_budget = lo
+            no_paid_run = using_server_key and server_cap <= 0
+            budget = st.number_input("실행당 비용 상한 (USD)", min_value=lo, max_value=(server_cap if using_server_key else None), step=0.05, key="opt_budget",
+                                     format="%.2f" if lo >= 0.01 else "%.4f", disabled=no_paid_run,
                                      help="실제 모델 호출 비용이 이 값을 넘으면 실행을 멈추고 남은 광고안은 담당자 확인으로 둡니다. 실패한 요청의 비용은 알 수 없어 '추정' 으로 표시합니다."
-                                     + (f" 서버 키가 쓰이는 실행은 서버가 정한 상한 ${server_cap:.2f} 까지입니다." if using_server_key else ""))
+                                     + ((" 서버 운영자가 서버 키로는 실제 모델 실행을 허용하지 않았습니다 (상한 $0)." if no_paid_run else f" 서버 키가 쓰이는 실행은 서버가 정한 상한 {usd_text(server_cap)} 까지입니다.") if using_server_key else ""))
         with b2:
             ss.setdefault("opt_drill", "없음")
             drill = st.selectbox("장애 시뮬레이션 (기술 시연용 — 광고 작업에만 적용)", ["없음", "openai: timeout", "openai: schema", "anthropic: timeout", "anthropic: refusal", "mock: timeout"], key="opt_drill",
@@ -270,14 +276,21 @@ def _inputs(make_settings, server_status: dict) -> tuple[Settings, RunOptions, s
     with c1:
         st.markdown(theme.mode_pill("demo" if mode == "demo" else "live", RUN_MODE_LABEL[mode]), unsafe_allow_html=True)
         st.caption(RUN_MODE_HELP[mode])
-        if mode != "demo":
+        if mode != "demo" and no_paid_run:
+            # 서버 운영자가 실행당 상한을 0 으로 둔 경우: 서버 키로는 실제 모델을 부를 수 없다. 확인 칸도 두지 않는다 (예시 실행은 그대로 된다)
+            st.error("서버 운영자가 실행당 비용 상한을 $0 으로 정해 두어, 서버 키로는 실제 모델 실행을 할 수 없습니다. "
+                     "예시 실행(‘예시로 바로 실행’)은 그대로 쓸 수 있고, 두 제공자의 API 키를 모두 직접 넣으면 그 키로 실행할 수 있습니다.")
+            confirmed = False
+        elif mode != "demo":
             # 캠페인 구성 1 + 광고 초안 1 + 요청 되묻기 최대 1, 광고안마다 가상 반응 1 + 검토 1 + 수정안 검토 1 (교차 확인을 켜면 원문·수정안에 각각 최대 1 더)
             calls = 3 + options.n_variants * (5 if options.enable_second_opinion else 3)
-            st.warning(f"새 실제 모델 실행입니다 — 모델 호출 최대 약 {calls}회, 비용은 ${float(budget):.2f} 에서 멈춥니다 (실행당 상한)."
+            st.warning(f"새 실제 모델 실행입니다 — 모델 호출 최대 약 {calls}회, 비용은 {usd_text(float(budget))} 에서 멈춥니다 (실행당 상한)."
                        + (" 서버 키가 쓰이므로 비용은 서버 운영자 계정에 청구됩니다." if funded_by_server(server_status, user_oa, user_an) else " 직접 넣은 키만 쓰이므로 비용은 그 계정에 청구됩니다."), icon="💳")
             # 확인은 '지금 보이는 호출 수·비용·모드' 에 대한 것이다. 숫자가 바뀌거나 한 번 실행하면 다시 확인해야 한다
             payer = funded_by_server(server_status, user_oa, user_an)   # 누구 계정에 청구되는지도 확인의 일부다 — 바뀌면 다시 확인
-            sig = f"{mode}|{calls}|{float(budget):.2f}|{payer}|{len(ss.runs)}"
+            # 실행 횟수(_run_seq)는 실행을 시작할 때 올라간다. 실행이 끝나면 화면을 한 번 다시 그려(render) 이 서명이 바뀐 상태에서 체크 칸이 새로 그려지므로,
+            # 방금 쓴 확인이 켜진 채 남지 않고, 그 다음에 사용자가 누르는 체크는 서명이 그대로라 지워지지 않는다
+            sig = f"{mode}|{calls}|{float(budget):.4f}|{payer}|{ss.get('_run_seq', 0)}"
             if ss.get("_confirm_live_sig") != sig:
                 ss["_confirm_live_sig"] = sig
                 ss["confirm_live_run"] = False
@@ -288,22 +301,24 @@ def _inputs(make_settings, server_status: dict) -> tuple[Settings, RunOptions, s
 
 
 # --- 실행 ---------------------------------------------------------------------
-def _execute(settings: Settings, options: RunOptions, tracer: Tracer, router_factory, mode: str) -> None:
+def _execute(settings: Settings, options: RunOptions, tracer: Tracer, router_factory, mode: str) -> bool:
+    """실행을 시작했으면 True (끝났거나 도중에 멈췄거나), 시작하지 않았으면 False."""
     ss = st.session_state
     form = _form()
     fp = input_fingerprint(form)
     last = ss.get("last_run_fp")
     if ss.running:
         st.info("이미 실행 중입니다. 끝나면 결과가 아래에 나타납니다.")
-        return
+        return False
     if last == fp and time.time() - ss.get("last_run_t", 0) < 3:
         st.info("같은 입력으로 방금 실행했습니다. 결과는 아래에 있습니다.")
-        return
+        return False
     try:
         brief = build_brief(form)
     except Exception as e:  # noqa: BLE001
         st.error(f"입력을 해석할 수 없습니다: {e}. 입력은 그대로 남아 있으니 고친 뒤 다시 눌러 주세요.")
-        return
+        return False
+    ss._run_seq = ss.get("_run_seq", 0) + 1   # 비용 확인 체크는 '이 실행' 에 쓰였다 — 다음에 그릴 때 서명이 달라져 다시 확인하게 된다
     ss.running = True
     router: Router = router_factory(settings)
     done_steps: list[str] = []
@@ -354,6 +369,7 @@ def _execute(settings: Settings, options: RunOptions, tracer: Tracer, router_fac
     for r in run.reports:
         if r.final_decision == Decision.REJECT:
             ss.rejected_history.append(r.ad_copy.core_text())
+    return True
 
 
 # --- 결과 ---------------------------------------------------------------------
@@ -381,7 +397,7 @@ def _state_banner(entry: dict, stale: bool) -> None:
                    else "광고안 검사와 판정은 정상적으로 끝났습니다."), icon="ℹ️")
 
 
-def _summary(entry: dict) -> None:
+def _summary(entry: dict, tracer: Tracer | None = None) -> None:
     run: PipelineRun = entry["run"]
     decisions = [r.final_decision for r in run.reports]
     cost = f"${run.total_cost_usd:.4f}"
@@ -395,7 +411,11 @@ def _summary(entry: dict) -> None:
     else:
         cols[2].markdown(theme.stat("모델 호출", f"{entry.get('calls', 0)}회", f"요청 {entry.get('attempts', 0)}회" + (f" · 실패 {entry['failed_attempts']}회" if entry.get("failed_attempts") else "")), unsafe_allow_html=True)
     cols[3].markdown(theme.stat("비용 · 시간", f"{cost} · {run.total_latency_ms/1000:.1f}초", "실패한 요청이 있어 추정치" if entry.get("cost_estimated") else ("실제 호출 없음" if entry["mode"] == "demo" else "제공자 사용량 기준")), unsafe_allow_html=True)
-    st.caption(f"실행 {entry['at'].strftime('%Y-%m-%d %H:%M:%S')} · 처리 기록 {run.trace_id} (품질 확인 › 처리 기록에서 단계별로 볼 수 있습니다)")
+    when = f"실행 {entry['at'].strftime('%Y-%m-%d %H:%M:%S')} · 처리 기록 {run.trace_id}"
+    if tracer is None or any(t.trace_id == run.trace_id for t in tracer.traces):
+        st.caption(when + " (품질 확인 › 처리 기록에서 단계별로 볼 수 있습니다)")
+    else:   # 세션의 처리 기록 보관 개수(Tracer.max_traces)를 넘으면 오래된 것부터 지워진다 — 다시 검사도 기록 하나로 센다
+        st.caption(when + f" — 이 세션은 처리 기록을 최근 {tracer.max_traces}개까지만 보관해서 이 기록은 지워졌습니다 (다시 검사도 기록 하나로 셉니다)")
 
 
 def _intercept(entry: dict, catalog) -> None:
@@ -554,7 +574,10 @@ def _edit_and_recheck(rep: PreflightReport, entry: dict, catalog, tracer: Tracer
         history = [x for x in ss.rejected_history if x != rep.ad_copy.core_text()]  # 고치고 있는 광고 자신(수정 전 원문)은 '다른 반려 광고' 가 아니다. 시도마다 달라지지 않는 기준이라 재사용 키가 흔들리지 않는다
         # 재사용 키: 문구뿐 아니라 상품 정보·랜딩·검사 기준·프롬프트·모델·판정 기준이 같을 때만 이전 결과를 다시 쓴다
         so = bool(entry.get("second_opinion", False))   # 처음 검사와 같은 조건: 그 실행에서 교차 확인을 켰다면 재검사도 같은 경계 사례에서 교차 확인을 받는다
-        categories = recheck_categories(catalog, brief.product, edited, entry["run"].categories)   # 처음 검사에 적용한 업종 + 고친 문구가 가져오는 업종
+        # 처음 검사에 적용한 업종 = 실행 업종 + 이 광고안의 원문이 가져온 단서 (파이프라인이 광고안마다 정하는 값과 같다). 거기에 고친 문구가 가져오는 업종을 더한다.
+        # 자동 수정안 검사와 같은 문구가 같은 결론을 내려면 두 경로가 같은 업종을 봐야 한다 — 실행 업종만 쓰면 원문의 단서(예: 커머스 광고 속 '대출')가 빠진다
+        first_check_categories = recheck_categories(catalog, brief.product, rep.ad_copy, entry["run"].categories)
+        categories = recheck_categories(catalog, brief.product, edited, first_check_categories)
         key = recheck_key(edited, brief.product, entry.get("landing", ""), settings, catalog, history, so, categories)
         blank = not (h.strip() or b.strip())
         last_try = hist.latest_for(key)
@@ -562,13 +585,18 @@ def _edit_and_recheck(rep: PreflightReport, entry: dict, catalog, tracer: Tracer
         rerun_after = False
         recheck_ok = True
         if live_recheck and hist.reusable_for(key) is None:
-            st.warning(f"실제 모델을 부릅니다 — 이 문구를 다시 검사하면 모델 호출 최대 {4 if so else 2}회, 비용은 ${settings.run_budget_usd:.2f} 에서 멈춥니다.", icon="💳")
-            csig = f"{key}|{len(hist.attempts)}|{settings.run_budget_usd:.2f}|{funded_by_server(ss.get('_server_status', {}), *ss.get('user_keys', ('', '')))}"
-            ckey = f"confirm_recheck_{vid}"
-            if ss.get("_" + ckey) != csig:
-                ss["_" + ckey] = csig
-                ss[ckey] = False
-            recheck_ok = st.checkbox("위 비용 상한을 확인했고 실제 모델로 다시 검사합니다", key=ckey)
+            sstat = ss.get("_server_status", {})
+            if funded_by_server(sstat, *ss.get("user_keys", ("", ""))) and _server_cap(sstat) <= 0:
+                st.error("서버 운영자가 실행당 비용 상한을 $0 으로 정해 두어, 서버 키로는 실제 모델로 다시 검사할 수 없습니다. 직접 쓸 API 키를 모두 넣은 뒤 다시 시도하세요.")
+                recheck_ok = False
+            else:
+                st.warning(f"실제 모델을 부릅니다 — 이 문구를 다시 검사하면 모델 호출 최대 {4 if so else 2}회, 비용은 {usd_text(settings.run_budget_usd)} 에서 멈춥니다.", icon="💳")
+                csig = f"{key}|{len(hist.attempts)}|{settings.run_budget_usd:.4f}|{funded_by_server(sstat, *ss.get('user_keys', ('', '')))}"
+                ckey = f"confirm_recheck_{vid}"
+                if ss.get("_" + ckey) != csig:
+                    ss["_" + ckey] = csig
+                    ss[ckey] = False
+                recheck_ok = st.checkbox("위 비용 상한을 확인했고 실제 모델로 다시 검사합니다", key=ckey)
         if blank:
             st.warning("제목과 본문이 모두 비어 있어 검사할 수 없습니다. 문구를 입력해 주세요.", icon="⚠️")
         if st.button(label, key=f"recheck_{vid}", type="primary", disabled=bool(ss.running) or not recheck_ok or blank):
@@ -606,9 +634,14 @@ def _recheck_result(res: RecheckResult, *, current: bool, hist: RecheckHistory, 
                 f"{' · ≈ $%.4f (추정)' % res.cost_usd if res.cost_estimated else ' · $%.4f' % res.cost_usd}</span>", unsafe_allow_html=True)
     if current:
         st.caption(_usage_line(hist.usage_for(key)))
-    st.markdown(f"<div class='pf-reason'>{html.escape(plain_reason(r2, catalog))}</div>", unsafe_allow_html=True)
-    render_ad(r2.ad_copy, r2.verdict.findings, title="검사한 문구" if current else "이전에 검사한 문구", catalog=catalog)
     fs = [f for f in r2.verdict.findings if f.verified_quote or f.layer.value != "semantic"]
+    # 이유는 한 번만 (광고안 카드와 같은 규칙): 구절별 이유가 아래 목록에 있으면 한 줄 요약을 따로 쓰지 않고, 호출 실패는 위 오류 상자가,
+    # 담당자 확인은 아래 안내 상자가, 통과는 아래 통과 상자가 이미 말한다. 그 밖의 경우(구절이 없는 판정·이전 문구의 결과)에만 이유 한 줄을 쓴다.
+    d = r2.final_decision
+    reason_elsewhere = res.failed or d == Decision.HUMAN_REVIEW or (d in (Decision.REVISE, Decision.REJECT) and bool(fs)) or (d == Decision.APPROVE and current and not fs)
+    if not reason_elsewhere:
+        st.markdown(f"<div class='pf-reason'>{html.escape(plain_reason(r2, catalog))}</div>", unsafe_allow_html=True)
+    render_ad(r2.ad_copy, r2.verdict.findings, title="검사한 문구" if current else "이전에 검사한 문구", catalog=catalog)
     if fs:
         st.markdown("**확인이 필요한 구절**")
         for f, n in unique_findings(fs, catalog):
@@ -736,7 +769,7 @@ def _results(entry: dict, catalog, tracer: Tracer, router_factory, make_settings
     stale = entry["fingerprint"] != input_fingerprint(_form())
     _state_banner(entry, stale)
     run: PipelineRun = entry["run"]
-    _summary(entry)
+    _summary(entry, tracer)
     _intercept(entry, catalog)
     if run.halted and not run.reports:
         _failures(entry)
@@ -779,8 +812,8 @@ def render(make_settings, tracer: Tracer, router_factory, server_status: dict) -
         clicked = True
     if force_demo:
         settings, mode = dataclasses.replace(settings, force_demo=True), "demo"   # 예시로 바로 실행 · 검사 사례의 '예시로 열기' 는 항상 AI 호출 없는 예시 실행
-    if clicked:
-        _execute(settings, options, tracer, router_factory, mode)
+    if clicked and _execute(settings, options, tracer, router_factory, mode):
+        st.rerun()   # 방금 쓴 비용 확인을 지운 상태로 입력 칸을 다시 그린다 (체크 칸은 이미 그려진 뒤라 이 실행 안에서는 바꿀 수 없다). 결과는 세션에 있어 그대로 나온다
     if not ss.runs:
         _empty_state()
         return

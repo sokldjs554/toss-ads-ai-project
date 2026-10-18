@@ -232,11 +232,12 @@ def test_consecutive_provider_failures_abort_the_comparison_and_nothing_is_saved
     assert compare_allowed(rep)[0] is False
 
     written = []
+    monkeypatch.setattr("evals.runner.REPORTS", tmp_path)                         # 실제 reports 폴더를 건드리지 않는다
     monkeypatch.setattr(compare, "save_report", lambda r, name="x.json": written.append(name))
     monkeypatch.setattr(compare, "run_compare", lambda *a, **k: rep)
     monkeypatch.setenv("PREFLIGHT_FORCE_DEMO", "1")
     assert compare.main(["--datasets", "golden", "--systems", "llm_only", "--out", "compare_live.json"]) == 2
-    assert written == ["compare_failed.json"]                                     # 저장하지 않는 결과는 추적하지 않는 파일에만
+    assert written == ["compare_live_incomplete.json"]                            # 완료되지 못한 결과는 compare_live.json 이 아니라 완료되지 않은 실행 파일에만 (측정한 행은 남긴다)
 
 
 def test_llm_only_retries_once_after_a_transient_failure(monkeypatch):

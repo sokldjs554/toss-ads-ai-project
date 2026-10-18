@@ -11,5 +11,22 @@ def funded_by_server(server_status: dict, user_openai_key: str, user_anthropic_k
     return (bool(server_status.get("openai")) and not (user_openai_key or "").strip()) or (bool(server_status.get("anthropic")) and not (user_anthropic_key or "").strip())
 
 
+DEFAULT_CAP_USD = 0.5   # 서버가 상한을 알려 주지 않을 때(설정 자체가 없을 때)만 쓰는 값
+
+
 def server_cap(server_status: dict) -> float:
-    return float(server_status.get("run_budget_usd") or 0.5)
+    """서버 키로 도는 실행의 실행당 비용 상한(USD). 0 은 '실제 모델 실행을 허용하지 않음' 이다 — 0.5 로 바꿔 읽지 않는다.
+    숫자가 아니거나 0 이하(음수·NaN 포함)인 값도 허용하지 않음(0)으로 읽는다. 설정 항목이 아예 없을 때만 기본값을 쓴다."""
+    raw = server_status.get("run_budget_usd")
+    if raw is None:
+        return DEFAULT_CAP_USD
+    try:
+        cap = float(raw)
+    except (TypeError, ValueError):
+        return 0.0
+    return cap if cap > 0 else 0.0   # NaN 은 비교가 모두 거짓이라 여기서 0 이 된다
+
+
+def usd_text(value: float) -> str:
+    """비용 상한 표기. 0.01 달러보다 작은 양수 상한은 소수 넷째 자리까지 적어 '$0.01' 로 부풀려 보이지 않게 한다."""
+    return f"${value:.2f}" if value <= 0 or value >= 0.01 else f"${value:.4f}"

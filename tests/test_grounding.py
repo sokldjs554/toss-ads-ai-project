@@ -191,7 +191,8 @@ def test_exclude_condition_quote_has_no_leading_space_and_stays_on_one_line():
     assert "\n" not in f.quote and f.quote.startswith("제외")      # 앞 줄(헤드라인)로 번지지 않는다
 
 
-LONG_INPUTS = {"hangul": "가" * 50_000, "digits": "1" * 50_000, "exclude": "제외 " * 12_000, "at-signs": "a@" * 20_000, "commas": "1,2" * 15_000}
+LONG_INPUTS = {"hangul": "가" * 50_000, "digits": "1" * 50_000, "exclude": "제외 " * 12_000, "at-signs": "a@" * 20_000, "commas": "1,2" * 15_000,
+               "dashes": "-" * 50_000, "dots": "." * 50_000, "parens": "(" * 50_000, "dash-space": "- " * 25_000, "stars": "*" * 50_000}   # 장식 문자가 이어진 입력 (정규화가 제곱 시간이던 것)
 
 
 @pytest.mark.parametrize("name", list(LONG_INPUTS))

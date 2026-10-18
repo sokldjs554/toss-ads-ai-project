@@ -1,31 +1,32 @@
 name: live-eval
 # 실제 모델로 평가·레드팀·트레이스를 기록하고 결과를 저장소에 커밋한다.
 # 수동 실행(Actions 탭 → live-eval → Run workflow). 저장소 Secrets: OPENAI_API_KEY 또는 OPEN_API_KEY (필수), ANTHROPIC_API_KEY (선택 — 있으면 하이브리드 LIVE).
+# 두 가지 실행이 있고 서로 겹치지 않는다: compare 를 켜면 방식 비교(compare 작업)만 돌고 live 작업은 건너뛴다. 끄면(기본) live 작업만 돈다.
 on:
   workflow_dispatch:
     inputs:
       evals:
-        description: "골든셋·holdout·contrast 평가 실행 (끄면 레드팀·트레이스만 — 이미 잰 평가를 다시 돌려 비용을 쓰지 않으려고)"
+        description: "골든셋·holdout·contrast 평가 실행 (끄면 레드팀·트레이스만 — 이미 잰 평가를 다시 돌려 비용을 쓰지 않으려고). compare 를 켜면 무시된다"
         type: boolean
         default: true
       limit:
-        description: "골든셋 사례 수 제한 (비우면 전부)"
+        description: "골든셋 사례 수 제한 (비우면 전부). compare 를 켜면 무시된다"
         required: false
         default: ""
       redteam:
-        description: "레드팀 실행 + 돌파 사례 수확"
+        description: "레드팀 실행 + 돌파 사례 수확. compare 를 켜면 무시된다"
         type: boolean
         default: true
       traces:
-        description: "시나리오 5개 실제 트레이스 기록"
+        description: "시나리오 5개 실제 트레이스 기록. compare 를 켜면 무시된다"
         type: boolean
         default: true
       compare:
-        description: "방식 비교(코드 검사만·검토 모델만·합친 방식) 실제 모델 실행 — 기본 꺼짐. 승인된 호출 수·비용 범위에서만 켠다"
+        description: "방식 비교(코드 검사만·검토 모델만·합친 방식)만 실제 모델로 실행 — 기본 꺼짐. 켜면 evals·redteam·traces 입력과 상관없이 위 평가·레드팀·트레이스(live 작업)는 돌지 않고 방식 비교만 돈다. 승인된 호출 수·비용 범위에서만 켠다"
         type: boolean
         default: false
       compare_cost_cap:
-        description: "방식 비교 누적 비용 상한 (USD) — 넘으면 중단하고 결과를 저장하지 않는다"
+        description: "방식 비교 누적 비용 상한 (USD) — 닿으면 즉시 멈추고, 측정한 사례까지만 완료되지 않은 실행 파일(compare_live_incomplete.json)로 남긴다"
         required: false
         default: "3.5"
 permissions:
@@ -35,6 +36,8 @@ concurrency:
   cancel-in-progress: false
 jobs:
   live:
+    # compare 를 켠 실행에서는 건너뛴다 — 방식 비교만 승인된 예산으로 돌리고 평가·레드팀·트레이스(유료 4단계)가 딸려 돌지 않게
+    if: ${{ github.event.inputs.compare != 'true' }}
     runs-on: ubuntu-latest
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || secrets.OPEN_API_KEY }}
@@ -97,16 +100,17 @@ jobs:
             evals/reports/*.json
             traces/*.json
   compare:
-    # 방식 비교(코드 검사만·검토 모델만·합친 방식)는 별도 작업이다 — 실패(종료 코드 2: 장애 혼입·비용 상한)해도 위 작업의 결과 커밋을 막지 않고,
-    # 위 작업이 실패해도(예: 다른 실행 입력) 이 비교만 따로 돌릴 수 있다. 기본은 꺼짐: 승인된 호출 수·비용 범위에서만 켠다.
-    needs: live
-    if: ${{ always() && github.event.inputs.compare == 'true' }}
+    # 방식 비교(코드 검사만·검토 모델만·합친 방식)는 compare 입력을 켠 실행에서 이 작업 하나만 돈다 (live 작업은 건너뜀). 기본은 꺼짐: 승인된 호출 수·비용 범위에서만 켠다.
+    # 완료된 결과만 compare_live.json 으로 커밋한다. 끝까지 마치지 못한 실행(비용 상한·호출 실패·다른 제공자 혼입·연속 실패 중단, 종료 코드 2)은
+    # 측정한 행까지 compare_live_incomplete.json 에 남겨 커밋하고, compare_live.json 은 만들지 않는다.
+    if: ${{ github.event.inputs.compare == 'true' }}
     runs-on: ubuntu-latest
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || secrets.OPEN_API_KEY }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-4o' }}
       ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL || 'claude-sonnet-5-5' }}
+      COMPARE_COST_CAP: ${{ github.event.inputs.compare_cost_cap || '3.5' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -117,25 +121,35 @@ jobs:
       - run: pip install -r requirements.txt
       - name: 키 확인 (키가 없으면 DEMO 로 돌아가 버리므로 여기서 멈춘다)
         run: |
-          if [ -z "$OPENAI_API_KEY" ] && [ -z "$ANTHROPIC_API_KEY" ]; then
-            echo "::error::Secrets 에 OPENAI_API_KEY 또는 ANTHROPIC_API_KEY 가 없습니다."; exit 1; fi
+          # 승인받은 비교는 OpenAI 모델로 하는 것이다 — 그 키가 없으면(Anthropic 키만 있으면) 다른 모델을 재게 되므로 여기서 멈춘다
+          if [ -z "$OPENAI_API_KEY" ]; then
+            echo "::error::Secrets 에 OPENAI_API_KEY 가 없습니다. 승인받은 방식 비교는 OpenAI 모델로 재는 것이라 이 키 없이는 돌리지 않습니다."; exit 1; fi
           python -c "from core.config import Settings; s=Settings.from_env(); print('mode =', s.mode.value, '| openai:', s.has_openai, s.openai_model, '| anthropic:', s.has_anthropic, s.anthropic_model)"
-      - name: 방식 비교 — 호출 수·예상 비용 출력 후 실행 (실제 모델) → compare_live.json
-        # 비용 상한을 넘기거나 제공자 장애가 섞이면 저장하지 않고 종료 코드 2
-        run: |
-          python -m evals.compare --estimate
-          python -m evals.compare --cost-cap ${{ github.event.inputs.compare_cost_cap || '3.5' }} --out compare_live.json
+      - name: 방식 비교 — 호출 수·추정 비용 범위 출력 (호출 없음)
+        run: python -m evals.compare --estimate --datasets golden,holdout,contrast_g069,conditions --cost-cap "$COMPARE_COST_CAP"
+      - name: 방식 비교 실행 (실제 모델) → 완료되면 compare_live.json, 아니면 compare_live_incomplete.json
+        id: run_compare
+        # 비용 상한에 닿으면 즉시 멈추고, 호출 실패·다른 제공자 혼입·연속 실패로 끝나도 측정한 행은 compare_live_incomplete.json 에 남긴다. 완료되지 못한 실행은 종료 코드 2
+        run: python -m evals.compare --datasets golden,holdout,contrast_g069,conditions --cost-cap "$COMPARE_COST_CAP" --out compare_live.json
       - name: 결과 커밋
+        # 앞 단계가 종료 코드 2 로 끝나도(완료되지 못한 실행) 측정한 행을 잃지 않게 항상 돈다. compare_live.json 은 종료 코드 0 인 실행의 것만 올린다
+        if: ${{ always() }}
+        env:
+          RUN_OUTCOME: ${{ steps.run_compare.outcome }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [ -f evals/reports/compare_live.json ]; then git add evals/reports/compare_live.json; fi
+          if [ "$RUN_OUTCOME" = "success" ] && [ -f evals/reports/compare_live.json ]; then git add evals/reports/compare_live.json; fi
+          if [ -f evals/reports/compare_live_incomplete.json ]; then git add evals/reports/compare_live_incomplete.json; fi
+          for f in evals/reports/history/compare_live*.json; do if [ -f "$f" ]; then git add "$f"; fi; done
           if git diff --cached --quiet; then echo "변경 없음"; exit 0; fi
-          git commit -m "live-eval: 방식 비교 실제 모델 결과 (run ${{ github.run_id }})"
-          git pull --rebase origin main
+          git commit -m "live-eval: 방식 비교 실제 모델 실행 기록 (run ${{ github.run_id }})"
+          git pull --rebase --autostash origin main
           git push
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: compare-reports
-          path: evals/reports/compare_*.json
+          path: |
+            evals/reports/compare_*.json
+            evals/reports/history/compare_live*.json

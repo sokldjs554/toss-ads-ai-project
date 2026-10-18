@@ -14,7 +14,7 @@ from guardrails.policy import get_catalog
 from agents.prompts import PROMPT_VERSION
 from observability.tracer import Tracer
 from ui import catalog_view, compare_view, redteam_view, theme, trace_view
-from ui.funding import funded_by_server, server_cap
+from ui.funding import funded_by_server, server_cap, usd_text
 from ui.labels import RUN_MODE_NAME, METRIC, fraction_sentence, pct
 
 SLICE = {"clear": "명백한 위반", "evasion": "우회 표현", "injection": "숨은 지시문", "gray": "경계 사례(수정 필요)", "benign_scary": "무서운 단어가 있지만 문제없음", "semantic_only": "모델만 잡을 수 있는 사례"}
@@ -171,10 +171,15 @@ def _eval_section(make_settings, router_factory, server_status: dict) -> None:
             using_server_key = funded_by_server(server_status, "", "")
         cap = server_cap(server_status) if using_server_key else None
         approved = True
-        if plan["live"]:
+        if plan["live"] and cap is not None and cap <= 0:
+            # 서버 운영자가 상한을 0 으로 둔 경우: 서버 키로는 실제 모델 평가를 돌릴 수 없다 (평가 데이터를 코드 검사만으로 돌리는 것은 그대로 된다)
+            st.error("서버 운영자가 실행당 비용 상한을 $0 으로 정해 두어, 서버 키로는 실제 모델 평가를 돌릴 수 없습니다. "
+                     "‘검토 모델 포함’ 을 끄면 코드 검사만으로 돌릴 수 있고, 직접 쓸 API 키를 모두 넣으면 그 키로 돌릴 수 있습니다.")
+            approved = False
+        elif plan["live"]:
             est = f"약 ${plan['est_cost']:.2f} (5차 실제 모델 실행의 사례당 평균 비용 기준 추정)" if plan["est_cost"] is not None else "알 수 없음"
             st.warning(f"실제 모델을 부릅니다 — 모델 호출 약 {plan['est_calls']}회, 예상 비용 {est}."
-                       + (f" 서버 키로 도는 평가는 서버가 정한 상한 ${cap:.2f} 에서 멈추고, 멈추면 결과에 장애로 표시합니다." if cap is not None else " 직접 넣은 키로 도는 평가라 비용은 그 계정에 청구됩니다."), icon="💳")
+                       + (f" 서버 키로 도는 평가는 서버가 정한 상한 {usd_text(cap)} 에서 멈추고, 멈추면 결과에 장애로 표시합니다." if cap is not None else " 직접 넣은 키로 도는 평가라 비용은 그 계정에 청구됩니다."), icon="💳")
             # 확인은 지금 보이는 호출 수·비용·데이터·설정에 대한 것이다 — 바뀌거나 한 번 실행하면 다시 확인해야 한다
             sig = f"{ds}|{int(limit)}|{use_llm}|{settings.mode.value}|{plan['est_calls']}|{cap}|{source}|{ss.get('eval_runs', 0)}"
             if ss.get("_eval_confirm_sig") != sig:

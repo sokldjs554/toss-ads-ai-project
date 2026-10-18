@@ -3,11 +3,17 @@ from __future__ import annotations
 
 import streamlit as st
 
-from evals.compare import SYSTEM_LABEL, estimate
+from evals.compare import CONTROLLED_NAME, INCOMPLETE_NAME, LIVE_NAME, SYSTEM_LABEL, compare_allowed, estimate
 from evals.runner import load_report
 from ui.labels import RUN_MODE_NAME, pct
 
 SPLIT_LABEL = {"dev": "개발용 사례 (규칙·프롬프트를 고치는 데 쓴 사례)", "holdout": "최종 확인용 사례 (규칙을 고친 뒤 처음 쓴 사례)"}
+# 완료되지 않은 실행의 사유 코드(evals.compare.incomplete_reasons) → 화면 문구
+REASON_LABEL = {
+    "cost_cap_reached": "비용 상한에 닿아 멈춤", "cost_over_cap": "모든 사례를 마쳤지만 비용이 상한을 넘음", "consecutive_failures": "모델 호출 실패가 연속되어 멈춤",
+    "consecutive_fallback": "다른 제공자가 연속으로 판정해 멈춤", "failed_rows": "모델 호출이 실패한 행이 있음", "mixed_provider": "기준 제공자가 아닌 제공자가 판정한 행이 있음",
+    "partial_scope": "승인된 전체 범위를 실행하지 않음", "cases_not_run": "실행하지 못한 사례가 남음", "aborted": "중간에 멈춤",
+}
 
 
 def _row(name: str, m: dict) -> dict:
@@ -36,8 +42,9 @@ def _table(rep: dict, split: str) -> None:
 
 def _report(rep: dict) -> None:
     s = rep["settings"]
-    st.caption(f"실행 {str(rep['generated_at'])[:10]} · 실행 방식 {RUN_MODE_NAME.get(s['mode'], s['mode'])} · 모델 {s['openai_model']} · 검토 프롬프트 {s['reviewer_prompt_version']} · 비교용 프롬프트 {s['llm_only_prompt_version']} · "
-               f"검사 기준 {s['policy_version']} · 자동 판정 확신 기준 {s['threshold']}")
+    st.caption(f"실행 {str(rep['generated_at'])[:10]} · 실행 방식 {RUN_MODE_NAME.get(s['mode'], s['mode'])} · 모델 {rep.get('model') or s['openai_model']} · 검토 프롬프트 {s['reviewer_prompt_version']} · "
+               f"비교용 프롬프트 {s['llm_only_prompt_version']} · 검사 기준 {s['policy_version']} · 자동 판정 확신 기준 {s['threshold']}")
+    _provider_line(rep)
     if rep["run_kind"] == "controlled":
         st.warning(rep["run_kind_note"], icon="⚠️")
         for k, sys in rep["systems"].items():
@@ -69,6 +76,40 @@ def _report(rep: dict) -> None:
                 st.markdown(f"- `{it['dataset']}:{it['case_id']}` 정답 {it['label']} — " + " / ".join(f"{SYSTEM_LABEL[k]} {v['predicted']}" for k, v in it.items() if k in SYSTEM_LABEL))
 
 
+def _provider_line(rep: dict) -> None:
+    """누가 판정했는가 — 기준 제공자가 아닌 쪽이 판정한 행이 있으면 숨기지 않고 적는다."""
+    served = rep.get("served_by")
+    if not served or rep["run_kind"] == "controlled":
+        return
+    st.caption("판정한 제공자: " + " · ".join(f"{p} {k}회" for p, k in served.items()) + f" (기준 제공자 {rep.get('provider', '?')})")
+    if rep.get("repaired_by"):
+        st.caption("형식만 다른 제공자가 고친 응답(판단은 위 제공자): " + " · ".join(f"{p} {k}회" for p, k in rep["repaired_by"].items()))
+    mixed = (rep.get("mixed_provider") or {}).get("n", 0)
+    if mixed:
+        st.warning(f"기준 제공자가 아닌 제공자가 판정한 행이 {mixed}건 있습니다 — 그 행은 이 모델의 측정이 아닙니다.", icon="⚠️")
+
+
+def _incomplete(rep: dict) -> None:
+    """끝까지 마치지 못한 실제 모델 실행 — 측정한 사례만 보여 주며 세 방식 비교의 결과로 읽히지 않게 따로 둔다."""
+    st.markdown("### 완료되지 않은 실행 — 측정한 사례만의 수치 (세 방식 비교의 결과가 아님)")
+    st.error(rep.get("incomplete_note") or "이 실행은 끝까지 마치지 못했습니다. 측정한 사례만의 수치이며 세 방식 비교의 결과가 아닙니다.")
+    reasons = rep.get("incomplete_reason") or []
+    if reasons:
+        st.markdown("**완료되지 않은 이유**\n" + "\n".join(f"- {REASON_LABEL.get(c, c)}" for c in reasons))
+    counts = rep.get("case_counts") or {}
+    if counts:
+        st.dataframe([{"데이터": ds, "마친 사례": c["completed"], "전체 사례": c["total"], "호출이 실패한 행": c.get("failed_rows", 0)} for ds, c in counts.items()], width="stretch", hide_index=True)
+    cost = rep.get("cost") or {}
+    if cost:
+        cap = f" · 상한 ${cost['cap_usd']:.2f}" if cost.get("cap_usd") is not None else ""
+        st.caption(f"실행 {str(rep['generated_at'])[:10]} · 쓴 비용 ${cost.get('spent_usd', 0):.2f}{cap} · 모델 {rep.get('model', '?')}")
+    _provider_line(rep)
+    with st.expander("측정한 사례만의 수치 — 세 방식 비교의 결과로 읽지 마세요"):
+        st.caption("아래 표는 이 실행이 마친 사례만 센 값입니다. 사례 수가 데이터마다 다르고 일부 데이터는 아예 없을 수 있어 방식끼리 비교하는 근거가 되지 않습니다.")
+        for split in ("dev", "holdout"):
+            _table(rep, split)
+
+
 def _provenance(rep: dict) -> None:
     st.markdown("**비교에 쓴 데이터의 출처**")
     rows = []
@@ -95,27 +136,50 @@ def _changes(rep: dict) -> None:
             st.caption(eff["reading"])
 
 
+def _load_sources() -> tuple[dict | None, dict | None, dict | None, list[str]]:
+    """저장된 세 종류의 결과를 이름과 내용이 맞는 것만 그 자리에 올린다 — 대역 결과·완료되지 않은 실행이 ‘실제 모델 결과’ 자리에 오르지 않게."""
+    live, ctrl, inc = load_report(LIVE_NAME), load_report(CONTROLLED_NAME), load_report(INCOMPLETE_NAME)
+    notes: list[str] = []
+    if live and not (live.get("run_kind") == "live" and compare_allowed(live)[0]):
+        notes.append(f"{LIVE_NAME} 의 내용이 ‘끝까지 마친 실제 모델 결과’ 가 아니라서(실행 종류 {live.get('run_kind')}) 실제 모델 결과로 보여 주지 않습니다.")
+        live = None
+    if ctrl and ctrl.get("run_kind") != "controlled":
+        notes.append(f"{CONTROLLED_NAME} 의 내용이 대역 결과가 아니라서(실행 종류 {ctrl.get('run_kind')}) 보여 주지 않습니다.")
+        ctrl = None
+    if inc and inc.get("run_kind") != "live_incomplete":
+        notes.append(f"{INCOMPLETE_NAME} 의 내용이 ‘완료되지 않은 실행’ 이 아니라서(실행 종류 {inc.get('run_kind')}) 보여 주지 않습니다.")
+        inc = None
+    return live, ctrl, inc, notes
+
+
 def render() -> None:
     st.markdown("## 방식 비교")
     st.markdown("같은 고정 사례를 **코드 검사만**, **검토 모델만**, **둘을 합친 방식**(현재 서비스)으로 판정해 나란히 봅니다. 숫자는 이 데이터·이 설정에서 관측된 값이며, "
                 "시간이나 심사 승인율이 얼마나 나아진다는 주장이 아닙니다.")
-    live = load_report("compare_live.json")
-    ctrl = load_report("compare_controlled.json")
-    any_rep = live or ctrl
+    live, ctrl, inc, notes = _load_sources()
+    for n in notes:
+        st.warning(n, icon="⚠️")
+    any_rep = live or inc or ctrl
     if any_rep:
         with st.expander("각 방식이 받는 정보", expanded=False):
             names = list(any_rep["systems"].keys())
             keys = list(any_rep["systems"][names[0]]["info_given"].keys())
             st.dataframe([{"받는 정보": k, **{SYSTEM_LABEL[n]: any_rep["systems"][n]["info_given"][k] for n in names}} for k in keys], width="stretch", hide_index=True)
     if live:
-        st.markdown("### 실제 모델 결과")
+        st.markdown("### 실제 모델 결과 (끝까지 마친 실행)")
         _report(live)
     else:
         e = estimate(["golden", "holdout", "contrast_g069", "conditions"], ("code_only", "llm_only", "combined"))
-        st.info("**실제 모델로 돌린 비교 결과는 아직 없습니다** (실행 승인 대기). 실행하면 모델 호출 약 "
-                f"{e['total_calls']}회, 예상 비용 약 ${e['total_cost_usd']:.2f} 입니다 ({e['cases']}건 × 세 방식). 코드 검사만의 결과는 아래에서 이미 볼 수 있습니다.", icon="⏳")
+        wait = "끝까지 마친 실행이 없습니다 — 아래 ‘완료되지 않은 실행’ 은 이 비교의 결과가 아닙니다" if inc else "실행 승인 대기"
+        cost = f"추정 비용 ${e['cost_range_usd']['low']:.2f} ~ ${e['cost_range_usd']['high']:.2f} (중간 ${e['cost_range_usd']['central']:.2f}, 상한 ${e['cap_usd']:.2f})" if e.get("cost_range_usd") else "추정 비용은 계산하지 못했습니다"
+        st.info(f"**실제 모델로 돌린 비교 결과는 아직 없습니다** ({wait}). 실행하면 모델 호출 약 {e['total_calls']}회, {cost} 입니다 ({e['cases']}건 × 세 방식, 모두 추정). "
+                "코드 검사만의 결과는 아래에서 이미 볼 수 있습니다.", icon="⏳")
+        for w in e.get("warnings", []):
+            st.warning(w, icon="⚠️")
+    if inc:
+        _incomplete(inc)
     if ctrl:
-        with st.expander("하네스 검증용 — 대역(통제된 응답)으로 돌린 결과 · 모델 품질 아님", expanded=not live):
+        with st.expander("하네스 검증용 — 대역(통제된 응답)으로 돌린 결과 · 모델 품질 아님", expanded=not live and not inc):
             _report(ctrl)
     if any_rep:
         _provenance(any_rep)

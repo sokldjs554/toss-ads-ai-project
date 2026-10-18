@@ -38,6 +38,13 @@ FOLD_MAP: dict[str, str] = {
 
 _DECOR = set(" \t\r\n.·•・∙‧,|/\\-_*~^'\"`“”‘’()[]{}<>!?:;")
 _HANGUL = re.compile(r"[가-힣]")
+_WEEKDAYS = set("월화수목금토일")
+
+
+def _is_weekday_paren(chars: list[str], start: int, end: int) -> bool:
+    """chars[start:end] 가 '10월 1일(수)' 의 요일 괄호 여는 쪽인가. 날짜 뒤 요일 괄호까지 걷어내면 '일(수' 가 '일수' 로 붙어 정책 낱말(일수대출)에 걸리므로, 숫자 + 일 바로 뒤의 '(요일)' 만은 그대로 둔다."""
+    return (end > start and chars[end - 1] == "(" and all(c == " " for c in chars[start:end - 1]) and start >= 2 and chars[start - 1] == "일" and chars[start - 2].isdigit()
+            and end + 1 < len(chars) and chars[end] in _WEEKDAYS and chars[end + 1] == ")")
 
 
 @dataclass
@@ -110,23 +117,26 @@ def normalize(original: str) -> Normalized:
         l_src.append(s)
     loose = Surface("loose", "".join(l_chars), l_src)
 
-    # tight: 한글 사이의 공백·장식 제거
+    # tight: 한글 사이의 공백·장식 제거. 장식 문자가 이어진 한 덩어리(run)는 왼쪽 이웃과 오른쪽 이웃이 같으므로
+    # 덩어리마다 한 번만 판단한다 — 문자마다 덩어리 끝까지 다시 훑으면 '.....' 같은 입력에서 시간이 길이의 제곱으로 는다.
     t_chars: list[str] = []
     t_src: list[int] = []
     n = len(l_chars)
-    for idx, (c, s) in enumerate(zip(l_chars, l_src)):
-        if c in _DECOR:
-            # 왼쪽의 마지막 비장식 문자와 오른쪽의 첫 비장식 문자가 모두 한글이면 버린다
-            j = idx - 1
-            while j >= 0 and l_chars[j] in _DECOR:
-                j -= 1
-            k = idx + 1
-            while k < n and l_chars[k] in _DECOR:
-                k += 1
-            if j >= 0 and k < n and _HANGUL.match(l_chars[j]) and _HANGUL.match(l_chars[k]):
-                continue
-        t_chars.append(c)
-        t_src.append(s)
+    idx = 0
+    while idx < n:
+        if l_chars[idx] not in _DECOR:
+            t_chars.append(l_chars[idx])
+            t_src.append(l_src[idx])
+            idx += 1
+            continue
+        end = idx + 1
+        while end < n and l_chars[end] in _DECOR:
+            end += 1
+        # 덩어리 왼쪽의 비장식 문자와 오른쪽의 비장식 문자가 모두 한글이면 덩어리 전체를 버린다
+        if not (idx > 0 and end < n and _HANGUL.match(l_chars[idx - 1]) and _HANGUL.match(l_chars[end])) or _is_weekday_paren(l_chars, idx, end):
+            t_chars.extend(l_chars[idx:end])
+            t_src.extend(l_src[idx:end])
+        idx = end
     tight = Surface("tight", "".join(t_chars), t_src)
     return Normalized(original=original, loose=loose, tight=tight, zero_width_count=zero_width, folded_count=folded)
 

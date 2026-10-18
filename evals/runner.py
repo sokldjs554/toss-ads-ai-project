@@ -191,7 +191,7 @@ def evaluate_case(case: EvalCase, settings: Settings, router: Optional[Router], 
                       inputs=inputs.to_dict(), rewrite_status=report.rewrite_status.value,
                       model_decision=verdict.decision.value if verdict is not None else "",
                       cost_estimated=failed_requests > 0 or estimated_here > 0, error=error, rewrite_error=(recheck.semantic_error if recheck is not None else ""),
-                      failed_requests=failed_requests, served_by=(verdict.provider if verdict is not None else ""))
+                      failed_requests=failed_requests, served_by=((verdict.origin_provider or verdict.provider) if verdict is not None else ""))   # 형식 수리를 다른 제공자가 했어도 판단한 쪽으로 센다
 
 
 def evaluate_with_retry(case: EvalCase, settings: Settings, router: Optional[Router], catalog: PolicyCatalog, use_llm: bool = True,

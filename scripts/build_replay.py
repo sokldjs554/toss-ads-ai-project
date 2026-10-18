@@ -21,6 +21,7 @@ from guardrails.normalize import loose_text
 from guardrails.policy import get_catalog
 from observability.replay import stored_rewrite_state
 from ui.presets import PRESETS, build_brief
+from ui.trace_redact import redact_trace_dict
 
 CAT = get_catalog()
 PNAME = {p["persona_id"]: p["name"] for p in PERSONAS}
@@ -79,9 +80,9 @@ def build_scenario(key):
                     "halted": bool(t["metadata"].get("halted")), "final": t["metadata"].get("final_decisions", [])},
           # 이 기록이 저장될 때의 버전. 아래 '코드 검사' 칸은 오늘의 코드로 다시 계산한 것이라 버전이 다를 수 있다
           "recorded": {"policy_version": t["metadata"].get("policy_version"), "prompt_version": t["metadata"].get("prompt_version"), "mode": t["metadata"].get("mode")}}
-    # ---- waterfall spans
+    # ---- waterfall spans (재검사를 통과하지 못한 자동 수정안의 문구는 이 페이지에도 보여 주지 않는다 — 단계 모양·시간·비용은 그대로)
     wf = []
-    for depth, s in spans:
+    for depth, s in flat(redact_trace_dict(t)["root"]):
         a = s["attributes"]
         row = {"name": s["name"], "kind": s["kind"], "status": s["status"], "depth": depth, "off": round(s["start_ms"] - t0, 1),
                "dur": round((s["end_ms"] or s["start_ms"]) - s["start_ms"], 1), "events": [e["name"] for e in s["events"]]}
