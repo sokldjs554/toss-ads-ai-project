@@ -66,6 +66,7 @@ class LLMResponse:
     finish_reason: str = ""
     fallback_chain: list[str] = field(default_factory=list)
     repaired: bool = False
+    origin_provider: str = ""     # 형식 수리(repaired)일 때, 수리 전 텍스트를 만든(판단한) 제공자. provider 는 수리한 쪽
     cost_estimated: bool = False  # 제공자가 사용량을 돌려주지 않아 토큰을 글자 수로 추정한 경우. 0원으로 확정하지 않는다.
 
 

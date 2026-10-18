@@ -37,7 +37,8 @@ def apply_second_opinion(copy: AdCopy, det: OutputGuardResult, categories: set[s
         raise
     verdict.second_opinion = so.verdict.decision
     verdict.second_opinion_provider = so.verdict.provider
-    verdict.second_opinion_independent = so.verdict.provider != verdict.provider
+    # 독립성은 '판단을 한 제공자' 로 본다 — 형식 수리를 다른 제공자가 했더라도 판단은 원래 제공자의 것이다
+    verdict.second_opinion_independent = (so.verdict.origin_provider or so.verdict.provider) != (verdict.origin_provider or verdict.provider)
     verdict.disagreement = so.verdict.decision != verdict.decision
     if not verdict.second_opinion_independent and router.mode == Mode.LIVE:
         # 두 제공자가 모두 설정된 실행인데 다른 계열이 응답하지 못해 같은 제공자가 대신 답했다 — 교차 확인이 아니다. 필요한 확인을 받지 못한 것으로 처리한다.

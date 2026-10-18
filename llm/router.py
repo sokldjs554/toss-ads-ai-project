@@ -166,6 +166,7 @@ class Router:
                     if repaired is not None:
                         repaired.fallback_chain = tried + ["repair"]
                         repaired.repaired = True
+                        repaired.origin_provider = name
                         self._record(span, repaired, repaired.fallback_chain)
                         span.status = "fallback"
                         return repaired

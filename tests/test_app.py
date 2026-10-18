@@ -209,7 +209,7 @@ def test_recheck_does_not_treat_own_text_as_rejected_duplicate(app):
     assert rejected, "커머스 예시의 세 번째 광고안은 게재 불가여야 한다"
     rep = rejected[0]
     vid = rep.variant_id
-    assert rep.ad_copy.full_text() in at.session_state["rejected_history"]
+    assert rep.ad_copy.core_text() in at.session_state["rejected_history"]
     new_head = rep.ad_copy.headline.replace("업계 최저 ", "")  # 최소 수정 — 원문과 여전히 매우 비슷하다
     assert similarity(new_head + " " + rep.ad_copy.body, rep.ad_copy.full_text()) >= 0.6
     at.text_input(key=f"edit_h_{vid}").set_value(new_head).run()

@@ -62,7 +62,7 @@ def _user_prompt(copy: AdCopy, det: OutputGuardResult, facts: str, landing_text:
     )
 
 
-def _to_verdict(copy: AdCopy, parsed, det: OutputGuardResult, catalog: PolicyCatalog, provider: str, model: str) -> ReviewOutcome:
+def _to_verdict(copy: AdCopy, parsed, det: OutputGuardResult, catalog: PolicyCatalog, provider: str, model: str, origin_provider: str = "") -> ReviewOutcome:
     text = copy.full_text()
     findings: list[Finding] = []
     unverified = 0
@@ -109,7 +109,7 @@ def _to_verdict(copy: AdCopy, parsed, det: OutputGuardResult, catalog: PolicyCat
     unsupported = model_decision in (Decision.REVISE, Decision.REJECT) and not surviving
     verdict = ReviewVerdict(variant_id=copy.variant_id, decision=decision, confidence=conf, findings=all_findings,
                             rationale=parsed.rationale.strip(), proposed_rewrite=rewrite, provider=provider, model=model,
-                            unsupported_decision=unsupported)
+                            origin_provider=origin_provider or provider, unsupported_decision=unsupported)
     return ReviewOutcome(verdict=verdict, unverified_quotes=unverified, unknown_rule_ids=unknown, overruled_by_det=overruled,
                          raw=parsed.model_dump())
 
@@ -129,4 +129,4 @@ def review(copy: AdCopy, det: OutputGuardResult, categories: set[str], facts: st
     resp = router.complete(req)
     if resp.parsed is None:
         raise ValueError("심사 출력이 비어 있음")
-    return _to_verdict(copy, resp.parsed, det, catalog, resp.provider, resp.model)
+    return _to_verdict(copy, resp.parsed, det, catalog, resp.provider, resp.model, resp.origin_provider)

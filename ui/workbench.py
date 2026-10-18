@@ -353,7 +353,7 @@ def _execute(settings: Settings, options: RunOptions, tracer: Tracer, router_fac
     ss.last_run_fp, ss.last_run_t = fp, time.time()
     for r in run.reports:
         if r.final_decision == Decision.REJECT:
-            ss.rejected_history.append(r.ad_copy.full_text())
+            ss.rejected_history.append(r.ad_copy.core_text())
 
 
 # --- 결과 ---------------------------------------------------------------------
@@ -551,7 +551,7 @@ def _edit_and_recheck(rep: PreflightReport, entry: dict, catalog, tracer: Tracer
             sstat = ss.get("_server_status", {})
             if funded_by_server(sstat, *ss.get("user_keys", ("", ""))):
                 settings = dataclasses.replace(settings, run_budget_usd=min(settings.run_budget_usd, _server_cap(sstat)))
-        history = [x for x in ss.rejected_history if x != rep.ad_copy.full_text()]  # 고치고 있는 광고 자신(수정 전 원문)은 '다른 반려 광고' 가 아니다. 시도마다 달라지지 않는 기준이라 재사용 키가 흔들리지 않는다
+        history = [x for x in ss.rejected_history if x != rep.ad_copy.core_text()]  # 고치고 있는 광고 자신(수정 전 원문)은 '다른 반려 광고' 가 아니다. 시도마다 달라지지 않는 기준이라 재사용 키가 흔들리지 않는다
         # 재사용 키: 문구뿐 아니라 상품 정보·랜딩·검사 기준·프롬프트·모델·판정 기준이 같을 때만 이전 결과를 다시 쓴다
         so = bool(entry.get("second_opinion", False))   # 처음 검사와 같은 조건: 그 실행에서 교차 확인을 켰다면 재검사도 같은 경계 사례에서 교차 확인을 받는다
         categories = recheck_categories(catalog, brief.product, edited, entry["run"].categories)   # 처음 검사에 적용한 업종 + 고친 문구가 가져오는 업종

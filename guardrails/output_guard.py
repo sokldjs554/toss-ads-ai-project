@@ -109,7 +109,7 @@ def check(copy: AdCopy, product: ProductFacts, categories: set[str], landing_tex
     res.checklist.append(ChecklistItem(name="길이·언어 형식", passed=not struct, layer=Layer.STRUCTURAL,
                                        detail="; ".join(f.explanation for f in struct) or "통과"))
 
-    dup, score = duplicate.check(text, rejected_history or [], catalog=catalog)
+    dup, score = duplicate.check(copy.core_text(), rejected_history or [], catalog=catalog)   # 필수 고지는 어느 광고에나 같게 들어가므로 유사도에서 뺀다
     res.duplicate_score = score
     if dup:
         res.findings.append(dup)

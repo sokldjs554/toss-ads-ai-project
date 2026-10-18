@@ -138,6 +138,10 @@ class AdCopy(BaseModel):
         parts = [self.headline, self.body, self.cta, *self.disclosures]
         return "\n".join(p for p in parts if p)
 
+    def core_text(self) -> str:
+        """광고가 말하는 내용(제목·본문·버튼)만. 필수 고지 문구는 어느 광고에나 같게 들어가므로, 광고끼리 닮았는지를 볼 때는 빼고 본다."""
+        return "\n".join(p for p in (self.headline, self.body, self.cta) if p)
+
     def field_spans(self) -> list[tuple[str, int, int]]:
         """full_text() 안에서 각 필드(headline · body · cta · disc0 …)가 차지하는 [start, end). 빈 필드는 full_text() 처럼 건너뛴다 — 위치 계산은 모두 여기서 한다."""
         out: list[tuple[str, int, int]] = []
@@ -221,6 +225,7 @@ class ReviewVerdict(BaseModel):
     proposed_rewrite: Optional[AdCopy] = None       # 모델이 '제안' 한 수정안. 재검사 전이므로 그 자체로는 신뢰하지 않는다 (PreflightReport.rewrite_status 참조)
     provider: str = ""
     model: str = ""
+    origin_provider: str = ""                    # 판단을 한 제공자. 형식 수리(FM-01)를 다른 제공자가 했을 때 provider 는 수리한 쪽이지만 판단은 원래 제공자의 것이다 — 교차 확인의 독립성은 이쪽으로 본다
     unsupported_decision: bool = False           # 모델이 REVISE/REJECT 를 말했지만 남은 근거 finding 이 하나도 없음 → 자동 판정 금지
     second_opinion: Optional[Decision] = None   # 교차 검증(다른 제공자) 결과
     second_opinion_provider: str = ""
