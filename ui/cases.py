@@ -47,7 +47,7 @@ def _stored_case(key: str, path, catalog) -> None:
     p = PRESETS[key]
     trace = json.loads(path.read_text(encoding="utf-8"))
     brief = build_brief(p)
-    cats = catalog.effective_categories(brief.product.category, p.get("description", ""))
+    cats = catalog.categories_for(brief.product, p["advertiser_input"])
     s = replay.summarize_trace(trace, brief.product, cats, p.get("landing_text", ""), catalog)
     with st.container(border=True):
         h1, h2 = st.columns([3, 2])

@@ -16,3 +16,5 @@ build/
 
 # GitHub Pages 빌드 산출물
 _site/
+evals/reports/compare_latest.json
+evals/reports/compare_failed.json

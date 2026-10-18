@@ -1,6 +1,8 @@
 """프롬프트는 전부 여기. 버전을 붙여 트레이스·평가 결과에 기록한다 (프롬프트가 바뀌면 점수 비교가 무의미해지므로)."""
 from __future__ import annotations
 
+import re
+
 from core.platform_spec import spec_prompt
 from guardrails.policy import PolicyCatalog
 
@@ -77,11 +79,18 @@ def reviewer_system(catalog: PolicyCatalog, categories: set[str]) -> str:
 LLM_ONLY_PROMPT_VERSION = "compare-1"
 
 
+def _without_code_claims(explanation: str) -> str:
+    """규칙 설명 중 '코드가 ~ 본다·비교한다' 처럼 코드 검사가 있다고 말하는 문장을 뺀다 (검토 모델만 쓰는 방식에는 코드 검사가 없다)."""
+    sentences = re.split(r"(?<=[.。])\s+", explanation.strip())
+    kept = [x for x in sentences if "코드" not in x and "결정론" not in x]
+    return " ".join(kept).strip() or explanation.split("코드")[0].strip(" .,")
+
+
 def llm_only_system(catalog: PolicyCatalog, categories: set[str]) -> str:
     """방식 비교(evals/compare.py)의 '검토 모델만' 방식용 프롬프트. 검토 모델과 같은 규칙 카탈로그·같은 출력 스키마를 쓰되,
     '코드가 이미 확인했다' 는 문장을 모두 뺀다 — 이 방식에서는 코드 검사가 없으므로 그런 말은 거짓이기 때문이다."""
     rules = catalog.rules_for(categories)
-    lines = [f"- {r.id} [{r.severity.value}] {r.title}: {r.explanation} (출처: {r.section})" for r in rules]
+    lines = [f"- {r.id} [{r.severity.value}] {r.title}: {_without_code_claims(r.explanation)} (출처: {r.section})" for r in rules]
     return f"""너는 광고 플랫폼의 광고 심사관이다. 소재가 아래 규칙 카탈로그(버전 {catalog.version})를 위반하는지 판단한다.
 별도의 검사 도구는 없다. 표현 규칙, 업종별 필수 안내 문구, 광고주 사실 목록의 숫자·조건과의 일치, 랜딩 페이지와의 일치, 형식을 모두 네가 직접 확인한다.
 

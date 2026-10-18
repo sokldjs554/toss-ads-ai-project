@@ -25,6 +25,7 @@ from guardrails.policy import get_catalog
 from llm.router import Router
 from observability.tracer import Tracer
 from ui import theme
+from ui.funding import funded_by_server, server_cap as _server_cap
 from ui.components import (
     checklist_rows,
     evidence_lines,
@@ -217,24 +218,28 @@ def _inputs(make_settings, server_status: dict) -> tuple[Settings, RunOptions, s
         rec = recommendation_for(provisional)
         st.markdown("**판정 기준**")
         default_tau = float(rec["tau"]) if rec["tau"] is not None else float(provisional.auto_decision_confidence)
-        ss.setdefault("opt_tau", default_tau)
+        # 기본값이 바뀌면(예: 예시 실행 → 실제 모델 실행) 사용자가 건드리지 않은 슬라이더는 새 기본값을 따른다 — 예시 실행의 추천값이 실제 모델 실행에 조용히 남지 않게
+        prev_default = ss.get("_tau_default")
+        if "opt_tau" not in ss or (prev_default is not None and abs(float(ss.opt_tau) - prev_default) < 1e-9 and abs(default_tau - prev_default) > 1e-9):
+            ss.opt_tau = default_tau
+        ss["_tau_default"] = default_tau
         tau = st.slider("자동 판정에 필요한 검토 모델의 최소 확신", 0.5, 0.99, step=0.01, key="opt_tau",
                         help="검토 모델의 확신이 이 값보다 낮으면 자동으로 확정하지 않고 담당자 확인으로 넘깁니다. 게재 불가 사유가 코드로 확인된 광고는 이 값과 무관하게 게재 불가입니다.")
         if rec["tau"] is not None:
-            st.caption(f"기본값 {rec['tau']:.2f} 은 같은 제공자·모델·프롬프트·검사 기준·평가 데이터로 평가해 '문제 있는 광고를 통과시킨 사례 0건·문제없는 광고에 수정 요청 0건' 을 만족한 가장 낮은 값입니다.")
+            st.caption(f"기본값 {rec['tau']:.2f} 은 같은 제공자·모델·프롬프트·검사 기준·평가 데이터로 평가해 '문제 있는 광고를 통과시킨 사례 0건·문제없는 광고에 수정 요청 0건' 을 만족하는 값 중 담당자 확인 없이 판단하는 비율이 가장 높고, 같으면 더 높은 값입니다.")
         else:
             st.caption("이 설정의 검증된 추천값 없음 — " + (", ".join(rec["mismatches"]) if rec["mismatches"] else rec["reason"]) + ". 기본값은 설정값(0.80)을 씁니다.")
         b1, b2 = st.columns(2)
         with b1:
             # 서버 키를 쓰는 실행은 서버가 정한 상한(PREFLIGHT_RUN_BUDGET_USD)을 넘을 수 없다. 자기 키를 넣은 경우에만 자유롭다.
-            using_server_key = not (user_oa.strip() or user_an.strip())
-            server_cap = float(server_status.get("run_budget_usd") or 0.5)
+            using_server_key = funded_by_server(server_status, user_oa, user_an)   # 서버 키로 호출되는 제공자가 하나라도 있으면 서버 상한이 적용된다
+            server_cap = _server_cap(server_status)
             ss.setdefault("opt_budget", min(server_cap, 0.5) if using_server_key else 0.5)
             if using_server_key and ss.opt_budget > server_cap:
                 ss.opt_budget = server_cap
             budget = st.number_input("실행당 비용 상한 (USD)", min_value=0.01, max_value=(server_cap if using_server_key else None), step=0.05, key="opt_budget",
                                      help="실제 모델 호출 비용이 이 값을 넘으면 실행을 멈추고 남은 광고안은 담당자 확인으로 둡니다. 실패한 요청의 비용은 알 수 없어 '추정' 으로 표시합니다."
-                                     + (f" 서버 키를 쓸 때는 서버가 정한 상한 ${server_cap:.2f} 까지입니다." if using_server_key else ""))
+                                     + (f" 서버 키가 쓰이는 실행은 서버가 정한 상한 ${server_cap:.2f} 까지입니다." if using_server_key else ""))
         with b2:
             ss.setdefault("opt_drill", "없음")
             drill = st.selectbox("장애 시뮬레이션 (기술 시연용 — 광고 작업에만 적용)", ["없음", "openai: timeout", "openai: schema", "anthropic: timeout", "anthropic: refusal", "mock: timeout"], key="opt_drill",
@@ -246,6 +251,7 @@ def _inputs(make_settings, server_status: dict) -> tuple[Settings, RunOptions, s
     # 세션에는 키 값을 남기지 않는다 — 사용자가 직접 넣은 키만 (서버 키는 절대) 재검사용으로 보관한다
     ss.settings_overrides = overrides
     ss.user_keys = (user_oa.strip(), user_an.strip())
+    ss["_server_status"] = {"openai": bool(server_status.get("openai")), "anthropic": bool(server_status.get("anthropic")), "run_budget_usd": _server_cap(server_status)}  # 키 값이 아니라 설정 여부와 상한만
     options = RunOptions(n_variants=n_variants, landing_text=ss.form_landing, rejected_history=list(ss.rejected_history),
                          enable_audience=enable_audience, enable_second_opinion=enable_second)
     mode = settings.mode.value
@@ -256,7 +262,13 @@ def _inputs(make_settings, server_status: dict) -> tuple[Settings, RunOptions, s
         st.caption(RUN_MODE_HELP[mode])
         if mode != "demo":
             calls = 2 + 4 * options.n_variants
-            st.warning(f"새 실제 모델 실행입니다 — 모델 호출 최대 약 {calls}회, 비용은 ${float(budget):.2f} 에서 멈춥니다 (실행당 상한).", icon="💳")
+            st.warning(f"새 실제 모델 실행입니다 — 모델 호출 최대 약 {calls}회, 비용은 ${float(budget):.2f} 에서 멈춥니다 (실행당 상한)."
+                       + (" 서버 키가 쓰이므로 비용은 서버 운영자 계정에 청구됩니다." if funded_by_server(server_status, user_oa, user_an) else " 직접 넣은 키만 쓰이므로 비용은 그 계정에 청구됩니다."), icon="💳")
+            # 확인은 '지금 보이는 호출 수·비용·모드' 에 대한 것이다. 숫자가 바뀌거나 한 번 실행하면 다시 확인해야 한다
+            sig = f"{mode}|{calls}|{float(budget):.2f}|{len(ss.runs)}"
+            if ss.get("_confirm_live_sig") != sig:
+                ss["_confirm_live_sig"] = sig
+                ss["confirm_live_run"] = False
             confirmed = st.checkbox("위 호출 수와 비용 상한을 확인했고 실제 모델로 실행합니다", key="confirm_live_run")
     with c2:
         clicked = st.button("광고 초안 만들기", type="primary", width="stretch", disabled=bool(ss.running) or not confirmed, key="run_button")
@@ -322,7 +334,8 @@ def _execute(settings: Settings, options: RunOptions, tracer: Tracer, router_fac
         status.update(label=f"완료 — 광고안 {n}개 · {cost} · {run.total_latency_ms/1000:.1f}초", state="complete" if not run.halted else "error", expanded=False)
     entry = {"run": run, "fingerprint": fp, "mode": mode, "at": datetime.now(), "brief": brief, "landing": options.landing_text,
              "cost_estimated": router.budget.estimated, "attempts": router.budget.attempts, "calls": router.budget.calls,
-             "failed_attempts": router.budget.failed_attempts, "overrides": dict(ss.get("settings_overrides", {})), "n_variants": options.n_variants}
+             "failed_attempts": router.budget.failed_attempts, "overrides": dict(ss.get("settings_overrides", {})), "n_variants": options.n_variants,
+             "second_opinion": bool(options.enable_second_opinion)}
     ss.runs.append(entry)
     ss.last_run_fp, ss.last_run_t = fp, time.time()
     for r in run.reports:
@@ -512,25 +525,41 @@ def _edit_and_recheck(rep: PreflightReport, entry: dict, catalog, tracer: Tracer
         edited = build_edited_copy(rep.ad_copy, h, b, c, d.splitlines())
         brief = entry["brief"]
         settings: Settings = make_settings(*ss.get("user_keys", ("", "")), **entry.get("overrides", {}))
-        if entry.get("mode") == "demo":
+        live_recheck = entry.get("mode") != "demo"
+        if not live_recheck:
             settings = dataclasses.replace(settings, force_demo=True)   # 예시 실행의 재검사도 예시 실행 — 키가 있어도 비용이 들지 않는다
+        else:
+            # 실제 모델 실행의 재검사: 지금 서버 키가 쓰이면 그 실행에서 올려 둔 비용 상한이 아니라 서버 상한을 넘지 못한다
+            sstat = ss.get("_server_status", {})
+            if funded_by_server(sstat, *ss.get("user_keys", ("", ""))):
+                settings = dataclasses.replace(settings, run_budget_usd=min(settings.run_budget_usd, _server_cap(sstat)))
         own = {rep.ad_copy.full_text()} | {r.report.ad_copy.full_text() for r in hist.attempts}
         history = [x for x in ss.rejected_history if x not in own]  # 고치고 있는 광고 자신은 '다른 반려 광고' 가 아니다
         # 재사용 키: 문구뿐 아니라 상품 정보·랜딩·검사 기준·프롬프트·모델·판정 기준이 같을 때만 이전 결과를 다시 쓴다
-        key = recheck_key(edited, brief.product, entry.get("landing", ""), settings, catalog, history)
+        so = bool(entry.get("second_opinion", False))   # 처음 검사와 같은 조건: 그 실행에서 교차 확인을 켰다면 재검사도 같은 경계 사례에서 교차 확인을 받는다
+        key = recheck_key(edited, brief.product, entry.get("landing", ""), settings, catalog, history, so)
         last_try = hist.latest_for(key)
         label = "같은 문구로 다시 시도" if (last_try is not None and last_try.failed) else "수정한 문구 다시 검사"
         rerun_after = False
-        if st.button(label, key=f"recheck_{vid}", type="primary", disabled=bool(ss.running)):
+        recheck_ok = True
+        if live_recheck and hist.reusable_for(key) is None:
+            st.warning(f"실제 모델을 부릅니다 — 이 문구를 다시 검사하면 모델 호출 약 {"2~6" if so else "2~4"}회, 비용은 ${settings.run_budget_usd:.2f} 에서 멈춥니다.", icon="💳")
+            csig = f"{key}|{len(hist.attempts)}|{settings.run_budget_usd:.2f}"
+            ckey = f"confirm_recheck_{vid}"
+            if ss.get("_" + ckey) != csig:
+                ss["_" + ckey] = csig
+                ss[ckey] = False
+            recheck_ok = st.checkbox("위 비용 상한을 확인했고 실제 모델로 다시 검사합니다", key=ckey)
+        if st.button(label, key=f"recheck_{vid}", type="primary", disabled=bool(ss.running) or not recheck_ok):
             if hist.reusable_for(key) is not None:
                 st.info("같은 문구·같은 조건으로 이미 검사했습니다. 모델을 다시 부르지 않고 그 결과를 보여 드립니다.")
             else:
                 ss.running = True
                 try:
-                    categories = catalog.effective_categories(brief.product.category, edited.full_text(), brief.product.raw_description)
+                    categories = set(entry["run"].categories)   # 처음 검사에 적용한 업종 + (recheck 가) 고친 문구에서 추론하는 업종
                     with st.spinner("다시 검사하는 중…"):
                         res = recheck(edited, brief.product, categories, settings, router=router_factory(settings), landing_text=entry.get("landing", ""),
-                                      rejected_history=history, catalog=catalog, tracer=tracer)
+                                      rejected_history=history, catalog=catalog, tracer=tracer, enable_second_opinion=so)
                     hist.add(res)
                     last_try = res
                     rerun_after = True  # 버튼 이름('같은 문구로 다시 시도') 과 시도 기록을 방금 결과에 맞추려면 한 번 더 그려야 한다

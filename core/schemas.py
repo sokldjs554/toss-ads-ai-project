@@ -132,10 +132,22 @@ class AdCopy(BaseModel):
     claims: list[Claim] = Field(default_factory=list)
     disclosures: list[str] = Field(default_factory=list)
     tone: str = ""
+    carried_fact_ids: list[str] = Field(default_factory=list)   # 고쳐 쓰기 전 광고가 근거로 삼은 사실 — 주장 연결이 끊겨도 그 사실의 조건을 계속 확인하기 위해 남긴다
 
     def full_text(self) -> str:
         parts = [self.headline, self.body, self.cta, *self.disclosures]
         return "\n".join(p for p in parts if p)
+
+    def field_spans(self) -> list[tuple[str, int, int]]:
+        """full_text() 안에서 각 필드(headline · body · cta · disc0 …)가 차지하는 [start, end). 빈 필드는 full_text() 처럼 건너뛴다 — 위치 계산은 모두 여기서 한다."""
+        out: list[tuple[str, int, int]] = []
+        pos = 0
+        for name, value in [("headline", self.headline), ("body", self.body), ("cta", self.cta), *[(f"disc{i}", d) for i, d in enumerate(self.disclosures)]]:
+            if not value:
+                continue
+            out.append((name, pos, pos + len(value)))
+            pos += len(value) + 1
+        return out
 
 
 # ---------------------------------------------------------------------------
@@ -214,6 +226,7 @@ class ReviewVerdict(BaseModel):
     second_opinion_provider: str = ""
     second_opinion_independent: bool = True      # False 면 같은 제공자가 두 번 본 것 — 상관 오류를 줄이지 못한다 (PARTIAL 모드)
     disagreement: bool = False                   # 두 모델 계열의 판정 불일치 → HUMAN_REVIEW 근거
+    second_opinion_failed: bool = False          # 교차 확인이 필요한 경계 사례인데 그 호출이 실패했다 → 일치 여부를 알 수 없으므로 자동 판정을 하지 않는다
 
 
 class InterceptKind(str, Enum):

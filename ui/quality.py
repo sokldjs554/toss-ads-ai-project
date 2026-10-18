@@ -14,6 +14,7 @@ from guardrails.policy import get_catalog
 from agents.prompts import PROMPT_VERSION
 from observability.tracer import Tracer
 from ui import catalog_view, compare_view, redteam_view, theme, trace_view
+from ui.funding import funded_by_server, server_cap
 from ui.labels import METRIC, fraction_sentence, pct
 
 SLICE = {"clear": "명백한 위반", "evasion": "우회 표현", "injection": "숨은 지시문", "gray": "경계 사례(수정 필요)", "benign_scary": "무서운 단어가 있지만 문제없음", "semantic_only": "모델만 잡을 수 있는 사례"}
@@ -150,13 +151,24 @@ def _eval_section(make_settings, router_factory, server_status: dict) -> None:
             ("자동 판정 확신 기준(τ)", f"{settings.auto_decision_confidence:.2f}"), ("검사 기준 버전", get_catalog().version), ("프롬프트 버전", PROMPT_VERSION),
             ("평가 데이터", f"{DATASETS[ds]} · v{fp['dataset_version'] or '?'} · 해시 {fp['dataset_sha256'][:8]}"), ("평가할 사례", f"{plan['n']}건"))],
             width="stretch", hide_index=True)
-        using_server_key = settings.mode.value != "demo" and ss.get("user_keys", ("", "")) == ("", "") if source == "work" else settings.mode.value != "demo"
-        cap = float(server_status.get("run_budget_usd") or 0.5) if using_server_key else None
+        # 서버가 가진 키로 호출되는 제공자가 하나라도 있으면 서버 상한이 적용된다 (한쪽 키만 직접 넣어도 다른 쪽은 서버 키를 쓴다)
+        if settings.mode.value == "demo":
+            using_server_key = False
+        elif source == "work" and ss.get("settings_overrides"):
+            using_server_key = funded_by_server(server_status, *ss.get("user_keys", ("", "")))
+        else:
+            using_server_key = funded_by_server(server_status, "", "")
+        cap = server_cap(server_status) if using_server_key else None
         approved = True
         if plan["live"]:
             est = f"약 ${plan['est_cost']:.2f} (5차 실제 모델 실행의 사례당 평균 비용 기준 추정)" if plan["est_cost"] is not None else "알 수 없음"
             st.warning(f"실제 모델을 부릅니다 — 모델 호출 약 {plan['est_calls']}회, 예상 비용 {est}."
                        + (f" 서버 키로 도는 평가는 서버가 정한 상한 ${cap:.2f} 에서 멈추고, 멈추면 결과에 장애로 표시합니다." if cap is not None else " 직접 넣은 키로 도는 평가라 비용은 그 계정에 청구됩니다."), icon="💳")
+            # 확인은 지금 보이는 호출 수·비용·데이터·설정에 대한 것이다 — 바뀌거나 한 번 실행하면 다시 확인해야 한다
+            sig = f"{ds}|{int(limit)}|{use_llm}|{settings.mode.value}|{plan['est_calls']}|{cap}|{source}|{ss.get('eval_runs', 0)}"
+            if ss.get("_eval_confirm_sig") != sig:
+                ss["_eval_confirm_sig"] = sig
+                ss["eval_confirm"] = False
             approved = st.checkbox("위 호출 수와 비용을 확인했고 실행합니다", key="eval_confirm")
         if st.button("평가 실행", key="eval_run", disabled=not approved):
             router = router_factory(settings) if use_llm else None
@@ -164,6 +176,7 @@ def _eval_section(make_settings, router_factory, server_status: dict) -> None:
             r = run_eval(ds, settings, use_llm=use_llm, router=router, progress=lambda i, n, x: prog.progress(i / n, text=f"{i}/{n} {x.case.id}"), limit=int(limit) or None,
                          breaker_wait_s=0, abort_after=0, budget_cap_usd=cap, run_info={"source": src_note, "requested_dataset": ds})  # 화면에서는 기다리거나 중단하지 않는다. 장애가 섞였으면 아래에서 표시
             ss.eval_report = r
+            ss.eval_runs = ss.get("eval_runs", 0) + 1
             ss.eval_just_ran = True
             prog.empty()
             st.rerun()
@@ -205,12 +218,18 @@ def _eval_section(make_settings, router_factory, server_status: dict) -> None:
                        "확신": c["confidence"], "잡은 규칙": ", ".join(c["predicted_rules"]), "기대 규칙": ", ".join(c["label_rules"])} for c in rep["cases"]], width="stretch", hide_index=True)
     base_name = f"baseline_{rep['mode']}.json"
     if options[pick] == "__session__" and (REPORTS / base_name).exists() and rep.get("dataset") == "golden":
-        g = gate(rep, load_report(base_name))
-        st.markdown("**기준선과 비교** (" + ("나빠진 지표 없음" if g.passed else "나빠진 지표 있음") + ")")
-        for f in g.failures:
-            st.error(f)
-        for w in g.warnings:
-            st.caption(w)
+        base = load_report(base_name)
+        # 일부 사례만 돌렸거나 데이터가 다르면 기준선과 비교하지 않는다 — 문제없는 광고가 0건인 표본이 '나빠진 지표 없음' 으로 읽히지 않게
+        same = bool(base) and rep.get("n") == base.get("n") and rep.get("dataset_sha256") == base.get("dataset_sha256") and not (rep.get("run_settings") or {}).get("limit")
+        if not same:
+            st.caption("일부 사례만 실행했거나 평가 데이터가 달라 저장된 기준선과 비교하지 않았습니다. 전체 사례를 돌리면 비교합니다.")
+        else:
+            g = gate(rep, base)
+            st.markdown("**기준선과 비교** (" + ("나빠진 지표 없음" if g.passed else "나빠진 지표 있음") + ")")
+            for f in g.failures:
+                st.error(f)
+            for w in g.warnings:
+                st.caption(w)
 
 
 def _history_section() -> None:

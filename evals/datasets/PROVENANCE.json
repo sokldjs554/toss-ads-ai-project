@@ -17,8 +17,12 @@
     "human_review": "없음", "used_for_tuning": true, "derived_from": "G-069 를 바꿔 쓴 것 — 독립 데이터가 아님", "independent_real_data": false
   },
   "conditions": {
-    "split": "dev", "author": "프로젝트 저자 (이 수정 작업 중에 작성)", "label_basis": "리뷰가 재현한 입력 3건(K-A1·K-B1·K-C1)과, 같은 사실로 만든 틀린 변형·정상 대조. 라벨은 '코드가 내야 할 판정'",
+    "split": "dev", "author": "프로젝트 저자 (이 수정 작업 중에 작성)", "label_basis": "리뷰가 재현한 입력(source=review_repro 4행: K-A1·K-B1·K-C1, 그리고 K-C1 의 띄어 쓴 형태 K-C2)과, 같은 사실로 만든 틀린 변형·정상 대조. 라벨은 '코드가 내야 할 판정'",
     "human_review": "없음", "used_for_tuning": true, "derived_from": "리뷰 재현 입력 + 저자가 같은 사실로 만든 변형 — 이 규칙을 고치려고 만든 회귀셋이라 독립 평가가 아님", "independent_real_data": false
+  },
+  "redteam_seeds": {
+    "split": "dev", "author": "프로젝트 저자", "label_basis": "명백한 위반 광고 4건을 REJECT 로 라벨 — 우회 표현 검사(레드팀)의 시드이며 평가 데이터가 아니다",
+    "human_review": "없음", "used_for_tuning": true, "derived_from": "저자가 직접 쓴 가상 위반 광고", "independent_real_data": false
   },
   "adversarial": {
     "split": "dev", "author": "레드팀 생성기(모델) + 저자의 시드", "label_basis": "원본 위반 시드의 라벨(REJECT)을 변형에 그대로 붙임 — 변형이 여전히 위반인지는 사람이 다시 보지 않았다",

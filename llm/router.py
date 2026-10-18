@@ -68,6 +68,7 @@ class RunBudget:
     calls: int = 0
     attempts: int = 0
     failed_attempts: int = 0
+    estimated_calls: int = 0   # 응답은 받았지만 제공자가 사용량을 주지 않아 글자 수로 비용을 추정한 호출 수 — 사례·단계별 변화량으로 '추정' 표시를 가른다
     max_calls: int = 60
     estimated: bool = False
 
@@ -87,6 +88,7 @@ class RunBudget:
         self.calls += 1
         if resp.cost_estimated:
             self.estimated = True
+            self.estimated_calls += 1
 
     def failed(self) -> None:
         self.failed_attempts += 1

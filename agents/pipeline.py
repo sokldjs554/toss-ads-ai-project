@@ -20,6 +20,7 @@ from llm.router import Router
 from observability.tracer import Tracer, get_tracer
 
 from . import adjudicator, audience as audience_agent, copywriter, planner, reviewer
+from .crosscheck import apply_second_opinion, is_borderline
 from .rewrite_check import check_rewrite
 from .prompts import PROMPT_VERSION
 
@@ -177,16 +178,13 @@ def _review_variants(run: PipelineRun, brief: CampaignBrief, settings: Settings,
             # 교차 검증: 경계 사례만 (비용을 아끼면서 상관 오류를 줄인다)
             if verdict is not None and options.enable_second_opinion and _is_borderline(verdict, settings, options):
                 with tracer.span("second_opinion", kind="stage") as span:
-                    with failsafe(run, stage="second_opinion", fallback="2차 의견 없이 진행") as g:
-                        so = reviewer.review(copy, det, categories, facts_text, options.landing_text, catalog, router, task=Task.SECOND_OPINION)
-                        verdict.second_opinion = so.verdict.decision
-                        verdict.second_opinion_provider = so.verdict.provider
-                        verdict.second_opinion_independent = so.verdict.provider != verdict.provider
-                        verdict.disagreement = so.verdict.decision != verdict.decision
-                        span.set(decision=so.verdict.decision.value, disagreement=verdict.disagreement, provider=so.verdict.provider,
+                    # 교차 확인이 필요한데 호출이 실패하면 일치 여부를 모른다 → verdict.second_opinion_failed 로 표시되어 판정 함수가 담당자 확인으로 보낸다
+                    with failsafe(run, stage="second_opinion", fallback="교차 확인을 하지 못해 담당자 확인으로 넘김") as g:
+                        apply_second_opinion(copy, det, categories, facts_text, options.landing_text, catalog, router, verdict)
+                        span.set(decision=verdict.second_opinion.value, disagreement=verdict.disagreement, provider=verdict.second_opinion_provider,
                                  independent=verdict.second_opinion_independent)
                         if not verdict.second_opinion_independent:
-                            span.event("same_provider_second_opinion", provider=so.verdict.provider)
+                            span.event("same_provider_second_opinion", provider=verdict.second_opinion_provider)
                         if verdict.disagreement:
                             span.event("disagreement")
                             run.failures.append(_fm17(copy.variant_id))
@@ -195,12 +193,15 @@ def _review_variants(run: PipelineRun, brief: CampaignBrief, settings: Settings,
             recheck = None
             if verdict is not None and verdict.proposed_rewrite is not None:
                 recheck = check_rewrite(verdict.proposed_rewrite, brief.product, categories, options.landing_text, options.rejected_history,
-                                        catalog, router, facts_text, tracer, settings.auto_decision_confidence)
+                                        catalog, router, facts_text, tracer, settings.auto_decision_confidence, second_opinion=options.enable_second_opinion,
+                                        second_opinion_margin=options.second_opinion_margin)
                 if recheck.semantic_error:
                     # 수정안의 의미 검사를 하지 못했다 — 이 실행은 '일부 단계 실패' 이고 수정안은 '확인하지 못함' 이다. 조용한 성공으로 세지 않는다.
                     run.failures.append(FailureEvent(code=recheck.semantic_error_code or "FM-05", stage="rewrite_recheck",
                                                      message=f"{copy.variant_id}: 수정안 의미 검사 실패 — {recheck.semantic_error}",
                                                      fallback="수정안은 '확인하지 못함' 으로 두고 제시하지 않음. 원문 판정은 그대로"))
+                if recheck.budget_exceeded:
+                    raise BudgetExceeded(recheck.semantic_error)   # 상한에 닿았으면 다음 호출로 넘어가지 않고 FM-20 으로 멈춘다 (남은 광고안은 담당자 확인)
 
             with tracer.span("adjudicate", kind="guardrail") as span:
                 report = adjudicator.adjudicate(copy, det, verdict, settings.auto_decision_confidence, recheck, aud)
@@ -212,10 +213,7 @@ def _review_variants(run: PipelineRun, brief: CampaignBrief, settings: Settings,
 
 
 def _is_borderline(verdict: ReviewVerdict, settings: Settings, options: RunOptions) -> bool:
-    if verdict.decision == Decision.REJECT:
-        return False  # 검증된 반려는 교차 검증 불필요
-    return verdict.confidence < settings.auto_decision_confidence + options.second_opinion_margin or any(
-        f.severity.value == "warn" for f in verdict.findings)
+    return is_borderline(verdict, settings.auto_decision_confidence, options.second_opinion_margin)
 
 
 # FailureEvent 헬퍼 -------------------------------------------------------------

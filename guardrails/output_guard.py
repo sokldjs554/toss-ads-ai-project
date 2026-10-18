@@ -77,7 +77,7 @@ def check(copy: AdCopy, product: ProductFacts, categories: set[str], landing_tex
                                        detail=f"{len(inj.findings)}건" if inj.detected else "통과"))
 
     lex = scan(text, categories, catalog)
-    disc_start = len(copy.headline) + len(copy.body) + len(copy.cta) + 3  # full_text 에서 고지 문구가 시작되는 위치
+    disc_start = next((start for name, start, _ in copy.field_spans() if name.startswith("disc")), len(text) + 1)  # full_text 에서 고지 문구가 시작되는 위치 (빈 필드는 건너뜀)
     lex = [f for f in lex if not (f.start >= disc_start and "부정문" in f.explanation)]  # 고지문 속 '보장하지 않습니다' 는 정상
     res.findings.extend(lex)
     res.checklist.append(ChecklistItem(name="금지·주의 표현 (정규화 후 패턴)", passed=not any(f.severity != Severity.WARN for f in lex),

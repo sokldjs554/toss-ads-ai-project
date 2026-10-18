@@ -9,7 +9,7 @@ from typing import Optional
 
 import yaml
 
-from core.schemas import FINANCIAL_CATEGORIES, Layer, ProductCategory, Severity
+from core.schemas import FINANCIAL_CATEGORIES, Layer, ProductCategory, ProductFacts, Severity
 
 POLICY_PATH = Path(__file__).with_name("policy.yaml")
 
@@ -84,6 +84,10 @@ class PolicyCatalog:
             if any(p.search(blob) for p in pats):
                 cats.add(cat)
         return cats
+
+    def categories_for(self, product: ProductFacts, *texts: str) -> set[str]:
+        """상품과 문구에 적용할 업종 — 실행·수정안 검사·직접 재검사·평가·방식 비교가 모두 이 한 함수로 정한다 (선언 업종 + 문구·상품 설명·사실 목록의 단서)."""
+        return self.effective_categories(product.category, *texts, product.raw_description or "", " ".join(f.text for f in product.facts))
 
     def inferred_mismatch(self, declared: ProductCategory, effective: set[str]) -> list[str]:
         if declared in FINANCIAL_CATEGORIES:

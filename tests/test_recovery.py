@@ -200,7 +200,7 @@ def test_eval_report_lists_recovered_failures_and_unknown_cost(monkeypatch):
 
     router = router_with(flaky)
     monkeypatch.setattr("evals.runner._wait_for_breaker", lambda *a, **k: 0.0)
-    rep = run_eval("holdout", SETTINGS, use_llm=True, router=router, limit=2, breaker_wait_s=30, abort_after=0)
+    rep = run_eval("holdout", SETTINGS, use_llm=True, router=router, breaker_wait_s=30, abort_after=0)   # 전체 데이터셋
     assert rep["provider_failures"]["n"] == 0 and baseline_allowed(rep) == (True, "")   # 재시도로 모델 판정을 받았으므로 측정에 쓸 수 있다
     rf = rep["recovered_failures"]
     assert rf["n"] == 1 and rf["cases"] == [rep["cases"][0]["id"]] and rf["by_error"] == {"ProviderUnavailable": 1}

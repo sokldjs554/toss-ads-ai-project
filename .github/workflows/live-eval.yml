@@ -70,12 +70,6 @@ jobs:
       - name: 실제 트레이스 기록
         if: ${{ github.event.inputs.traces == 'true' }}
         run: python scripts/record_traces.py
-      - name: 방식 비교 — 코드 검사만 · 검토 모델만 · 합친 방식 (실제 모델) → compare_live.json
-        if: ${{ github.event.inputs.compare == 'true' }}
-        # 먼저 호출 수·예상 비용을 출력하고 시작한다. 비용 상한을 넘기거나 제공자 장애가 섞이면 저장하지 않고 종료 코드 2
-        run: |
-          python -m evals.compare --estimate
-          python -m evals.compare --cost-cap ${{ github.event.inputs.compare_cost_cap || '3.5' }} --out compare_live.json
       - name: 결과 요약
         run: |
           python - <<'PY'
@@ -91,13 +85,57 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add evals/reports/baseline_*.json evals/reports/holdout_*.json evals/reports/contrast_*.json evals/reports/compare_live.json evals/datasets/adversarial.jsonl traces/sample_*.json
+          git add evals/reports/baseline_*.json evals/reports/holdout_*.json evals/reports/contrast_*.json evals/datasets/adversarial.jsonl traces/sample_*.json
           if git diff --cached --quiet; then echo "변경 없음"; exit 0; fi
           git commit -m "live-eval: 실제 모델 기준선·레드팀·트레이스 기록 (run ${{ github.run_id }})"
           git push
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: live-eval-reports
           path: |
             evals/reports/*.json
             traces/*.json
+  compare:
+    # 방식 비교(코드 검사만·검토 모델만·합친 방식)는 별도 작업이다 — 실패(종료 코드 2: 장애 혼입·비용 상한)해도 위 작업의 결과 커밋을 막지 않고,
+    # 위 작업이 실패해도(예: 다른 실행 입력) 이 비교만 따로 돌릴 수 있다. 기본은 꺼짐: 승인된 호출 수·비용 범위에서만 켠다.
+    needs: live
+    if: ${{ always() && github.event.inputs.compare == 'true' }}
+    runs-on: ubuntu-latest
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || secrets.OPEN_API_KEY }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-4o' }}
+      ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL || 'claude-sonnet-5-5' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - name: 키 확인 (키가 없으면 DEMO 로 돌아가 버리므로 여기서 멈춘다)
+        run: |
+          if [ -z "$OPENAI_API_KEY" ] && [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "::error::Secrets 에 OPENAI_API_KEY 또는 ANTHROPIC_API_KEY 가 없습니다."; exit 1; fi
+          python -c "from core.config import Settings; s=Settings.from_env(); print('mode =', s.mode.value, '| openai:', s.has_openai, s.openai_model, '| anthropic:', s.has_anthropic, s.anthropic_model)"
+      - name: 방식 비교 — 호출 수·예상 비용 출력 후 실행 (실제 모델) → compare_live.json
+        # 비용 상한을 넘기거나 제공자 장애가 섞이면 저장하지 않고 종료 코드 2
+        run: |
+          python -m evals.compare --estimate
+          python -m evals.compare --cost-cap ${{ github.event.inputs.compare_cost_cap || '3.5' }} --out compare_live.json
+      - name: 결과 커밋
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -f evals/reports/compare_live.json ]; then git add evals/reports/compare_live.json; fi
+          if git diff --cached --quiet; then echo "변경 없음"; exit 0; fi
+          git commit -m "live-eval: 방식 비교 실제 모델 결과 (run ${{ github.run_id }})"
+          git pull --rebase origin main
+          git push
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: compare-reports
+          path: evals/reports/compare_*.json

@@ -49,6 +49,7 @@ class DecisionInputs:
     unverified_quotes: int = 0                  # 원문에 없는 인용(환각) 수
     unsupported_decision: bool = False          # 모델이 수정/반려를 말했지만 남은 근거 finding 이 없음
     disagreement: bool = False                  # 2차 의견 불일치
+    second_opinion_missing: bool = False        # 교차 확인이 필요했는데 호출이 실패해 일치 여부를 모름 → 자동 판정 불가
     second_opinion: Optional[str] = None
     has_rewrite: bool = False
     rewrite_passed: Optional[bool] = None       # None = 재검사 없음/불가. 코드 검사 + 의미 검사 모두 통과해야 True
@@ -83,6 +84,7 @@ def inputs_from(det: OutputGuardResult, verdict: Optional[ReviewVerdict],
     inp.unverified_quotes = sum(1 for f in verdict.findings if not f.verified_quote)
     inp.unsupported_decision = bool(verdict.unsupported_decision)
     inp.disagreement = bool(verdict.disagreement)
+    inp.second_opinion_missing = bool(verdict.second_opinion_failed)
     inp.second_opinion = verdict.second_opinion.value if verdict.second_opinion else None
     inp.has_rewrite = verdict.proposed_rewrite is not None
     if inp.has_rewrite and rewrite_recheck is not None:
@@ -112,6 +114,8 @@ def decide(inp: DecisionInputs, threshold: float) -> Adjudication:
         adj = Adjudication(Decision.HUMAN_REVIEW, f"심사 신뢰도 {inp.confidence:.2f} < 자동 판정 임계값 {threshold:.2f}")
     elif inp.disagreement:
         adj = Adjudication(Decision.HUMAN_REVIEW, f"두 모델 계열의 판정 불일치 ({inp.model_decision} vs {inp.second_opinion or '?'})")
+    elif inp.second_opinion_missing:
+        adj = Adjudication(Decision.HUMAN_REVIEW, "경계 사례의 교차 확인 호출이 실패해 두 모델 계열의 일치 여부를 알 수 없음 — 자동 판정을 하지 않음")
     elif inp.model_decision == Decision.REVISE.value or inp.det_fix:
         adj = Adjudication(Decision.REVISE, "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급")
     else:

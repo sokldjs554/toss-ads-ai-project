@@ -47,6 +47,11 @@ def relink_claims(claims: list[Claim], new_text: str) -> list[Claim]:
     return kept
 
 
+def carried_fact_ids(original: AdCopy) -> list[str]:
+    """고쳐 쓴 문구가 이어받는 '근거 사실' 목록 — 주장 문장이 바뀌어 연결이 끊겨도 그 사실의 조건은 계속 확인한다 (grounding.referenced_facts)."""
+    return sorted({c.fact_id for c in original.claims if c.fact_id} | set(original.carried_fact_ids))
+
+
 def _user_prompt(copy: AdCopy, det: OutputGuardResult, facts: str, landing_text: str) -> str:
     det_lines = "\n".join(f"- {f.rule_id} [{f.severity.value}] '{f.quote}' — {f.explanation}" for f in det.findings) or "- (없음)"
     return (
@@ -91,6 +96,7 @@ def _to_verdict(copy: AdCopy, parsed, det: OutputGuardResult, catalog: PolicyCat
             # 주장→근거 연결은 '바뀐 문구' 기준으로 다시 맺는다. 원문 주장 중 수정안에 그대로 남은 것만 이어받고,
             # 사라진 주장은 버린다. 새 숫자·새 주장은 grounding 이 사실 목록과 대조한다 (재검사).
             rewrite.claims = relink_claims(copy.claims, rewrite.full_text())
+            rewrite.carried_fact_ids = carried_fact_ids(copy)
     all_findings = det.findings + findings
     # decision = max(결정론+검증된 semantic finding 으로 재계산한 판정, 모델이 말한 판정). 모델은 판정을 '완화' 할 수 없다.
     recomputed = decision_from([f for f in all_findings if f.verified_quote or f.layer != Layer.SEMANTIC])

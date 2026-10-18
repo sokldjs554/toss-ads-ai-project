@@ -33,14 +33,11 @@ def _mark(text: str, spans: list[tuple[int, int, Finding]], catalog=None) -> str
 def render_ad(copy: AdCopy, findings: Optional[list[Finding]] = None, title: str | None = None, catalog=None) -> None:
     """광고를 카드로 그린다. 확인이 필요한 구절은 색과 밑줄로 강조하고, 마우스를 올리면 이유가 보인다."""
     findings = [f for f in (findings or []) if f.start >= 0 and f.end > f.start and f.verified_quote]
-    fields = [("headline", copy.headline), ("body", copy.body), ("cta", copy.cta)] + [(f"disc{i}", d) for i, d in enumerate(copy.disclosures)]
-    offsets: dict[str, int] = {}
-    pos = 0
-    for name, value in fields:
-        offsets[name] = pos
-        pos += len(value) + 1
+    offsets = {name: start for name, start, _ in copy.field_spans()}   # full_text() 와 같은 규칙(빈 필드는 건너뜀)으로 계산한다
 
     def spans_for(name: str, value: str):
+        if name not in offsets:
+            return []
         base = offsets[name]
         return [(f.start - base, f.end - base, f) for f in findings if base <= f.start and f.end <= base + len(value)]
 
@@ -96,6 +93,10 @@ def plain_reason(rep: PreflightReport, catalog) -> str:
 
 def human_review_reason(rep: PreflightReport) -> str:
     r = rep.decision_reason
+    if "교차 확인 호출이 실패" in r:
+        return "애매한 경우에 받는 다른 모델 계열의 교차 확인을 하지 못해, 두 모델의 판단이 같은지 알 수 없어 자동으로 확정하지 않았습니다."
+    if "FM-20" in r:
+        return "실행 비용·호출 상한에 닿아 이 광고안은 모델 검사를 하지 못했습니다. 상한을 올리거나 광고안 수를 줄여 다시 실행할 수 있습니다."
     if "실패" in r:
         return "검토 모델 단계가 실패해 자동으로 확정하지 않았습니다."
     if "검증된 반려 근거가 없음" in r:
@@ -123,7 +124,11 @@ def what_to_check(rep: PreflightReport, catalog) -> list[str]:
         items.append(f"검토 모델 판정 {DECISION_LABEL[rep.verdict.decision]} vs 교차 확인 {DECISION_LABEL[rep.verdict.second_opinion] if rep.verdict.second_opinion else '?'} — 어느 쪽이 맞는지")
     if "임계값" in r:
         items.append(f"검토 모델의 확신 {rep.verdict.confidence:.2f} — 모델이 든 이유가 타당한지")
-    if "실패" in r:
+    if "교차 확인 호출이 실패" in r:
+        items.append("다른 모델 계열의 교차 확인을 받지 못했습니다. 다시 실행하거나, 검토 모델의 판단만으로 충분한지")
+    elif "FM-20" in r:
+        items.append("비용·호출 상한 때문에 모델 검사를 하지 못했습니다. 상한을 올려 다시 실행하거나 표현 규칙·안내 문구 검사 결과만으로 판단할지")
+    elif "실패" in r:
         items.append("검토 모델 호출이 실패했습니다. 다시 실행하거나 표현 규칙·안내 문구 검사 결과만으로 판단할지")
     if rep.rewrite_status == RewriteStatus.FAILED_RECHECK:
         items.append("자동 수정안이 재검사를 통과하지 못했습니다. 직접 수정이 필요한지")

@@ -98,6 +98,7 @@ class CaseResult:
     error: str = ""   # 심사 모델 단계가 실패했을 때 그 이유 (예외 종류 + 메시지 앞부분). 비어 있으면 모델 판정이 있었다
     rewrite_error: str = ""   # 수정안의 의미 검사 호출이 실패했을 때 그 이유. 비어 있으면 수정안이 없었거나 의미 검사가 끝났다
     failed_requests: int = 0   # 이 사례에서 응답(사용량)을 받지 못한 요청 수 — 그 비용은 알 수 없다 (0원으로 적지 않는다)
+    served_by: str = ""        # 검토 모델 판정을 실제로 낸 제공자 (대체 경로가 응답했다면 기준 제공자와 다르다)
     prior_attempts: list = field(default_factory=list)   # 같은 사례를 다시 시도했다면 앞선 시도의 기록 (오류·비용·시간). 재시도가 성공해도 지우지 않는다
 
     @property
@@ -138,6 +139,11 @@ def _wait_for_breaker(router: Optional[Router], max_wait_s: float, log: Optional
     return wait
 
 
+def _budget_hit(router: Router) -> bool:
+    b = router.budget
+    return b.spent_usd >= b.cap_usd or b.attempts >= b.max_calls
+
+
 def _tracer_of(router: Optional[Router]) -> Tracer:
     return router.tracer if router is not None else Tracer()
 
@@ -145,10 +151,11 @@ def _tracer_of(router: Optional[Router]) -> Tracer:
 def evaluate_case(case: EvalCase, settings: Settings, router: Optional[Router], catalog: PolicyCatalog,
                   use_llm: bool = True) -> CaseResult:
     copy, product = case.to_copy(), case.to_product()
-    categories = catalog.effective_categories(product.category, copy.full_text())
+    categories = catalog.categories_for(product, copy.full_text())
     t0 = time.perf_counter()
     cost_before = router.budget.spent_usd if router else 0.0
     failed_before = router.budget.failed_attempts if router else 0
+    estimated_before = router.budget.estimated_calls if router else 0
     det = output_guard.check(copy, product, categories, case.landing_text, [], catalog)
     verdict = None
     unverified = 0
@@ -177,13 +184,14 @@ def evaluate_case(case: EvalCase, settings: Settings, router: Optional[Router], 
     pred_rules = sorted({f.rule_id for f in report.verdict.findings if f.severity != Severity.WARN and f.verified_quote})
     conf = report.verdict.confidence if verdict is not None else 0.0
     failed_requests = (router.budget.failed_attempts - failed_before) if router else 0
+    estimated_here = (router.budget.estimated_calls - estimated_before) if router else 0
     return CaseResult(case=case, predicted=report.final_decision.value, confidence=conf, predicted_rules=pred_rules,
                       reason=report.decision_reason, latency_ms=round((time.perf_counter() - t0) * 1000, 1),
                       cost_usd=round((router.budget.spent_usd - cost_before) if router else 0.0, 6), unverified_quotes=unverified,
                       inputs=inputs.to_dict(), rewrite_status=report.rewrite_status.value,
                       model_decision=verdict.decision.value if verdict is not None else "",
-                      cost_estimated=failed_requests > 0, error=error, rewrite_error=(recheck.semantic_error if recheck is not None else ""),
-                      failed_requests=failed_requests)
+                      cost_estimated=failed_requests > 0 or estimated_here > 0, error=error, rewrite_error=(recheck.semantic_error if recheck is not None else ""),
+                      failed_requests=failed_requests, served_by=(verdict.provider if verdict is not None else ""))
 
 
 def evaluate_with_retry(case: EvalCase, settings: Settings, router: Optional[Router], catalog: PolicyCatalog, use_llm: bool = True,
@@ -237,6 +245,11 @@ def run_eval(dataset: str, settings: Settings, use_llm: bool = True, router: Opt
         if progress:
             progress(i + 1, len(cases), r)
         consecutive_failures = consecutive_failures + 1 if r.failed else 0
+        if use_llm and router is not None and r.failed and _budget_hit(router):
+            # FM-20: 비용·호출 상한에 닿았다 — 남은 사례를 '담당자 확인' 으로 채우며 돌리지 않고 즉시 멈춘다 (부분 결과는 기준선으로 저장하지 않는다)
+            partial = _build_report(dataset, cases[: len(results)], results, settings, catalog, use_llm, excluded_semantic_only, limit, run_info)
+            partial["aborted"] = {"after_case": c.id, "reason": "FM-20 비용·호출 상한", "done": len(results), "planned": len(cases)}
+            raise EvalAborted(f"FM-20 비용·호출 상한에 닿아 중단 ({c.id} 까지 {len(results)}/{len(cases)} 처리, ${router.budget.spent_usd:.4f}/${router.budget.cap_usd:.2f})", partial)
         if abort_after and consecutive_failures >= abort_after:
             partial = _build_report(dataset, cases[: len(results)], results, settings, catalog, use_llm, excluded_semantic_only, limit, run_info)
             partial["aborted"] = {"after_case": c.id, "consecutive_provider_failures": consecutive_failures, "done": len(results), "planned": len(cases)}
@@ -288,14 +301,16 @@ def _build_report(dataset: str, cases: list, results: list[CaseResult], settings
         # 첫 시도가 실패했다가 재시도로 모델 판정을 받은 사례 — 측정에는 쓸 수 있지만 실패와 그 비용은 기록으로 남긴다
         "recovered_failures": {"n": sum(1 for r in results if r.prior_attempts and not r.failed), "cases": [r.case.id for r in results if r.prior_attempts and not r.failed],
                                "by_error": tally_errors(e for r in results if not r.failed for a in r.prior_attempts for e in (a["error"], a["rewrite_error"]) if e),
-                               "cost_usd": round(sum(a["cost_usd"] for r in results for a in r.prior_attempts), 6)},
+                               "cost_usd": round(sum(a["cost_usd"] for r in results if not r.failed for a in r.prior_attempts), 6)},
+        # 검토 모델 판정을 낸 제공자 집계 — 기준 제공자가 아닌 쪽(대체 경로)이 답한 사례가 있으면 그 모델의 측정이 아니다
+        "served_by": tally_errors(r.served_by for r in results if r.served_by),
         "summary": summary,
         "cases": [{"id": r.case.id, "label": r.case.label, "predicted": r.predicted, "confidence": r.confidence,
                    "label_rules": r.case.rule_ids, "predicted_rules": r.predicted_rules, "difficulty": r.case.difficulty,
                    "category": r.case.category, "reason": r.reason, "latency_ms": r.latency_ms, "cost_usd": r.cost_usd,
                    "unverified_quotes": r.unverified_quotes, "inputs": r.inputs, "rewrite_status": r.rewrite_status,
                    "model_decision": r.model_decision, "error": r.error, "rewrite_error": r.rewrite_error,
-                   "failed_requests": r.failed_requests, "prior_attempts": r.prior_attempts} for r in results],
+                   "failed_requests": r.failed_requests, "prior_attempts": r.prior_attempts, "served_by": r.served_by} for r in results],
     }
 
 
@@ -308,12 +323,20 @@ def tally_errors(errors) -> dict[str, int]:
 
 
 def baseline_allowed(report: dict) -> tuple[bool, str]:
-    """기준선으로 저장해도 되는 결과인가. 제공자 장애로 담당자 확인이 된 사례가 하나라도 있으면 측정이 아니라 장애 기록이다."""
+    """기준선으로 저장해도 되는 결과인가. 제공자 장애로 담당자 확인이 된 사례가 하나라도 있거나, 일부 사례만 돌렸거나,
+    기준 제공자가 아닌 쪽(대체 경로)이 판정한 사례가 있으면 측정이 아니라 장애·부분 기록이다."""
     pf = report.get("provider_failures") or {}
     if report.get("aborted"):
         return False, f"평가가 중단됨 ({report['aborted']})"
     if pf.get("n"):
         return False, f"심사 모델 단계 실패 {pf['n']}건 ({', '.join(pf.get('cases', [])[:8])}{' …' if pf.get('n', 0) > 8 else ''}) — 오류: {pf.get('by_error')}"
+    limit = (report.get("run_settings") or {}).get("limit")
+    if limit:
+        return False, f"사례 수를 {limit}건으로 제한한 부분 실행이다 — 전체 데이터셋의 결과가 아니라 기준선으로 쓸 수 없다"
+    stamped = report.get("provider")
+    other = {k: v for k, v in (report.get("served_by") or {}).items() if k not in (stamped, "none", "") and not (stamped == "mock" and k == "mock")}
+    if other and stamped not in (None, "none"):
+        return False, f"기준 제공자({stamped}) 대신 다른 제공자가 {sum(other.values())}건을 판정했다 ({other}) — 대체 경로가 섞인 결과는 그 모델의 측정이 아니다"
     return True, ""
 
 
@@ -339,6 +362,10 @@ def recommendation_for(settings: Settings, catalog: Optional[PolicyCatalog] = No
         "dataset_sha256": dataset_fingerprint(dataset)["dataset_sha256"],
     }
     mismatches = [f"{k}: 평가 {base.get(k)!r} ≠ 현재 {v!r}" for k, v in want.items() if base.get(k) != v]
+    all_cases = load_dataset(dataset)
+    expected_n = len(all_cases) - int(base.get("excluded_semantic_only") or 0)
+    if base.get("n") != expected_n or (base.get("run_settings") or {}).get("limit"):
+        mismatches.append(f"일부 사례만 평가된 결과 (평가 {base.get('n')}건 ≠ 데이터셋 {expected_n}건)")
     if base.get("curve_method") != "replay_decide":
         mismatches.append("곡선이 실제 판정 재생이 아닌 옛 방식(신뢰도 필터)으로 계산됨")
     tau = base.get("recommended_threshold_for_zero_unsafe_and_zero_false_flag")

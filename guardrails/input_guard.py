@@ -67,7 +67,7 @@ def intercept(brief: CampaignBrief, catalog: Optional[PolicyCatalog] = None, rou
     desc = brief.product.raw_description or ""
 
     # 0) 업종 추론 (선언 업종 + 단서)
-    categories = catalog.effective_categories(brief.product.category, text, desc, " ".join(f.text for f in brief.product.facts))
+    categories = catalog.categories_for(brief.product, text)
     mismatch = catalog.inferred_mismatch(brief.product.category, categories)
     if mismatch:
         rule = catalog.get("CAT-MISMATCH-01")

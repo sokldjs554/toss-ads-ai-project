@@ -30,7 +30,8 @@ def _table(rep: dict, split: str) -> None:
         rows.append({"방식": f"(참고) {name}", "잘못 통과한 광고": pct(b["unsafe_pass"]["k"], b["unsafe_pass"]["n"]), "올바른 통과": pct(b["correct_pass"]["k"], b["correct_pass"]["n"]),
                      "불필요한 수정 요청": pct(b["unnecessary_revision"]["k"], b["unnecessary_revision"]["n"]), "담당자 확인": f"{b['human_review']['k']}/{b['human_review']['n']}", "모델 호출": 0, "시간": "—", "비용": "—"})
     st.dataframe(rows, width="stretch", hide_index=True)
-    st.caption("‘담당자 확인’ 은 ‘올바른 통과’ 에 들어가지 않습니다. 전부 담당자 확인으로 넘기면 잘못 통과한 광고는 0 이어도 올바른 통과도 0 입니다.")
+    st.caption("‘담당자 확인’ 은 ‘올바른 통과’ 에 들어가지 않습니다. 전부 담당자 확인으로 넘기면 잘못 통과한 광고는 0 이어도 올바른 통과도 0 입니다. "
+               "‘코드 검사만’ 행은 코드 규칙이 하나도 걸리지 않으면 통과로 센 값이고, 실제 서비스는 코드 혼자 통과를 확정하지 않습니다(검사 사례의 ‘코드 검사만’ 표는 확정하지 않는 운영 방식).")
 
 
 def _report(rep: dict) -> None:
@@ -46,6 +47,10 @@ def _report(rep: dict) -> None:
         st.info(rep["run_kind_note"], icon="ℹ️")
     for split in ("dev", "holdout"):
         _table(rep, split)
+    if rep.get("caveats"):
+        with st.expander("이 비교를 읽을 때 알아야 할 것"):
+            for c in rep["caveats"]:
+                st.markdown(f"- {c}")
     f = rep["failures"]
     if f["n"]:
         st.warning(f"모델 호출 실패 {f['n']}건이 섞여 있습니다 ({f['by_error']}). 실패는 통과·담당자 확인으로 세지 않고 따로 셉니다.", icon="⚠️")
@@ -77,7 +82,8 @@ def _provenance(rep: dict) -> None:
 
 def _changes(rep: dict) -> None:
     with st.expander("라벨 변경 이력과 G-069 효과 분리"):
-        ch = rep.get("label_changes", [])
+        # 라벨 값이 실제로 바뀐 사례만 (기대 규칙·분류만 바뀐 사례는 점수를 바꾸는 라벨 변경이 아니다)
+        ch = [c for c in rep.get("label_changes", []) if c.get("label_changed")]
         if ch:
             st.markdown("**라벨이 바뀐 사례** — 라벨을 바꾸면 점수가 바뀌므로 변경 전 값과 이유를 남깁니다.")
             st.dataframe([{"데이터": c["dataset"], "사례": c["case_id"], "버전": c["label_version"], "그때 라벨": c["label_then"], "이유": c["reason_then"]} for c in ch], width="stretch", hide_index=True)

@@ -20,7 +20,10 @@ from guardrails.policy import PolicyCatalog
 from llm.router import Router
 from observability.tracer import Tracer
 
+from llm.errors import BudgetExceeded
+
 from . import adjudicator, reviewer
+from .crosscheck import apply_second_opinion, is_borderline
 
 
 @dataclass
@@ -29,6 +32,7 @@ class RewriteCheck:
     semantic: Optional[ReviewVerdict] = None     # None = 의미 검사를 하지 않았거나(코드 반려) 하지 못함(모델 실패)
     semantic_error: str = ""
     semantic_error_code: str = ""                # 의미 검사 호출이 실패했을 때의 실패 모드 코드 (FM-05/07/20 …)
+    budget_exceeded: bool = False                # 비용·호출 상한(FM-20)으로 검사를 못 했다 — 호출한 실행은 계속하지 않고 멈춘다
     decision: Decision = Decision.HUMAN_REVIEW   # 공통 판정 기준(decide)을 수정안 문구에 적용한 결과
     reason: str = ""
     inputs: Optional[adjudicator.DecisionInputs] = None
@@ -59,14 +63,24 @@ class RewriteCheck:
         return out
 
 
+def rewrite_categories(catalog: PolicyCatalog, product: ProductFacts, rewrite: AdCopy, base: set[str]) -> set[str]:
+    """수정안에 적용할 업종: 원문에 적용한 업종에, 수정안 문구·상품 설명·사실에서 추론되는 업종을 더한다 (수정안이 새 단서를 넣어도 같은 규칙을 적용)."""
+    return set(base) | catalog.categories_for(product, rewrite.full_text())
+
+
 def check_rewrite(rewrite: AdCopy, product: ProductFacts, categories: set[str], landing_text: str, rejected_history: list[str],
-                  catalog: PolicyCatalog, router: Optional[Router], facts_text: str, tracer: Tracer, threshold: float) -> RewriteCheck:
-    """threshold: 자동 판정에 필요한 최소 확신 — 원문 판정과 같은 값을 넘긴다."""
+                  catalog: PolicyCatalog, router: Optional[Router], facts_text: str, tracer: Tracer, threshold: float,
+                  second_opinion: bool = False, second_opinion_margin: float = 0.1) -> RewriteCheck:
+    """threshold: 자동 판정에 필요한 최소 확신 — 원문 판정과 같은 값을 넘긴다.
+    second_opinion: 원문과 같은 조건(경계 사례)에서 다른 모델 계열의 교차 확인을 받는다. 필요한데 호출이 실패하면 담당자 확인(= 확인하지 못함)이다.
+    """
     with tracer.span("rewrite_recheck", kind="guardrail") as span:
+        categories = rewrite_categories(catalog, product, rewrite, categories)
         det = output_guard.check(rewrite, product, categories, landing_text, rejected_history, catalog)
         semantic: Optional[ReviewVerdict] = None
         error = ""
         error_code = ""
+        budget_hit = False
         det_block = any(f.severity.value == "block" for f in det.findings)
         if det_block:
             span.event("semantic_recheck_skipped", reason="code block — 결론이 같아 모델을 부르지 않음")
@@ -77,12 +91,17 @@ def check_rewrite(rewrite: AdCopy, product: ProductFacts, categories: set[str], 
                 ro = reviewer.review(rewrite, det, categories, facts_text, landing_text, catalog, router, label_suffix="rewrite")
                 semantic = ro.verdict
                 span.set(semantic_decision=semantic.decision.value, semantic_confidence=semantic.confidence, unverified_quotes=ro.unverified_quotes)
+                if second_opinion and is_borderline(semantic, threshold, second_opinion_margin):
+                    apply_second_opinion(rewrite, det, categories, facts_text, landing_text, catalog, router, semantic)
+                    span.set(second_opinion=semantic.second_opinion.value, disagreement=semantic.disagreement)
             except Exception as e:  # noqa: BLE001 — 의미 검사 실패 → 공통 기준에서 '확인하지 못함'. 실패는 호출한 쪽(실행·평가)이 세도록 코드와 함께 남긴다
                 error = f"{type(e).__name__}: {e}"[:200]
                 error_code = classify_exception(e)
+                budget_hit = isinstance(e, BudgetExceeded)   # 상한은 일시 오류가 아니라 실행을 멈추는 사건 — 호출한 쪽이 FM-20 으로 멈춘다
                 span.event("semantic_recheck_failed", error=error, code=error_code)
                 span.status = "error"
         rc = RewriteCheck.judge(det, semantic, threshold, error, error_code)
+        rc.budget_exceeded = budget_hit
         # decision = 공통 기준의 결과(수정안의 최종 상태를 정하는 값). 코드 검사만의 결과는 det_decision.
         span.set(decision=rc.decision.value, reason=rc.reason, det_decision=det.decision.value, threshold=threshold,
                  findings=[f.model_dump(mode="json") for f in rc.findings])

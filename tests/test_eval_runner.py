@@ -36,11 +36,45 @@ def test_provider_failure_is_recorded_per_case_and_tallied(tracer):
 
 def test_clean_run_has_no_failures_and_may_be_saved(tracer):
     s, router = _demo_router(tracer)
-    rep = run_eval("golden", s, use_llm=True, router=router, limit=3, breaker_wait_s=0, abort_after=0)
+    rep = run_eval("holdout", s, use_llm=True, router=router, breaker_wait_s=0, abort_after=0)   # 전체 데이터셋
     assert rep["provider_failures"] == {"n": 0, "cases": [], "by_error": {}, "by_stage": {"reviewer": 0, "rewrite_recheck": 0}}
     assert rep["recovered_failures"]["n"] == 0 and rep["failed_requests"] == 0
     assert all(c["error"] == "" and c["rewrite_error"] == "" for c in rep["cases"])
     assert baseline_allowed(rep) == (True, "")
+
+
+def test_partial_dataset_run_is_not_adopted_as_baseline(tracer):
+    """--limit 로 일부 사례만 돌린 결과는 장애가 없어도 기준선이 될 수 없다 (전체 기준선을 덮어쓰지 않는다)."""
+    s, router = _demo_router(tracer)
+    rep = run_eval("golden", s, use_llm=True, router=router, limit=3, breaker_wait_s=0, abort_after=0)
+    ok, why = baseline_allowed(rep)
+    assert not ok and "부분 실행" in why and rep["run_settings"]["limit"] == 3
+    assert not baseline_allowed(run_eval("golden", s, use_llm=False, limit=3, breaker_wait_s=0, abort_after=0))[0]
+
+
+def test_baseline_with_limit_is_not_trusted_for_a_recommended_threshold(monkeypatch):
+    from evals import runner
+
+    full = run_eval("holdout", Settings.from_env(openai_api_key="", anthropic_api_key="", force_demo=True), use_llm=False, breaker_wait_s=0, abort_after=0)
+    part = dict(full, n=3, run_settings={**full["run_settings"], "limit": 3})
+    monkeypatch.setattr(runner, "load_report", lambda name: part)
+    rec = runner.recommendation_for(Settings.from_env(openai_api_key="", anthropic_api_key="", force_demo=True), dataset="holdout")
+    assert rec["tau"] is None and any("일부 사례만 평가된 결과" in m for m in rec["mismatches"])
+
+
+def test_fallback_provider_answers_make_the_report_unsavable():
+    """기준 제공자(OpenAI)가 429 로 실패해 Anthropic 이 대신 답한 사례는 오류가 남지 않아도 그 모델의 측정이 아니다."""
+    from llm.errors import RateLimited
+    from tests.fakes import scripted_review_provider
+
+    s = Settings.from_env(openai_api_key="sk-fake-not-a-real-key", anthropic_api_key="sk-ant-fake", force_demo=False)
+    ok = {"decision": "APPROVE", "confidence": 0.95, "findings": [], "rationale": "x", "rewrite": None}
+    router = Router(s, providers={"openai": scripted_review_provider(RateLimited("429", provider="openai"), "openai"), "anthropic": scripted_review_provider(ok, "anthropic")}, tracer=Tracer())
+    rep = run_eval("holdout", s, use_llm=True, router=router, breaker_wait_s=0, abort_after=0)
+    assert rep["provider_failures"]["n"] == 0 and rep["failed_requests"] > 0                 # 오류로는 남지 않는다
+    assert rep["served_by"] == {"anthropic": 12}
+    ok_, why = baseline_allowed(rep)
+    assert not ok_ and "다른 제공자" in why and "anthropic" in why
 
 
 def test_transient_failure_is_retried_once_after_waiting(tracer, monkeypatch):
@@ -71,6 +105,16 @@ def test_abort_after_consecutive_provider_failures(tracer):
     assert partial["aborted"]["consecutive_provider_failures"] == 3 and partial["aborted"]["done"] == 3 and partial["aborted"]["planned"] == 10
     assert partial["provider_failures"]["n"] == 3
     assert "Timeout" in str(ei.value)
+    assert baseline_allowed(partial)[0] is False
+
+
+def test_eval_stops_at_once_when_the_cost_cap_is_hit(tracer):
+    """FM-20: 비용 상한에 닿으면 나머지를 '담당자 확인' 으로 채우며 이어 가지 않고 첫 실패 사례에서 멈춘다 (연속 3건 실패를 기다리지 않는다)."""
+    s, router = _demo_router(tracer)
+    with pytest.raises(EvalAborted) as ei:
+        run_eval("golden", s, use_llm=True, router=router, limit=10, breaker_wait_s=0, abort_after=3, budget_cap_usd=0.0)
+    partial = ei.value.report
+    assert partial["aborted"]["done"] == 1 and "FM-20" in partial["aborted"]["reason"] and "FM-20" in str(ei.value)
     assert baseline_allowed(partial)[0] is False
 
 

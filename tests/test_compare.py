@@ -195,3 +195,72 @@ def test_stored_controlled_report_is_labelled_and_complete():
     assert set(rep["systems"]) == {"code_only", "llm_only", "combined"} and set(rep["datasets"]) == {"golden", "holdout", "contrast_g069", "conditions"}
     assert rep["failures"]["n"] == 0 and rep["rows"] and rep["label_changes"] and rep["g069_effects"]
     assert set(rep["overall_by_split"]) == {"dev", "holdout"}
+
+
+# ───────────── 검토 후 보강 ─────────────
+@pytest.mark.parametrize("category", ["ecommerce", "loan", "investment", "app", "card", "insurance"])
+def test_llm_only_system_prompt_never_mentions_a_code_check_for_any_category(category):
+    """규칙 설명 안의 ‘코드가 ~ 본다’ 문장까지 빼서, 코드 검사가 없는 이 방식의 프롬프트에 코드 검사가 있다고 적히지 않는다."""
+    from agents.prompts import llm_only_system
+
+    cats = CAT.effective_categories(__import__("core.schemas", fromlist=["ProductCategory"]).ProductCategory(category), "")
+    text = llm_only_system(CAT, cats)
+    assert "코드" not in text and "결정론" not in text, [l for l in text.splitlines() if "코드" in l or "결정론" in l]
+    assert "GRND-COND-01" in text and "GRND-COND-02" in text                     # 규칙 자체는 남아 있고 코드를 말하는 문장만 빠졌다
+
+
+def test_llm_only_gets_the_same_claim_links_and_output_budget_as_the_combined_reviewer():
+    from agents import reviewer
+    from core.schemas import Claim
+
+    seen = {}
+
+    def spy(req):
+        seen["user"], seen["max_tokens"] = req.user, req.max_tokens
+        return APPROVE
+
+    c = case(claims=[{"text": "전 상품 10% 할인", "fact_id": "F1"}], facts=[{"id": "F1", "text": "전 상품 10% 할인"}])
+    run_llm_only(c, PARTIAL, router_with(spy), CAT)
+    assert "주장→근거: [('전 상품 10% 할인', 'F1')]" in seen["user"] and seen["max_tokens"] == 1800
+    combined_user = reviewer._user_prompt(c.to_copy(), run_code_only.__globals__["output_guard"].check(c.to_copy(), c.to_product(), {"ecommerce"}), "- F1: 전 상품 10% 할인", "")
+    assert "주장→근거: [('전 상품 10% 할인', 'F1')]" in combined_user
+
+
+def test_consecutive_provider_failures_abort_the_comparison_and_nothing_is_saved(tmp_path, monkeypatch):
+    rep = run_compare(["golden"], PARTIAL, router=router_with(ProviderError("boom", provider="openai")), systems=("llm_only",), abort_after=3)
+    assert rep["aborted"] and "연속" in rep["aborted"]["reason"] and len(rep["rows"]) == 3
+    assert compare_allowed(rep)[0] is False
+
+    written = []
+    monkeypatch.setattr(compare, "save_report", lambda r, name="x.json": written.append(name))
+    monkeypatch.setattr(compare, "run_compare", lambda *a, **k: rep)
+    monkeypatch.setenv("PREFLIGHT_FORCE_DEMO", "1")
+    assert compare.main(["--datasets", "golden", "--systems", "llm_only", "--out", "compare_live.json"]) == 2
+    assert written == ["compare_failed.json"]                                     # 저장하지 않는 결과는 추적하지 않는 파일에만
+
+
+def test_llm_only_retries_once_after_a_transient_failure(monkeypatch):
+    n = {"calls": 0}
+
+    def flaky(req):
+        n["calls"] += 1
+        return ProviderError("429", provider="openai") if n["calls"] == 1 else APPROVE
+
+    monkeypatch.setattr("evals.compare._wait_for_breaker", lambda *a, **k: 0.0)
+    r = run_llm_only(case(), PARTIAL, router_with(flaky), CAT, breaker_wait_s=30)
+    assert not r.error and r.predicted == "APPROVE" and r.failed_requests >= 1       # 재시도로 판정을 받았고 첫 실패 요청은 기록에 남는다
+    r2 = run_llm_only(case(), PARTIAL, router_with(ProviderError("x", provider="openai")), CAT, breaker_wait_s=0)
+    assert r2.error                                                                  # 기다림 0 이면 재시도하지 않는다
+
+
+def test_label_changes_flag_only_real_label_value_changes():
+    ch = label_changes(["golden"])
+    assert {c["case_id"] for c in ch if c["label_changed"]} == {"G-069"}              # G-081 은 기대 규칙·분류만 바뀌었고 라벨 값은 그대로
+    assert any(c["case_id"] == "G-081" and not c["label_changed"] for c in ch)
+
+
+def test_report_carries_the_asymmetry_caveats_and_the_extra_info_rows():
+    rep = run_compare(["contrast_g069"], DEMO, systems=("code_only", "llm_only", "combined"))
+    assert any("수정안을 만들지 않는다" in c for c in rep["caveats"]) and any("같은 저자" in c for c in rep["caveats"])
+    for s in ("code_only", "llm_only", "combined"):
+        assert "수정안 제안·재검사" in rep["systems"][s]["info_given"] and "광고가 가리킨 근거(주장→근거 연결)" in rep["systems"][s]["info_given"]

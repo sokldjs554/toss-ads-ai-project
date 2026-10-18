@@ -28,7 +28,7 @@ from core.config import Settings
 from core.llm_schemas import build_review_schema
 from core.schemas import AdCopy
 from evals.metrics import UNSAFE_LABELS
-from evals.runner import (REPORTS, EvalAborted, EvalCase, dataset_fingerprint, dataset_path, evaluate_with_retry, load_dataset, load_report, save_report)
+from evals.runner import (REPORTS, EvalAborted, EvalCase, _wait_for_breaker, dataset_fingerprint, dataset_path, evaluate_with_retry, load_dataset, load_report, save_report)
 from guardrails import output_guard
 from guardrails.failsafe import classify_exception
 from guardrails.policy import PolicyCatalog, get_catalog
@@ -44,17 +44,19 @@ FLAG = ("REVISE", "REJECT")
 # 각 방식이 받는 정보 — 비교가 공정한지 읽는 사람이 직접 판단할 수 있게 적어 둔다.
 INFO_GIVEN = {
     "code_only": {
-        "광고 문구·안내 문구": "예", "상품 정보(사실 목록)": "예 — 코드가 숫자·조건을 대조", "랜딩 페이지 문구": "예 — 코드가 숫자·표현을 대조",
-        "검사 기준(규칙)": "예 — 코드로 구현된 규칙(어휘·고지 체크리스트·숫자/조건 대조·형식)", "검토 모델": "아니오", "코드 보정·판정 함수": "코드 검사 결과를 그대로 판정으로 사용",
+        "광고 문구·안내 문구": "예", "광고가 가리킨 근거(주장→근거 연결)": "예 — 코드가 주장이 가리킨 사실을 확인", "상품 정보(사실 목록)": "예 — 코드가 숫자·조건을 대조", "랜딩 페이지 문구": "예 — 코드가 숫자·표현을 대조",
+        "검사 기준(규칙)": "예 — 코드로 구현된 규칙(어휘·고지 체크리스트·숫자/조건 대조·형식)", "검토 모델": "아니오", "수정안 제안·재검사": "아니오", "코드 보정·판정 함수": "코드 검사 결과를 그대로 판정으로 사용",
     },
     "llm_only": {
-        "광고 문구·안내 문구": "예", "상품 정보(사실 목록)": "예 — 프롬프트에 텍스트로 제공", "랜딩 페이지 문구": "예 — 프롬프트에 앞 1,200자",
-        "검사 기준(규칙)": f"예 — 같은 규칙 카탈로그를 프롬프트로 제공 (비교 전용 프롬프트 {LLM_ONLY_PROMPT_VERSION})", "검토 모델": "예",
+        "광고 문구·안내 문구": "예", "광고가 가리킨 근거(주장→근거 연결)": "예 — 합친 방식과 같은 줄을 프롬프트에 포함", "상품 정보(사실 목록)": "예 — 프롬프트에 텍스트로 제공", "랜딩 페이지 문구": "예 — 프롬프트에 앞 1,200자",
+        "검사 기준(규칙)": f"예 — 같은 규칙 카탈로그를 프롬프트로 제공 (비교 전용 프롬프트 {LLM_ONLY_PROMPT_VERSION}; 규칙 설명에서 ‘코드가 ~한다’ 는 문장은 뺌)", "검토 모델": "예",
+        "수정안 제안·재검사": "아니오 — 수정안을 만들지 않는다. 그래서 호출 수·시간·비용이 합친 방식보다 작은 것은 방식의 효율이 아니라 단계가 적어서다",
         "코드 보정·판정 함수": "없음 — 모델이 돌려준 판정을 그대로 사용 (인용 검증·확정 계층 보호·담당자 확인 경로 없음)",
     },
     "combined": {
-        "광고 문구·안내 문구": "예", "상품 정보(사실 목록)": "예 — 코드 대조 + 프롬프트", "랜딩 페이지 문구": "예",
+        "광고 문구·안내 문구": "예", "광고가 가리킨 근거(주장→근거 연결)": "예", "상품 정보(사실 목록)": "예 — 코드 대조 + 프롬프트", "랜딩 페이지 문구": "예",
         "검사 기준(규칙)": f"예 — 코드 규칙 + 같은 카탈로그를 프롬프트로 (검토 프롬프트 {PROMPT_VERSION})", "검토 모델": "예 — 코드 검사 결과를 받음",
+        "수정안 제안·재검사": "예 — 수정 제안과 그 의미 재검사까지 호출한다 (호출 수·시간·비용에 포함)",
         "코드 보정·판정 함수": "있음 — 인용 검증, 코드가 확정한 계층 보호, 공통 판정 함수(확신 기준 τ), 수정안 재검사. 평가 경로에는 교차 확인·가상 사용자가 없음",
     },
 }
@@ -88,7 +90,7 @@ class Row:
 def run_code_only(case: EvalCase, catalog: PolicyCatalog) -> Row:
     copy, product = case.to_copy(), case.to_product()
     t0 = time.perf_counter()
-    cats = catalog.effective_categories(product.category, copy.full_text())
+    cats = catalog.categories_for(product, copy.full_text())
     det = output_guard.check(copy, product, cats, case.landing_text, [], catalog)
     rules = sorted({f.rule_id for f in det.findings if f.severity.value != "warn"})
     return Row(dataset="", system="code_only", case_id=case.id, label=case.label, difficulty=case.difficulty, predicted=det.decision.value, confidence=1.0 if det.findings else 0.0,
@@ -96,24 +98,32 @@ def run_code_only(case: EvalCase, catalog: PolicyCatalog) -> Row:
 
 
 def _llm_only_user(copy: AdCopy, facts: str, landing_text: str) -> str:
-    return (f"[소재]\n헤드라인: {copy.headline}\n본문: {copy.body}\nCTA: {copy.cta}\n고지: {' / '.join(copy.disclosures) or '(없음)'}\n\n[광고주 사실 목록]\n{facts}\n\n"
+    # 합친 방식의 검토 프롬프트(agents/reviewer._user_prompt)와 같은 입력에서 '코드 검사 결과' 블록만 뺀다 — 주장→근거 연결은 같이 준다
+    return (f"[소재]\n헤드라인: {copy.headline}\n본문: {copy.body}\nCTA: {copy.cta}\n고지: {' / '.join(copy.disclosures) or '(없음)'}\n"
+            f"주장→근거: {[(c.text, c.fact_id) for c in copy.claims]}\n\n[광고주 사실 목록]\n{facts}\n\n"
             + (f"[랜딩 페이지 텍스트(발췌)]\n{landing_text[:1200]}\n" if landing_text else ""))
 
 
-def run_llm_only(case: EvalCase, settings: Settings, router: Router, catalog: PolicyCatalog) -> Row:
+def run_llm_only(case: EvalCase, settings: Settings, router: Router, catalog: PolicyCatalog, breaker_wait_s: float = 0.0) -> Row:
     copy, product = case.to_copy(), case.to_product()
-    cats = catalog.effective_categories(product.category, copy.full_text())
+    cats = catalog.categories_for(product, copy.full_text())
     facts = "\n".join(f"- {f.id}: {f.text}" for f in product.facts) or "- (없음)"
     rule_ids = [r.id for r in catalog.rules_for(cats)]
     req = LLMRequest(task=Task.REVIEW, system=llm_only_system(catalog, cats), user=_llm_only_user(copy, facts, case.landing_text),
-                     schema=build_review_schema(rule_ids), max_tokens=1200, temperature=0.0, context={"rule_ids": rule_ids, "copy": copy.model_dump(mode="json"), "required_disclosures": []},
+                     schema=build_review_schema(rule_ids), max_tokens=1800, temperature=0.0, context={"rule_ids": rule_ids, "copy": copy.model_dump(mode="json"), "required_disclosures": []},
                      label=f"compare_llm_only:{case.id}")
     b = router.budget
     before = (b.spent_usd, b.calls, b.attempts, b.failed_attempts)
     t0 = time.perf_counter()
     row = Row(dataset="", system="llm_only", case_id=case.id, label=case.label, difficulty=case.difficulty, predicted="")
     try:
-        resp = router.complete(req)
+        try:
+            resp = router.complete(req)
+        except Exception:  # noqa: BLE001 — 일시 장애는 서킷이 닫힐 때까지 기다렸다가 한 번 더 (평가 실행기와 같은 규칙). 첫 실패의 요청 수·비용은 위 집계에 그대로 남는다
+            if breaker_wait_s <= 0:
+                raise
+            _wait_for_breaker(router, breaker_wait_s)
+            resp = router.complete(req)
         if resp.parsed is None:
             raise ValueError("심사 출력이 비어 있음")
         p = resp.parsed
@@ -170,6 +180,15 @@ def summarize_rows(rows: list[dict], predicted_key: str = "predicted") -> dict:
         "latency_ms_total": round(sum(r.get("latency_ms", 0.0) for r in rows), 1), "latency_ms_mean": round(sum(r.get("latency_ms", 0.0) for r in rows) / len(rows), 2) if rows else 0.0,
         "cost_usd": cost, "cost_is_lower_bound": failed_requests > 0,
     }
+
+
+# 비교 결과를 읽을 때 알아야 하는 비대칭 — 리포트·화면·문서에 그대로 싣는다
+CAVEATS = [
+    "라벨은 ‘코드가 내야 할 판정’ 이고 규칙과 라벨을 같은 저자가 썼다. 그래서 코드 검사에 유리하고, 개발용 사례의 코드 검사 수치는 일반화의 증거가 아니다.",
+    "검토 모델만 방식은 수정안을 만들지 않는다 — 호출 수·시간·비용이 작은 것은 단계가 적어서이지 효율의 증거가 아니다.",
+    "비교 전용 프롬프트(compare-1)는 검토 프롬프트만큼 다듬지 않았다 — 검토 모델만 방식이 낮게 나오면 모델의 한계가 아니라 프롬프트 차이일 수 있다.",
+    "호출 실패는 통과도 담당자 확인도 아니라 실패로 센다. 한 번의 측정이다.",
+]
 
 
 CONTROLLED_NOTES = {
@@ -229,14 +248,17 @@ def pick_examples(all_rows: list[dict], limit: int = 2) -> dict:
 
 # ───────────────────────────── 라벨 변경 · G-069 효과 분리 ─────────────────────────────
 def label_changes(names: list[str]) -> list[dict]:
-    """데이터의 라벨 변경 이력(변경 전 값·이유). 라벨을 바꾼 사례는 점수를 바꾸므로 따로 보여 준다."""
+    """데이터의 라벨 변경 이력(변경 전 값·이유). 라벨을 바꾼 사례는 점수를 바꾸므로 따로 보여 준다.
+    label_changed = 이 사례의 라벨(APPROVE/REVISE/REJECT) 값이 실제로 바뀌었는가. 기대 규칙이나 사례 분류만 바뀐 사례(G-081)는 False — 점수를 바꾸는 라벨 변경이 아니다."""
     out = []
     for name in names:
         if not dataset_path(name).exists():
             continue
         for c in load_dataset(name):
+            labels = {h.get("label") for h in c.label_history} | {c.label}
             for h in c.label_history:
-                out.append({"dataset": name, "case_id": c.id, "current_label": c.label, "label_version": h.get("version"), "label_then": h.get("label"), "reason_then": h.get("reason"), "rules_then": h.get("rule_ids", [])})
+                out.append({"dataset": name, "case_id": c.id, "current_label": c.label, "label_version": h.get("version"), "label_then": h.get("label"), "reason_then": h.get("reason"),
+                            "rules_then": h.get("rule_ids", []), "label_changed": len(labels) > 1})
     return out
 
 
@@ -279,7 +301,8 @@ def compare_allowed(report: dict) -> tuple[bool, str]:
 
 def run_compare(datasets: list[str], settings: Settings, router: Optional[Router] = None, catalog: Optional[PolicyCatalog] = None, systems: tuple[str, ...] = SYSTEMS,
                 limit: Optional[int] = None, cost_cap_usd: Optional[float] = None, progress: Optional[Callable[[str, str, int, int], None]] = None,
-                run_kind: Optional[str] = None) -> dict:
+                run_kind: Optional[str] = None, breaker_wait_s: float = 0.0, abort_after: int = 0) -> dict:
+    """breaker_wait_s: 호출이 실패하면 제공자 서킷이 닫힐 때까지(최대) 기다렸다가 같은 사례를 한 번 더 시도한다. abort_after: 호출 실패 행이 이 수만큼 연속되면 중단한다 (FM-24)."""
     catalog = catalog or get_catalog()
     needs_model = any(s in systems for s in ("llm_only", "combined"))
     if needs_model:
@@ -291,6 +314,7 @@ def run_compare(datasets: list[str], settings: Settings, router: Optional[Router
     rows: list[Row] = []
     ds_info: dict[str, dict] = {}
     aborted = None
+    consecutive = 0
     try:
         for ds in datasets:
             cases = load_dataset(ds)
@@ -303,11 +327,16 @@ def run_compare(datasets: list[str], settings: Settings, router: Optional[Router
                     if system == "code_only":
                         row = run_code_only(case, catalog)
                     elif system == "llm_only":
-                        row = run_llm_only(case, settings, router, catalog)
+                        row = run_llm_only(case, settings, router, catalog, breaker_wait_s)
                     else:
-                        row = run_combined(case, settings, router, catalog)
+                        row = run_combined(case, settings, router, catalog, breaker_wait_s)
                     row.dataset = ds
                     rows.append(row)
+                    if system != "code_only":
+                        consecutive = consecutive + 1 if row.error else 0
+                        if abort_after and consecutive >= abort_after:
+                            aborted = {"reason": f"모델 호출 실패가 {consecutive}행 연속 ({row.error[:80]})", "after_case": f"{ds}:{case.id}"}
+                            raise EvalAborted(aborted["reason"], {})
                     if progress:
                         progress(ds, system, i, len(cases))
                 if cost_cap_usd is not None and router is not None and router.budget.spent_usd > cost_cap_usd:
@@ -341,6 +370,7 @@ def build_report(rows: list[Row], ds_info: dict, settings: Settings, catalog: Po
                           else "실제 모델로 돌린 결과 — 이 설정·이 데이터에서 관측된 값이며 한 번의 측정이다"),
         "settings": {"mode": settings.mode.value, "openai_model": settings.openai_model, "anthropic_model": settings.anthropic_model, "threshold": settings.auto_decision_confidence,
                      "reviewer_prompt_version": PROMPT_VERSION, "llm_only_prompt_version": LLM_ONLY_PROMPT_VERSION, "policy_version": catalog.version, "cost_cap_usd": cost_cap_usd},
+        "caveats": CAVEATS,
         "systems": {s: {"label": SYSTEM_LABEL[s], "info_given": INFO_GIVEN[s], **({"controlled_note": CONTROLLED_NOTES[s]} if kind == "controlled" else {})} for s in systems},
         "datasets": ds_info, "results": results, "overall_by_split": overall,
         "failures": {"n": len(failed), "cases": [f"{r['dataset']}:{r['case_id']}:{r['system']}" for r in failed], "by_error": _tally(r["error"].split(" ")[0] for r in failed)},
@@ -377,12 +407,14 @@ def main(argv: Optional[list[str]] = None) -> int:
         if system == systems[-1] and (i % 10 == 0 or i == n):
             print(f"  {ds} {i}/{n}", file=sys.stderr)
 
-    rep = run_compare(names, settings, systems=systems, limit=args.limit, cost_cap_usd=args.cost_cap, progress=progress)
-    save_report(rep, "compare_latest.json")
+    rep = run_compare(names, settings, systems=systems, limit=args.limit, cost_cap_usd=args.cost_cap, progress=progress,
+                      breaker_wait_s=(60.0 if settings.mode.value != "demo" else 0.0), abort_after=3)
     print_summary(rep)
     ok, why = compare_allowed(rep)
     if not ok:
-        print(f"결과를 저장하지 않음 — {why}")
+        # 장애가 섞였거나 중단된 결과는 저장하지 않는다. 부분 결과는 추적하지 않는 compare_failed.json 에만 남긴다
+        save_report(rep, "compare_failed.json")
+        print(f"결과를 저장하지 않음 — {why}\n  부분 결과: evals/reports/compare_failed.json (기준 결과가 아님·저장소에 올리지 않음)")
         return 2
     out = args.out or f"compare_{rep['run_kind']}.json"
     save_report(rep, out)
