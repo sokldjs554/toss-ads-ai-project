@@ -385,3 +385,29 @@ def test_live_eval_requires_confirmation_and_uses_the_server_cap(monkeypatch):
     assert "실제 모델을 부릅니다" in warn and "모델 호출 약" in warn and "$0.30" in warn
     assert at.button(key="eval_run").disabled is True       # 확인 전에는 실행할 수 없다
     assert "sk-test-FAKE-KEY" not in warn
+
+
+def test_eval_retry_sums_the_cost_the_first_attempt_already_spent(monkeypatch):
+    """첫 시도에서 검토 호출은 성공(비용 발생)했고 수정안 의미 검사만 실패한 뒤 재시도로 끝난 경우, 두 시도의 알려진 비용이 모두 합쳐진다."""
+    seq = {"n": 0}
+    rewrite = {"headline": "전 상품 10% 할인 쿠폰", "body": "10월 31일까지, 1인 1회", "cta": "자세히 보기", "disclosures": ["10월 31일까지, 1인 1회"]}
+
+    def scripted(req):
+        seq["n"] += 1
+        if seq["n"] == 1:   # 첫 시도 — 검토 성공: 수정을 제안
+            return {"decision": "REVISE", "confidence": 0.95, "findings": [], "rationale": "x", "rewrite": rewrite}
+        if seq["n"] == 2:   # 첫 시도 — 수정안 의미 검사 실패
+            return ProviderError("simulated 500", provider="openai")
+        if seq["n"] == 3:   # 재시도 — 검토 성공
+            return {"decision": "REVISE", "confidence": 0.95, "findings": [], "rationale": "x", "rewrite": rewrite}
+        return {"decision": "APPROVE", "confidence": 0.95, "findings": [], "rationale": "x", "rewrite": None}   # 재시도 — 수정안 검사 성공
+
+    router = router_with(scripted)
+    router.budget.cap_usd, router.budget.max_calls = 5.0, 10_000
+    monkeypatch.setattr("evals.runner._wait_for_breaker", lambda *a, **k: 0.0)
+    case = next(c for c in load_dataset("golden") if c.label == "REVISE" and c.difficulty == "gray")
+    r = evaluate_with_retry(case, SETTINGS, router, CAT, use_llm=True, breaker_wait_s=30)
+    assert not r.failed and len(r.prior_attempts) == 1 and r.prior_attempts[0]["rewrite_error"]    # 실패 단계가 수정안 검사임이 남는다
+    assert r.prior_attempts[0]["cost_usd"] == pytest.approx(0.001)                              # 첫 시도의 알려진 비용
+    assert r.cost_usd == pytest.approx(0.003) == pytest.approx(router.budget.spent_usd)            # 성공 응답 3회 전부 합산
+    assert r.failed_requests >= 1 and r.cost_estimated
