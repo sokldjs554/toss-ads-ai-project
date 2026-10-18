@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import html
 import json
+from datetime import datetime
 
 import streamlit as st
 
@@ -13,7 +14,7 @@ from guardrails.policy import get_catalog
 from observability import replay
 from ui import theme
 from ui.components import finding_sentence, rule_title
-from ui.labels import DECISION_LABEL, REWRITE_STATUS_LABEL, RUN_MODE_LABEL
+from ui.labels import DECISION_LABEL, REWRITE_SHORT_LABEL, RUN_MODE_LABEL
 from ui.presets import PRESETS, build_brief
 from ui.workbench import PRESET_TITLES
 
@@ -71,15 +72,18 @@ def _stored_case(key: str, path, catalog) -> None:
                 from ui.components import render_ad
 
                 render_ad(v["copy"], v["det_now"].findings, catalog=catalog)
-                st.markdown("**확인이 필요한 구절 (코드 검사, 지금 코드로 다시 계산)**")
+                today = datetime.now().strftime("%Y-%m-%d")
+                st.markdown(f"**지금 코드로 다시 한 코드 검사** — {today} 계산 · 검사 기준 {catalog.version}")
+                st.caption(f"모델 호출 없이 지금 코드로 다시 계산한 값입니다. 아래 '저장된 실행 결과' 의 판정·수정안 상태는 {s['recorded_at']} 기록 그대로이며 이 계산으로 바뀌지 않습니다.")
                 if v["det_now"].findings:
                     for f in v["det_now"].findings:
                         st.markdown(f"- {theme.severity_chip(f.severity)} {html.escape(finding_sentence(f, catalog))}", unsafe_allow_html=True)
                 else:
                     st.caption("없음")
                 if v["det_changed"]:
-                    st.caption(f"기록 당시 코드 검사 결과와 다릅니다 — 당시 {', '.join(rule_title(r, catalog) for r in v['det_rule_ids_then']) or '없음'} / 지금 {', '.join(rule_title(r, catalog) for r in v['det_rule_ids_now']) or '없음'}. 검사 기준이 바뀌었기 때문이며, 판정(위 배지)은 기록 당시 것입니다.")
+                    st.caption(f"저장된 기록({s['recorded_at']}, 검사 기준 {s['policy_version']})의 코드 검사 결과와 다릅니다 — 당시 {', '.join(rule_title(r, catalog) for r in v['det_rule_ids_then']) or '없음'} / 지금 {', '.join(rule_title(r, catalog) for r in v['det_rule_ids_now']) or '없음'}. 검사 기준이 바뀌었기 때문이며, 판정(위 배지)은 기록 당시 것입니다.")
                 rv = v["review"]
+                st.markdown(f"**저장된 실행 결과** — {s['recorded_at']} 기록 · 검사 기준 {s['policy_version']} · 프롬프트 {s['prompt_version']} · {', '.join(s['models']) or '모델 기록 없음'}")
                 st.markdown(f"**검토 모델** 판정 {DECISION_LABEL.get(Decision(rv['decision']), rv['decision']) if rv.get('decision') else '—'} · 확신 {rv.get('confidence')} · {rv.get('provider')}"
                             + (f" · 원문에 없는 내용을 근거로 제시 {rv['unverified_quotes']}건" if rv.get("unverified_quotes") else ""))
                 for f in rv.get("findings", []):
@@ -89,12 +93,27 @@ def _stored_case(key: str, path, catalog) -> None:
                     st.markdown(f"**교차 확인** {DECISION_LABEL.get(Decision(sec['decision']), sec['decision']) if sec.get('decision') else '—'} · {'다름' if sec.get('disagreement') else '같음'}" + ("" if sec.get("independent") else " · 같은 제공자라 독립적이지 않음"))
                 from core.schemas import RewriteStatus
 
-                st.markdown(f"**수정 제안** {REWRITE_STATUS_LABEL[RewriteStatus(v['rewrite_status'])]}")
-                if v["rewrite"] and v["rewrite_status"] == RewriteStatus.VERIFIED.value:
+                # 수정안의 상태는 저장된 실행 기록의 최종 상태 그대로다 (observability.replay.stored_rewrite_state). 코드 검사만으로 다시 계산하지 않는다.
+                state = v["rewrite_state"]
+                status = RewriteStatus(state["status"])
+                st.markdown(f"**수정안** {REWRITE_SHORT_LABEL[status]} · 저장된 실행 결과 기준")
+                if state["source"] == "legacy_unknown":
+                    st.caption(state["note"])
+                elif state["note"] and status != RewriteStatus.NONE:
+                    st.caption(state["note"])
+                rc_rec = state.get("recheck")
+                if rc_rec and status != RewriteStatus.NONE:
+                    parts = [f"코드 검사 {DECISION_LABEL.get(Decision(rc_rec['det_decision']), rc_rec['det_decision']) if rc_rec.get('det_decision') else '기록 없음'}"]
+                    if rc_rec.get("semantic_decision"):
+                        parts.append(f"의미 검사 {DECISION_LABEL.get(Decision(rc_rec['semantic_decision']), rc_rec['semantic_decision'])} (확신 {rc_rec.get('semantic_confidence')})")
+                    else:
+                        parts.append("의미 검사 기록 없음")
+                    st.caption("기록된 근거 — " + " · ".join(parts))
+                if v["rewrite"] and status == RewriteStatus.VERIFIED:
                     from core.schemas import AdCopy
 
                     rw = v["rewrite"]
-                    render_ad(AdCopy(headline=rw["headline"], body=rw["body"], cta=rw.get("cta") or "", disclosures=rw.get("disclosures", [])), title="검사를 통과한 수정 제안", catalog=catalog)
+                    render_ad(AdCopy(headline=rw["headline"], body=rw["body"], cta=rw.get("cta") or "", disclosures=rw.get("disclosures", [])), title="수정안 확인 완료", catalog=catalog)
                 st.caption(f"판정 근거(내부): {v['reason']}")
         b1, b2, _ = st.columns([1, 1, 2])
         with b1:

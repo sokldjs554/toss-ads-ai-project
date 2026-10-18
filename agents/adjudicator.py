@@ -135,13 +135,11 @@ def adjudicate(copy: AdCopy, det: OutputGuardResult, verdict: Optional[ReviewVer
     rc_decision: Optional[Decision] = None
     rc_findings: list = []
     if inp.has_rewrite and rewrite_recheck is not None:
-        if hasattr(rewrite_recheck, "passed"):
-            rc_findings = list(rewrite_recheck.findings)
-            rc_decision = (Decision.APPROVE if rewrite_recheck.passed else (Decision.HUMAN_REVIEW if rewrite_recheck.passed is None else
-                           (rewrite_recheck.det.decision if rewrite_recheck.det.decision != Decision.APPROVE else rewrite_recheck.semantic.decision)))
-        else:
-            rc_findings = list(rewrite_recheck.findings)
-            rc_decision = rewrite_recheck.decision
+        rc_findings = list(rewrite_recheck.findings)
+        rc_decision = rewrite_recheck.decision  # RewriteCheck: 공통 기준의 결과 / OutputGuardResult: 코드 검사 결과
+        reason = getattr(rewrite_recheck, "reason", "")
+        if reason and adj.rewrite_status != RewriteStatus.VERIFIED:
+            adj.rewrite_note += f" — 수정안 판단: {reason}"
     checklist = list(det.checklist)
     if verdict is not None:
         checklist.append(ChecklistItem(name="의미 심사 (LLM)", passed=verdict.decision == Decision.APPROVE, layer=Layer.SEMANTIC,

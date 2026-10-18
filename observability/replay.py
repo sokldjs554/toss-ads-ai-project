@@ -39,6 +39,36 @@ def _llm_child(span: dict) -> Optional[dict]:
     return None
 
 
+_VALID_STATUS = {x.value for x in RewriteStatus}
+LEGACY_NOTE = "이 기록에는 수정안의 최종 상태가 저장돼 있지 않아 확인하지 못했습니다 (기록 당시 코드 검사 결과만 남아 있어 통과 여부를 판단할 수 없음)."
+
+
+def stored_rewrite_state(variant_span: dict, has_rewrite: bool) -> dict:
+    """저장된 실행 기록에서 수정안의 **최종** 상태를 읽는다 — 모든 화면(검사 사례·정적 재생 페이지·내려받기)이 이 함수 하나를 쓴다.
+
+    - 상태는 실행 당시 판정 단계(adjudicate)가 저장한 `rewrite_status` 그대로다. 코드 검사 결과(rewrite_recheck.decision 등)로
+      '통과' 를 다시 계산하지 않는다 — 코드 검사는 통과했지만 의미 검사에서 걸린 수정안이 통과로 보이던 문제가 있었다.
+    - 최종 상태가 저장돼 있지 않은 과거 기록은 '확인하지 못함'(unchecked, source=legacy_unknown) 으로 읽는다. 기록 원본은 고치지 않는다.
+    - recheck 에는 기록에 남아 있는 근거(코드 검사·의미 검사 결과)만 담는다. 상태를 정하는 데 쓰지 않고 보여 주기만 한다.
+    """
+    adj = (_child(variant_span, "adjudicate") or {}).get("attributes", {})
+    rc = (_child(variant_span, "rewrite_recheck") or {}).get("attributes", {})
+    stored = adj.get("rewrite_status")
+    recheck = None
+    if rc:
+        recheck = {"det_decision": rc.get("det_decision", rc.get("decision")),  # 과거 기록의 decision 은 코드 검사 결과였다
+                   "shared_decision": rc.get("decision") if "det_decision" in rc else None,
+                   "semantic_decision": rc.get("semantic_decision"), "semantic_confidence": rc.get("semantic_confidence"),
+                   "unverified_quotes": rc.get("unverified_quotes"), "reason": rc.get("reason"), "threshold": rc.get("threshold"),
+                   "findings": rc.get("findings", [])}
+    if has_rewrite and stored in (RewriteStatus.VERIFIED.value, RewriteStatus.FAILED_RECHECK.value, RewriteStatus.UNCHECKED.value):
+        return {"status": stored, "source": "stored", "note": adj.get("rewrite_note") or "", "recheck": recheck}
+    if not has_rewrite and stored in (None, RewriteStatus.NONE.value):
+        return {"status": RewriteStatus.NONE.value, "source": "stored", "note": "자동 수정안 없음", "recheck": recheck}
+    # 수정안은 있는데 최종 상태가 없거나(과거 기록), 저장된 값이 수정안 유무와 맞지 않는다 → 확인하지 못함
+    return {"status": RewriteStatus.UNCHECKED.value, "source": "legacy_unknown", "note": LEGACY_NOTE, "recheck": recheck}
+
+
 def recorded_at(trace: dict) -> str:
     try:
         return datetime.fromtimestamp(trace["root"]["start_ms"] / 1000, tz=timezone.utc).strftime("%Y-%m-%d")
@@ -99,15 +129,7 @@ def summarize_trace(trace: dict, product, categories: set[str], landing_text: st
         adj = _child(vs, "adjudicate") or {"attributes": {}}
         final = adj["attributes"].get("final")
         rewrite = (rraw or {}).get("rewrite")
-        if rewrite:
-            if rc is None:
-                rw_status = RewriteStatus.UNCHECKED.value
-            elif rc["attributes"].get("decision") == Decision.APPROVE.value:
-                rw_status = RewriteStatus.VERIFIED.value
-            else:
-                rw_status = RewriteStatus.FAILED_RECHECK.value
-        else:
-            rw_status = RewriteStatus.NONE.value
+        rw_state = stored_rewrite_state(vs, bool(rewrite))  # 저장된 최종 상태. 코드 검사 결과로 다시 계산하지 않는다
         variants.append({
             "copy": copy, "final": final, "reason": adj["attributes"].get("reason", ""),
             "det_findings_recorded": recorded_det, "det_rule_ids_now": now_ids, "det_rule_ids_then": then_ids, "det_changed": now_ids != then_ids,
@@ -117,7 +139,7 @@ def summarize_trace(trace: dict, product, categories: set[str], landing_text: st
                        "findings": (rraw or {}).get("findings", []), "rationale": (rraw or {}).get("rationale", "")},
             "second": {"decision": so["attributes"].get("decision"), "disagreement": so["attributes"].get("disagreement"),
                        "independent": so["attributes"].get("independent")} if so else None,
-            "rewrite": rewrite, "rewrite_status": rw_status,
+            "rewrite": rewrite, "rewrite_status": rw_state["status"], "rewrite_state": rw_state,
             "recheck_findings": (rc or {"attributes": {}})["attributes"].get("findings", []),
         })
     out["variants"] = variants

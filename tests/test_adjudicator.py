@@ -49,10 +49,10 @@ BAD_REWRITE = AdCopy(headline="타사보다 2배 적립", body="x", cta="y")    
 GOOD_REWRITE = AdCopy(headline="전 상품 10% 할인", body="좋은 상품", cta="보기")   # 재검사 통과
 
 
-def rc(copy, semantic=Decision.APPROVE, semantic_findings=()):
-    """수정안 재검사 결과: 코드 검사 + (있으면) 의미 검사."""
-    sem = None if semantic is None else ReviewVerdict(variant_id="rw", decision=semantic, confidence=0.9, findings=list(semantic_findings))
-    return RewriteCheck(det=det(copy), semantic=sem)
+def rc(copy, semantic=Decision.APPROVE, semantic_findings=(), confidence=0.9, threshold=0.8):
+    """수정안 재검사 결과: 코드 검사 + (있으면) 의미 검사를 공통 판정 기준(decide)에 넣은 것."""
+    sem = None if semantic is None else ReviewVerdict(variant_id="rw", decision=semantic, confidence=confidence, findings=list(semantic_findings))
+    return RewriteCheck.judge(det(copy), sem, threshold)
 
 
 def test_rewrite_recheck_failure_drops_rewrite_but_keeps_revise():

@@ -195,7 +195,7 @@ def _review_variants(run: PipelineRun, brief: CampaignBrief, settings: Settings,
             recheck = None
             if verdict is not None and verdict.proposed_rewrite is not None:
                 recheck = check_rewrite(verdict.proposed_rewrite, brief.product, categories, options.landing_text, options.rejected_history,
-                                        catalog, router, facts_text, tracer)
+                                        catalog, router, facts_text, tracer, settings.auto_decision_confidence)
 
             with tracer.span("adjudicate", kind="guardrail") as span:
                 report = adjudicator.adjudicate(copy, det, verdict, settings.auto_decision_confidence, recheck, aud)

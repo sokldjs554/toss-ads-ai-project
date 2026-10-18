@@ -18,6 +18,7 @@ from guardrails.failure_modes import FAILURE_MODES
 from guardrails.input_guard import intercept
 from guardrails.normalize import loose_text
 from guardrails.policy import get_catalog
+from observability.replay import stored_rewrite_state
 from ui.presets import PRESETS, build_brief
 
 CAT = get_catalog()
@@ -178,16 +179,19 @@ def build_scenario(key):
             sr = jl(llm_child(so)["attributes"].get("response_text", "")) if llm_child(so) else None
             second = {"decision": so["attributes"].get("decision"), "confidence": (sr or {}).get("confidence"), "disagreement": so["attributes"].get("disagreement"),
                       "independent": so["attributes"].get("independent"), "provider": so["attributes"].get("provider")}
-        rc = child(vs, "rewrite_recheck")
         adj = child(vs, "adjudicate")
         final = adj["attributes"].get("final")
+        # 수정안의 최종 상태는 저장된 기록 그대로 읽는다 (observability.replay.stored_rewrite_state — 검사 사례 화면과 같은 함수).
+        # 코드 검사 결과(rewrite_recheck.decision)로 '통과' 를 다시 계산하지 않는다.
+        rw_state = stored_rewrite_state(vs, bool(review and review["rewrite"]))
         variants.append({"id": copy.variant_id, "copy": {"headline": copy.headline, "body": copy.body, "cta": copy.cta, "claims": [c.model_dump() for c in copy.claims],
                                                          "disclosures": copy.disclosures, "tone": copy.tone},
                          "det": {"decision": det.decision.value, "findings": [{"rule_id": f.rule_id, "severity": f.severity.value, "layer": f.layer.value, "quote": f.quote, "explanation": f.explanation} for f in det.findings],
                                  "checklist": [{"name": c.name, "passed": c.passed, "detail": c.detail, "layer": c.layer.value} for c in det.checklist]},
-                         "audience": aud, "review": review, "second": second, "recheck": rc["attributes"].get("decision") if rc else None,
+                         "audience": aud, "review": review, "second": second,
                          "final": final, "reason": adj["attributes"].get("reason"),
-                         "rewrite_shown": bool(review and review["rewrite"] and rc and rc["attributes"].get("decision") == "APPROVE")})
+                         "rewrite_status": rw_state["status"], "rewrite_source": rw_state["source"], "rewrite_note": rw_state["note"],
+                         "rewrite_recheck": rw_state["recheck"]})
     sc["variants"] = variants
     return sc
 

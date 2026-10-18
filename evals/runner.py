@@ -161,7 +161,8 @@ def evaluate_case(case: EvalCase, settings: Settings, router: Optional[Router], 
     recheck = None
     if verdict is not None and verdict.proposed_rewrite is not None:
         facts = "\n".join(f"- {f.id}: {f.text}" for f in product.facts) or "- (없음)"
-        recheck = check_rewrite(verdict.proposed_rewrite, product, categories, case.landing_text, [], catalog, router if use_llm else None, facts, _tracer_of(router))
+        recheck = check_rewrite(verdict.proposed_rewrite, product, categories, case.landing_text, [], catalog, router if use_llm else None, facts, _tracer_of(router),
+                                settings.auto_decision_confidence)
     report = adjudicator.adjudicate(copy, det, verdict, settings.auto_decision_confidence, recheck, None)
     inputs = adjudicator.inputs_from(det, verdict, recheck)
     pred_rules = sorted({f.rule_id for f in report.verdict.findings if f.severity != Severity.WARN and f.verified_quote})

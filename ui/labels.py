@@ -49,6 +49,14 @@ REWRITE_STATUS_LABEL: dict[RewriteStatus, str] = {
     RewriteStatus.UNCHECKED: "자동 수정안을 재검사하지 못해 제시하지 않음",
 }
 
+# 사용자 화면용 짧은 표현 — 수정안이 어느 상태인지 한눈에. 상태 값은 저장된 기록·실행 결과의 rewrite_status 그대로다.
+REWRITE_SHORT_LABEL: dict[RewriteStatus, str] = {
+    RewriteStatus.NONE: "수정안 없음",
+    RewriteStatus.VERIFIED: "수정안 확인 완료",
+    RewriteStatus.FAILED_RECHECK: "다시 수정 필요",
+    RewriteStatus.UNCHECKED: "확인하지 못함",
+}
+
 # --- 검사 계층·심각도 -------------------------------------------------------
 LAYER_LABEL: dict[Layer, str] = {
     Layer.INJECTION: "심사 조작 문장 검사",

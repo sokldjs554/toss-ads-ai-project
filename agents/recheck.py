@@ -66,7 +66,8 @@ def recheck(copy: AdCopy, product: ProductFacts, categories: set[str], settings:
                 span.event("reviewer_failed", error=str(e)[:200])
         recheck_rw = None
         if verdict is not None and verdict.proposed_rewrite is not None:
-            recheck_rw = check_rewrite(verdict.proposed_rewrite, product, categories, landing_text, rejected_history or [], catalog, router, facts_text, tracer)
+            recheck_rw = check_rewrite(verdict.proposed_rewrite, product, categories, landing_text, rejected_history or [], catalog, router, facts_text, tracer,
+                                       settings.auto_decision_confidence)
         with tracer.span("adjudicate", kind="guardrail") as span:
             report = adjudicator.adjudicate(copy, det, verdict, settings.auto_decision_confidence, recheck_rw, None)
             span.set(final=report.final_decision.value, reason=report.decision_reason, rewrite_status=report.rewrite_status.value)
