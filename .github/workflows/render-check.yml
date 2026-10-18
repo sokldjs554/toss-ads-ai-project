@@ -12,7 +12,11 @@ on:
       expect:
         description: "첫 화면에 있어야 하는 문구"
         required: false
-        default: "광고 만들기"
+        default: "광고 검사"
+      build:
+        description: "배포된 빌드가 이 커밋이어야 한다 (커밋 해시 앞 7자 이상, 비우면 확인하지 않음). 화면 맨 위의 '빌드 <해시>' 표시와 비교한다"
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -41,6 +45,7 @@ jobs:
         env:
           URL: ${{ inputs.url }}
           EXPECT: ${{ inputs.expect }}
+          BUILD: ${{ inputs.build }}
         run: |
           pip install -q playwright && python -m playwright install --with-deps chromium
           python - <<'PY'
@@ -59,9 +64,27 @@ jobs:
               print("FOOTER:", foot[:1])
               print("EXCEPTIONS:", pg.locator('[data-testid="stException"]').count())
               pg.screenshot(path="render_home.png")
+              ok = expect in body and pg.locator('[data-testid="stException"]').count() == 0
+              build = os.environ.get("BUILD", "").strip()
+              if build:
+                  want = "빌드 " + build[:7]
+                  print("BUILD EXPECTED:", want, "| FOUND:", want in body)
+                  ok = ok and want in body
+              # 핵심 흐름: 예시로 바로 실행 → 결과(수정할 문구) 가 나오는지
+              pg.get_by_role("button", name="예시로 바로 실행").click(timeout=60_000)
+              pg.get_by_text("수정할 문구", exact=False).first.wait_for(timeout=180_000)
+              body2 = pg.inner_text("body")
+              flow = all(x in body2 for x in ("광고안 1", "수정할 문구", "다음 작업", "예시 실행 · 실제 AI 호출 없음"))
+              print("FLOW:", flow, "| EXCEPTIONS:", pg.locator('[data-testid="stException"]').count())
+              pg.screenshot(path="render_flow.png")
+              ok = ok and flow and pg.locator('[data-testid="stException"]').count() == 0
               b.close()
+              print("RESULT:", "OK" if ok else "FAIL")
+              sys.exit(0 if ok else 1)
           PY
       - uses: actions/upload-artifact@v4
         with:
           name: render-home
-          path: render_home.png
+          path: |
+            render_home.png
+            render_flow.png
