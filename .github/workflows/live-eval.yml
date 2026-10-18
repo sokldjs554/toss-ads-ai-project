@@ -20,6 +20,14 @@ on:
         description: "시나리오 5개 실제 트레이스 기록"
         type: boolean
         default: true
+      compare:
+        description: "방식 비교(코드 검사만·검토 모델만·합친 방식) 실제 모델 실행 — 기본 꺼짐. 승인된 호출 수·비용 범위에서만 켠다"
+        type: boolean
+        default: false
+      compare_cost_cap:
+        description: "방식 비교 누적 비용 상한 (USD) — 넘으면 중단하고 결과를 저장하지 않는다"
+        required: false
+        default: "3.5"
 permissions:
   contents: write
 concurrency:
@@ -62,6 +70,12 @@ jobs:
       - name: 실제 트레이스 기록
         if: ${{ github.event.inputs.traces == 'true' }}
         run: python scripts/record_traces.py
+      - name: 방식 비교 — 코드 검사만 · 검토 모델만 · 합친 방식 (실제 모델) → compare_live.json
+        if: ${{ github.event.inputs.compare == 'true' }}
+        # 먼저 호출 수·예상 비용을 출력하고 시작한다. 비용 상한을 넘기거나 제공자 장애가 섞이면 저장하지 않고 종료 코드 2
+        run: |
+          python -m evals.compare --estimate
+          python -m evals.compare --cost-cap ${{ github.event.inputs.compare_cost_cap || '3.5' }} --out compare_live.json
       - name: 결과 요약
         run: |
           python - <<'PY'
@@ -77,7 +91,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add evals/reports/baseline_*.json evals/reports/holdout_*.json evals/reports/contrast_*.json evals/datasets/adversarial.jsonl traces/sample_*.json
+          git add evals/reports/baseline_*.json evals/reports/holdout_*.json evals/reports/contrast_*.json evals/reports/compare_live.json evals/datasets/adversarial.jsonl traces/sample_*.json
           if git diff --cached --quiet; then echo "변경 없음"; exit 0; fi
           git commit -m "live-eval: 실제 모델 기준선·레드팀·트레이스 기록 (run ${{ github.run_id }})"
           git push

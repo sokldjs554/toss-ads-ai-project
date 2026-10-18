@@ -13,7 +13,7 @@ from evals.runner import REPORTS, dataset_fingerprint, load_dataset, load_report
 from guardrails.policy import get_catalog
 from agents.prompts import PROMPT_VERSION
 from observability.tracer import Tracer
-from ui import catalog_view, redteam_view, theme, trace_view
+from ui import catalog_view, compare_view, redteam_view, theme, trace_view
 from ui.labels import METRIC, fraction_sentence, pct
 
 SLICE = {"clear": "명백한 위반", "evasion": "우회 표현", "injection": "숨은 지시문", "gray": "경계 사례(수정 필요)", "benign_scary": "무서운 단어가 있지만 문제없음", "semantic_only": "모델만 잡을 수 있는 사례"}
@@ -270,6 +270,7 @@ def render(make_settings, router_factory, tracer: Tracer, server_status: dict) -
     st.markdown("이 도구가 **어디서 틀리는지** 재고, 고친 뒤 **실제로 나아졌는지** 확인한 기록입니다.")
     _eval_section(make_settings, router_factory, server_status)
     _history_section()
+    compare_view.render()
     st.markdown("## 처리 기록")
     st.markdown("실행 한 번은 단계별 기록으로 남습니다. 어느 단계가 얼마나 걸렸고, 모델에 무엇을 보내 무엇을 받았는지, 어디서 대체 경로를 탔는지 볼 수 있습니다.")
     trace_view.render(tracer)

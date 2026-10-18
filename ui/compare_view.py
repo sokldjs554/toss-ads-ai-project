@@ -1,0 +1,118 @@
+"""방식 비교 — 코드 검사만 · 검토 모델만 · 합친 방식. 저장된 결과만 보여 주며 보는 것만으로는 모델을 부르지 않는다."""
+from __future__ import annotations
+
+import streamlit as st
+
+from evals.compare import SYSTEM_LABEL, estimate
+from evals.runner import load_report
+from ui.labels import pct
+
+SPLIT_LABEL = {"dev": "개발용 사례 (규칙·프롬프트를 고치는 데 쓴 사례)", "holdout": "최종 확인용 사례 (규칙을 고친 뒤 처음 쓴 사례)"}
+
+
+def _row(name: str, m: dict) -> dict:
+    cost = f"${m['cost_usd']}" + (" 이상" if m.get("cost_is_lower_bound") else "")
+    return {"방식": name, "잘못 통과한 광고": pct(m["unsafe_pass"]["k"], m["unsafe_pass"]["n"]), "올바른 통과": pct(m["correct_pass"]["k"], m["correct_pass"]["n"]),
+            "불필요한 수정 요청": pct(m["unnecessary_revision"]["k"], m["unnecessary_revision"]["n"]), "담당자 확인": f"{m['human_review']['k']}/{m['human_review']['n']}",
+            "모델 호출": m["calls"], "시간": f"{m['latency_ms_total'] / 1000:.1f}초", "비용": cost, **({"실패한 호출": m["failed"]} if m.get("failed") else {})}
+
+
+def _table(rep: dict, split: str) -> None:
+    o = rep["overall_by_split"].get(split)
+    if not o:
+        return
+    st.markdown(f"**{SPLIT_LABEL.get(split, split)}** — {', '.join(o['datasets'])}")
+    rows = [_row(SYSTEM_LABEL[s], o[s]) for s in rep["systems"]]
+    if o.get("llm_only_with_tau"):
+        rows.insert(2, _row("검토 모델만 + 확신 기준(τ)", o["llm_only_with_tau"]))
+    t = o["_trivial"]
+    for name, b in t.items():
+        rows.append({"방식": f"(참고) {name}", "잘못 통과한 광고": pct(b["unsafe_pass"]["k"], b["unsafe_pass"]["n"]), "올바른 통과": pct(b["correct_pass"]["k"], b["correct_pass"]["n"]),
+                     "불필요한 수정 요청": pct(b["unnecessary_revision"]["k"], b["unnecessary_revision"]["n"]), "담당자 확인": f"{b['human_review']['k']}/{b['human_review']['n']}", "모델 호출": 0, "시간": "—", "비용": "—"})
+    st.dataframe(rows, width="stretch", hide_index=True)
+    st.caption("‘담당자 확인’ 은 ‘올바른 통과’ 에 들어가지 않습니다. 전부 담당자 확인으로 넘기면 잘못 통과한 광고는 0 이어도 올바른 통과도 0 입니다.")
+
+
+def _report(rep: dict) -> None:
+    s = rep["settings"]
+    st.caption(f"실행 {str(rep['generated_at'])[:10]} · 실행 방식 `{s['mode']}` · 모델 {s['openai_model']} · 검토 프롬프트 {s['reviewer_prompt_version']} · 비교용 프롬프트 {s['llm_only_prompt_version']} · "
+               f"검사 기준 {s['policy_version']} · 자동 판정 확신 기준 {s['threshold']}")
+    if rep["run_kind"] == "controlled":
+        st.warning(rep["run_kind_note"], icon="⚠️")
+        for k, sys in rep["systems"].items():
+            if sys.get("controlled_note"):
+                st.caption(f"{sys['label']}: {sys['controlled_note']}")
+    else:
+        st.info(rep["run_kind_note"], icon="ℹ️")
+    for split in ("dev", "holdout"):
+        _table(rep, split)
+    f = rep["failures"]
+    if f["n"]:
+        st.warning(f"모델 호출 실패 {f['n']}건이 섞여 있습니다 ({f['by_error']}). 실패는 통과·담당자 확인으로 세지 않고 따로 셉니다.", icon="⚠️")
+    with st.expander("사례 종류별 (평균에 가려진 차이)"):
+        for split, o in rep["overall_by_split"].items():
+            rows = []
+            for d, by in o.get("by_difficulty", {}).items():
+                for sname, m in by.items():
+                    rows.append({"구분": split, "사례 종류": d, **_row(SYSTEM_LABEL.get(sname, sname), m)})
+            if rows:
+                st.dataframe(rows, width="stretch", hide_index=True)
+    with st.expander("방식이 갈린 대표 사례 (성공·실패)"):
+        for title, items in rep.get("examples", {}).items():
+            st.markdown(f"**{title}**" + ("" if items else " — 없음"))
+            for it in items:
+                st.markdown(f"- `{it['dataset']}:{it['case_id']}` 정답 {it['label']} — " + " / ".join(f"{SYSTEM_LABEL[k]} {v['predicted']}" for k, v in it.items() if k in SYSTEM_LABEL))
+
+
+def _provenance(rep: dict) -> None:
+    st.markdown("**비교에 쓴 데이터의 출처**")
+    rows = []
+    for ds, info in rep["datasets"].items():
+        rows.append({"데이터": ds, "건수": info["n"], "구분": "최종 확인용" if info.get("split") == "holdout" else "개발용", "작성자": info.get("author", "?"), "라벨 근거": info.get("label_basis", "?"),
+                     "사람 확인": info.get("human_review", "?"), "규칙 수정에 사용": "예" if info.get("used_for_tuning") else "아니오", "독립된 실제 데이터": "아니오" if not info.get("independent_real_data") else "예",
+                     "버전·해시": f"v{info.get('dataset_version') or '?'} · {str(info.get('dataset_sha256', ''))[:8]}"})
+    st.dataframe(rows, width="stretch", hide_index=True)
+    st.caption("모든 라벨은 규칙을 쓴 같은 저자가 달았고 독립 검증자는 없습니다. 개발용 사례의 수치는 고친 뒤 다시 잰 값이라 최종 성능이 아닙니다. 다른 사례를 바꿔 쓴 데이터는 독립 데이터가 아닙니다.")
+
+
+def _changes(rep: dict) -> None:
+    with st.expander("라벨 변경 이력과 G-069 효과 분리"):
+        ch = rep.get("label_changes", [])
+        if ch:
+            st.markdown("**라벨이 바뀐 사례** — 라벨을 바꾸면 점수가 바뀌므로 변경 전 값과 이유를 남깁니다.")
+            st.dataframe([{"데이터": c["dataset"], "사례": c["case_id"], "버전": c["label_version"], "그때 라벨": c["label_then"], "이유": c["reason_then"]} for c in ch], width="stretch", hide_index=True)
+        eff = rep.get("g069_effects")
+        if eff:
+            st.markdown("**G-069 — 모델·코드가 바뀐 효과와 라벨이 바뀐 효과를 가름** (저장된 4차·5차 판정을 같은 라벨 두 벌로 다시 채점)")
+            st.dataframe([{"회차": r["round"], "G-069 판정": r["g069_predicted"], "잡은 규칙": ", ".join(r["g069_rules"]), "문제없는 광고에 수정 요청 (옛 라벨 v1.1)": r["under_v1.1_label"]["unnecessary_revision"],
+                           "문제없는 광고에 수정 요청 (새 라벨 v1.2)": r["under_v1.2_label"]["unnecessary_revision"]} for r in eff["rows"]], width="stretch", hide_index=True)
+            st.caption(eff["reading"])
+
+
+def render() -> None:
+    st.markdown("## 방식 비교")
+    st.markdown("같은 고정 사례를 **코드 검사만**, **검토 모델만**, **둘을 합친 방식**(현재 서비스)으로 판정해 나란히 봅니다. 숫자는 이 데이터·이 설정에서 관측된 값이며, "
+                "시간이나 심사 승인율이 얼마나 나아진다는 주장이 아닙니다.")
+    live = load_report("compare_live.json")
+    ctrl = load_report("compare_controlled.json")
+    any_rep = live or ctrl
+    if any_rep:
+        with st.expander("각 방식이 받는 정보", expanded=False):
+            names = list(any_rep["systems"].keys())
+            keys = list(any_rep["systems"][names[0]]["info_given"].keys())
+            st.dataframe([{"받는 정보": k, **{SYSTEM_LABEL[n]: any_rep["systems"][n]["info_given"][k] for n in names}} for k in keys], width="stretch", hide_index=True)
+    if live:
+        st.markdown("### 실제 모델 결과")
+        _report(live)
+    else:
+        e = estimate(["golden", "holdout", "contrast_g069", "conditions"], ("code_only", "llm_only", "combined"))
+        st.info("**실제 모델로 돌린 비교 결과는 아직 없습니다** (실행 승인 대기). 실행하면 모델 호출 약 "
+                f"{e['total_calls']}회, 예상 비용 약 ${e['total_cost_usd']:.2f} 입니다 ({e['cases']}건 × 세 방식). 코드 검사만의 결과는 아래에서 이미 볼 수 있습니다.", icon="⏳")
+    if ctrl:
+        with st.expander("하네스 검증용 — 대역(통제된 응답)으로 돌린 결과 · 모델 품질 아님", expanded=not live):
+            _report(ctrl)
+    if any_rep:
+        _provenance(any_rep)
+        _changes(any_rep)
+    else:
+        st.info("저장된 비교 결과가 없습니다. `python -m evals.compare` 로 만들 수 있습니다.")
