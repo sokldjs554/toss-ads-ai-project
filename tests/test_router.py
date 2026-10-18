@@ -13,7 +13,7 @@ class Out(BaseModel):
 
 
 def settings(**kw) -> Settings:
-    return Settings.from_env(openai_api_key="k", anthropic_api_key="k", **kw)
+    return Settings.from_env(openai_api_key="k", anthropic_api_key="k", **{"force_demo": False, **kw})
 
 
 def router(oa: FakeProvider, an: FakeProvider, tracer, **kw) -> Router:
@@ -104,7 +104,7 @@ def test_budget_cap(tracer):
 
 
 def test_demo_mode_uses_mock(tracer):
-    r = Router(Settings.from_env(openai_api_key="", anthropic_api_key=""), tracer=tracer)
+    r = Router(Settings.from_env(openai_api_key="", anthropic_api_key="", force_demo=False), tracer=tracer)
     assert r.chain_for(Task.REVIEW) == ["mock"]
 
 

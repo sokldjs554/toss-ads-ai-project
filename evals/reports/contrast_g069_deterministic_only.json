@@ -4,14 +4,21 @@
   "excluded_semantic_only": 0,
   "dataset_version": "1",
   "dataset_sha256": "c5c71901dda0dfd7",
-  "generated_at": "2026-10-18T07:14:34.741508+00:00",
+  "generated_at": "2026-10-18T11:08:30.168977+00:00",
   "mode": "deterministic_only",
   "reviewer": "none",
   "provider": "none",
   "model": "none",
   "prompt_version": "2026.10.4",
-  "policy_version": "2026.10.3",
+  "policy_version": "2026.10.4",
   "threshold": 0.8,
+  "run_settings": {
+    "use_llm": false,
+    "openai_model": "gpt-4o",
+    "anthropic_model": "claude-sonnet-5-5",
+    "threshold": 0.8,
+    "limit": null
+  },
   "scope": {
     "second_opinion": false,
     "audience": false,
@@ -21,10 +28,24 @@
   "recommended_threshold_for_zero_unsafe": 0.7,
   "recommended_threshold_for_zero_unsafe_and_zero_false_flag": 0.7,
   "cost_estimated": false,
+  "failed_requests": 0,
   "provider_failures": {
     "n": 0,
     "cases": [],
-    "by_error": {}
+    "by_error": {},
+    "by_stage": {
+      "reviewer": 0,
+      "rewrite_recheck": 0
+    }
+  },
+  "recovered_failures": {
+    "n": 0,
+    "cases": [],
+    "by_error": {},
+    "cost_usd": 0
+  },
+  "served_by": {
+    "none": 4
   },
   "summary": {
     "n": 4,
@@ -405,7 +426,7 @@
     ],
     "curve_method": "replay_decide",
     "cost_usd": 0.0,
-    "latency_ms_mean": 1.0
+    "latency_ms_mean": 2.3
   },
   "cases": [
     {
@@ -422,7 +443,7 @@
       "difficulty": "gray",
       "category": "app",
       "reason": "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급",
-      "latency_ms": 1.2,
+      "latency_ms": 2.7,
       "cost_usd": 0.0,
       "unverified_quotes": 0,
       "inputs": {
@@ -435,6 +456,7 @@
         "unverified_quotes": 0,
         "unsupported_decision": false,
         "disagreement": false,
+        "second_opinion_missing": false,
         "second_opinion": null,
         "has_rewrite": false,
         "rewrite_passed": null,
@@ -442,7 +464,11 @@
       },
       "rewrite_status": "none",
       "model_decision": "REVISE",
-      "error": ""
+      "error": "",
+      "rewrite_error": "",
+      "failed_requests": 0,
+      "prior_attempts": [],
+      "served_by": "none"
     },
     {
       "id": "C-069-B",
@@ -454,7 +480,7 @@
       "difficulty": "benign_scary",
       "category": "app",
       "reason": "심사 신뢰도 0.70 < 자동 판정 임계값 0.80",
-      "latency_ms": 1.0,
+      "latency_ms": 2.4,
       "cost_usd": 0.0,
       "unverified_quotes": 0,
       "inputs": {
@@ -467,6 +493,7 @@
         "unverified_quotes": 0,
         "unsupported_decision": false,
         "disagreement": false,
+        "second_opinion_missing": false,
         "second_opinion": null,
         "has_rewrite": false,
         "rewrite_passed": null,
@@ -474,7 +501,11 @@
       },
       "rewrite_status": "none",
       "model_decision": "APPROVE",
-      "error": ""
+      "error": "",
+      "rewrite_error": "",
+      "failed_requests": 0,
+      "prior_attempts": [],
+      "served_by": "none"
     },
     {
       "id": "C-069-C",
@@ -490,7 +521,7 @@
       "difficulty": "gray",
       "category": "app",
       "reason": "수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급",
-      "latency_ms": 0.8,
+      "latency_ms": 1.9,
       "cost_usd": 0.0,
       "unverified_quotes": 0,
       "inputs": {
@@ -503,6 +534,7 @@
         "unverified_quotes": 0,
         "unsupported_decision": false,
         "disagreement": false,
+        "second_opinion_missing": false,
         "second_opinion": null,
         "has_rewrite": false,
         "rewrite_passed": null,
@@ -510,7 +542,11 @@
       },
       "rewrite_status": "none",
       "model_decision": "REVISE",
-      "error": ""
+      "error": "",
+      "rewrite_error": "",
+      "failed_requests": 0,
+      "prior_attempts": [],
+      "served_by": "none"
     },
     {
       "id": "C-069-D",
@@ -522,7 +558,7 @@
       "difficulty": "benign_scary",
       "category": "app",
       "reason": "심사 신뢰도 0.70 < 자동 판정 임계값 0.80",
-      "latency_ms": 0.9,
+      "latency_ms": 2.2,
       "cost_usd": 0.0,
       "unverified_quotes": 0,
       "inputs": {
@@ -535,6 +571,7 @@
         "unverified_quotes": 0,
         "unsupported_decision": false,
         "disagreement": false,
+        "second_opinion_missing": false,
         "second_opinion": null,
         "has_rewrite": false,
         "rewrite_passed": null,
@@ -542,7 +579,11 @@
       },
       "rewrite_status": "none",
       "model_decision": "APPROVE",
-      "error": ""
+      "error": "",
+      "rewrite_error": "",
+      "failed_requests": 0,
+      "prior_attempts": [],
+      "served_by": "none"
     }
   ]
 }

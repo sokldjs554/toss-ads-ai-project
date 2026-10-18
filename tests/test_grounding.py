@@ -153,7 +153,7 @@ def test_every_finding_position_matches_the_quoted_text_even_with_empty_fields()
     """finding 의 quote 는 항상 copy.full_text()[start:end] 와 같고, 한 필드 안에 있다 — 빈 필드가 있어도, 줄을 넘는 인용도 없다."""
     from evals.runner import load_dataset
 
-    for case in load_dataset("conditions"):
+    for case in load_dataset("conditions") + load_dataset("conditions_extra"):
         copy = case.to_copy()
         text = copy.full_text()
         spans = copy.field_spans()

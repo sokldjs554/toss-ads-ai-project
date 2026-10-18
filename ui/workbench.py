@@ -33,8 +33,10 @@ from ui.components import (
     finding_sentence,
     human_review_reason,
     human_review_request_text,
-    recheck_request_text,
+    plain_decision_note,
+    plain_halt,
     plain_reason,
+    recheck_request_text,
     render_ad,
     rule_title,
     unique_findings,
@@ -122,10 +124,16 @@ def run_state(entry: dict) -> str:
     if run.halted:
         return "partial"
     # 모델 호출이 실패해 끝나지 못한 단계가 하나라도 있으면 정상 실행이 아니다: 심사·교차 확인·수정안 의미 검사가 실패한 경우를 포함한다
-    stage_fail = any(f.code in STEP_FAILURE_CODES or f.stage in ("planner", "audience") for f in run.failures) or run.plan is None
+    # (가상 반응이 서로 비슷했다는 FM-15, 계획을 코드가 고쳤다는 FM-02 는 단계가 끝난 뒤의 경고이지 실패가 아니다)
+    stage_fail = any(f.code in STEP_FAILURE_CODES for f in run.failures) or run.plan is None
     if stage_fail:
         return "partial"
     return "done"
+
+
+def settings_mode_is_demo(user_oa: str, user_an: str, server_status: dict) -> bool:
+    """이 입력으로 실행하면 예시 실행(실제 모델 호출 없음)인가 — 서버 키도 사용자 키도 쓰이지 않을 때."""
+    return not (bool(user_oa.strip()) or bool(user_an.strip()) or bool(server_status.get("openai")) or bool(server_status.get("anthropic"))) or IN_BROWSER
 
 
 # --- 입력 ---------------------------------------------------------------------
@@ -244,6 +252,8 @@ def _inputs(make_settings, server_status: dict) -> tuple[Settings, RunOptions, s
             ss.setdefault("opt_drill", "없음")
             drill = st.selectbox("장애 시뮬레이션 (기술 시연용 — 광고 작업에만 적용)", ["없음", "openai: timeout", "openai: schema", "anthropic: timeout", "anthropic: refusal", "mock: timeout"], key="opt_drill",
                                  help="모델 호출을 일부러 실패시켜 대체 경로와 '실패해도 통과로 흐르지 않음' 을 보여 줍니다. 품질 확인의 평가 실행에는 적용되지 않습니다.")
+        if drill not in ("없음", "mock: timeout") and settings_mode_is_demo(user_oa, user_an, server_status):
+            st.info("예시 실행에는 ‘mock: timeout’ 만 적용됩니다. 선택한 장애 시뮬레이션은 실제 모델로 실행할 때 쓰입니다.", icon="ℹ️")
         _persist()
     overrides = dict(openai_model=oa_model.strip() or "gpt-4o", anthropic_model=an_model.strip() or "claude-sonnet-5-5",
                      auto_decision_confidence=tau, run_budget_usd=float(budget))
@@ -325,9 +335,10 @@ def _execute(settings: Settings, options: RunOptions, tracer: Tracer, router_fac
             run = run_pipeline(brief, settings, router=router, options=options, tracer=tracer)
         finally:
             ss.running = False
-        for k, _ in STEPS:
-            if k not in done_steps:
-                done_steps.append(k)
+        if not run.halted:   # 중간에 멈춘 실행은 끝난 단계만 ✓ 로 두고, 나머지를 끝난 것처럼 그리지 않는다
+            for k, _ in STEPS:
+                if k not in done_steps:
+                    done_steps.append(k)
         draw("")
         n = len(run.reports)
         cost = f"${run.total_cost_usd:.4f}" + (" (추정)" if router.budget.estimated else "")
@@ -350,14 +361,17 @@ def _state_banner(entry: dict, stale: bool) -> None:
     if stale:
         st.warning("아래 결과는 **이전 입력**에 대한 결과입니다. 입력이 바뀌었으니 '광고 초안 만들기' 를 다시 눌러 주세요.", icon="⚠️")
     if run.halted and run.reports:
-        st.warning(f"도중에 멈췄습니다 — {run.halt_reason}  \n검사하지 못한 광고안은 '담당자 확인 필요' 로 두었고, 코드 검사만으로 이미 사유가 확인된 광고안에는 모델 검사를 하지 못했다고 적었습니다. 비용 상한을 올리거나 광고안 수를 줄여 다시 실행할 수 있습니다.", icon="⚠️")
+        st.warning(f"도중에 멈췄습니다 — {plain_halt(run)}  \n검사하지 못한 광고안은 '담당자 확인 필요' 로 두었고, 코드 검사만으로 이미 사유가 확인된 광고안에는 모델 검사를 하지 못했다고 적었습니다. 비용 상한을 올리거나 광고안 수를 줄여 다시 실행할 수 있습니다.", icon="⚠️")
     if state == "failed":
-        st.error(f"실행을 끝내지 못했습니다 — {run.halt_reason}  \n입력은 그대로 남아 있습니다. 요청을 고치거나 상세 옵션을 바꿔 다시 실행하세요.", icon="⛔")
+        if run.intercept.hard_block:
+            pass   # 같은 안내가 아래 ‘요청 검사’ 상자에 이미 있다 — 같은 말을 두 번 보이지 않는다
+        else:
+            st.error(f"실행을 끝내지 못했습니다 — {plain_halt(run)}  \n입력은 그대로 남아 있습니다. 요청을 고치거나 상세 옵션을 바꿔 다시 실행하세요.", icon="⛔")
     elif state == "empty":
         st.warning("광고안이 만들어지지 않았습니다. 상품 정보와 사실 목록을 조금 더 구체적으로 적고 다시 실행해 보세요.", icon="ℹ️")
     elif state == "partial":
         names = {"planner": "캠페인 구성", "audience": "가상 사용자 반응", "reviewer": "검토 모델 검사", "second_opinion": "교차 확인", "rewrite_recheck": "수정안 의미 검사"}
-        parts = sorted({f.stage for f in run.failures if f.stage in names and (f.code in STEP_FAILURE_CODES or f.stage in ("planner", "audience"))})
+        parts = sorted({f.stage for f in run.failures if f.stage in names and f.code in STEP_FAILURE_CODES} | ({"planner"} if run.plan is None else set()))
         what = ", ".join(names.get(p, p) for p in parts) or "일부 단계"
         judged = any(p in ("reviewer", "rewrite_recheck", "second_opinion") for p in parts)
         st.info(f"{what} 단계가 실패해 그 부분 없이 진행했습니다. "
@@ -374,7 +388,10 @@ def _summary(entry: dict) -> None:
     cols = st.columns(4)
     cols[0].markdown(theme.stat("광고안", f"{len(run.reports)}개", f"{entry['mode'] and RUN_MODE_LABEL[entry['mode']]}"), unsafe_allow_html=True)
     cols[1].markdown(theme.stat("결과", " · ".join(f"{DECISION_LABEL[d]} {decisions.count(d)}" for d in (Decision.APPROVE, Decision.REVISE, Decision.REJECT, Decision.HUMAN_REVIEW) if decisions.count(d)) or "—", ""), unsafe_allow_html=True)
-    cols[2].markdown(theme.stat("모델 호출", f"{entry.get('calls', 0)}회", f"요청 {entry.get('attempts', 0)}회" + (f" · 실패 {entry['failed_attempts']}회" if entry.get("failed_attempts") else "")), unsafe_allow_html=True)
+    if entry["mode"] == "demo":   # 예시 실행의 호출은 정해진 규칙대로 움직이는 대역의 응답이다 — 실제 모델 호출이 아니다
+        cols[2].markdown(theme.stat("대역 응답", f"{entry.get('calls', 0)}회", "실제 모델 호출 없음"), unsafe_allow_html=True)
+    else:
+        cols[2].markdown(theme.stat("모델 호출", f"{entry.get('calls', 0)}회", f"요청 {entry.get('attempts', 0)}회" + (f" · 실패 {entry['failed_attempts']}회" if entry.get("failed_attempts") else "")), unsafe_allow_html=True)
     cols[3].markdown(theme.stat("비용 · 시간", f"{cost} · {run.total_latency_ms/1000:.1f}초", "실패한 요청이 있어 추정치" if entry.get("cost_estimated") else ("실제 호출 없음" if entry["mode"] == "demo" else "제공자 사용량 기준")), unsafe_allow_html=True)
     st.caption(f"실행 {entry['at'].strftime('%Y-%m-%d %H:%M:%S')} · 처리 기록 {run.trace_id} (품질 확인 › 처리 기록에서 단계별로 볼 수 있습니다)")
 
@@ -442,6 +459,8 @@ def _rewrite_section(rep: PreflightReport, catalog) -> None:
     elif rep.final_decision in (Decision.REVISE, Decision.REJECT):
         st.caption("자동 수정 제안이 없습니다. 아래 수정 힌트를 참고해 직접 고치세요.")
         _hints(rep, catalog)
+    elif rep.final_decision == Decision.HUMAN_REVIEW:
+        st.caption("자동으로 확정하지 못해 수정 제안을 만들지 않았습니다. 아래 담당자 확인 요청 내용을 참고하세요. 직접 고쳐 다시 검사할 수도 있습니다.")
     else:
         st.caption("수정이 필요하지 않습니다.")
 
@@ -468,11 +487,8 @@ def _diff_explained(rep: PreflightReport, catalog) -> None:
         changes.append("- **안내 문구 추가**: " + " / ".join(added))
     if removed:
         changes.append("- **안내 문구 삭제**: " + " / ".join(removed))
-    reasons = sorted({rule_title(f.rule_id, catalog) for f in rep.verdict.findings if f.severity != Severity.WARN and (f.verified_quote or f.layer.value != "semantic")})
     st.markdown("바뀐 점")
-    st.markdown("\n".join(changes) if changes else "- 바뀐 문구가 없습니다.")
-    if reasons:
-        st.caption("고친 이유: " + " · ".join(reasons))
+    st.markdown("\n".join(changes) if changes else "- 바뀐 문구가 없습니다.")   # 고친 이유는 위 ‘수정할 문구’ 에 구절별로 한 번 적었다 — 여기서 되풀이하지 않는다
 
 
 def _history(entry: dict, vid: str) -> RecheckHistory:
@@ -543,7 +559,7 @@ def _edit_and_recheck(rep: PreflightReport, entry: dict, catalog, tracer: Tracer
         rerun_after = False
         recheck_ok = True
         if live_recheck and hist.reusable_for(key) is None:
-            st.warning(f"실제 모델을 부릅니다 — 이 문구를 다시 검사하면 모델 호출 약 {"2~6" if so else "2~4"}회, 비용은 ${settings.run_budget_usd:.2f} 에서 멈춥니다.", icon="💳")
+            st.warning(f"실제 모델을 부릅니다 — 이 문구를 다시 검사하면 모델 호출 약 {'2–6' if so else '2–4'}회, 비용은 ${settings.run_budget_usd:.2f} 에서 멈춥니다.", icon="💳")
             csig = f"{key}|{len(hist.attempts)}|{settings.run_budget_usd:.2f}"
             ckey = f"confirm_recheck_{vid}"
             if ss.get("_" + ckey) != csig:
@@ -651,7 +667,7 @@ def _details(rep: PreflightReport, entry: dict, catalog) -> None:
         if rep.rewrite_status == RewriteStatus.FAILED_RECHECK and rep.rewrite_recheck_findings:
             st.markdown("**자동 수정안이 재검사에서 걸린 항목**")
             st.dataframe([{"규칙 코드": f.rule_id, "구분": SEVERITY_LABEL[f.severity], "인용": f.quote or "—", "설명": f.explanation} for f in rep.rewrite_recheck_findings], width="stretch", hide_index=True)
-        st.caption(f"판정 근거(내부): {rep.decision_reason} · 수정안: {rep.rewrite_note}")
+        st.caption(f"판정 근거: {plain_decision_note(rep.decision_reason)} · 수정안: {REWRITE_SHORT_LABEL[rep.rewrite_status]}")
 
 
 def _spans_section(rep: PreflightReport, catalog) -> None:
@@ -665,6 +681,8 @@ def _spans_section(rep: PreflightReport, catalog) -> None:
         if fs:
             for f, n in unique_findings(fs, catalog):
                 st.markdown(f"<div class='pf-reason'>{theme.severity_chip(f.severity)} {html.escape(finding_line(f, n, catalog))}</div>", unsafe_allow_html=True)
+        elif rep.final_decision == Decision.HUMAN_REVIEW:
+            st.caption("검사에서 짚은 구절이 없지만, 자동으로 확정하지 못했습니다. 이유는 위와 아래의 ‘담당자 확인’ 에 있습니다.")
         else:
             st.caption("표시할 구절이 없습니다.")
 

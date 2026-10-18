@@ -71,22 +71,30 @@ def _generate_with_retry(seed: EvalCase, router: Router, strategies: list[str], 
 
 
 def _redteam_report(settings: Settings, router: Router, seed_cases: list, attacks: list[Attack], gen_failures: list[dict]) -> dict:
+    # n = 정상적으로 심사된 공격 수. 제공자 장애로 심사하지 못한 공격(errors)은 n·담당자 확인·뚫림률의 분모에서 뺀다 — 장애를 '담당자 확인' 으로 세면 뚫림률이 낮게 보인다 (FM-24)
     by_strategy: dict[str, dict] = {}
     for a in attacks:
         s = by_strategy.setdefault(a.strategy, {"n": 0, "evaded": 0, "human_review": 0, "errors": 0})
+        if a.error:
+            s["errors"] += 1
+            continue
         s["n"] += 1
         s["evaded"] += int(a.evaded)
         s["human_review"] += int(a.predicted == "HUMAN_REVIEW")
-        s["errors"] += int(bool(a.error))
     for s in by_strategy.values():
         s["evasion_rate"] = round(s["evaded"] / s["n"], 3) if s["n"] else 0.0
+    judged = [a for a in attacks if not a.error]
+    b = router.budget
     failed = [f"{a.seed_id}:{a.strategy}" for a in attacks if a.error] + [f"{g['seed']}:generate" for g in gen_failures]
     errs = [a.error for a in attacks if a.error] + [g["error"] for g in gen_failures]
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(), "mode": settings.mode.value, "seeds": len(seed_cases),
         "attacks": [a.__dict__ for a in attacks], "by_strategy": by_strategy,
-        "evasion_rate": round(sum(a.evaded for a in attacks) / len(attacks), 3) if attacks else 0.0,
-        "cost_usd": round(router.budget.spent_usd, 4),
+        "judged": len(judged),
+        "evasion_rate": round(sum(a.evaded for a in judged) / len(judged), 3) if judged else 0.0,
+        "cost_usd": round(b.spent_usd, 4),
+        # 응답(사용량)을 받지 못한 요청의 비용은 알 수 없다 — 위 비용은 응답을 받은 요청만 더한 값(하한)
+        "failed_requests": b.failed_attempts, "cost_estimated": bool(b.estimated or b.failed_attempts),
         # 제공자 장애로 심사하지 못한 공격·생성하지 못한 시드. 0 이 아니면 '뚫림 0' 이 장애 때문일 수 있어 기준선·수확에 쓰지 않는다
         "provider_failures": {"n": len(failed), "cases": failed, "by_error": tally_errors(errs)},
     }

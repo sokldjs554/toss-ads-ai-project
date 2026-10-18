@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import html
+import re
 from typing import Optional
 
 import streamlit as st
@@ -88,7 +89,46 @@ def plain_reason(rep: PreflightReport, catalog) -> str:
         if warns:
             return f"검사 기준에서 문제는 없고, 참고 사항 {len(warns)}건이 있습니다."
         return "검사 기준의 모든 항목을 통과했습니다."
+    if d == Decision.REJECT:
+        return "검사 기준상 그대로는 게재할 수 없는 사유가 확인됐습니다."
+    if d == Decision.REVISE:
+        return "확인이 필요한 구절이 있어 고친 뒤 다시 검사해야 합니다."
     return rep.decision_reason
+
+
+_NOTE_RULES: list[tuple[re.Pattern, str]] = [
+    (re.compile(r"결정론 가드레일에서 반려 사유\(block\)가 확인됨.*"), "코드 검사에서 게재 불가 사유가 확인되어, 검토 모델의 판단과 무관하게 게재 불가입니다."),
+    (re.compile(r"심사 모델 단계가 실패해 자동 판정을 하지 않음.*"), "검토 모델 호출이 실패해 자동으로 판정하지 않았습니다."),
+    (re.compile(r"모델이 반려를 제안했지만 원문에서 검증된 반려 근거가 없음.*"), "검토 모델이 게재 불가를 제안했지만 원문에서 확인된 근거가 없어 담당자 확인으로 넘겼습니다."),
+    (re.compile(r"의미 심사에서 검증된 인용과 함께 반려 사유 확인"), "검토 모델이 원문에서 확인된 구절을 근거로 게재 불가 사유를 제시했습니다."),
+    (re.compile(r"모델 finding (\d+)건의 인용이 원문에 없음.*"), r"검토 모델이 든 근거 \1건이 원문에 없어 담당자 확인으로 넘겼습니다."),
+    (re.compile(r"모델이 수정/반려를 제안했지만 남은 근거 finding 이 없음.*"), "검토 모델이 수정이나 게재 불가를 제안했지만 남은 근거가 없어 담당자 확인으로 넘겼습니다."),
+    (re.compile(r"심사 신뢰도 ([\d.]+) < 자동 판정 임계값 ([\d.]+)"), r"검토 모델의 확신 \1 이(가) 자동 판정 기준 \2 보다 낮아 담당자 확인으로 넘겼습니다."),
+    (re.compile(r"두 모델 계열의 판정 불일치 \((\w+) vs (\w+|\?)\)"), r"두 모델 계열의 판단이 달라 담당자 확인으로 넘겼습니다 (\1 / \2)."),
+    (re.compile(r"경계 사례의 교차 확인 호출이 실패해.*"), "애매한 경우에 받는 교차 확인을 하지 못해, 두 모델의 판단이 같은지 알 수 없어 자동으로 확정하지 않았습니다."),
+    (re.compile(r"수정 필요 — 결정론 finding 또는 검증된 의미 finding 이 fix 등급"), "고쳐야 하는 구절이 확인됐습니다."),
+    (re.compile(r"모든 가드레일 통과, 심사 신뢰도 ([\d.]+) ≥ ([\d.]+)"), r"코드 검사를 모두 통과했고, 검토 모델의 확신 \1 이(가) 자동 판정 기준 \2 이상입니다."),
+    (re.compile(r"실행 비용·호출 상한 초과로 검사하지 못함 \(FM-20\) → 담당자 확인"), "실행 비용·호출 상한에 닿아 검사하지 못해 담당자 확인으로 넘겼습니다."),
+    (re.compile(r" · 모델 검사는 비용·호출 상한 초과로 수행하지 못함 \(FM-20\)"), " (모델 검사는 비용·호출 상한에 닿아 하지 못했습니다)"),
+]
+
+
+def plain_decision_note(reason: str) -> str:
+    """판정 함수가 남긴 내부 설명문(finding · fix 등급 · FM 코드 …)을 화면용 문장으로. 모르는 문장은 코드 번호만 걷어내고 그대로 둔다."""
+    out = reason or ""
+    for pat, repl in _NOTE_RULES:
+        out = pat.sub(repl, out)
+    return re.sub(r"\s*\(FM-\d+\)", "", out).replace("finding", "항목").replace("fix 등급", "수정 필요 등급").strip()
+
+
+def plain_halt(run) -> str:
+    """실행이 끝나지 못한 이유를 사람이 읽는 말로. 내부 코드(FM-xx)와 '사람에게 넘김' 같은 처리 용어는 쓰지 않는다 — 넘겨진 곳이 없다."""
+    r = run.halt_reason or ""
+    if "FM-20" in r:
+        return "실행 비용·호출 상한에 닿아 멈췄습니다."
+    if "소재 생성 실패" in r:
+        return "광고 초안을 만들지 못했습니다 (모델 호출이 실패했습니다)."
+    return re.sub(r"\s*\(?FM-\d+\)?\s*", " ", r).replace("— 사람에게 넘김", "").strip() or "원인을 확인하지 못했습니다."
 
 
 def human_review_reason(rep: PreflightReport) -> str:
@@ -133,7 +173,7 @@ def what_to_check(rep: PreflightReport, catalog) -> list[str]:
     if rep.rewrite_status == RewriteStatus.FAILED_RECHECK:
         items.append("자동 수정안이 재검사를 통과하지 못했습니다. 직접 수정이 필요한지")
     if not items:
-        items.append("검토 모델의 이유(상세 보기)가 타당한지")
+        items.append("검토 모델이 든 이유가 이 광고와 맞는지 (아래 요청문에 이유를 함께 적었습니다)")
     return items
 
 
@@ -157,7 +197,7 @@ def evidence_lines(rep: PreflightReport, product: ProductFacts, catalog) -> list
 
 
 def checklist_rows(rep: PreflightReport) -> list[dict]:
-    return [{"항목": check_name(c.name), "결과": "통과" if c.passed else "확인 필요", "내용": c.detail} for c in rep.checklist]
+    return [{"항목": check_name(c.name), "결과": "통과" if c.passed else "확인 필요", "내용": plain_decision_note(c.detail)} for c in rep.checklist]
 
 
 def _handoff_lines(copy: AdCopy, rep: PreflightReport, catalog, title: str, header: list[str], copy_label: str) -> str:

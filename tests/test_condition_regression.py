@@ -20,8 +20,8 @@ from observability.tracer import Tracer
 from tests.fakes import FakeProvider, scripted_review_provider
 
 CAT = get_catalog()
-CASES = load_dataset("conditions")
-SETTINGS = Settings.from_env(openai_api_key="sk-fake-not-a-real-key", anthropic_api_key="")
+CASES = load_dataset("conditions") + load_dataset("conditions_extra")   # 승인받은 비교 범위의 39건 + 내부 재점검에서 늘린 73건
+SETTINGS = Settings.from_env(openai_api_key="sk-fake-not-a-real-key", anthropic_api_key="", force_demo=False)
 
 
 def det_of(case):
@@ -43,9 +43,10 @@ def test_dataset_case_gets_the_labelled_decision_for_the_labelled_reason(case):
 
 def test_dataset_has_wrong_and_normal_cases_and_review_repros():
     labels = [c.label for c in CASES]
-    assert labels.count("REVISE") >= 15 and labels.count("APPROVE") >= 15
-    assert {"K-A1", "K-B1", "K-C1"} <= {c.id for c in CASES if c.source == "review_repro"}
-    assert sum(1 for c in CASES if not c.claims) >= 30  # claims 가 비어 있는 직접 편집·수정안 경로가 대부분이다
+    assert labels.count("REVISE") >= 50 and labels.count("APPROVE") >= 50
+    assert {c.id for c in CASES if c.source == "review_repro"} == {"K-A1", "K-B1", "K-C1", "K-C2"}      # 외부 리뷰가 보고한 입력 3건 + 그 띄어 쓴 형태
+    assert len(load_dataset("conditions")) == 39 and len(load_dataset("conditions_extra")) == 73          # 실제 모델 비교 범위(110건)는 39건까지
+    assert sum(1 for c in CASES if not c.claims) >= 100  # claims 가 비어 있는 직접 편집·수정안 경로가 대부분이다
 
 
 # ───────────── 리뷰 재현 A · B · C 를 한 줄로 ─────────────

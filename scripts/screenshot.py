@@ -24,6 +24,7 @@ PLAN = [
      "steps": [("fill_last", "제목", "조건 확인 후 신청하는 신용대출"), ("click_last", "수정한 문구 다시 검사", "재검사 결과")], "crop": ("문구 고쳐서 다시 검사", 1150)},
     {"name": "05_cases", "path": "/?view=검사 사례", "wait": "검사 사례", "viewport": (1400, 1000), "tall": 3600, "crop": (None, 1500)},
     {"name": "06_quality", "path": "/?view=품질 확인", "wait": "품질 확인", "viewport": (1400, 1000), "tall": 3600, "crop": (None, 1650)},
+    {"name": "08_compare", "path": "/?view=품질 확인", "wait": "방식 비교", "viewport": (1400, 1000), "tall": 7000, "crop": ("코드 검사만, 검토 모델만", 1500)},
     {"name": "07_mobile_result", "path": "/?preset=malicious&autorun=1", "wait": "검사 결과", "viewport": (390, 844), "tall": 6500, "crop": ("검사 결과", 2300)},
 ]
 

@@ -3,10 +3,10 @@ from __future__ import annotations
 
 import streamlit as st
 
-from core.schemas import Severity
+from core.schemas import Layer, Severity
 from guardrails.failure_modes import FAILURE_MODES
 from guardrails.policy import get_catalog
-from ui.labels import SEVERITY_LABEL
+from ui.labels import LAYER_LABEL, SEVERITY_LABEL
 
 
 def render_failure_modes() -> None:
@@ -30,8 +30,11 @@ def render_policy() -> None:
         sev_names = {sv.value: SEVERITY_LABEL[sv] for sv in Severity}
         sev = st.multiselect("구분", list(sev_names), default=list(sev_names), format_func=sev_names.get)
     with f2:
-        layer = st.multiselect("계층", ["lexical", "disclosure", "grounding", "injection", "semantic", "structural"], default=["lexical", "disclosure", "grounding", "injection", "semantic", "structural"])
-    rows = [{**r, "severity": sev_names.get(r["severity"], r["severity"])} for r in cat.summary_table() if r["severity"] in sev and r["layer"] in layer]
+        layer_keys = ["lexical", "disclosure", "grounding", "injection", "semantic", "structural"]
+        layer_names = {k: LAYER_LABEL[Layer(k)] for k in layer_keys}
+        layer_pick = st.multiselect("검사 종류", [layer_names[k] for k in layer_keys], default=[layer_names[k] for k in layer_keys])
+        layer = [k for k in layer_keys if layer_names[k] in layer_pick]
+    rows = [{**r, "severity": sev_names.get(r["severity"], r["severity"]), "layer": layer_names.get(r["layer"], r["layer"])} for r in cat.summary_table() if r["severity"] in sev and r["layer"] in layer]
     st.dataframe(rows, width="stretch", hide_index=True, height=600)
     with st.expander("업종별 필수 고지 체크리스트"):
         for c, spec in cat.disclosures.items():

@@ -12,7 +12,7 @@ CSS = """
 <style>
 :root { --pf-ink:#191F28; --pf-ink2:#4E5968; --pf-ink3:#6B7684; --pf-line:#E5E8EB; --pf-bg:#F7F8FA; --pf-card:#FFFFFF; --pf-accent:#2B5BD7; --pf-accent-weak:#EAF0FD; }
 html, body, [data-testid="stAppViewContainer"] { background: var(--pf-bg) !important; color: var(--pf-ink); }
-[data-testid="stAppViewContainer"] .main .block-container { max-width: 1120px; padding-top: 1.2rem; padding-bottom: 4rem; }
+[data-testid="stMainBlockContainer"], [data-testid="stAppViewContainer"] .main .block-container { max-width: 1120px; padding-top: 1.2rem; padding-bottom: 4rem; }
 [data-testid="stHeader"] { background: transparent; }
 h1, h2, h3 { letter-spacing: -0.01em; color: var(--pf-ink); }
 h1 { font-size: 1.55rem !important; font-weight: 700 !important; margin-bottom: .2rem !important; }
@@ -57,7 +57,7 @@ mark.pf-mark { padding: 0 2px; border-radius: 3px; }
 .pf-step { display:flex; gap: 10px; align-items:flex-start; padding: 6px 0; font-size: .9rem; }
 .pf-step .n { width: 22px; height: 22px; border-radius: 50%; background: var(--pf-accent-weak); color:#23489F; font-size:.78rem; font-weight:700; display:flex; align-items:center; justify-content:center; flex: none; }
 @media (max-width: 640px) {
-  [data-testid="stAppViewContainer"] .main .block-container { padding-left: 16px; padding-right: 16px; }
+  [data-testid="stMainBlockContainer"], [data-testid="stAppViewContainer"] .main .block-container { padding-left: 16px; padding-right: 16px; }
   .pf-badge.big { font-size: .88rem; }
   h1 { font-size: 1.3rem !important; }
 }

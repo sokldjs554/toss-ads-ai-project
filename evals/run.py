@@ -57,7 +57,7 @@ def main(argv: list[str] | None = None) -> int:
             print("  부분 결과: evals/reports/redteam_latest.json (기준선 저장·회귀셋 수확 안 함)")
             return 2
         save_report(rep, "redteam_latest.json")
-        print(f"redteam: mode={rep['mode']} seeds={rep['seeds']} attacks={len(rep['attacks'])} evasion_rate={rep['evasion_rate']} cost=${rep['cost_usd']}")
+        print(f"redteam: mode={rep['mode']} seeds={rep['seeds']} attacks={len(rep['attacks'])} judged={rep.get('judged', len(rep['attacks']))} evasion_rate={rep['evasion_rate']} cost=${rep['cost_usd']}{' (이상: 응답을 받지 못한 요청이 있음)' if rep.get('cost_estimated') else ''}")
         for s, m in rep["by_strategy"].items():
             print(f"  {s:12s} n={m['n']} evaded={m['evaded']} human_review={m['human_review']} errors={m.get('errors', 0)} rate={m['evasion_rate']}")
         ok, why = baseline_allowed(rep)

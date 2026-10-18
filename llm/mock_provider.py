@@ -285,7 +285,7 @@ def _mock_disclosure(category: str, facts: list[dict]) -> list[str]:
     ft = " ".join(f.get("text", "") for f in facts)
     review = "준법감시인 심의필 제0000-000호 (광고주가 실제 번호로 교체)"
     if category == "loan":
-        rate = re.search(r"연\s*\d+(?:\.\d+)?\s*%[^,.]*", ft)
+        rate = re.search(r"연\s*\d+(?:\.\d+)?\s*%(?:\s*~\s*\d+(?:\.\d+)?\s*%)?(?:\s*\([^)]*\))?", ft)   # '연 4.5%~15.0% (심사 결과에 따라 다름)' 전체
         return [
             (rate.group(0).strip() if rate else "금리·한도는 심사 결과에 따라 다름"),
             "연체 시 연체이자율 적용, 상환 방식·기간은 상품 설명서 참조",

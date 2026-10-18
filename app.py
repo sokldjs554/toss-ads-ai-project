@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import html
+import inspect
 import os
 from pathlib import Path
 
@@ -53,7 +54,9 @@ if "tracer" not in st.session_state:
 # --- 상단: 이름 · 개인 프로젝트 표시 · 화면 전환 --------------------------------------------
 VIEWS = ["광고 작업", "검사 사례", "품질 확인"]
 req = st.session_state.pop("nav_request", None)
-if req in VIEWS:
+if "_nav_reset" in st.session_state:   # 같은 탭을 다시 눌러 선택이 풀렸을 때, 위젯을 만들기 전에 마지막으로 보던 화면을 되돌려 놓는다
+    st.session_state["nav"] = st.session_state.pop("_nav_reset")
+elif req in VIEWS:
     st.session_state["nav"] = req
 elif "nav" not in st.session_state:
     qv = st.query_params.get("view")
@@ -77,9 +80,12 @@ if not _build:
 _build = _build[:7]
 st.markdown(f'<div class="pf-topbar"><div class="pf-brand">✅ {PROJECT_NAME}<small>광고가 올라가기 전에 확인이 필요한 구절을 먼저 찾습니다</small></div>'
             f'<div class="pf-note">개인 프로젝트 · 토스·토스애즈와 무관{" · 빌드 " + html.escape(_build) if _build else ""}</div></div>', unsafe_allow_html=True)
-nav = st.segmented_control("화면", VIEWS, key="nav", label_visibility="collapsed", width="stretch")
+_nav_kw = {"required": True} if "required" in inspect.signature(st.segmented_control).parameters else {}   # 선택 해제를 막는다 (지원하지 않는 버전은 아래에서 되돌린다)
+nav = st.segmented_control("화면", VIEWS, key="nav", label_visibility="collapsed", width="stretch", **_nav_kw)
 if nav is None:
-    nav = VIEWS[0]
+    st.session_state["_nav_reset"] = st.session_state.get("_nav_last", VIEWS[0])
+    st.rerun()
+st.session_state["_nav_last"] = nav
 
 if nav == "광고 작업":
     workbench.render(make_settings, st.session_state.tracer, router_factory, SERVER_STATUS)

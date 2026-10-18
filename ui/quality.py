@@ -15,7 +15,7 @@ from agents.prompts import PROMPT_VERSION
 from observability.tracer import Tracer
 from ui import catalog_view, compare_view, redteam_view, theme, trace_view
 from ui.funding import funded_by_server, server_cap
-from ui.labels import METRIC, fraction_sentence, pct
+from ui.labels import RUN_MODE_NAME, METRIC, fraction_sentence, pct
 
 SLICE = {"clear": "명백한 위반", "evasion": "우회 표현", "injection": "숨은 지시문", "gray": "경계 사례(수정 필요)", "benign_scary": "무서운 단어가 있지만 문제없음", "semantic_only": "모델만 잡을 수 있는 사례"}
 ROUNDS = [  # (파일, 회차, 바뀐 것)
@@ -47,9 +47,20 @@ def _sentences(rep: dict) -> list[str]:
     return out
 
 
+_GATE_NAMES = {"unsafe_approve": METRIC["unsafe_approve"][0], "false_flag": METRIC["false_flag"][0], "human_review": METRIC["human_review"][0]}
+
+
+def _plain_gate(msg: str) -> str:
+    """회귀 게이트의 내부 지표 이름을 화면 용어로 바꾼다 ('human_review: 0.018 → 0.500' → '담당자 확인으로 넘긴 비율: 0.018 → 0.500')."""
+    for k, v in _GATE_NAMES.items():
+        if msg.startswith(k + ":"):
+            msg = v + msg[len(k):]
+    return msg.replace("recall", "재현율").replace("모드가 다름", "실행 방식이 다름")
+
+
 def _report_meta(rep: dict) -> str:
     model = rep.get("model") or rep.get("reviewer", "")
-    return (f"실행 방식 `{rep.get('mode')}` · 모델 {model} · 프롬프트 {rep.get('prompt_version')} · 검사 기준 {rep.get('policy_version')} · "
+    return (f"실행 방식 {RUN_MODE_NAME.get(rep.get('mode'), rep.get('mode'))} · 모델 {model} · 프롬프트 {rep.get('prompt_version')} · 검사 기준 {rep.get('policy_version')} · "
             f"평가 데이터 {rep.get('dataset')} v{rep.get('dataset_version') or '?'} ({rep.get('n')}건"
             + (f", 모델만 잡을 수 있는 사례 {rep['excluded_semantic_only']}건 제외" if rep.get("excluded_semantic_only") else "") + ")"
             + (f" · 자동 판정 확신 기준 {rep['threshold']}" if rep.get("threshold") is not None else "")
@@ -85,7 +96,7 @@ def _coverage(curve: list[dict]) -> go.Figure:
 
 
 SESSION_PICK = "이 세션에서 실행한 결과"
-DATASETS = {"golden": "골든셋 (개발용)", "holdout": "holdout (최종 확인용)", "contrast_g069": "G-069 대조 사례", "conditions": "숫자·조건 비교 (틀린 문구 + 정상 대조)", "adversarial": "우회 표현 회귀셋"}
+DATASETS = {"golden": "골든셋 (개발용)", "holdout": "holdout (최종 확인용)", "contrast_g069": "G-069 대조 사례", "conditions": "숫자·조건 비교 (틀린 문구 + 정상 대조)", "conditions_extra": "숫자·조건 비교 보강 (틀린 문구 + 정상 대조)", "adversarial": "우회 표현 회귀셋"}
 
 
 def _eval_settings(make_settings, source: str) -> tuple[Settings, str]:
@@ -227,14 +238,14 @@ def _eval_section(make_settings, router_factory, server_status: dict) -> None:
             g = gate(rep, base)
             st.markdown("**기준선과 비교** (" + ("나빠진 지표 없음" if g.passed else "나빠진 지표 있음") + ")")
             for f in g.failures:
-                st.error(f)
+                st.error(_plain_gate(f))
             for w in g.warnings:
-                st.caption(w)
+                st.caption(_plain_gate(w))
 
 
 def _history_section() -> None:
     st.markdown("## 개선 이력 (실제 모델, 골든셋)")
-    st.markdown("GPT-4o 로 다섯 번 돌리며 코드 규칙을 고쳤습니다 (1~2차는 골든셋 53건, 3~4차는 사례 2건을 더한 v1.1 55건, 5차는 라벨 1건을 고친 v1.2 55건이라 회차마다 분모가 다릅니다). 프롬프트·규칙을 고친 뒤 같은 데이터로 다시 잰 값이므로 최종 확인용이 아니라 **회귀 감시용**입니다. "
+    st.markdown("GPT-4o 로 다섯 번 돌리며 코드 규칙을 고쳤습니다 (1–2차는 골든셋 53건, 3–4차는 사례 2건을 더한 v1.1 55건, 5차는 라벨 1건을 고친 v1.2 55건이라 회차마다 분모가 다릅니다). 프롬프트·규칙을 고친 뒤 같은 데이터로 다시 잰 값이므로 최종 확인용이 아니라 **회귀 감시용**입니다. "
                 "'담당자 확인으로 넘긴 건' 은 '올바르게 통과시킨 건' 과 다르게 셉니다.")
     rows = []
     for name, label, change in ROUNDS:
@@ -260,7 +271,7 @@ def _technical_section(rep_name: str = "baseline_partial.json") -> None:
         rep = load_report(rep_name)
         if rep:
             cal = rep["summary"]["calibration"]
-            st.markdown(f"**확신 보정** — 검토 모델이 말한 확신(0~1)이 실제 정답 비율과 얼마나 맞는지. ECE {cal.get('ece')} (0 에 가까울수록 좋음), Brier {cal.get('brier')}. "
+            st.markdown(f"**확신 보정** — 검토 모델이 말한 확신(0–1)이 실제 정답 비율과 얼마나 맞는지. ECE {cal.get('ece')} (0 에 가까울수록 좋음), Brier {cal.get('brier')}. "
                         f"확신 0.8 이상인데 틀린 사례 {cal['high_confidence_error']['k']}/{cal['high_confidence_error']['n']}. 이 값은 모델이 말한 확신의 보정 정도이지 검증된 정답 확률이 아닙니다.")
             c1, c2 = st.columns(2)
             with c1:

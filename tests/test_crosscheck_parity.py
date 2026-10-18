@@ -23,7 +23,7 @@ CAT = get_catalog()
 PRODUCT = ProductFacts(name="OO몰 쿠폰", category=ProductCategory.ECOMMERCE, facts=[Fact(id="F1", text="전 상품 10% 할인 쿠폰 (10월 31일까지, 1인 1회)")])
 FACTS_TEXT = "- F1: 전 상품 10% 할인 쿠폰 (10월 31일까지, 1인 1회)"
 GOOD = AdCopy(headline="전 상품 10% 할인 쿠폰", body="10월 31일까지, 1인 1회 사용할 수 있어요.", cta="자세히 보기", disclosures=["10월 31일까지, 1인 1회"])
-SETTINGS = Settings.from_env(openai_api_key="sk-fake-not-a-real-key", anthropic_api_key="sk-ant-fake-not-a-real-key")
+SETTINGS = Settings.from_env(openai_api_key="sk-fake-not-a-real-key", anthropic_api_key="sk-ant-fake-not-a-real-key", force_demo=False)
 TAU = SETTINGS.auto_decision_confidence
 
 

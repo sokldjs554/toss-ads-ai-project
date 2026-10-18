@@ -26,7 +26,7 @@ PRODUCT = ProductFacts(name="OO몰 쿠폰", category=ProductCategory.ECOMMERCE, 
 FACTS_TEXT = "- F1: 전 상품 10% 할인 쿠폰 (10월 31일까지, 1인 1회)"
 GOOD = AdCopy(headline="전 상품 10% 할인 쿠폰", body="10월 31일까지, 1인 1회 사용할 수 있어요.", cta="자세히 보기", disclosures=["10월 31일까지, 1인 1회"])
 BLOCKED = AdCopy(headline="타사보다 2배 적립", body="전 상품 10% 할인 쿠폰", cta="자세히 보기", disclosures=["10월 31일까지, 1인 1회"])
-SETTINGS = Settings.from_env(openai_api_key="sk-fake-not-a-real-key", anthropic_api_key="")
+SETTINGS = Settings.from_env(openai_api_key="sk-fake-not-a-real-key", anthropic_api_key="", force_demo=False)
 TAU = SETTINGS.auto_decision_confidence  # 0.8
 
 

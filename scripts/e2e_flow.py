@@ -2,7 +2,8 @@
 (모델 호출이 실패하는 상황에서) 확인 요청 생성 → 같은 문구로 다시 시도. 각 단계의 화면 상태를 검증하고 스크린샷을 남긴다.
 
     pip install playwright pillow && python scripts/e2e_flow.py [--out docs/screenshots]
-화면 캡처만으로 검증을 대신하지 않기 위한 스크립트다: 단계마다 기대한 글자가 보이는지, 예외 표시가 없는지, 모바일에서 가로 넘침이 없는지 확인하고 하나라도 어긋나면 실패(종료 코드 1)한다.
+화면 캡처만으로 검증을 대신하지 않기 위한 스크립트다: 단계마다 기대한 글자가 보이는지, 예외 표시와 가로 넘침이 없는지, 스타일이 실제로 적용됐는지 확인하고 하나라도 어긋나면 실패(종료 코드 1)한다.
+실행 결과(검사 목록과 통과 여부)는 <out>/e2e_report.json 에 남는다. flow_*.png 여섯 장이 이 스크립트가 찍은 화면이고, 05_cases.png·06_quality.png 는 scripts/screenshot.py 가 찍는다.
 """
 from __future__ import annotations
 
@@ -51,6 +52,8 @@ class Flow:
 
     def no_exception(self, label: str) -> None:
         self.check(f"{label}: 예외 표시 없음", self.page.locator('[data-testid="stException"]').count() == 0)
+        sw, iw = self.page.evaluate("document.documentElement.scrollWidth"), self.page.evaluate("window.innerWidth")
+        self.check(f"{label}: 가로 넘침 없음", sw <= iw + 1, f"scrollWidth {sw} > innerWidth {iw}")
 
     def pick(self, label: str, option: str) -> None:
         """Streamlit 선택 상자에서 항목을 고른다 (라벨 글자로 상자를 찾고, 펼쳐진 목록에서 항목을 클릭)."""
@@ -73,6 +76,14 @@ def run_flow(browser, name: str, size: tuple[int, int], out: Path) -> list[dict]
     page.get_by_role("button", name="예시로 바로 실행").wait_for(timeout=30_000)   # 버튼까지 그려진 뒤에 글자를 읽는다
     t = f.text()
     f.check("첫 화면: 시작하기·예시 선택·바로 실행이 위에 있다", "시작하기" in t and "예시로 바로 실행" in t and "세 가지 결과는 서로 다릅니다" in t)
+    f.no_exception("첫 화면")
+    # 스타일이 실제로 적용되는지(본문 최대 너비·모바일 좌우 여백) — 선택자가 화면 구조와 맞지 않으면 규칙이 조용히 무시된다
+    css = page.evaluate("""() => { const e = document.querySelector('[data-testid="stMainBlockContainer"]'); if (!e) return null;
+        const c = getComputedStyle(e); return {maxWidth: c.maxWidth, padLeft: parseFloat(c.paddingLeft), padRight: parseFloat(c.paddingRight)}; }""")
+    if name == "desktop":
+        f.check("스타일 적용: 본문 최대 너비 1120px", bool(css) and css["maxWidth"] == "1120px", str(css))
+    else:
+        f.check("스타일 적용: 모바일 좌우 여백 16px", bool(css) and abs(css["padLeft"] - 16) < 0.5 and abs(css["padRight"] - 16) < 0.5, str(css))
     f.shot("1_start")
 
     # 1) 예시 선택 → 한 번에 실행
@@ -108,7 +119,8 @@ def run_flow(browser, name: str, size: tuple[int, int], out: Path) -> list[dict]
     # 3) 같은 문구를 다시 누르면 재사용
     page.get_by_role("button", name="수정한 문구 다시 검사").first.click()
     f.wait_text("이미 검사했습니다", 60_000)
-    f.check("성공한 같은 문구는 다시 부르지 않고 재사용", True)
+    t = f.text()
+    f.check("성공한 같은 문구는 다시 부르지 않고 재사용 (시도 횟수가 늘지 않음)", "이 문구 검사 1번 시도" in t and "이 문구 검사 2번 시도" not in t)
 
     # 4) 모델 호출이 실패하는 상황: 장애 시뮬레이션 → 다른 문구 검사 → 실패 표시·확인 요청문
     page.locator("summary").filter(has_text="상세 옵션").first.click()   # 설명 글 속의 ‘상세 옵션’ 이 아니라 접힌 제목을 연다
@@ -128,6 +140,7 @@ def run_flow(browser, name: str, size: tuple[int, int], out: Path) -> list[dict]
     f.check("실패: 통과로 보지 않는다고 알린다", "통과로 보지 않습니다" in t and "이 문구는 검사 기준을 통과했습니다" not in t)
     f.check("실패: 버튼이 ‘같은 문구로 다시 시도’ 로 바뀜", page.get_by_role("button", name="같은 문구로 다시 시도").count() >= 1)
     f.check("확인 요청문 생성(수정본 재검사)", "이 문구에 대한 담당자 확인 요청문" in t)
+    f.no_exception("호출 실패 뒤")
     page.locator("summary").filter(has_text="확인 요청 내용 (재검사한 문구").first.click()
     time.sleep(1.0)
     req = page.locator("pre").filter(has_text="수정본 재검사").first.inner_text()
@@ -150,8 +163,7 @@ def run_flow(browser, name: str, size: tuple[int, int], out: Path) -> list[dict]
     t = f.text()
     f.check("문구를 바꾸면 이전 결과가 현재 결과로 보이지 않는다", "이전에 검사한 문구" in t and "이 문구는 검사 기준을 통과했습니다" not in t)
 
-    sw, iw = page.evaluate("document.documentElement.scrollWidth"), page.evaluate("window.innerWidth")
-    f.check("가로 넘침 없음", sw <= iw + 1, f"scrollWidth {sw} > innerWidth {iw}")
+    f.no_exception("문구 변경 뒤")
     f.check("브라우저 오류 없음", not errors, "; ".join(errors))
     ctx.close()
     return f.checks
@@ -183,6 +195,19 @@ def main() -> int:
     finally:
         proc.terminate()
     bad = [c for c in checks if not c["ok"]]
+    # 이 실행의 결과를 파일로 남긴다 — 문서가 '몇 개 검사를 통과했다' 고 말할 때 근거로 삼는다
+    try:
+        import streamlit
+
+        sha = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+        dirty = bool(subprocess.run(["git", "status", "--porcelain", "--", "app.py", "ui", "agents", "guardrails", "core", "llm"], cwd=ROOT, capture_output=True, text=True).stdout.strip())
+        report = {"commit": sha + ("+uncommitted" if dirty else ""), "streamlit": streamlit.__version__, "python": sys.version.split()[0], "viewports": list(VIEWPORTS),
+                  "checks": len(checks), "failed": len(bad), "per_viewport": {n: sum(1 for c in checks if c["viewport"] == n) for n in VIEWPORTS},
+                  "results": [{"viewport": c["viewport"], "check": c["check"], "ok": c["ok"]} for c in checks]}
+        out.mkdir(parents=True, exist_ok=True)
+        (out / "e2e_report.json").write_text(json.dumps(report, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    except Exception as e:  # noqa: BLE001
+        print("e2e_report.json 을 쓰지 못함:", e)
     print(json.dumps({"checks": len(checks), "failed": len(bad)}, ensure_ascii=False))
     return 1 if bad else 0
 

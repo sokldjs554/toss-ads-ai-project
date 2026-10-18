@@ -13,7 +13,7 @@ from evals.runner import evaluate_case, load_dataset
 from guardrails.policy import get_catalog
 from observability import replay
 from ui import theme
-from ui.components import finding_sentence, rule_title
+from ui.components import finding_sentence, plain_decision_note, rule_title
 from ui.labels import DECISION_LABEL, REWRITE_SHORT_LABEL, RUN_MODE_LABEL
 from ui.presets import PRESETS, build_brief
 from ui.workbench import PRESET_TITLES
@@ -98,9 +98,9 @@ def _stored_case(key: str, path, catalog) -> None:
                 status = RewriteStatus(state["status"])
                 st.markdown(f"**수정안** {REWRITE_SHORT_LABEL[status]} · 저장된 실행 결과 기준")
                 if state["source"] == "legacy_unknown":
-                    st.caption(state["note"])
+                    st.caption(plain_decision_note(state["note"]))
                 elif state["note"] and status != RewriteStatus.NONE:
-                    st.caption(state["note"])
+                    st.caption(plain_decision_note(state["note"]))
                 rc_rec = state.get("recheck")
                 if rc_rec and status != RewriteStatus.NONE:
                     parts = [f"코드 검사 {DECISION_LABEL.get(Decision(rc_rec['det_decision']), rc_rec['det_decision']) if rc_rec.get('det_decision') else '기록 없음'}"]
@@ -114,7 +114,7 @@ def _stored_case(key: str, path, catalog) -> None:
 
                     rw = v["rewrite"]
                     render_ad(AdCopy(headline=rw["headline"], body=rw["body"], cta=rw.get("cta") or "", disclosures=rw.get("disclosures", [])), title="수정안 확인 완료", catalog=catalog)
-                st.caption(f"판정 근거(내부): {v['reason']}")
+                st.caption(f"판정 근거: {plain_decision_note(v['reason'])}")
         b1, b2, _ = st.columns([1, 1, 2])
         with b1:
             if st.button("광고 작업에 불러오기", key=f"load_{key}"):

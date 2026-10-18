@@ -11,6 +11,7 @@ HIST = REPO / "evals" / "reports" / "history"
 sys.path.insert(0, str(REPO))
 
 from agents.personas import PERSONAS
+from agents.prompts import PROMPT_VERSION
 from agents.reviewer import DET_AUTHORITATIVE_LAYERS, _to_verdict
 from core.schemas import AdCopy, Claim, Layer
 from guardrails import output_guard
@@ -75,7 +76,9 @@ def build_scenario(key):
                     "llm_calls": len(llm_spans), "cost_usd": round(sum(float(s["attributes"].get("cost_usd", 0)) for s in llm_spans), 4),
                     "tokens_in": sum(int(s["attributes"].get("input_tokens", 0)) for s in llm_spans),
                     "tokens_out": sum(int(s["attributes"].get("output_tokens", 0)) for s in llm_spans),
-                    "halted": bool(t["metadata"].get("halted")), "final": t["metadata"].get("final_decisions", [])}}
+                    "halted": bool(t["metadata"].get("halted")), "final": t["metadata"].get("final_decisions", [])},
+          # 이 기록이 저장될 때의 버전. 아래 '코드 검사' 칸은 오늘의 코드로 다시 계산한 것이라 버전이 다를 수 있다
+          "recorded": {"policy_version": t["metadata"].get("policy_version"), "prompt_version": t["metadata"].get("prompt_version"), "mode": t["metadata"].get("mode")}}
     # ---- waterfall spans
     wf = []
     for depth, s in spans:
@@ -186,6 +189,7 @@ def build_scenario(key):
         rw_state = stored_rewrite_state(vs, bool(review and review["rewrite"]))
         variants.append({"id": copy.variant_id, "copy": {"headline": copy.headline, "body": copy.body, "cta": copy.cta, "claims": [c.model_dump() for c in copy.claims],
                                                          "disclosures": copy.disclosures, "tone": copy.tone},
+                         "det_recorded": {"decision": og["attributes"].get("decision"), "findings": [{"rule_id": f["rule_id"], "severity": f["severity"], "quote": f.get("quote", "")} for f in og["attributes"].get("findings", [])]},
                          "det": {"decision": det.decision.value, "findings": [{"rule_id": f.rule_id, "severity": f.severity.value, "layer": f.layer.value, "quote": f.quote, "explanation": f.explanation} for f in det.findings],
                                  "checklist": [{"name": c.name, "passed": c.passed, "detail": c.detail, "layer": c.layer.value} for c in det.checklist]},
                          "audience": aud, "review": review, "second": second,
@@ -241,7 +245,9 @@ data = {
               "run_id": "39042649138", "generated_at": r5["generated_at"], "trace_run_id": "39044437805", "trace_date": "2026-10-17", "trace_round": "5차", "eval_round": "5차", "eval_date": "2026-10-17"},
     "fms": [{"code": f.code, "name": f.name, "stage": f.stage, "symptom": f.symptom, "detection": f.detection, "defense": f.defense, "test": f.test} for f in FAILURE_MODES],
     "rules": {r.id: {"title": r.title, "severity": r.severity.value, "layer": r.layer.value, "section": r.section} for r in CAT.rules.values()},
-    "meta": {"policy_version": CAT.version, "rule_count": len(CAT.rules), "prompt_version": r5["prompt_version"]},
+    # policy_version/prompt_version = 오늘의 코드(이 페이지의 '다시 계산' 칸), recorded_* = 저장된 실제 모델 실행(5차 평가·트레이스)이 쓴 버전
+    "meta": {"policy_version": CAT.version, "rule_count": len(CAT.rules), "prompt_version": PROMPT_VERSION,
+             "recorded_prompt_version": r5["prompt_version"], "recorded_policy_version": r5.get("policy_version")},
 }
 ap = argparse.ArgumentParser()
 ap.add_argument("--out", default=str(REPO / "_site" / "replay"), help="index.html 을 쓸 디렉터리")

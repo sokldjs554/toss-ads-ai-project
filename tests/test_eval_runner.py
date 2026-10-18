@@ -119,7 +119,7 @@ def test_eval_stops_at_once_when_the_cost_cap_is_hit(tracer):
 
 
 def test_wait_for_breaker_sleeps_until_cooldown(tracer):
-    s = Settings.from_env(openai_api_key="sk-fake-not-a-real-key", anthropic_api_key="")
+    s = Settings.from_env(openai_api_key="sk-fake-not-a-real-key", anthropic_api_key="", force_demo=False)
     router = Router(s, providers={"openai": FakeProvider("openai"), "anthropic": FakeProvider("anthropic", available=False)}, tracer=tracer)
     b = router.breakers["openai"]
     b.threshold, b.cooldown_s = 1, 0.3
@@ -326,3 +326,25 @@ def test_record_traces_writes_nothing_when_any_scenario_has_provider_failure(tmp
     assert sentinel.read_text(encoding="utf-8") == "OLD GOOD TRACE"          # 기존 샘플을 덮어쓰지 않았다
     assert [p.name for p in out.iterdir()] == ["sample_demo_malicious.json"]   # 새 파일도 쓰지 않았다
     assert any("FM-07@reviewer" in m for m in messages)
+
+
+def test_record_traces_also_refuses_failures_hidden_inside_the_trace(tmp_path):
+    """run.failures 에 남지 않는 실패(입력 검사의 되묻기 호출 실패, 대체 제공자가 대신 답한 호출)도 저장을 막는다."""
+    rt = _record_traces_module()
+    s = Settings.from_env(openai_api_key="", anthropic_api_key="", force_demo=True)
+    out = tmp_path / "traces"
+    calls = {"n": 0}
+
+    def pipeline(brief, settings, options=None, tracer=None, **kw):
+        calls["n"] += 1
+        run = rt.run_pipeline(brief, settings, options=options, tracer=tracer, **kw)
+        if calls["n"] == 2:
+            sp = tracer.latest().llm_spans()[0]
+            sp.status = "error"
+            sp.events.append({"name": "provider_error", "provider": "openai", "type": "RateLimited"})
+        return run
+
+    messages: list[str] = []
+    assert rt.main(settings=s, out=out, pipeline=pipeline, log=messages.append) == 2
+    assert not out.exists() or not list(out.iterdir())
+    assert any("provider_error@" in m for m in messages) and any("error@" in m for m in messages)

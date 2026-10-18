@@ -318,8 +318,9 @@ svg.chart .ax { stroke: var(--line); stroke-width: 1; } svg.chart .gr { stroke: 
     var fin = sc.variants.map(function (v) { return v.final; });
     var cnt = function (k) { return fin.filter(function (x) { return x === k; }).length; };
     h += '<section class="sec"><h2><span class="n">2–6</span>소재별 사전점검 ' + fin.map(pill).join(' ') + '</h2>' +
-      '<p class="lead">카피 생성(Claude 자리, 키가 하나라 GPT-4o) → 결정론 가드레일 → 가상 유저 패널 → 심사 모델 → 경계 사례 교차 검증 → 코드가 최종 판정. 점검 통과 ' + cnt('APPROVE') + ' · 수정 필요 ' + cnt('REVISE') + ' · 게재 불가 ' + cnt('REJECT') + ' · 담당자 확인 필요 ' + cnt('HUMAN_REVIEW') + '. (이 프로젝트의 검사 기준에 따른 결과이며 실제 플랫폼 심사가 아닙니다.)</p>';
-    sc.variants.forEach(function (v, i) { h += variantCard(sc, v, i); });
+      '<p class="lead">카피 생성(Claude 자리, 키가 하나라 GPT-4o) → 결정론 가드레일 → 가상 유저 패널 → 심사 모델 → 경계 사례 교차 검증 → 코드가 최종 판정. 점검 통과 ' + cnt('APPROVE') + ' · 수정 필요 ' + cnt('REVISE') + ' · 게재 불가 ' + cnt('REJECT') + ' · 담당자 확인 필요 ' + cnt('HUMAN_REVIEW') + '. (이 프로젝트의 검사 기준에 따른 결과이며 실제 플랫폼 심사가 아닙니다.)</p>' +
+      '<p class="src">저장된 실제 모델 실행: 검사 기준 v' + esc((sc.recorded && sc.recorded.policy_version) || '?') + ' · 프롬프트 v' + esc((sc.recorded && sc.recorded.prompt_version) || '?') + '. 판정·모델 결과는 그때 저장된 값이고, \'코드 검사\' 칸만 오늘의 코드로 다시 계산해 비교합니다.</p>';
+    sc.variants.forEach(function (v, i) { v.sc_recorded = sc.recorded; h += variantCard(sc, v, i); });
     h += '</section>' + obsSection(sc);
     return h;
   }
@@ -362,7 +363,11 @@ svg.chart .ax { stroke: var(--line); stroke-width: 1; } svg.chart .gr { stroke: 
   }
 
   function whyPane(v) {
-    var h = '<div class="sh">결정론 가드레일 (코드) · ' + DEC[v.det.decision][0] + '</div>';
+    var h = '<div class="sh">코드 검사 · 오늘의 코드(검사 기준 v' + esc(D.meta.policy_version) + ')로 다시 계산한 결과 · ' + DEC[v.det.decision][0] + '</div>';
+    if (v.det_recorded) {
+      var now = v.det.findings.map(function (f) { return f.rule_id; }).sort().join(','), then = v.det_recorded.findings.map(function (f) { return f.rule_id; }).sort().join(',');
+      h += '<p class="src" style="margin:0 0 6px">저장된 처리 기록의 코드 검사(검사 기준 v' + esc((v.sc_recorded && v.sc_recorded.policy_version) || '?') + '): ' + (v.det_recorded.findings.length ? esc(v.det_recorded.findings.map(function (f) { return f.rule_id; }).join(', ')) : '걸린 규칙 없음') + ' · ' + (now === then ? '오늘의 코드와 같음' : '<b>오늘의 코드와 다름</b> — 판정(위 배지)은 저장된 실행 결과 그대로입니다') + '</p>';
+    }
     if (!v.det.findings.length) h += '<p class="muted">걸린 규칙 없음</p>';
     v.det.findings.forEach(function (f) {
       h += '<div class="fi"><div class="row">' + sev(f.severity) + '<b class="mono">' + esc(f.rule_id) + '</b><span>' + esc(ruleTitle(f.rule_id)) + '</span></div>' +
@@ -404,10 +409,11 @@ svg.chart .ax { stroke: var(--line); stroke-width: 1; } svg.chart .gr { stroke: 
       var why = st === 'failed_recheck' ? '재검사를 통과하지 못해 제시하지 않습니다 (FM-19).' : (v.rewrite_source === 'legacy_unknown' ? esc(v.rewrite_note) : '수정안을 확인하지 못해 제시하지 않습니다. ' + esc(v.rewrite_note || ''));
       var rc = v.rewrite_recheck, basis = '';
       if (rc) basis = '<p class="muted" style="font-size:12.5px">기록된 근거 — 코드 검사 ' + esc(String(rc.det_decision || '—')) + (rc.semantic_decision ? ' · 의미 검사 ' + esc(String(rc.semantic_decision)) + (rc.semantic_confidence != null ? ' (확신 ' + rc.semantic_confidence + ')' : '') : ' · 의미 검사 기록 없음') + '</p>';
-      h += '<p class="sub"><span class="chip ' + (st === 'failed_recheck' ? 'warn' : 'hold') + '">' + (LABEL[st] || LABEL.unchecked) + '</span> ' + why + '</p>' + basis +
-        '<details><summary>모델이 제안했지만 채택하지 않은 수정안</summary>' + adCard({ headline: R.rewrite.headline, body: R.rewrite.body, cta: R.rewrite.cta, disclosures: R.rewrite.disclosures }, [], '미채택') + '</details>';
+      h += '<p class="sub"><span class="chip ' + (st === 'failed_recheck' ? 'warn' : 'hold') + '">' + (LABEL[st] || LABEL.unchecked) + '</span> ' + why + ' 통과하지 못한 수정안의 문구는 어느 화면에도 보여 주지 않습니다.</p>' + basis;
       return h;
     }
+    if (v.final === 'REVISE' || v.final === 'REJECT') return '<p class="muted">자동 수정 제안이 없습니다. 걸린 구절을 직접 고쳐야 합니다.</p>';
+    if (v.final === 'HUMAN_REVIEW') return '<p class="muted">자동으로 확정하지 못해 수정 제안을 만들지 않았습니다.</p>';
     return '<p class="muted">수정이 필요하지 않습니다.</p>';
   }
 
@@ -519,7 +525,7 @@ svg.chart .ax { stroke: var(--line); stroke-width: 1; } svg.chart .gr { stroke: 
       '<tr><td>캠페인 계획 · 심사 · 형식 수리</td><td>OpenAI Structured Outputs</td><td>Anthropic 구조화</td></tr><tr><td>소재 · 가상 유저 · 준수 제안 · 레드팀</td><td>Claude 비제약 생성</td><td>OpenAI 구조화</td></tr><tr><td>경계 사례 2차 의견</td><td>Anthropic</td><td>OpenAI</td></tr></tbody></table></div>' +
       '<p class="muted" style="font-size:12.5px;margin-top:6px">서킷브레이커, 타임아웃·429·거부·잘림을 타입으로 구분, 실행당 비용 상한, 제공자 장애 시뮬레이션이 있습니다. 이 재생 기록은 키가 하나라 OpenAI 가 모든 작업을 맡았습니다.</p></div>' +
       '<div class="card"><div class="lbl">최종 판정 규칙 (adjudicator)</div><ol style="margin:0;padding-left:18px"><li>코드가 게재 불가 사유를 확인하면 게재 불가. 모델은 뒤집지 못합니다.</li><li>검토 모델이 실패했으면 담당자 확인.</li><li>원문에서 확인된 근거가 없는 게재 불가 제안은 담당자 확인.</li><li>원문에 없는 내용을 근거로 들었거나 근거가 남지 않았거나 확신이 τ 미만이면 담당자 확인.</li><li>두 모델 계열의 판단이 다르면 담당자 확인.</li><li>수정이 필요하면 수정 필요. 수정 제안은 재검사를 통과한 것만 따로 제시합니다.</li><li>그 외에만 점검 통과.</li></ol></div></div>' +
-      '<div class="card" style="margin-top:12px"><div class="lbl">규칙 카탈로그 v' + esc(D.meta.policy_version) + ' · ' + D.meta.rule_count + '개 · 프롬프트 v' + esc(D.meta.prompt_version) + '</div><p class="sub">토스애즈 공개 광고주 가이드(공통·소재별·업종별·광고 불가 업종)와 금융소비자보호법·대부업법·표시광고법의 공개 조문을 읽고 이 프로젝트가 실행 가능한 규칙으로 재구성한 것입니다. 실제 심사 기준이 아니며 법률 자문도 아닙니다.</p></div></section>' +
+      '<div class="card" style="margin-top:12px"><div class="lbl">규칙 카탈로그 v' + esc(D.meta.policy_version) + ' · ' + D.meta.rule_count + '개 · 프롬프트 v' + esc(D.meta.prompt_version) + ' (현재 코드) · 저장된 실제 모델 실행은 검사 기준 v' + esc(D.meta.recorded_policy_version || '?') + ' · 프롬프트 v' + esc(D.meta.recorded_prompt_version) + '</div><p class="sub">토스애즈 공개 광고주 가이드(공통·소재별·업종별·광고 불가 업종)와 금융소비자보호법·대부업법·표시광고법의 공개 조문을 읽고 이 프로젝트가 실행 가능한 규칙으로 재구성한 것입니다. 실제 심사 기준이 아니며 법률 자문도 아닙니다.</p></div></section>' +
       '<section class="sec"><h2>직접 실행</h2><p class="lead">키가 없어도 데모 모드로 전체 흐름이 돕니다. 키를 넣으면 실제 모델로 바뀝니다.</p><div class="code"><pre id="cmd">git clone https://github.com/sokldjs554/toss-ads-ai-project\ncd toss-ads-ai-project\npip install -r requirements.txt &amp;&amp; streamlit run app.py\n# http://localhost:8501/?preset=malicious&amp;autorun=1</pre><button data-a="copy">복사</button></div></section>';
   }
 

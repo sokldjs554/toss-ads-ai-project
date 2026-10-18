@@ -272,3 +272,141 @@ def test_comparison_section_is_view_only_and_labels_the_controlled_run(app, monk
     assert "방식 비교" in t and "실제 모델로 돌린 비교 결과는 아직 없습니다" in t and "모델 호출 약" in t
     assert any("하네스 검증용" in e.label and "모델 품질 아님" in e.label for e in at.expander)
     assert "모델 품질이 아니다" in t or any("모델 품질이 아니다" in str(w.value) for w in at.warning)
+
+
+# ───────────── 내부 재점검(self_review)에서 확인된 화면 결함 ─────────────
+def test_warning_events_that_are_not_failures_do_not_make_a_run_partial(app):
+    """가상 사용자 반응이 서로 비슷했다는 경고(FM-15)나 계획을 코드가 고쳤다는 기록(FM-02)은 단계 실패가 아니다 — '일부 단계 실패' 배너를 띄우지 않는다."""
+    from ui.workbench import run_state
+
+    at = app.run()
+    at.selectbox(key="preset_pick").set_value("commerce_landing").run()
+    at.button(key="example_run").click().run()
+    assert not at.exception, [str(e.value) for e in at.exception]
+    entry = at.session_state["runs"][-1]
+    run = entry["run"]
+    assert run.plan is not None and all(r.audience is not None for r in run.reports)
+    assert {f.code for f in run.failures} <= {"FM-15", "FM-02", "FM-19", "FM-17", "FM-04", "FM-23", "FM-03"}          # 실패가 아니라 경고·기록뿐인 실행
+    assert run_state(entry) == "done"
+    assert "단계가 실패해" not in _all_text(at)
+
+
+def test_a_variant_sent_to_a_person_never_says_no_edit_is_needed(app):
+    """자동으로 확정하지 못한 광고안(확신 기준을 높게 둔 경우)에 ‘수정이 필요하지 않습니다’·‘표시할 구절이 없습니다’ 를 쓰지 않는다."""
+    at = app.run()
+    at.slider(key="opt_tau").set_value(0.99).run()
+    at.button(key="run_button").click().run()
+    assert not at.exception, [str(e.value) for e in at.exception]
+    reports = at.session_state["runs"][-1]["run"].reports
+    held = [r for r in reports if r.final_decision.value == "HUMAN_REVIEW" and r.rewrite_status.value == "none"]
+    assert held, [r.final_decision.value for r in reports]
+    text = _all_text(at)
+    assert "수정이 필요하지 않습니다" not in text and "표시할 구절이 없습니다" not in text
+    assert "자동으로 확정하지 못해 수정 제안을 만들지 않았습니다" in text
+
+
+def test_halted_run_banner_uses_plain_words_and_says_nothing_was_handed_over(app):
+    at = app.run()
+    at.selectbox(key="opt_drill").set_value("mock: timeout").run()
+    at.button(key="run_button").click().run()
+    assert not at.exception, [str(e.value) for e in at.exception]
+    run = at.session_state["runs"][-1]["run"]
+    assert run.halted and not run.reports
+    shown = "\n".join(str(e.value) for e in at.error)
+    assert "실행을 끝내지 못했습니다" in shown
+    assert "FM-" not in shown and "사람에게 넘김" not in shown
+
+
+def test_hard_block_shows_its_message_once(app):
+    at = app.run()
+    at.selectbox(key="preset_pick").set_value("prohibited").run()
+    at.button(key="example_run").click().run()
+    assert not at.exception, [str(e.value) for e in at.exception]
+    run = at.session_state["runs"][-1]["run"]
+    assert run.intercept.hard_block
+    msgs = [str(e.value) for e in at.error]
+    assert sum(1 for m in msgs if run.intercept.message and run.intercept.message in m) == 1, msgs
+    assert not any("실행을 끝내지 못했습니다" in m for m in msgs)
+
+
+def test_clicking_the_active_tab_does_not_deselect_the_view(app):
+    at = app.run()
+    at.session_state["nav_request"] = "품질 확인"
+    at.run()
+    group = at.get("button_group")[0]
+    group.set_value(None).run()           # 같은 탭을 다시 눌러 선택을 푼 것과 같다
+    assert not at.exception, [str(e.value) for e in at.exception]
+    assert at.session_state["nav"] == "품질 확인"                  # 마지막으로 보던 화면이 그대로 선택돼 있다
+    assert "품질 확인" in _all_text(at)
+
+
+def test_demo_run_does_not_call_stand_in_replies_model_calls(app):
+    at = app.run()
+    at.button(key="run_button").click().run()
+    assert not at.exception, [str(e.value) for e in at.exception]
+    stats = "\n".join(str(m.value) for m in at.markdown if "pf-stat" in str(m.value))
+    assert "대역 응답" in stats and "실제 모델 호출 없음" in stats
+
+
+def test_failure_drill_that_example_runs_ignore_is_announced(app):
+    at = app.run()
+    at.selectbox(key="opt_drill").set_value("openai: timeout").run()
+    assert "예시 실행에는 ‘mock: timeout’ 만 적용됩니다" in _all_text(at)
+    at.selectbox(key="opt_drill").set_value("mock: timeout").run()
+    assert "예시 실행에는 ‘mock: timeout’ 만 적용됩니다" not in _all_text(at)
+
+
+def test_plain_wording_helpers_leave_no_internal_terms():
+    from agents.adjudicator import DecisionInputs, decide
+    from ui.components import plain_decision_note
+
+    inputs = [DecisionInputs(det_block=True), DecisionInputs(verdict_available=False), DecisionInputs(model_decision="REJECT"),
+              DecisionInputs(unverified_quotes=2), DecisionInputs(unsupported_decision=True), DecisionInputs(confidence=0.4),
+              DecisionInputs(disagreement=True, model_decision="APPROVE", second_opinion="REVISE"), DecisionInputs(second_opinion_missing=True),
+              DecisionInputs(det_fix=True), DecisionInputs(confidence=0.95)]
+    for inp in inputs:
+        reason = plain_decision_note(decide(inp, 0.8).reason)
+        for word in ("finding", "fix 등급", "FM-", "fail-closed", "block)", "사람 검토"):
+            assert word not in reason, (inp, reason)
+    assert plain_decision_note("실행 비용·호출 상한 초과로 검사하지 못함 (FM-20) → 담당자 확인") == "실행 비용·호출 상한에 닿아 검사하지 못해 담당자 확인으로 넘겼습니다."
+
+
+def test_handoff_for_an_ad_never_reviewed_by_a_model_does_not_ask_to_judge_the_models_reasoning():
+    from agents.adjudicator import adjudicate
+    from core.schemas import AdCopy, Decision, Fact, ProductCategory, ProductFacts
+    from guardrails import output_guard
+    from guardrails.policy import get_catalog
+    from ui.components import human_review_reason, what_to_check
+
+    cat = get_catalog()
+    P = ProductFacts(name="p", category=ProductCategory.ECOMMERCE, facts=[Fact(id="F1", text="전 상품 10% 할인")])
+    copy = AdCopy(headline="전 상품 10% 할인", body="지금 구매", cta="자세히 보기")
+    rep = adjudicate(copy, output_guard.check(copy, P, {"ecommerce"}, "", [], cat), None, 0.8)
+    rep.decision_reason = "실행 비용·호출 상한 초과로 검사하지 못함 (FM-20) → 담당자 확인"
+    assert rep.final_decision == Decision.HUMAN_REVIEW
+    assert "상한" in human_review_reason(rep) and "FM-" not in human_review_reason(rep)
+    items = what_to_check(rep, cat)
+    assert not any("상세 보기" in x or "검토 모델의 이유" in x for x in items), items
+    assert any("상한" in x for x in items)
+
+
+def test_regression_gate_messages_use_screen_words():
+    from ui.quality import _plain_gate
+
+    assert _plain_gate("human_review: 0.018 → 0.500 (허용 +0.15)").startswith("담당자 확인으로 넘긴 비율")
+    assert "unsafe_approve" not in _plain_gate("unsafe_approve: 0.000 → 0.100 (허용 +0.00)")
+    assert "recall" not in _plain_gate("TA-X-01 recall 1.0 → 0.5")
+
+
+def test_css_targets_the_container_streamlit_actually_renders():
+    from ui.theme import CSS
+
+    assert 'data-testid="stMainBlockContainer"' in CSS
+
+
+def test_mock_rate_disclosure_keeps_the_whole_rate_phrase():
+    from llm.mock_provider import _mock_disclosure
+
+    first = _mock_disclosure("loan", [{"text": "금리 연 4.5%~15.0% (심사 결과에 따라 다름)"}])[0]
+    assert first == "연 4.5%~15.0% (심사 결과에 따라 다름)"
+    assert _mock_disclosure("loan", [{"text": "연 7.9% 고정"}])[0] == "연 7.9%"

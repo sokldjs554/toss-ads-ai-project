@@ -22,7 +22,7 @@ from observability.tracer import Tracer
 from tests.fakes import FakeProvider, scripted_review_provider
 
 CAT = get_catalog()
-PARTIAL = Settings.from_env(openai_api_key="sk-fake-not-a-real-key", anthropic_api_key="")
+PARTIAL = Settings.from_env(openai_api_key="sk-fake-not-a-real-key", anthropic_api_key="", force_demo=False)
 DEMO = Settings.from_env(openai_api_key="", anthropic_api_key="", force_demo=True)
 APPROVE = {"decision": "APPROVE", "confidence": 0.95, "findings": [], "rationale": "통제된 응답: 문제 없음", "rewrite": None}
 

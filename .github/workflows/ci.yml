@@ -36,7 +36,7 @@ jobs:
       - name: number/condition comparison cases (wrong + normal contrast) — deterministic layer must approve none of the wrong ones
         env:
           PREFLIGHT_FORCE_DEMO: "1"
-        run: python -m evals.run --dataset conditions --no-llm --require-zero-unsafe
+        run: python -m evals.run --dataset conditions --no-llm --require-zero-unsafe && python -m evals.run --dataset conditions_extra --no-llm --require-zero-unsafe
       - name: app smoke (import + headless start)
         env:
           PREFLIGHT_FORCE_DEMO: "1"

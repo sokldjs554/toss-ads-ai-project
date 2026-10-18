@@ -5,7 +5,7 @@ import streamlit as st
 
 from evals.compare import SYSTEM_LABEL, estimate
 from evals.runner import load_report
-from ui.labels import pct
+from ui.labels import RUN_MODE_NAME, pct
 
 SPLIT_LABEL = {"dev": "개발용 사례 (규칙·프롬프트를 고치는 데 쓴 사례)", "holdout": "최종 확인용 사례 (규칙을 고친 뒤 처음 쓴 사례)"}
 
@@ -36,7 +36,7 @@ def _table(rep: dict, split: str) -> None:
 
 def _report(rep: dict) -> None:
     s = rep["settings"]
-    st.caption(f"실행 {str(rep['generated_at'])[:10]} · 실행 방식 `{s['mode']}` · 모델 {s['openai_model']} · 검토 프롬프트 {s['reviewer_prompt_version']} · 비교용 프롬프트 {s['llm_only_prompt_version']} · "
+    st.caption(f"실행 {str(rep['generated_at'])[:10]} · 실행 방식 {RUN_MODE_NAME.get(s['mode'], s['mode'])} · 모델 {s['openai_model']} · 검토 프롬프트 {s['reviewer_prompt_version']} · 비교용 프롬프트 {s['llm_only_prompt_version']} · "
                f"검사 기준 {s['policy_version']} · 자동 판정 확신 기준 {s['threshold']}")
     if rep["run_kind"] == "controlled":
         st.warning(rep["run_kind_note"], icon="⚠️")

@@ -4,6 +4,7 @@ from __future__ import annotations
 import streamlit as st
 
 from evals.runner import load_report, save_report
+from ui.labels import RUN_MODE_NAME
 
 STRATEGY = {"spacing": "띄어쓰기 분해", "zero_width": "보이지 않는 문자", "hanja": "한자 치환", "paraphrase": "같은 뜻 다른 말", "negation": "부정문 뒤에 같은 주장",
             "bury": "면책 문구 뒤에 숨기기", "injection": "심사 조작 문장", "implicature": "직접 말하지 않고 암시"}
@@ -12,7 +13,7 @@ STRATEGY = {"spacing": "띄어쓰기 분해", "zero_width": "보이지 않는 �
 def _table(rep: dict) -> None:
     rows = []
     for s, m in rep.get("by_strategy", {}).items():
-        rows.append({"변형 방식": STRATEGY.get(s, s), "공격 수": m["n"], "뚫림(통과)": m["evaded"], "담당자 확인": m["human_review"]})
+        rows.append({"변형 방식": STRATEGY.get(s, s), "심사한 공격 수": m["n"], "뚫림(통과)": m["evaded"], "담당자 확인": m["human_review"], "심사하지 못함(장애)": m.get("errors", 0)})
     st.dataframe(rows, width="stretch", hide_index=True)
 
 
@@ -27,10 +28,13 @@ def render_summary() -> None:
         return
     pick = st.selectbox("결과 선택", list(options.keys()), key="redteam_pick")
     rep = load_report(options[pick])
-    n = len(rep.get("attacks", []))
-    evaded = sum(1 for a in rep.get("attacks", []) if a.get("evaded"))
-    hr = sum(1 for a in rep.get("attacks", []) if a.get("predicted") == "HUMAN_REVIEW")
-    st.markdown(f"- 변형 {n}건 중 검사를 통과한(뚫린) 변형 {evaded}건, 담당자 확인으로 넘어간 변형 {hr}건. 실행 방식 `{rep.get('mode')}` · 비용 ${rep.get('cost_usd', 0)}")
+    judged = [a for a in rep.get("attacks", []) if not a.get("error")]      # 제공자 장애로 심사하지 못한 변형은 세지 않는다
+    errored = len(rep.get("attacks", [])) - len(judged)
+    evaded = sum(1 for a in judged if a.get("evaded"))
+    hr = sum(1 for a in judged if a.get("predicted") == "HUMAN_REVIEW")
+    cost = f"${rep.get('cost_usd', 0)}" + (" 이상 (응답을 받지 못한 요청의 비용은 알 수 없음)" if rep.get("cost_estimated") else "")
+    st.markdown(f"- 심사한 변형 {len(judged)}건 중 검사를 통과한(뚫린) 변형 {evaded}건, 담당자 확인으로 넘어간 변형 {hr}건"
+                + (f" (모델 호출이 실패해 심사하지 못한 변형 {errored}건은 제외)" if errored else "") + f". 실행 방식 {RUN_MODE_NAME.get(rep.get('mode'), rep.get('mode'))} · 비용 {cost}")
     _table(rep)
     with st.expander("변형별 결과"):
         from core.schemas import Decision
