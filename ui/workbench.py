@@ -5,6 +5,7 @@
 """
 from __future__ import annotations
 
+import dataclasses
 import difflib
 import hashlib
 import html
@@ -27,6 +28,7 @@ from ui import theme
 from ui.components import (
     checklist_rows,
     evidence_lines,
+    finding_line,
     finding_sentence,
     human_review_reason,
     human_review_request_text,
@@ -34,9 +36,10 @@ from ui.components import (
     plain_reason,
     render_ad,
     rule_title,
+    unique_findings,
     what_to_check,
 )
-from ui.labels import DECISION_HELP, DECISION_LABEL, NEXT_ACTION, REWRITE_STATUS_LABEL, RUN_MODE_HELP, RUN_MODE_LABEL, TERM
+from ui.labels import DECISION_HELP, DECISION_LABEL, LAYER_LABEL, NEXT_ACTION, REWRITE_SHORT_LABEL, REWRITE_STATUS_LABEL, RUN_MODE_HELP, RUN_MODE_LABEL, SEVERITY_LABEL, TERM
 from ui.presets import PRESETS, build_brief
 
 CATEGORY_LABELS = {c.value: n for c, n in [(ProductCategory.LOAN, "대출"), (ProductCategory.CARD, "카드"), (ProductCategory.INSURANCE, "보험"),
@@ -128,19 +131,28 @@ def run_state(entry: dict) -> str:
 def _inputs(make_settings, server_status: dict) -> tuple[Settings, RunOptions, str, bool]:
     """입력 폼 + 상세 옵션. (settings, options, 실행 방식, 실행 버튼 눌림)"""
     ss = st.session_state
-    st.markdown("## 광고 만들기")
-    st.markdown("상품 정보와 꼭 들어가야 할 조건을 적으면 광고안을 만들고, 이 프로젝트의 검사 기준으로 **확인이 필요한 구절**을 찾아 이유와 수정 제안을 보여 줍니다. "
-                "예시를 골라 한 번에 전체 흐름을 볼 수도 있습니다.")
+    st.markdown("## 광고 검사")
+    st.markdown("상품 정보와 꼭 들어가야 할 조건을 적으면 광고안을 만들고, 이 프로젝트의 검사 기준으로 **확인이 필요한 구절**을 찾아 이유와 수정 제안을 보여 줍니다.")
     with st.container(border=True):
-        c1, c2 = st.columns([3, 1])
-        with c1:
-            preset = st.selectbox("예시 선택", options=list(PRESETS.keys()), format_func=lambda k: PRESET_TITLES.get(k, k), key="preset_pick",
-                                  help="예시를 불러온 뒤 내용을 고쳐도 되고, 처음부터 직접 입력해도 됩니다.")
-        with c2:
-            st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
-            if st.button("예시 불러오기", width="stretch"):
+        st.markdown("### 시작하기")
+        preset = st.selectbox("예시 선택", options=list(PRESETS.keys()), format_func=lambda k: PRESET_TITLES.get(k, k), key="preset_pick",
+                              help="예시를 고른 뒤 바로 실행하거나, 불러와서 내용을 고쳐 실행할 수 있습니다. 처음부터 직접 입력해도 됩니다.")
+        b1, b2 = st.columns(2)
+        with b1:
+            if st.button("예시로 바로 실행", type="primary", width="stretch", key="example_run", disabled=bool(ss.running),
+                         help="선택한 예시를 불러와 AI 호출 없이 처음부터 끝까지 실행합니다 (예시 실행)."):
+                _load_preset(preset)
+                ss._force_autorun = True
+                ss._force_demo_run = True   # 키가 있어도 이 버튼은 예시 실행이다 — 비용이 드는 실행은 아래에서 따로, 확인 뒤에만
+                st.rerun()
+        with b2:
+            if st.button("예시 불러오기", width="stretch", key="example_load"):
                 _load_preset(preset)
                 st.rerun()
+        st.markdown("<div class='pf-kv'><b>세 가지 결과는 서로 다릅니다.</b> "
+                    "① <b>예시 실행</b> — 이 화면에서 바로, AI 호출 없이 (모델 단계는 정해진 규칙의 대역). "
+                    "② <b>저장된 실제 모델 결과</b> — ‘검사 사례’ 에서 열람만 (호출 없음). "
+                    "③ <b>새 실제 모델 실행</b> — API 키가 있을 때만, 아래 ‘상세 옵션’ 에서 확인한 뒤 실행 (비용 발생).</div>", unsafe_allow_html=True)
         st.caption("모든 상품·수치는 가상입니다. 직접 입력할 때는 아래 세 칸만 채우면 됩니다.")
 
     with st.container(border=True):
@@ -238,11 +250,16 @@ def _inputs(make_settings, server_status: dict) -> tuple[Settings, RunOptions, s
                          enable_audience=enable_audience, enable_second_opinion=enable_second)
     mode = settings.mode.value
     c1, c2 = st.columns([2, 1])
+    confirmed = True
     with c1:
         st.markdown(theme.mode_pill("demo" if mode == "demo" else "live", RUN_MODE_LABEL[mode]), unsafe_allow_html=True)
         st.caption(RUN_MODE_HELP[mode])
+        if mode != "demo":
+            calls = 2 + 4 * options.n_variants
+            st.warning(f"새 실제 모델 실행입니다 — 모델 호출 최대 약 {calls}회, 비용은 ${float(budget):.2f} 에서 멈춥니다 (실행당 상한).", icon="💳")
+            confirmed = st.checkbox("위 호출 수와 비용 상한을 확인했고 실제 모델로 실행합니다", key="confirm_live_run")
     with c2:
-        clicked = st.button("광고 초안 만들기", type="primary", width="stretch", disabled=bool(ss.running), key="run_button")
+        clicked = st.button("광고 초안 만들기", type="primary", width="stretch", disabled=bool(ss.running) or not confirmed, key="run_button")
     return settings, options, mode, clicked
 
 
@@ -390,17 +407,24 @@ def _plan(entry: dict) -> None:
                      width="stretch", hide_index=True)
 
 
-def _rewrite_block(rep: PreflightReport, catalog) -> None:
-    st.markdown("**수정 제안**")
-    if rep.rewrite_status == RewriteStatus.VERIFIED and rep.verified_rewrite is not None:
-        st.caption(REWRITE_STATUS_LABEL[rep.rewrite_status] + " — 검토 모델이 제안한 문구를 같은 검사 기준으로 다시 검사해 통과한 것만 보여 줍니다.")
-        render_ad(rep.verified_rewrite, title="검사를 통과한 수정 제안", catalog=catalog)
+def _rewrite_section(rep: PreflightReport, catalog) -> None:
+    """수정 내역 — 자동 수정안의 상태(수정안 확인 완료 / 다시 수정 필요 / 확인하지 못함 / 없음)와 원문 대비 바뀐 점."""
+    st.markdown("**수정 내역**")
+    status = rep.rewrite_status
+    st.markdown(theme.chip(REWRITE_SHORT_LABEL[status]), unsafe_allow_html=True)
+    if status == RewriteStatus.VERIFIED and rep.verified_rewrite is not None:
+        st.caption("검토 모델이 제안한 문구를 원문과 같은 검사 기준으로 다시 검사해 통과한 것만 보여 줍니다.")
+        l, r = st.columns(2)
+        with l:
+            render_ad(rep.ad_copy, [], title="원문", catalog=catalog)
+        with r:
+            render_ad(rep.verified_rewrite, [], title="수정안 확인 완료", catalog=catalog)
         _diff_explained(rep, catalog)
-    elif rep.rewrite_status in (RewriteStatus.FAILED_RECHECK, RewriteStatus.UNCHECKED):
+    elif status in (RewriteStatus.FAILED_RECHECK, RewriteStatus.UNCHECKED):
         why = ""
         if rep.rewrite_recheck_findings:
             why = " 재검사에서 걸린 것: " + "; ".join(sorted({rule_title(f.rule_id, catalog) for f in rep.rewrite_recheck_findings}))
-        st.info(REWRITE_STATUS_LABEL[rep.rewrite_status] + "." + why + " 아래 '문구 고쳐서 다시 검사' 에서 직접 고칠 수 있습니다.", icon="ℹ️")
+        st.info(REWRITE_STATUS_LABEL[status] + "." + why + " 아래 ‘문구 고쳐서 다시 검사’ 에서 직접 고칠 수 있습니다.", icon="ℹ️")
         _hints(rep, catalog)
     elif rep.final_decision in (Decision.REVISE, Decision.REJECT):
         st.caption("자동 수정 제안이 없습니다. 아래 수정 힌트를 참고해 직접 고치세요.")
@@ -432,7 +456,7 @@ def _diff_explained(rep: PreflightReport, catalog) -> None:
     if removed:
         changes.append("- **안내 문구 삭제**: " + " / ".join(removed))
     reasons = sorted({rule_title(f.rule_id, catalog) for f in rep.verdict.findings if f.severity != Severity.WARN and (f.verified_quote or f.layer.value != "semantic")})
-    st.markdown("**무엇이 왜 바뀌었나**")
+    st.markdown("바뀐 점")
     st.markdown("\n".join(changes) if changes else "- 바뀐 문구가 없습니다.")
     if reasons:
         st.caption("고친 이유: " + " · ".join(reasons))
@@ -446,17 +470,16 @@ def _human_review_block(rep: PreflightReport, entry: dict, catalog) -> None:
     run: PipelineRun = entry["run"]
     with st.container(border=True):
         st.markdown("**담당자 확인이 필요합니다**")
-        st.markdown(f"- 확정하지 못한 부분: {human_review_reason(rep)}")
-        st.markdown("- 담당자가 확인할 것:")
+        st.markdown("담당자가 확인할 것:")
         for x in what_to_check(rep, catalog):
             st.markdown(f"  - {x}")
-        st.markdown("- 다음 단계 진행: **불가** — 담당자 확인 전에는 게재할 수 없습니다.")
+        st.markdown("다음 단계 진행: **불가** — 담당자 확인 전에는 게재할 수 없습니다.")
         st.caption("이 화면에는 검토 대기열이나 담당자 처리 기능이 없습니다. 요청문을 만들어 복사·내려받을 수 있을 뿐이고, 전달은 직접 하셔야 합니다.")
         if _history(entry, rep.variant_id).latest() is not None:
             st.warning("아래 요청문은 **수정 전 광고 원문**에 대한 것입니다. 문구를 고쳐 다시 검사했다면 ‘문구 고쳐서 다시 검사’ 안의 최신 요청문을 쓰세요.", icon="⚠️")
         text = human_review_request_text(rep, run, catalog)
         with st.expander("확인 요청 내용 (수정 전 원문 · 복사용)"):
-            st.code(text, language=None)
+            st.code(text, language=None, wrap_lines=True)
             if not IN_BROWSER:
                 st.download_button("확인 요청 내용 내려받기 (.txt)", data=text, file_name=f"review_request_{rep.variant_id}.txt", mime="text/plain", key=f"dl_{rep.variant_id}")
 
@@ -489,6 +512,8 @@ def _edit_and_recheck(rep: PreflightReport, entry: dict, catalog, tracer: Tracer
         edited = build_edited_copy(rep.ad_copy, h, b, c, d.splitlines())
         brief = entry["brief"]
         settings: Settings = make_settings(*ss.get("user_keys", ("", "")), **entry.get("overrides", {}))
+        if entry.get("mode") == "demo":
+            settings = dataclasses.replace(settings, force_demo=True)   # 예시 실행의 재검사도 예시 실행 — 키가 있어도 비용이 들지 않는다
         own = {rep.ad_copy.full_text()} | {r.report.ad_copy.full_text() for r in hist.attempts}
         history = [x for x in ss.rejected_history if x not in own]  # 고치고 있는 광고 자신은 '다른 반려 광고' 가 아니다
         # 재사용 키: 문구뿐 아니라 상품 정보·랜딩·검사 기준·프롬프트·모델·판정 기준이 같을 때만 이전 결과를 다시 쓴다
@@ -537,8 +562,8 @@ def _recheck_result(res: RecheckResult, *, current: bool, hist: RecheckHistory, 
     fs = [f for f in r2.verdict.findings if f.verified_quote or f.layer.value != "semantic"]
     if fs:
         st.markdown("**확인이 필요한 구절**")
-        for f in fs:
-            st.markdown(f"<div class='pf-reason'>{theme.severity_chip(f.severity)} {html.escape(finding_sentence(f, catalog))}</div>", unsafe_allow_html=True)
+        for f, n in unique_findings(fs, catalog):
+            st.markdown(f"<div class='pf-reason'>{theme.severity_chip(f.severity)} {html.escape(finding_line(f, n, catalog))}</div>", unsafe_allow_html=True)
     if r2.final_decision == Decision.HUMAN_REVIEW and not res.failed:
         st.info("재검사 결과도 담당자 확인이 필요합니다: " + human_review_reason(r2), icon="ℹ️")
     if r2.final_decision == Decision.APPROVE and current and not res.failed:
@@ -550,7 +575,7 @@ def _recheck_result(res: RecheckResult, *, current: bool, hist: RecheckHistory, 
                 st.caption("방금 검사한 문구와 그 재검사 결과·처리 기록으로 만든 내용입니다. 요청문만 만들어 줄 뿐 전달·대기열·권한 관리는 없습니다.")
                 text = recheck_request_text(r2.ad_copy, res, rep.variant_id, entry["run"].run_id, catalog)
                 with st.expander("확인 요청 내용 (재검사한 문구 · 복사용)"):
-                    st.code(text, language=None)
+                    st.code(text, language=None, wrap_lines=True)
                     if not IN_BROWSER:
                         st.download_button("확인 요청 내용 내려받기 (.txt)", data=text, file_name=f"review_request_{rep.variant_id}_recheck.txt", mime="text/plain",
                                            key=f"dl_re_{rep.variant_id}_{res.trace_id}")
@@ -564,7 +589,10 @@ def _recheck_result(res: RecheckResult, *, current: bool, hist: RecheckHistory, 
 
 
 def _details(rep: PreflightReport, entry: dict, catalog) -> None:
-    with st.expander("상세 — 검사 항목, 가상 사용자 반응, 검토 모델, 규칙 ID"):
+    with st.expander("상세 기록 — 판단 근거, 검사 항목, 가상 사용자 반응, 검토 모델, 규칙 코드"):
+        st.markdown("**판단 근거**")
+        for line in evidence_lines(rep, entry["brief"].product, catalog):
+            st.markdown(f"- {line}")
         st.markdown("**검사 항목**")
         st.dataframe(checklist_rows(rep), width="stretch", hide_index=True)
         a = rep.audience
@@ -585,16 +613,31 @@ def _details(rep: PreflightReport, entry: dict, catalog) -> None:
                     + (f" · 교차 확인 {DECISION_LABEL[v.second_opinion]} ({'다름' if v.disagreement else '같음'}, `{v.second_opinion_provider}`{'' if v.second_opinion_independent else ', 같은 제공자라 독립적이지 않음'})" if v.second_opinion else ""))
         if v.rationale:
             st.caption(v.rationale)
-        st.markdown("**규칙 ID (내부 식별자)**")
-        rows = [{"규칙": f.rule_id, "심각도": f.severity.value, "계층": f.layer.value, "인용": f.quote or "—", "인용 확인": "예" if f.verified_quote else "아니요 (원문에 없음)", "설명": f.explanation} for f in v.findings]
+        st.markdown("**규칙 코드 (내부 식별자)**")
+        rows = [{"규칙 코드": f.rule_id, "구분": SEVERITY_LABEL[f.severity], "검사": LAYER_LABEL[f.layer], "인용": f.quote or "—", "인용 확인": "예" if f.verified_quote else "아니요 (원문에 없음)", "설명": f.explanation} for f in v.findings]
         if rows:
             st.dataframe(rows, width="stretch", hide_index=True)
         else:
             st.caption("검사에서 나온 항목이 없습니다.")
         if rep.rewrite_status == RewriteStatus.FAILED_RECHECK and rep.rewrite_recheck_findings:
             st.markdown("**자동 수정안이 재검사에서 걸린 항목**")
-            st.dataframe([{"규칙": f.rule_id, "심각도": f.severity.value, "인용": f.quote or "—", "설명": f.explanation} for f in rep.rewrite_recheck_findings], width="stretch", hide_index=True)
+            st.dataframe([{"규칙 코드": f.rule_id, "구분": SEVERITY_LABEL[f.severity], "인용": f.quote or "—", "설명": f.explanation} for f in rep.rewrite_recheck_findings], width="stretch", hide_index=True)
         st.caption(f"판정 근거(내부): {rep.decision_reason} · 수정안: {rep.rewrite_note}")
+
+
+def _spans_section(rep: PreflightReport, catalog) -> None:
+    """수정할 문구 — 광고 원문에서 확인이 필요한 구절을 표시하고, 구절마다 이유를 한 번만 적는다."""
+    fs = [f for f in rep.verdict.findings if f.verified_quote or f.layer.value != "semantic"]
+    st.markdown("**수정할 문구**")
+    left, right = st.columns([1, 1])
+    with left:
+        render_ad(rep.ad_copy, rep.verdict.findings, title="광고 원문 — 확인이 필요한 구절은 밑줄로 표시", catalog=catalog)
+    with right:
+        if fs:
+            for f, n in unique_findings(fs, catalog):
+                st.markdown(f"<div class='pf-reason'>{theme.severity_chip(f.severity)} {html.escape(finding_line(f, n, catalog))}</div>", unsafe_allow_html=True)
+        else:
+            st.caption("표시할 구절이 없습니다.")
 
 
 def _variant(i: int, rep: PreflightReport, entry: dict, catalog, tracer: Tracer, router_factory, make_settings) -> None:
@@ -606,24 +649,21 @@ def _variant(i: int, rep: PreflightReport, entry: dict, catalog, tracer: Tracer,
         with h2:
             st.markdown(f"<div style='text-align:right;padding-top:14px'>{theme.badge(rep.final_decision, big=True)}</div>", unsafe_allow_html=True)
         st.caption(DECISION_HELP[rep.final_decision])
-        left, right = st.columns([1, 1])
-        with left:
-            st.markdown("**광고 원문** <span class='pf-muted'>— 확인이 필요한 구절은 밑줄로 표시</span>", unsafe_allow_html=True)
-            render_ad(rep.ad_copy, rep.verdict.findings, catalog=catalog)
-        with right:
-            st.markdown("**가장 중요한 이유**")
+        fs = [f for f in rep.verdict.findings if f.verified_quote or f.layer.value != "semantic"]
+        # 이유는 한 번만: 구절별 이유가 아래 ‘수정할 문구’ 에 있으면 여기서는 개수만, 구절이 없는 판정(통과·담당자 확인)은 이유를 여기에 쓴다
+        if rep.final_decision in (Decision.REVISE, Decision.REJECT) and fs:
+            st.markdown(f"<div class='pf-reason'>확인이 필요한 구절 {len(unique_findings(fs, catalog))}가지 — 구절별 이유는 아래 ‘수정할 문구’ 에 있습니다.</div>", unsafe_allow_html=True)
+        else:
             st.markdown(f"<div class='pf-reason'>{html.escape(plain_reason(rep, catalog))}</div>", unsafe_allow_html=True)
-            fs = [f for f in rep.verdict.findings if f.verified_quote or f.layer.value != "semantic"]
-            if fs:
-                st.markdown("**확인이 필요한 구절**")
-                for f in fs:
-                    st.markdown(f"<div class='pf-reason'>{theme.severity_chip(f.severity)} {html.escape(finding_sentence(f, catalog))}</div>", unsafe_allow_html=True)
-            st.markdown("**판단 근거**")
-            for line in evidence_lines(rep, entry["brief"].product, catalog):
-                st.markdown(f"- {line}")
-            st.markdown("**다음에 할 수 있는 것**")
-            st.markdown(NEXT_ACTION[rep.final_decision])
-        _rewrite_block(rep, catalog)
+        if rep.final_decision == Decision.APPROVE and not fs and rep.rewrite_status == RewriteStatus.NONE:
+            # 고칠 것이 없는 광고안: 빈 ‘수정할 문구’·‘수정 내역’ 을 늘어놓지 않고 원문만 보여 준다
+            st.markdown("**광고 원문**")
+            render_ad(rep.ad_copy, [], catalog=catalog)
+        else:
+            _spans_section(rep, catalog)
+            _rewrite_section(rep, catalog)
+        st.markdown("**다음 작업**")
+        st.markdown(NEXT_ACTION[rep.final_decision])
         if rep.final_decision == Decision.HUMAN_REVIEW:
             _human_review_block(rep, entry, catalog)
         _edit_and_recheck(rep, entry, catalog, tracer, router_factory, make_settings)
@@ -634,7 +674,7 @@ def _failures(entry: dict) -> None:
     run: PipelineRun = entry["run"]
     if not run.failures:
         return
-    with st.expander(f"처리 중 생긴 문제 {len(run.failures)}건 — 모두 대체 경로로 처리됨"):
+    with st.expander(f"상세 기록 — 처리 중 생긴 문제 {len(run.failures)}건, 모두 대체 경로로 처리됨"):
         st.caption("모델이 틀리거나 실패할 수 있는 지점마다 미리 정해 둔 대체 경로가 있습니다. 어떤 경우에도 '검사 실패 = 통과' 로 흐르지 않습니다.")
         st.dataframe([{"코드": f.code, "이름": BY_CODE[f.code].name if f.code in BY_CODE else "", "단계": f.stage, "무슨 일": f.message, "처리": f.fallback} for f in run.failures],
                      width="stretch", hide_index=True)
@@ -673,16 +713,21 @@ def render(make_settings, tracer: Tracer, router_factory, server_status: dict) -
         if qp.get("preset") in PRESETS and not ss.pop("_pending_load_applied", False):
             _load_preset(qp.get("preset"))  # URL 의 예시는 첫 방문 기본값일 뿐 — 사용자가 고른 사례(pending_load)가 우선
     autorun = bool(ss.pop("_force_autorun", False))
+    force_demo = False
     if qp.get("autorun") in ("1", "true") and not ss.get("_autorun_done"):
         autorun = True
+        force_demo = True  # 링크로 시작되는 실행은 언제나 AI 호출 없는 예시 실행 — 링크를 여는 것만으로 비용이 나가지 않게
         ss._autorun_done = True
         try:
             del st.query_params["autorun"]  # 새로고침·공유 링크로 다시 실행되지 않도록 한 번 쓰고 지운다
         except Exception:  # noqa: BLE001
             pass
+    force_demo = bool(ss.pop("_force_demo_run", False)) or force_demo
     settings, options, mode, clicked = _inputs(make_settings, server_status)
     if autorun:
         clicked = True
+    if force_demo:
+        settings, mode = dataclasses.replace(settings, force_demo=True), "demo"   # 예시로 바로 실행 · 검사 사례의 '예시로 열기' 는 항상 AI 호출 없는 예시 실행
     if clicked:
         _execute(settings, options, tracer, router_factory, mode)
     if not ss.runs:

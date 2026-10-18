@@ -186,3 +186,15 @@ def recheck_request_text(copy: AdCopy, result, original_variant_id: str, origina
               f"검사 설정: 검사 기준 {info.get('policy_version', '?')} · 프롬프트 {info.get('prompt_version', '?')} · 자동 판정 확신 기준 {info.get('threshold', '?')}",
               f"참고: 수정 전 원본이 나온 실행 {original_run_id}"]
     return _handoff_lines(copy, result.report, catalog, f"[담당자 확인 요청] 광고안 {original_variant_id} (수정본 재검사)", header, "다시 검사한 문구")
+
+
+def unique_findings(findings: list[Finding], catalog) -> list[tuple[Finding, int]]:
+    """같은 규칙·같은 인용·같은 설명이 여러 곳(본문과 안내 문구 등)에 있으면 한 줄로 모으고 곳 수를 센다 — 같은 이유를 반복해서 보여 주지 않는다."""
+    out: dict[tuple, list] = {}
+    for f in findings:
+        out.setdefault((f.rule_id, f.quote, f.explanation, f.severity), [f, 0])[1] += 1
+    return [(v[0], v[1]) for v in out.values()]
+
+
+def finding_line(f: Finding, n: int, catalog) -> str:
+    return finding_sentence(f, catalog) + (f" ({n}곳)" if n > 1 else "")

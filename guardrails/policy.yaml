@@ -544,7 +544,7 @@ rules:
     fix_hint: "해당 문장을 제거하고 소재를 HUMAN_REVIEW 로"
 
   - id: GRND-NUM-01
-    title: 근거 없는 숫자
+    title: 상품 정보에 없는 숫자
     section: "프로젝트 규칙 (근거 결합) · 토스애즈 공통 › 허위/과장 1·2 · 랜딩 불일치"
     severity: fix
     layer: grounding
@@ -554,7 +554,7 @@ rules:
     fix_hint: "사실 목록에 있는 숫자만 사용하거나 사실을 추가"
 
   - id: GRND-CLAIM-01
-    title: 근거(fact_id)가 없거나 주장을 뒷받침하지 않음
+    title: 상품 정보에서 근거를 찾을 수 없는 주장
     section: "프로젝트 규칙 (모든 주장은 사실 id 를 가리키고, 그 사실이 주장을 실제로 뒷받침해야 한다)"
     severity: fix
     layer: grounding
@@ -564,7 +564,7 @@ rules:
     fix_hint: "주장을 실제로 뒷받침하는 사실을 가리키거나, 사실 목록에 근거를 추가하거나, 주장을 삭제"
 
   - id: GRND-COND-01
-    title: 근거 사실의 조건이 광고에서 빠짐
+    title: 상품 정보의 조건이 빠짐
     section: "프로젝트 규칙 (근거 결합) · 공통 심사 정책 › 허위/과장/기만 3·6 (조건 미표기)"
     severity: fix
     layer: grounding
@@ -574,7 +574,7 @@ rules:
     fix_hint: "조건을 같은 소재 안에 표기 (예: '7일 무료 체험 후 월 19,900원 자동결제')"
 
   - id: GRND-COND-02
-    title: 광고의 조건이 근거 사실과 값·뜻이 다름
+    title: 상품 정보와 다른 조건
     section: "프로젝트 규칙 (근거 결합) · 공통 심사 정책 › 허위/과장/기만 3·6 (조건 변경·반대 표기)"
     severity: fix
     layer: grounding

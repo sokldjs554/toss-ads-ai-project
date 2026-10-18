@@ -64,6 +64,8 @@ if pending:
     st.session_state["_pending_load_applied"] = True
     if st.session_state.pop("pending_autorun", False):
         st.session_state["_force_autorun"] = True  # 세션 안에서 한 번만. URL 에는 남기지 않는다
+        if st.session_state.pop("pending_demo_run", False):
+            st.session_state["_force_demo_run"] = True  # 검사 사례에서 여는 실행은 AI 호출이 없는 예시 실행
 
 # 배포된 버전 표시: Render 는 RENDER_GIT_COMMIT, 브라우저 실행판·수동 배포는 PREFLIGHT_BUILD 로 커밋을 넘긴다 (없으면 표시하지 않음)
 _build = (os.environ.get("PREFLIGHT_BUILD") or os.environ.get("RENDER_GIT_COMMIT") or "").strip()

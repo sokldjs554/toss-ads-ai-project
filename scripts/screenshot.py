@@ -17,7 +17,7 @@ OUT = ROOT / "docs" / "screenshots"
 PORT = int(os.environ.get("PREFLIGHT_SHOT_PORT", "8611"))
 
 PLAN = [
-    {"name": "01_workbench_input", "path": "/", "wait": "광고 만들기", "viewport": (1400, 1000)},
+    {"name": "01_workbench_input", "path": "/", "wait": "광고 검사", "viewport": (1400, 1000)},
     {"name": "02_result_malicious", "path": "/?preset=malicious&autorun=1", "wait": "검사 결과", "viewport": (1400, 1000), "tall": 5200, "crop": ("검사 결과", 1750)},
     {"name": "03_variant_reject", "path": "/?preset=malicious&autorun=1", "wait": "검사 결과", "viewport": (1400, 1000), "tall": 5200, "crop": ("광고안 3", 1500)},
     {"name": "04_recheck", "path": "/?preset=malicious&autorun=1", "wait": "검사 결과", "viewport": (1400, 1000), "tall": 5200,

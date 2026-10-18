@@ -122,9 +122,10 @@ def _stored_case(key: str, path, catalog) -> None:
                 st.session_state.nav_request = "광고 작업"
                 st.rerun()
         with b2:
-            if st.button("불러와서 바로 실행", key=f"run_{key}"):
+            if st.button("예시로 바로 실행", key=f"run_{key}", help="이 사례의 입력으로 AI 호출 없이 예시 실행을 합니다. 위의 저장된 실제 모델 결과는 바뀌지 않습니다."):
                 st.session_state.pending_load = key
                 st.session_state.pending_autorun = True
+                st.session_state.pending_demo_run = True
                 st.session_state.nav_request = "광고 작업"
                 st.rerun()
 
@@ -150,8 +151,8 @@ def _golden_examples(catalog) -> None:
 def render() -> None:
     catalog = get_catalog()
     st.markdown("## 검사 사례")
-    st.markdown("실제 모델(GPT-4o)로 실행해 **저장해 둔 기록**과 대표 사례입니다. 지금 다시 호출하는 것이 아니며, 날짜와 모델이 함께 표시됩니다. "
-                "각 사례는 '광고 작업' 으로 불러와 직접 실행해 볼 수 있습니다.")
+    st.markdown("실제 모델(GPT-4o)로 실행해 **저장해 둔 기록**과 대표 사례입니다. 여기서 보는 것은 **저장된 실제 모델 결과**이며, 보는 것만으로는 모델을 부르지 않습니다. 날짜와 모델이 함께 표시됩니다.")
+    st.caption("‘예시로 바로 실행’ 은 같은 입력을 AI 호출 없이 예시 실행으로 돌리는 것이고 저장된 결과를 바꾸지 않습니다. 새 실제 모델 실행은 ‘광고 작업’ 에서 API 키와 비용을 확인한 뒤에만 할 수 있습니다.")
     stored = replay.list_stored("partial")
     if not stored:
         st.info("저장된 실제 모델 실행 기록이 없습니다.")
