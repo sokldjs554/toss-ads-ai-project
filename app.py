@@ -2,7 +2,7 @@
 
     pip install -r requirements.txt && streamlit run app.py
 
-화면: 광고 작업 / 검사 사례 / 품질 확인. 판정·검사 로직은 agents/·guardrails/ 에만 있고 화면은 그리기만 한다.
+화면: 광고 작업(대화로 시작·상품 페이지 가져오기·배너·이미지 포함) / 성과 리포트 / 검사 사례 / 품질 확인 / 운영(검수 대기열·운영 지표). 판정·검사 로직은 agents/·guardrails/ 에만 있고 화면은 그리기만 한다.
 서버 API 키는 여기서만 읽는다 — 입력창 기본값·세션 상태·처리 기록·내려받기 어디에도 값이 들어가지 않는다.
 """
 from __future__ import annotations
@@ -17,7 +17,7 @@ import streamlit as st
 from core.config import IN_BROWSER, Settings
 from llm.router import Router
 from observability.tracer import Tracer
-from ui import cases, quality, theme, workbench
+from ui import cases, ops_hub, performance_view, quality, theme, workbench
 from ui.labels import DISCLAIMER, PROJECT_NAME
 
 st.set_page_config(page_title=f"{PROJECT_NAME} · 광고 검사", page_icon="✅", layout="wide", initial_sidebar_state="collapsed")
@@ -52,7 +52,7 @@ if "tracer" not in st.session_state:
     st.session_state.tracer = Tracer(max_traces=30)
 
 # --- 상단: 이름 · 개인 프로젝트 표시 · 화면 전환 --------------------------------------------
-VIEWS = ["광고 작업", "검사 사례", "품질 확인"]
+VIEWS = ["광고 작업", "성과 리포트", "검사 사례", "품질 확인", "운영"]
 req = st.session_state.pop("nav_request", None)
 if "_nav_reset" in st.session_state:   # 같은 탭을 다시 눌러 선택이 풀렸을 때, 위젯을 만들기 전에 마지막으로 보던 화면을 되돌려 놓는다
     st.session_state["nav"] = st.session_state.pop("_nav_reset")
@@ -89,10 +89,14 @@ st.session_state["_nav_last"] = nav
 
 if nav == "광고 작업":
     workbench.render(make_settings, st.session_state.tracer, router_factory, SERVER_STATUS)
+elif nav == "성과 리포트":
+    performance_view.render(make_settings, st.session_state.tracer, router_factory, SERVER_STATUS)
 elif nav == "검사 사례":
     cases.render()
-else:
+elif nav == "품질 확인":
     quality.render(make_settings, clean_router_factory, st.session_state.tracer, SERVER_STATUS)
+else:
+    ops_hub.render(st.session_state.tracer, SERVER_STATUS)
 
 st.markdown(f'<hr style="border:none;border-top:1px solid #E5E8EB;margin:32px 0 10px"><div class="pf-note">{html.escape(DISCLAIMER)}'
             + (" · 브라우저 실행판 (서버 없음, 예시 실행만)" if IN_BROWSER else "") + "</div>", unsafe_allow_html=True)

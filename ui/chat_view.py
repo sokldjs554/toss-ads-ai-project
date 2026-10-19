@@ -284,14 +284,14 @@ def _actions(state: C.ConversationState, on_apply: Optional[Callable[[dict], Non
 # 공개 함수
 # ---------------------------------------------------------------------------
 def render(make_settings: Callable[..., Settings], tracer: Optional[Tracer], router_factory: Callable, server_status: dict,
-           on_apply: Optional[Callable[[dict], None]] = None) -> None:
+           on_apply: Optional[Callable[[dict], None]] = None, *, embedded: bool = False) -> None:
     """대화 화면. make_settings(user_openai_key, user_anthropic_key, **overrides) → Settings, router_factory(settings) → Router,
     server_status = {"openai": bool, "anthropic": bool, "run_budget_usd": float}, on_apply(brief_dict) 는 '광고 작업 채우기' 버튼이 부른다.
     brief_dict 키: advertiser_input · product_name · category · facts · budget · description · landing_text (광고 작업의 예시 항목과 같은 키) + landing_url · unconfirmed_conditions."""
     st.markdown(_CSS, unsafe_allow_html=True)
     _init()
     ss = st.session_state
-    st.markdown("## 대화로 광고 설정")
+    st.markdown("### 대화로 광고 설정" if embedded else "## 대화로 광고 설정")
     st.markdown("목표와 예산을 말로 알려 주세요. 모자란 것만 하나씩 여쭤보고, 필요한 정보가 모이면 캠페인 구성을 미리 보여 드려요.")
 
     # 모드: 기본은 예시 실행(규칙 기반). 실제 모델은 비용을 확인한 뒤에만.

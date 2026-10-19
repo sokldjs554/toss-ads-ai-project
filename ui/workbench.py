@@ -25,7 +25,7 @@ from guardrails.failsafe import STEP_FAILURE_CODES
 from guardrails.policy import get_catalog
 from llm.router import Router
 from observability.tracer import Tracer
-from ui import theme
+from ui import chat_view, creative_quality_view, creative_view, theme, url_import_view
 from ui.funding import DEFAULT_CAP_USD, funded_by_server, server_cap as _server_cap, usd_text
 from ui.components import (
     checklist_rows,
@@ -60,7 +60,7 @@ PRESET_TITLES = {
 }
 FORM_KEYS = ("form_input", "form_name", "form_category", "form_facts", "form_desc", "form_landing", "form_budget")
 # 다른 화면으로 갔다 오면 Streamlit 이 그 화면에 없던 위젯의 값을 지운다. 그래서 값은 _store 에 따로 두고, 위젯을 그리기 전에 되살린다.
-PERSIST_KEYS = FORM_KEYS + ("opt_n_variants", "opt_audience", "opt_second", "opt_tau", "opt_budget", "opt_drill", "opt_oa_model", "opt_an_model",
+PERSIST_KEYS = FORM_KEYS + ("start_mode", "opt_n_variants", "opt_audience", "opt_second", "opt_tau", "opt_budget", "opt_drill", "opt_oa_model", "opt_an_model",
                             "user_openai_key", "user_anthropic_key")
 
 
@@ -144,32 +144,75 @@ def as_example_run(settings: Settings) -> Settings:
 
 
 # --- 입력 ---------------------------------------------------------------------
-def _inputs(make_settings, server_status: dict) -> tuple[Settings, RunOptions, str, bool]:
+START_MODES = ("예시로 시작", "대화로 시작", "상품 페이지에서 가져오기")
+
+
+def _apply_external(p: dict) -> None:
+    """대화 화면·상품 페이지 가져오기 화면이 '광고 작업 채우기' 를 눌렀을 때 입력 칸을 채운다.
+
+    입력 칸 위젯은 이 함수가 불리는 시점에는 아직 그려지기 전이라 값을 직접 넣어도 된다. 시작 방법 선택 칸은 이미 그려졌으므로 다음 실행에서 되돌린다.
+    """
+    ss = st.session_state
+    if p.get("source") == "url_import":
+        ss.form_name, ss.form_category = p["product_name"], p["category"]
+        ss.form_facts = "\n".join(p.get("fact_lines") or [])
+        ss.form_landing = p.get("landing_text", "")
+        ss.loaded_preset = "url"
+        notice = "상품 페이지에서 확인한 내용으로 상품 정보와 조건을 채웠습니다. 광고 요청 칸은 그대로이니 이 상품에 맞게 고친 뒤 ‘광고 초안 만들기’를 누르세요."
+    else:
+        ss.form_input = p["advertiser_input"]
+        ss.form_name, ss.form_category = p["product_name"], p["category"]
+        ss.form_facts = "\n".join(p.get("facts") or [])
+        ss.form_desc, ss.form_landing = p.get("description", ""), p.get("landing_text", "")
+        ss.form_budget = int(p.get("budget") or 0)
+        ss.loaded_preset = "chat"
+        notice = "대화에서 이해한 내용으로 입력 칸을 채웠습니다. 아래를 확인하고 ‘광고 초안 만들기’를 누르세요."
+        if p.get("name_is_placeholder"):
+            notice += " 상품명은 말씀하지 않아 업종 이름으로 채웠으니 바꿔 주세요."
+    _persist(FORM_KEYS)
+    ss["_start_mode_next"] = START_MODES[0]
+    ss["_applied_notice"] = notice
+    st.rerun()
+
+
+def _inputs(make_settings, server_status: dict, tracer=None, router_factory=None) -> tuple[Settings, RunOptions, str, bool]:
     """입력 폼 + 상세 옵션. (settings, options, 실행 방식, 실행 버튼 눌림)"""
     ss = st.session_state
     st.markdown("## 광고 검사")
     st.markdown("상품 정보와 꼭 들어가야 할 조건을 적으면 광고안을 만들고, 이 프로젝트의 검사 기준으로 **확인이 필요한 구절**을 찾아 이유와 수정 제안을 보여 줍니다.")
+    if ss.get("_applied_notice"):
+        st.success(ss.pop("_applied_notice"))
     with st.container(border=True):
         st.markdown("### 시작하기")
-        preset = st.selectbox("예시 선택", options=list(PRESETS.keys()), format_func=lambda k: PRESET_TITLES.get(k, k), key="preset_pick",
-                              help="예시를 고른 뒤 바로 실행하거나, 불러와서 내용을 고쳐 실행할 수 있습니다. 처음부터 직접 입력해도 됩니다.")
-        b1, b2 = st.columns(2)
-        with b1:
-            if st.button("예시로 바로 실행", type="primary", width="stretch", key="example_run", disabled=bool(ss.running),
-                         help="선택한 예시를 불러와 AI 호출 없이 처음부터 끝까지 실행합니다 (예시 실행)."):
-                _load_preset(preset)
-                ss._force_autorun = True
-                ss._force_demo_run = True   # 키가 있어도 이 버튼은 예시 실행이다 — 비용이 드는 실행은 아래에서 따로, 확인 뒤에만
-                st.rerun()
-        with b2:
-            if st.button("예시 불러오기", width="stretch", key="example_load"):
-                _load_preset(preset)
-                st.rerun()
-        st.markdown("<div class='pf-kv'><b>세 가지 결과는 서로 다릅니다.</b> "
-                    "① <b>예시 실행</b> — 이 화면에서 바로, AI 호출 없이 (모델 단계는 정해진 규칙의 대역). "
-                    "② <b>저장된 실제 모델 결과</b> — ‘검사 사례’ 에서 열람만 (호출 없음). "
-                    "③ <b>새 실제 모델 실행</b> — API 키가 있을 때만, 아래 ‘상세 옵션’ 에서 확인한 뒤 실행 (비용 발생).</div>", unsafe_allow_html=True)
-        st.caption("모든 상품·수치는 가상입니다. 직접 입력할 때는 아래 세 칸만 채우면 됩니다.")
+        if "_start_mode_next" in ss:
+            ss["start_mode"] = ss.pop("_start_mode_next")
+        ss.setdefault("start_mode", START_MODES[0])
+        st.radio("시작하는 방법", START_MODES, horizontal=True, key="start_mode", label_visibility="collapsed",
+                 help="예시를 고르거나 아래 칸에 직접 입력할 수 있고, 말로 목표와 예산을 알려 주거나, 상품 페이지에서 정보를 가져올 수도 있습니다.")
+        if ss.start_mode == START_MODES[1]:
+            chat_view.render(make_settings, tracer, router_factory, server_status, on_apply=_apply_external, embedded=True)
+        elif ss.start_mode == START_MODES[2]:
+            url_import_view.render(_apply_external)
+        else:
+            preset = st.selectbox("예시 선택", options=list(PRESETS.keys()), format_func=lambda k: PRESET_TITLES.get(k, k), key="preset_pick",
+                                  help="예시를 고른 뒤 바로 실행하거나, 불러와서 내용을 고쳐 실행할 수 있습니다. 처음부터 직접 입력해도 됩니다.")
+            b1, b2 = st.columns(2)
+            with b1:
+                if st.button("예시로 바로 실행", type="primary", width="stretch", key="example_run", disabled=bool(ss.running),
+                             help="선택한 예시를 불러와 AI 호출 없이 처음부터 끝까지 실행합니다 (예시 실행)."):
+                    _load_preset(preset)
+                    ss._force_autorun = True
+                    ss._force_demo_run = True   # 키가 있어도 이 버튼은 예시 실행이다 — 비용이 드는 실행은 아래에서 따로, 확인 뒤에만
+                    st.rerun()
+            with b2:
+                if st.button("예시 불러오기", width="stretch", key="example_load"):
+                    _load_preset(preset)
+                    st.rerun()
+            st.markdown("<div class='pf-kv'><b>세 가지 결과는 서로 다릅니다.</b> "
+                        "① <b>예시 실행</b> — 이 화면에서 바로, AI 호출 없이 (모델 단계는 정해진 규칙의 대역). "
+                        "② <b>저장된 실제 모델 결과</b> — ‘검사 사례’ 에서 열람만 (호출 없음). "
+                        "③ <b>새 실제 모델 실행</b> — API 키가 있을 때만, 아래 ‘상세 옵션’ 에서 확인한 뒤 실행 (비용 발생).</div>", unsafe_allow_html=True)
+            st.caption("모든 상품·수치는 가상입니다. 직접 입력할 때는 아래 세 칸만 채우면 됩니다.")
 
     with st.container(border=True):
         st.markdown("### 상품 정보")
@@ -741,6 +784,23 @@ def _spans_section(rep: PreflightReport, catalog) -> None:
             st.caption("표시할 구절이 없습니다.")
 
 
+def _creative_section(rep: PreflightReport, entry: dict, make_settings, router_factory) -> None:
+    """소재 퀄리티 참고 신호, 배너 시안, 이미지 검사. 판정(final_decision)을 바꾸지 않는다 — 이미지 쪽은 자체 판정을 내고 문구 판정과 합쳐 보여 준다."""
+    run: PipelineRun = entry["run"]
+    cats = set(run.categories) or {run.brief.product.category.value}
+    base = f"{run.run_id}_{rep.variant_id}"
+    creative_quality_view.render_quality_card(rep.ad_copy, list(run.brief.product.facts), cats, key=f"{run.run_id}:{rep.variant_id}")
+    if st.toggle("배너 시안과 이미지 검사 열기", key=f"cr_open_{base}", help="광고 문구로 배너 시안을 만들고, 올린 이미지 속 글자도 같은 기준으로 검사합니다. 열 때만 계산합니다."):
+        if rep.final_decision != Decision.APPROVE:
+            st.caption("이 광고안은 아직 점검을 통과하지 않았습니다. 배너의 글은 문구 그대로라 같은 문제가 남아 있습니다 — 문구를 고친 뒤 시안을 보세요.")
+        t1, t2 = st.tabs(["배너 시안", "이미지 검사"])
+        with t1:
+            creative_view.render_banner_studio(rep.verified_rewrite or rep.ad_copy, run.brief.product, key=f"img_banner_{base}", categories=cats)
+        with t2:
+            creative_view.render_image_check(make_settings, router_factory, st.session_state.get("_server_status", {}), facts=run.brief.product, categories=cats,
+                                             key=f"img_check_{base}", text_decision=rep.final_decision, ad_copy=rep.ad_copy)
+
+
 def _variant(i: int, rep: PreflightReport, entry: dict, catalog, tracer: Tracer, router_factory, make_settings) -> None:
     run: PipelineRun = entry["run"]
     with st.container(border=True):
@@ -768,6 +828,7 @@ def _variant(i: int, rep: PreflightReport, entry: dict, catalog, tracer: Tracer,
         if rep.final_decision == Decision.HUMAN_REVIEW:
             _human_review_block(rep, entry, catalog)
         _edit_and_recheck(rep, entry, catalog, tracer, router_factory, make_settings)
+        _creative_section(rep, entry, make_settings, router_factory)
         _details(rep, entry, catalog)
 
 
@@ -824,7 +885,7 @@ def render(make_settings, tracer: Tracer, router_factory, server_status: dict) -
         except Exception:  # noqa: BLE001
             pass
     force_demo = bool(ss.pop("_force_demo_run", False)) or force_demo
-    settings, options, mode, clicked = _inputs(make_settings, server_status)
+    settings, options, mode, clicked = _inputs(make_settings, server_status, tracer, router_factory)
     if autorun:
         clicked = True
     if force_demo:

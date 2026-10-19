@@ -12,7 +12,15 @@ from llm.router import Router
 
 from .prompts import PLANNER_SYSTEM
 
-_YOUTH = ("10대", "청소년", "미성년", "중학생", "고등학생", "만 1")
+import re
+
+_YOUTH = ("10대", "청소년", "미성년", "중학생", "고등학생")
+_YOUTH_AGE = re.compile(r"만\s*(?:1[0-8]|[0-9])\s*세")   # '만 14세'·'만 18세 이하' 는 걸리고 '만 19세 이상' 은 걸리지 않는다 (예전의 '만 1' 접두 검사는 둘 다 걸렸다)
+
+
+def targets_minors(audience: str) -> bool:
+    """타겟 문구가 만 19세 미만을 겨냥하는가."""
+    return any(k in audience for k in _YOUTH) or bool(_YOUTH_AGE.search(audience))
 
 
 @dataclass
@@ -54,7 +62,7 @@ def validate_and_repair(raw: PlanOut | dict, categories: set[str]) -> tuple[Camp
         if a.get("placement") not in PLACEMENTS:
             issues.append(PlanIssue("placement", f"'{a['name']}': 알 수 없는 지면 '{a.get('placement')}' → 리스트 배너", True))
             a["placement"] = PLACEMENTS[0]
-        if any(k in (a.get("audience") or "") for k in _YOUTH):
+        if targets_minors(a.get("audience") or ""):
             issues.append(PlanIssue("audience", f"'{a['name']}': 만 19세 미만을 겨냥한 타겟 표현 — 집행 불가", False))
         if a["budget_krw"] < 0:
             issues.append(PlanIssue("budget", f"'{a['name']}': 음수 예산 → 0", True))

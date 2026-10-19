@@ -13,7 +13,7 @@ from evals.runner import REPORTS, EvalAborted, dataset_fingerprint, load_dataset
 from guardrails.policy import get_catalog
 from agents.prompts import PROMPT_VERSION
 from observability.tracer import Tracer
-from ui import catalog_view, compare_view, redteam_view, theme, trace_view
+from ui import catalog_view, compare_view, creative_quality_view, new_evals, redteam_view, theme, trace_view
 from ui.funding import funded_by_server, server_cap, usd_text
 from ui.labels import RUN_MODE_NAME, METRIC, fraction_sentence, pct
 
@@ -312,6 +312,8 @@ def render(make_settings, router_factory, tracer: Tracer, server_status: dict) -
     _eval_section(make_settings, router_factory, server_status)
     _history_section()
     compare_view.render()
+    new_evals.render()
+    creative_quality_view.render(key="cq_quality")
     st.markdown("## 처리 기록")
     st.markdown("실행 한 번은 단계별 기록으로 남습니다. 어느 단계가 얼마나 걸렸고, 모델에 무엇을 보내 무엇을 받았는지, 어디서 대체 경로를 탔는지 볼 수 있습니다.")
     trace_view.render(tracer)
