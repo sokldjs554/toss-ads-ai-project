@@ -1,0 +1,209 @@
+{
+  "kind": "loadtest",
+  "generated_at": "2026-10-19T08:32:18.979066+00:00",
+  "command": "python scripts/loadtest.py --n 500 --warmup 20 --concurrency 1,4 --repeats 3 --seed 0",
+  "what_this_is": "모델 호출이 없는 결정론 검사 계층과 대역(mock) 파이프라인의 처리량·지연·메모리를 이 환경에서 잰 값이다. 대역은 모델 지연이 없으므로 '네트워크·모델 지연을 뺀 우리 코드의 처리량' 이다.",
+  "what_this_is_not": [
+    "실제 모델을 부르는 서비스의 처리량·응답 시간이 아니다 (실제 모델 지연은 compare_live.json 에서 사례당 약 3초로 따로 쟀다).",
+    "용량 계획의 근거로 그대로 쓸 수 없다 — 실제 요청 구성·동시 접속·네트워크·모델 제공자의 속도 제한이 빠져 있다.",
+    "스레드 병렬도는 GIL 때문에 CPU 작업의 처리량을 거의 늘리지 않는다. 병렬도 행은 스레드 안전성과 지연 악화를 보는 용도다.",
+    "다른 기계·다른 파이썬 버전에서는 값이 다르다. 같은 환경에서도 실행마다 달라진다."
+  ],
+  "model_calls": 0,
+  "network_calls": 0,
+  "environment": {
+    "python": "3.13.16",
+    "implementation": "CPython",
+    "platform": "Linux-6.18.44-fc-v139-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_model": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+    "cpu_count": 4,
+    "load_average_at_start": [
+      0.4,
+      0.32,
+      0.25
+    ],
+    "gil_enabled": true,
+    "load_average_at_end": [
+      0.94,
+      0.57,
+      0.35
+    ]
+  },
+  "config": {
+    "n_per_repeat": 500,
+    "warmup_calls": 20,
+    "concurrency": [
+      1,
+      4
+    ],
+    "repeats": 3,
+    "seed": 0,
+    "datasets": [
+      "golden",
+      "holdout",
+      "conditions"
+    ],
+    "presets": [
+      "loan_ok",
+      "malicious",
+      "injection",
+      "prohibited",
+      "commerce_landing",
+      "investment"
+    ]
+  },
+  "workloads": {
+    "guardrails": {
+      "description": "사례 106건(golden+holdout+conditions)을 돌려 가며 output_guard.check 호출",
+      "distinct_inputs": 106,
+      "results": [
+        {
+          "concurrency": 1,
+          "n_per_repeat": 500,
+          "repeats": 3,
+          "warmup_calls": 20,
+          "throughput_per_s_median": 591.04,
+          "throughput_per_s_all": [
+            584.72,
+            591.04,
+            702.71
+          ],
+          "wall_s_all": [
+            0.855,
+            0.846,
+            0.712
+          ],
+          "latency_ms": {
+            "n": 1500,
+            "p50": 1.337,
+            "p95": 3.775,
+            "p99": 4.92,
+            "mean": 1.607,
+            "max": 8.057
+          },
+          "errors": 0,
+          "error_examples": []
+        },
+        {
+          "concurrency": 4,
+          "n_per_repeat": 500,
+          "repeats": 3,
+          "warmup_calls": 20,
+          "throughput_per_s_median": 534.68,
+          "throughput_per_s_all": [
+            538.85,
+            509.73,
+            534.68
+          ],
+          "wall_s_all": [
+            0.928,
+            0.981,
+            0.935
+          ],
+          "latency_ms": {
+            "n": 1500,
+            "p50": 1.685,
+            "p95": 31.416,
+            "p99": 51.785,
+            "mean": 7.284,
+            "max": 110.633
+          },
+          "errors": 0,
+          "error_examples": []
+        }
+      ],
+      "memory": {
+        "calls": 498,
+        "retained_after_each_third_kb": [
+          13.7,
+          13.9,
+          14.0
+        ],
+        "peak_during_kb": 51.4,
+        "growth_per_call_first_to_second_third_bytes": 0.9,
+        "growth_per_call_second_to_last_third_bytes": 0.8,
+        "rss_peak_before_kb": 36420,
+        "rss_peak_after_kb": 36420,
+        "rss_peak_growth_kb": 0,
+        "note": "tracemalloc 은 실행을 느리게 하므로 이 구간의 시간은 처리량 측정에 쓰지 않았다. RSS 는 프로세스 전체의 최대치라 앞선 측정의 영향을 받고 줄어들지 않는다."
+      }
+    },
+    "pipeline_mock": {
+      "description": "예시 입력 6종을 돌려 가며 run_pipeline(예시 실행, 모델 호출 없음) 호출",
+      "distinct_inputs": 6,
+      "results": [
+        {
+          "concurrency": 1,
+          "n_per_repeat": 500,
+          "repeats": 3,
+          "warmup_calls": 20,
+          "throughput_per_s_median": 42.46,
+          "throughput_per_s_all": [
+            42.46,
+            45.54,
+            42.29
+          ],
+          "wall_s_all": [
+            11.776,
+            10.98,
+            11.823
+          ],
+          "latency_ms": {
+            "n": 1500,
+            "p50": 23.977,
+            "p95": 37.658,
+            "p99": 48.499,
+            "mean": 23.051,
+            "max": 52.216
+          },
+          "errors": 0,
+          "error_examples": []
+        },
+        {
+          "concurrency": 4,
+          "n_per_repeat": 500,
+          "repeats": 3,
+          "warmup_calls": 20,
+          "throughput_per_s_median": 37.97,
+          "throughput_per_s_all": [
+            37.97,
+            37.78,
+            38.11
+          ],
+          "wall_s_all": [
+            13.169,
+            13.234,
+            13.121
+          ],
+          "latency_ms": {
+            "n": 1500,
+            "p50": 95.66,
+            "p95": 240.841,
+            "p99": 349.464,
+            "mean": 104.687,
+            "max": 533.826
+          },
+          "errors": 0,
+          "error_examples": []
+        }
+      ],
+      "memory": {
+        "calls": 498,
+        "retained_after_each_third_kb": [
+          6014.0,
+          6095.7,
+          5993.9
+        ],
+        "peak_during_kb": 7128.4,
+        "growth_per_call_first_to_second_third_bytes": 504.3,
+        "growth_per_call_second_to_last_third_bytes": -628.4,
+        "rss_peak_before_kb": 54132,
+        "rss_peak_after_kb": 56692,
+        "rss_peak_growth_kb": 2560,
+        "note": "tracemalloc 은 실행을 느리게 하므로 이 구간의 시간은 처리량 측정에 쓰지 않았다. RSS 는 프로세스 전체의 최대치라 앞선 측정의 영향을 받고 줄어들지 않는다."
+      }
+    }
+  },
+  "elapsed_s": 134.6
+}
