@@ -1,0 +1,2568 @@
+{
+  "dataset": {
+    "counts": {
+      "all": {
+        "labels": {
+          "a": 36,
+          "b": 36,
+          "tie": 12
+        },
+        "pairs": 84
+      },
+      "dev": {
+        "labels": {
+          "a": 24,
+          "b": 24,
+          "tie": 8
+        },
+        "pairs": 56
+      },
+      "holdout": {
+        "labels": {
+          "a": 12,
+          "b": 12,
+          "tie": 4
+        },
+        "pairs": 28
+      }
+    },
+    "path": "evals/datasets/quality_pairs.jsonl",
+    "reason_codes": {
+      "conditions": {
+        "dev": 4,
+        "holdout": 2
+      },
+      "cta": {
+        "dev": 4,
+        "holdout": 2
+      },
+      "hype": {
+        "dev": 4,
+        "holdout": 2
+      },
+      "length": {
+        "dev": 4,
+        "holdout": 2
+      },
+      "readability": {
+        "dev": 4,
+        "holdout": 2
+      },
+      "redundancy": {
+        "dev": 4,
+        "holdout": 2
+      },
+      "specificity": {
+        "dev": 4,
+        "holdout": 2
+      },
+      "tie_both_good": {
+        "dev": 8,
+        "holdout": 4
+      },
+      "tone": {
+        "dev": 4,
+        "holdout": 2
+      },
+      "trap_hype_specific": {
+        "dev": 4,
+        "holdout": 2
+      },
+      "trap_long": {
+        "dev": 4,
+        "holdout": 2
+      },
+      "trap_numbers": {
+        "dev": 4,
+        "holdout": 2
+      },
+      "trap_short_vague": {
+        "dev": 4,
+        "holdout": 2
+      }
+    },
+    "sha256": "dc0cdf674f106c48832f1dddb4e3a874460897e07e7e542221ae8dd6632acb9e"
+  },
+  "gate": {
+    "failures": [],
+    "rule": "결정 쌍(라벨 a/b) 10개 이상인 split 마다 결정 쌍 일치율이 우연 수준(늘 한쪽만 고르는 일치율과 0.5 중 큰 값)을 넘어야 한다 — 우연 이하로 떨어지면 신호가 선호를 따라가지 못한다는 뜻이라 실패. 이 기준은 일부러 느슨하다(쌍 수십 개로는 몇 %p 차이를 우연과 가를 수 없다). 기준선 리포트를 주면 결정 쌍 일치율이 5%p 넘게 떨어질 때도 실패."
+  },
+  "limitations": [
+    "라벨은 작성자(AI) 한 명이 달았다. 독립 라벨러가 없고, 신호를 만든 사람이 라벨도 달았다.",
+    "문구와 상품 정보는 전부 가상이다. 실제 광고의 분포를 대표하지 않는다.",
+    "실제 클릭률·전환·광고주 만족과의 상관은 측정하지 않았다. 일치율이 높아도 '성과가 좋다'는 뜻이 아니다.",
+    "dev 일치율은 신호를 만들 때 본 데이터라 낙관적이다. 일반화는 holdout 으로만 보며, holdout 도 같은 작성자의 라벨이다.",
+    "쌍 수가 적다(dev 56 · holdout 28). 신뢰구간이 넓어 몇 %p 차이는 우연과 구별되지 않는다.",
+    "쌍은 대부분 한 가지 차이가 두드러지게 만든 것이라 쉬운 편이다. 여러 차이가 뒤섞인 실제 광고 쌍의 일치율은 이보다 낮을 가능성이 높다(측정하지 않았다). 단순 방식(숫자가 많은 쪽·긴 쪽)이 더 낮게 나온 것이 유일한 비교 근거다.",
+    "신호의 단어 목록을 만든 사람이 쌍도 썼다. 쌍이 목록의 말('자세히 보기'·'프로모션'·'서두르세요' 등)을 직접 겨냥한 경우가 있어, holdout 일치율은 '작성자 자신의 기준을 신호가 재현하는 정도'에 가깝다.",
+    "가중치가 작은 신호(길이·말투)만 다른 쌍은 종합 점수 차가 무승부 기준(0.05) 아래로 떨어져 tie 로 예측되기 쉽다 — holdout 에서 길이만 다른 두 쌍을 놓쳤다.",
+    "조건 표시는 코드가 비교하는 조건 6종류의 표준 표현만 인정한다 — '30만원 쓰면' 같은 풀어 쓴 조건은 빠진 것으로 본다.",
+    "형태소 분석기·사전 없이 정규식과 단어 목록으로 읽는다. 어미·한자어·명사 나열을 정확히 가리지 못한다."
+  ],
+  "no_independent_labeler": "라벨은 이 프로젝트의 작성자(AI) 한 명이 달았다 — 독립 라벨러 없음. 문구·상품 정보는 전부 가상.",
+  "not_measured": "실제 클릭률·전환·광고주 만족과의 상관은 측정하지 않았다 (실제 성과 데이터 없음). 이 일치율은 '작성자가 고른 쪽을 신호가 따라가는 정도'일 뿐이다.",
+  "procedure": {
+    "amendments": [],
+    "checks": {
+      "amendments": 0,
+      "dev_pairs_unchanged_since_freeze": true,
+      "holdout_pairs_unchanged_since_first_run": true,
+      "signal_code_unchanged_since_freeze": true,
+      "tie_margin_unchanged_since_freeze": true,
+      "weights_unchanged_since_freeze": true
+    },
+    "first_holdout_run": {
+      "decisive_agreement": {
+        "k": 22,
+        "n": 24,
+        "rate": 0.9167
+      },
+      "three_way_accuracy": {
+        "k": 26,
+        "n": 28,
+        "rate": 0.9286
+      },
+      "tie_pairs_predicted_tie": {
+        "k": 4,
+        "n": 4
+      },
+      "wrong_pairs": [
+        "QP-H15",
+        "QP-H16"
+      ]
+    },
+    "frozen": {
+      "core_creative_quality_sha256": "308df411f3adaa4c5810f58d4a8db4c46494aa0ccec2b5c2106b746006564e26",
+      "dev_pairs_sha256": "4bca862e252dc0023d3a674df40f8d7d52e49924bfb965ef16c28cc8f0dd5bc8",
+      "n_dev_pairs": 56,
+      "tie_margin": 0.05,
+      "weights": {
+        "conditions": 0.14,
+        "cta": 0.1,
+        "length": 0.08,
+        "pressure": 0.12,
+        "readability": 0.14,
+        "redundancy": 0.1,
+        "specificity": 0.24,
+        "tone": 0.08
+      }
+    },
+    "frozen_on": "2026-10-19",
+    "holdout_pairs_sha256": "8fc1843211bbc25d6d292054befa4bf90e2669a9edbc2cfe81211b70a0d4624d",
+    "steps": [
+      "1. dev 56쌍을 먼저 썼다 (신호를 만들기 전. 라벨은 작성자 판단이며 신호를 돌려 보지 않았다)",
+      "2. dev 쌍으로 신호·가중치·무승부 기준을 만들었다 (그래서 dev 일치율은 낙관적이다)",
+      "3. 신호 코드(core/creative_quality.py)를 동결했다 — frozen 의 해시",
+      "4. 동결한 뒤에 holdout 쌍을 썼다 (신호를 한 번도 돌려 보지 않은 채 전부 쓴 뒤 처음 돌렸다)",
+      "5. holdout 결과를 보고 신호·가중치·무승부 기준을 고치지 않았다 — first_holdout_run 이 처음 돌린 숫자다"
+    ]
+  },
+  "reproduce": "python -m evals.quality_signals --split all --out evals/reports/quality_signals.json",
+  "schema": "quality_signals/1",
+  "signals": {
+    "assumed_limits": {
+      "body_best": [
+        20,
+        70
+      ],
+      "body_max": 90,
+      "cta_best": [
+        3,
+        8
+      ],
+      "cta_max": 12,
+      "headline_best": [
+        8,
+        24
+      ],
+      "headline_max": 30
+    },
+    "assumed_limits_note": "이 프로젝트가 가정한 값 — 실제 콘솔 규격과 다를 수 있다",
+    "core_sha256": "308df411f3adaa4c5810f58d4a8db4c46494aa0ccec2b5c2106b746006564e26",
+    "grade_bands": [
+      [
+        0.7,
+        "상"
+      ],
+      [
+        0.5,
+        "중"
+      ],
+      [
+        0.0,
+        "하"
+      ]
+    ],
+    "keys": [
+      "length",
+      "specificity",
+      "conditions",
+      "cta",
+      "readability",
+      "redundancy",
+      "pressure",
+      "tone"
+    ],
+    "tie_margin": 0.05,
+    "weights": {
+      "conditions": 0.14,
+      "cta": 0.1,
+      "length": 0.08,
+      "pressure": 0.12,
+      "readability": 0.14,
+      "redundancy": 0.1,
+      "specificity": 0.24,
+      "tone": 0.08
+    }
+  },
+  "splits": {
+    "all": {
+      "ablation": {
+        "conditions": {
+          "decisive_agreement": 0.875,
+          "delta_decisive": -0.0556,
+          "delta_three_way": -0.0238,
+          "name": "조건 표시",
+          "predictions_changed": 8,
+          "three_way_accuracy": 0.8929
+        },
+        "cta": {
+          "decisive_agreement": 0.8889,
+          "delta_decisive": -0.0417,
+          "delta_three_way": -0.0357,
+          "name": "행동 유도",
+          "predictions_changed": 9,
+          "three_way_accuracy": 0.881
+        },
+        "length": {
+          "decisive_agreement": 0.9444,
+          "delta_decisive": 0.0138,
+          "delta_three_way": 0.0119,
+          "name": "길이",
+          "predictions_changed": 3,
+          "three_way_accuracy": 0.9286
+        },
+        "pressure": {
+          "decisive_agreement": 0.9583,
+          "delta_decisive": 0.0277,
+          "delta_three_way": 0.0238,
+          "name": "압박·과장 표현",
+          "predictions_changed": 4,
+          "three_way_accuracy": 0.9405
+        },
+        "readability": {
+          "decisive_agreement": 0.9167,
+          "delta_decisive": -0.0139,
+          "delta_three_way": -0.0119,
+          "name": "읽기 쉬움",
+          "predictions_changed": 7,
+          "three_way_accuracy": 0.9048
+        },
+        "redundancy": {
+          "decisive_agreement": 0.9444,
+          "delta_decisive": 0.0138,
+          "delta_three_way": 0.0119,
+          "name": "중복·군더더기",
+          "predictions_changed": 5,
+          "three_way_accuracy": 0.9286
+        },
+        "specificity": {
+          "decisive_agreement": 0.8056,
+          "delta_decisive": -0.125,
+          "delta_three_way": -0.131,
+          "name": "구체성",
+          "predictions_changed": 15,
+          "three_way_accuracy": 0.7857
+        },
+        "tone": {
+          "decisive_agreement": 0.8611,
+          "delta_decisive": -0.0695,
+          "delta_three_way": -0.0596,
+          "name": "말투 일관성",
+          "predictions_changed": 5,
+          "three_way_accuracy": 0.8571
+        }
+      },
+      "ablation_note": "신호를 빼면 남은 신호의 가중치가 다시 합 1 이 되어 점수 차가 커진다 — 무승부 기준(고정) 근처의 쌍이 a/b 로 갈리는 것은 신호의 정보가 아니라 척도 변화일 수 있다. delta 가 음수면 그 신호를 뺄 때 일치율이 떨어졌다(보탬이 됐다)는 뜻이고, 양수면 빼는 편이 일치율이 높았다는 뜻이다. 쌍 수십 개라 한두 쌍 차이는 우연이다.",
+      "baselines": {
+        "always_a": {
+          "k": 36,
+          "n": 72,
+          "rate": 0.5,
+          "wilson95": [
+            0.3875,
+            0.6125
+          ]
+        },
+        "longer_text_wins": {
+          "k": 37,
+          "n": 72,
+          "rate": 0.5139,
+          "wilson95": [
+            0.4007,
+            0.6257
+          ]
+        },
+        "more_digits_wins": {
+          "k": 43,
+          "n": 72,
+          "rate": 0.5972,
+          "wilson95": [
+            0.4818,
+            0.7028
+          ]
+        }
+      },
+      "by_reason": {
+        "conditions": {
+          "k": 6,
+          "n": 6,
+          "rate": 1.0,
+          "wilson95": [
+            0.6097,
+            1.0
+          ]
+        },
+        "cta": {
+          "k": 6,
+          "n": 6,
+          "rate": 1.0,
+          "wilson95": [
+            0.6097,
+            1.0
+          ]
+        },
+        "hype": {
+          "k": 6,
+          "n": 6,
+          "rate": 1.0,
+          "wilson95": [
+            0.6097,
+            1.0
+          ]
+        },
+        "length": {
+          "k": 3,
+          "n": 6,
+          "rate": 0.5,
+          "wilson95": [
+            0.1876,
+            0.8124
+          ]
+        },
+        "readability": {
+          "k": 6,
+          "n": 6,
+          "rate": 1.0,
+          "wilson95": [
+            0.6097,
+            1.0
+          ]
+        },
+        "redundancy": {
+          "k": 6,
+          "n": 6,
+          "rate": 1.0,
+          "wilson95": [
+            0.6097,
+            1.0
+          ]
+        },
+        "specificity": {
+          "k": 6,
+          "n": 6,
+          "rate": 1.0,
+          "wilson95": [
+            0.6097,
+            1.0
+          ]
+        },
+        "tie_both_good": {
+          "k": 10,
+          "n": 12,
+          "rate": 0.8333,
+          "wilson95": [
+            0.552,
+            0.953
+          ]
+        },
+        "tone": {
+          "k": 4,
+          "n": 6,
+          "rate": 0.6667,
+          "wilson95": [
+            0.3,
+            0.9032
+          ]
+        },
+        "trap_hype_specific": {
+          "k": 6,
+          "n": 6,
+          "rate": 1.0,
+          "wilson95": [
+            0.6097,
+            1.0
+          ]
+        },
+        "trap_long": {
+          "k": 6,
+          "n": 6,
+          "rate": 1.0,
+          "wilson95": [
+            0.6097,
+            1.0
+          ]
+        },
+        "trap_numbers": {
+          "k": 6,
+          "n": 6,
+          "rate": 1.0,
+          "wilson95": [
+            0.6097,
+            1.0
+          ]
+        },
+        "trap_short_vague": {
+          "k": 6,
+          "n": 6,
+          "rate": 1.0,
+          "wilson95": [
+            0.6097,
+            1.0
+          ]
+        }
+      },
+      "by_signal": {
+        "conditions": {
+          "abstained": 52,
+          "agreement_all_decisive_pairs": {
+            "k": 13,
+            "n": 72,
+            "rate": 0.1806,
+            "wilson95": [
+              0.1087,
+              0.2848
+            ]
+          },
+          "agreement_when_decided": {
+            "k": 13,
+            "n": 13,
+            "rate": 1.0,
+            "wilson95": [
+              0.7719,
+              1.0
+            ]
+          },
+          "called_tie": 7,
+          "decided": 13,
+          "decisive_pairs": 72,
+          "name": "조건 표시",
+          "on_own_reason": {
+            "decided": 6,
+            "k": 6,
+            "n": 6,
+            "pairs": 6,
+            "rate": 1.0,
+            "reason_code": "conditions",
+            "wilson95": [
+              0.6097,
+              1.0
+            ]
+          },
+          "on_tie_pairs": {
+            "abstained": 3,
+            "called_tie": 7,
+            "n": 12,
+            "separated": 2
+          },
+          "weight": 0.14
+        },
+        "cta": {
+          "abstained": 0,
+          "agreement_all_decisive_pairs": {
+            "k": 15,
+            "n": 72,
+            "rate": 0.2083,
+            "wilson95": [
+              0.1305,
+              0.3157
+            ]
+          },
+          "agreement_when_decided": {
+            "k": 15,
+            "n": 17,
+            "rate": 0.8824,
+            "wilson95": [
+              0.6566,
+              0.9671
+            ]
+          },
+          "called_tie": 55,
+          "decided": 17,
+          "decisive_pairs": 72,
+          "name": "행동 유도",
+          "on_own_reason": {
+            "decided": 6,
+            "k": 6,
+            "n": 6,
+            "pairs": 6,
+            "rate": 1.0,
+            "reason_code": "cta",
+            "wilson95": [
+              0.6097,
+              1.0
+            ]
+          },
+          "on_tie_pairs": {
+            "abstained": 0,
+            "called_tie": 9,
+            "n": 12,
+            "separated": 3
+          },
+          "weight": 0.1
+        },
+        "length": {
+          "abstained": 0,
+          "agreement_all_decisive_pairs": {
+            "k": 22,
+            "n": 72,
+            "rate": 0.3056,
+            "wilson95": [
+              0.2113,
+              0.4195
+            ]
+          },
+          "agreement_when_decided": {
+            "k": 22,
+            "n": 22,
+            "rate": 1.0,
+            "wilson95": [
+              0.8513,
+              1.0
+            ]
+          },
+          "called_tie": 50,
+          "decided": 22,
+          "decisive_pairs": 72,
+          "name": "길이",
+          "on_own_reason": {
+            "decided": 6,
+            "k": 6,
+            "n": 6,
+            "pairs": 6,
+            "rate": 1.0,
+            "reason_code": "length",
+            "wilson95": [
+              0.6097,
+              1.0
+            ]
+          },
+          "on_tie_pairs": {
+            "abstained": 0,
+            "called_tie": 12,
+            "n": 12,
+            "separated": 0
+          },
+          "weight": 0.08
+        },
+        "pressure": {
+          "abstained": 0,
+          "agreement_all_decisive_pairs": {
+            "k": 14,
+            "n": 72,
+            "rate": 0.1944,
+            "wilson95": [
+              0.1195,
+              0.3003
+            ]
+          },
+          "agreement_when_decided": {
+            "k": 14,
+            "n": 20,
+            "rate": 0.7,
+            "wilson95": [
+              0.481,
+              0.8545
+            ]
+          },
+          "called_tie": 52,
+          "decided": 20,
+          "decisive_pairs": 72,
+          "name": "압박·과장 표현",
+          "on_own_reason": {
+            "decided": 6,
+            "k": 6,
+            "n": 6,
+            "pairs": 6,
+            "rate": 1.0,
+            "reason_code": "hype",
+            "wilson95": [
+              0.6097,
+              1.0
+            ]
+          },
+          "on_tie_pairs": {
+            "abstained": 0,
+            "called_tie": 12,
+            "n": 12,
+            "separated": 0
+          },
+          "weight": 0.12
+        },
+        "readability": {
+          "abstained": 0,
+          "agreement_all_decisive_pairs": {
+            "k": 16,
+            "n": 72,
+            "rate": 0.2222,
+            "wilson95": [
+              0.1417,
+              0.3309
+            ]
+          },
+          "agreement_when_decided": {
+            "k": 16,
+            "n": 27,
+            "rate": 0.5926,
+            "wilson95": [
+              0.4073,
+              0.7549
+            ]
+          },
+          "called_tie": 45,
+          "decided": 27,
+          "decisive_pairs": 72,
+          "name": "읽기 쉬움",
+          "on_own_reason": {
+            "decided": 6,
+            "k": 6,
+            "n": 6,
+            "pairs": 6,
+            "rate": 1.0,
+            "reason_code": "readability",
+            "wilson95": [
+              0.6097,
+              1.0
+            ]
+          },
+          "on_tie_pairs": {
+            "abstained": 0,
+            "called_tie": 8,
+            "n": 12,
+            "separated": 4
+          },
+          "weight": 0.14
+        },
+        "redundancy": {
+          "abstained": 1,
+          "agreement_all_decisive_pairs": {
+            "k": 20,
+            "n": 72,
+            "rate": 0.2778,
+            "wilson95": [
+              0.1876,
+              0.3905
+            ]
+          },
+          "agreement_when_decided": {
+            "k": 20,
+            "n": 37,
+            "rate": 0.5405,
+            "wilson95": [
+              0.3838,
+              0.6896
+            ]
+          },
+          "called_tie": 34,
+          "decided": 37,
+          "decisive_pairs": 72,
+          "name": "중복·군더더기",
+          "on_own_reason": {
+            "decided": 6,
+            "k": 6,
+            "n": 6,
+            "pairs": 6,
+            "rate": 1.0,
+            "reason_code": "redundancy",
+            "wilson95": [
+              0.6097,
+              1.0
+            ]
+          },
+          "on_tie_pairs": {
+            "abstained": 0,
+            "called_tie": 4,
+            "n": 12,
+            "separated": 8
+          },
+          "weight": 0.1
+        },
+        "specificity": {
+          "abstained": 0,
+          "agreement_all_decisive_pairs": {
+            "k": 47,
+            "n": 72,
+            "rate": 0.6528,
+            "wilson95": [
+              0.5376,
+              0.7525
+            ]
+          },
+          "agreement_when_decided": {
+            "k": 47,
+            "n": 47,
+            "rate": 1.0,
+            "wilson95": [
+              0.9244,
+              1.0
+            ]
+          },
+          "called_tie": 25,
+          "decided": 47,
+          "decisive_pairs": 72,
+          "name": "구체성",
+          "on_own_reason": {
+            "decided": 6,
+            "k": 6,
+            "n": 6,
+            "pairs": 6,
+            "rate": 1.0,
+            "reason_code": "specificity",
+            "wilson95": [
+              0.6097,
+              1.0
+            ]
+          },
+          "on_tie_pairs": {
+            "abstained": 0,
+            "called_tie": 12,
+            "n": 12,
+            "separated": 0
+          },
+          "weight": 0.24
+        },
+        "tone": {
+          "abstained": 0,
+          "agreement_all_decisive_pairs": {
+            "k": 17,
+            "n": 72,
+            "rate": 0.2361,
+            "wilson95": [
+              0.153,
+              0.346
+            ]
+          },
+          "agreement_when_decided": {
+            "k": 17,
+            "n": 17,
+            "rate": 1.0,
+            "wilson95": [
+              0.8157,
+              1.0
+            ]
+          },
+          "called_tie": 55,
+          "decided": 17,
+          "decisive_pairs": 72,
+          "name": "말투 일관성",
+          "on_own_reason": {
+            "decided": 6,
+            "k": 6,
+            "n": 6,
+            "pairs": 6,
+            "rate": 1.0,
+            "reason_code": "tone",
+            "wilson95": [
+              0.6097,
+              1.0
+            ]
+          },
+          "on_tie_pairs": {
+            "abstained": 0,
+            "called_tie": 12,
+            "n": 12,
+            "separated": 0
+          },
+          "weight": 0.08
+        }
+      },
+      "chance": {
+        "always_one_side": 0.5,
+        "coin_flip": 0.5,
+        "level": 0.5
+      },
+      "decisive_agreement": {
+        "k": 67,
+        "n": 72,
+        "rate": 0.9306,
+        "wilson95": [
+          0.8475,
+          0.97
+        ]
+      },
+      "decisive_agreement_when_decided": {
+        "coverage": 0.9306,
+        "k": 67,
+        "n": 67,
+        "rate": 1.0,
+        "wilson95": [
+          0.9458,
+          1.0
+        ]
+      },
+      "failures": [
+        {
+          "a": {
+            "body": "은행·카드를 연결하면 지출이 정리돼요. 지금 써 보세요.",
+            "cta": "앱 설치하기",
+            "headline": "소비 내역이 자동으로 분류돼요"
+          },
+          "b": {
+            "body": "은행·카드를 연결하면 지출이 정리돼요. 지금 써 보세요.",
+            "cta": "앱 설치하기",
+            "headline": "소비 내역이 자동으로 분류됩니다"
+          },
+          "id": "QP-D25",
+          "label": "a",
+          "notes": "합쇼체와 해요체가 섞인 문구",
+          "predicted": "tie",
+          "reason_code": "tone",
+          "score_a": 1.0,
+          "score_b": 0.95,
+          "split": "dev",
+          "top_signals": [
+            [
+              "tone",
+              0.05
+            ]
+          ]
+        },
+        {
+          "a": {
+            "body": "중도상환수수료가 없고 서류 제출도 필요 없습니다.",
+            "cta": "한도 확인하기",
+            "headline": "최대 300만원까지 신청하실 수 있습니다"
+          },
+          "b": {
+            "body": "중도상환수수료가 없고 서류 제출도 필요 없어요.",
+            "cta": "한도 확인하기",
+            "headline": "최대 300만원까지 신청하실 수 있습니다"
+          },
+          "id": "QP-D27",
+          "label": "a",
+          "notes": "합쇼체로 통일 vs 해요체가 섞임",
+          "predicted": "tie",
+          "reason_code": "tone",
+          "score_a": 0.86,
+          "score_b": 0.812,
+          "split": "dev",
+          "top_signals": [
+            [
+              "tone",
+              0.048
+            ]
+          ]
+        },
+        {
+          "a": {
+            "body": "쿠폰을 받아 숙소를 예약할 때 쓰세요.",
+            "cta": "쿠폰 받기",
+            "headline": "3박 이상 예약하면 최대 15% 할인"
+          },
+          "b": {
+            "body": "쿠폰을 받아 숙소를 예약할 때 쓰세요.",
+            "cta": "쿠폰 받기",
+            "headline": "할인"
+          },
+          "id": "QP-D31",
+          "label": "a",
+          "notes": "제목이 너무 짧아 정보가 없음",
+          "predicted": "tie",
+          "reason_code": "length",
+          "score_a": 0.99,
+          "score_b": 0.945,
+          "split": "dev",
+          "top_signals": [
+            [
+              "specificity",
+              0.031
+            ],
+            [
+              "length",
+              0.02
+            ],
+            [
+              "redundancy",
+              -0.006
+            ]
+          ]
+        },
+        {
+          "a": {
+            "body": "전월 실적 30만원 이상이면 월 최대 3만원을 받아요.",
+            "cta": "혜택 확인하기",
+            "headline": "연회비 없는 캐시백 카드"
+          },
+          "b": {
+            "body": "연회비는 없고 해외 결제 수수료도 면제돼요.",
+            "cta": "카드 신청하기",
+            "headline": "전월 30만원 쓰면 월 최대 3만원 캐시백"
+          },
+          "id": "QP-D49",
+          "label": "tie",
+          "notes": "둘 다 숫자·조건이 있고 읽기 쉬움",
+          "predicted": "a",
+          "reason_code": "tie_both_good",
+          "score_a": 1.0,
+          "score_b": 0.86,
+          "split": "dev",
+          "top_signals": [
+            [
+              "conditions",
+              0.14
+            ]
+          ]
+        },
+        {
+          "a": {
+            "body": "자동으로 요약해 줘요. 유료로 바꾸려면 직접 신청해야 해요.",
+            "cta": "무료 시작하기",
+            "headline": "팀원 5명까지 무료 회의록 요약"
+          },
+          "b": {
+            "body": "팀원 5명까지 무료예요. 유료 전환은 직접 신청할 때만 돼요.",
+            "cta": "무료로 써 보기",
+            "headline": "회의록을 자동으로 요약해요"
+          },
+          "id": "QP-D56",
+          "label": "tie",
+          "notes": "둘 다 조건을 밝힘",
+          "predicted": "b",
+          "reason_code": "tie_both_good",
+          "score_a": 0.854,
+          "score_b": 0.98,
+          "split": "dev",
+          "top_signals": [
+            [
+              "conditions",
+              -0.14
+            ],
+            [
+              "cta",
+              0.02
+            ],
+            [
+              "redundancy",
+              -0.006
+            ]
+          ]
+        },
+        {
+          "a": {
+            "body": "견적 조회는 1분이면 돼요.",
+            "cta": "견적 조회하기",
+            "headline": "온라인으로 가입하면 보험료를 최대 10%까지 할인받을 수 있는 다이렉트 자동차보험"
+          },
+          "b": {
+            "body": "견적 조회는 1분이면 돼요.",
+            "cta": "견적 조회하기",
+            "headline": "온라인 가입 시 최대 10% 할인"
+          },
+          "id": "QP-H15",
+          "label": "b",
+          "notes": "제목이 한도(30자)를 크게 넘음",
+          "predicted": "tie",
+          "reason_code": "length",
+          "score_a": 0.951,
+          "score_b": 0.965,
+          "split": "holdout",
+          "top_signals": [
+            [
+              "length",
+              -0.024
+            ],
+            [
+              "redundancy",
+              0.008
+            ],
+            [
+              "readability",
+              0.003
+            ]
+          ]
+        },
+        {
+          "a": {
+            "body": "5분",
+            "cta": "계좌 개설하기",
+            "headline": "500만원까지 연 2.0% 입출금 계좌"
+          },
+          "b": {
+            "body": "비대면으로 5분이면 계좌 개설이 끝나요.",
+            "cta": "계좌 개설하기",
+            "headline": "500만원까지 연 2.0% 입출금 계좌"
+          },
+          "id": "QP-H16",
+          "label": "b",
+          "notes": "본문이 너무 짧아 정보가 없음",
+          "predicted": "tie",
+          "reason_code": "length",
+          "score_a": 0.973,
+          "score_b": 0.98,
+          "split": "holdout",
+          "top_signals": [
+            [
+              "length",
+              -0.023
+            ],
+            [
+              "redundancy",
+              0.016
+            ]
+          ]
+        }
+      ],
+      "margin_sweep_info_only": {
+        "0.00": {
+          "decisive_agreement": 1.0,
+          "three_way_accuracy": 0.8571
+        },
+        "0.02": {
+          "decisive_agreement": 0.9722,
+          "three_way_accuracy": 0.9048
+        },
+        "0.05": {
+          "decisive_agreement": 0.9306,
+          "three_way_accuracy": 0.9167
+        },
+        "0.08": {
+          "decisive_agreement": 0.8056,
+          "three_way_accuracy": 0.8095
+        },
+        "0.12": {
+          "decisive_agreement": 0.6528,
+          "three_way_accuracy": 0.6786
+        }
+      },
+      "n": 84,
+      "n_decisive_labels": 72,
+      "n_tie_labels": 12,
+      "predicted": {
+        "a": 34,
+        "b": 35,
+        "tie": 15,
+        "unknown": 0
+      },
+      "three_way_accuracy": {
+        "k": 77,
+        "n": 84,
+        "rate": 0.9167,
+        "wilson95": [
+          0.8378,
+          0.959
+        ]
+      },
+      "tie_pairs": {
+        "n": 12,
+        "predicted_tie": 10,
+        "separated_anyway": 2
+      }
+    },
+    "dev": {
+      "ablation": {
+        "conditions": {
+          "decisive_agreement": 0.8958,
+          "delta_decisive": -0.0417,
+          "delta_three_way": 0.0,
+          "name": "조건 표시",
+          "predictions_changed": 6,
+          "three_way_accuracy": 0.9107
+        },
+        "cta": {
+          "decisive_agreement": 0.9167,
+          "delta_decisive": -0.0208,
+          "delta_three_way": -0.0178,
+          "name": "행동 유도",
+          "predictions_changed": 7,
+          "three_way_accuracy": 0.8929
+        },
+        "length": {
+          "decisive_agreement": 0.9583,
+          "delta_decisive": 0.0208,
+          "delta_three_way": 0.0179,
+          "name": "길이",
+          "predictions_changed": 3,
+          "three_way_accuracy": 0.9286
+        },
+        "pressure": {
+          "decisive_agreement": 0.9792,
+          "delta_decisive": 0.0417,
+          "delta_three_way": 0.0357,
+          "name": "압박·과장 표현",
+          "predictions_changed": 4,
+          "three_way_accuracy": 0.9464
+        },
+        "readability": {
+          "decisive_agreement": 0.9375,
+          "delta_decisive": 0.0,
+          "delta_three_way": 0.0,
+          "name": "읽기 쉬움",
+          "predictions_changed": 6,
+          "three_way_accuracy": 0.9107
+        },
+        "redundancy": {
+          "decisive_agreement": 0.9792,
+          "delta_decisive": 0.0417,
+          "delta_three_way": 0.0357,
+          "name": "중복·군더더기",
+          "predictions_changed": 4,
+          "three_way_accuracy": 0.9464
+        },
+        "specificity": {
+          "decisive_agreement": 0.8125,
+          "delta_decisive": -0.125,
+          "delta_three_way": -0.1428,
+          "name": "구체성",
+          "predictions_changed": 12,
+          "three_way_accuracy": 0.7679
+        },
+        "tone": {
+          "decisive_agreement": 0.875,
+          "delta_decisive": -0.0625,
+          "delta_three_way": -0.0536,
+          "name": "말투 일관성",
+          "predictions_changed": 3,
+          "three_way_accuracy": 0.8571
+        }
+      },
+      "ablation_note": "신호를 빼면 남은 신호의 가중치가 다시 합 1 이 되어 점수 차가 커진다 — 무승부 기준(고정) 근처의 쌍이 a/b 로 갈리는 것은 신호의 정보가 아니라 척도 변화일 수 있다. delta 가 음수면 그 신호를 뺄 때 일치율이 떨어졌다(보탬이 됐다)는 뜻이고, 양수면 빼는 편이 일치율이 높았다는 뜻이다. 쌍 수십 개라 한두 쌍 차이는 우연이다.",
+      "baselines": {
+        "always_a": {
+          "k": 24,
+          "n": 48,
+          "rate": 0.5,
+          "wilson95": [
+            0.3639,
+            0.6361
+          ]
+        },
+        "longer_text_wins": {
+          "k": 26,
+          "n": 48,
+          "rate": 0.5417,
+          "wilson95": [
+            0.4029,
+            0.6742
+          ]
+        },
+        "more_digits_wins": {
+          "k": 28,
+          "n": 48,
+          "rate": 0.5833,
+          "wilson95": [
+            0.4428,
+            0.7115
+          ]
+        }
+      },
+      "by_reason": {
+        "conditions": {
+          "k": 4,
+          "n": 4,
+          "rate": 1.0,
+          "wilson95": [
+            0.5101,
+            1.0
+          ]
+        },
+        "cta": {
+          "k": 4,
+          "n": 4,
+          "rate": 1.0,
+          "wilson95": [
+            0.5101,
+            1.0
+          ]
+        },
+        "hype": {
+          "k": 4,
+          "n": 4,
+          "rate": 1.0,
+          "wilson95": [
+            0.5101,
+            1.0
+          ]
+        },
+        "length": {
+          "k": 3,
+          "n": 4,
+          "rate": 0.75,
+          "wilson95": [
+            0.3006,
+            0.9544
+          ]
+        },
+        "readability": {
+          "k": 4,
+          "n": 4,
+          "rate": 1.0,
+          "wilson95": [
+            0.5101,
+            1.0
+          ]
+        },
+        "redundancy": {
+          "k": 4,
+          "n": 4,
+          "rate": 1.0,
+          "wilson95": [
+            0.5101,
+            1.0
+          ]
+        },
+        "specificity": {
+          "k": 4,
+          "n": 4,
+          "rate": 1.0,
+          "wilson95": [
+            0.5101,
+            1.0
+          ]
+        },
+        "tie_both_good": {
+          "k": 6,
+          "n": 8,
+          "rate": 0.75,
+          "wilson95": [
+            0.4093,
+            0.9285
+          ]
+        },
+        "tone": {
+          "k": 2,
+          "n": 4,
+          "rate": 0.5,
+          "wilson95": [
+            0.15,
+            0.85
+          ]
+        },
+        "trap_hype_specific": {
+          "k": 4,
+          "n": 4,
+          "rate": 1.0,
+          "wilson95": [
+            0.5101,
+            1.0
+          ]
+        },
+        "trap_long": {
+          "k": 4,
+          "n": 4,
+          "rate": 1.0,
+          "wilson95": [
+            0.5101,
+            1.0
+          ]
+        },
+        "trap_numbers": {
+          "k": 4,
+          "n": 4,
+          "rate": 1.0,
+          "wilson95": [
+            0.5101,
+            1.0
+          ]
+        },
+        "trap_short_vague": {
+          "k": 4,
+          "n": 4,
+          "rate": 1.0,
+          "wilson95": [
+            0.5101,
+            1.0
+          ]
+        }
+      },
+      "by_signal": {
+        "conditions": {
+          "abstained": 32,
+          "agreement_all_decisive_pairs": {
+            "k": 10,
+            "n": 48,
+            "rate": 0.2083,
+            "wilson95": [
+              0.1173,
+              0.3426
+            ]
+          },
+          "agreement_when_decided": {
+            "k": 10,
+            "n": 10,
+            "rate": 1.0,
+            "wilson95": [
+              0.7225,
+              1.0
+            ]
+          },
+          "called_tie": 6,
+          "decided": 10,
+          "decisive_pairs": 48,
+          "name": "조건 표시",
+          "on_own_reason": {
+            "decided": 4,
+            "k": 4,
+            "n": 4,
+            "pairs": 4,
+            "rate": 1.0,
+            "reason_code": "conditions",
+            "wilson95": [
+              0.5101,
+              1.0
+            ]
+          },
+          "on_tie_pairs": {
+            "abstained": 2,
+            "called_tie": 4,
+            "n": 8,
+            "separated": 2
+          },
+          "weight": 0.14
+        },
+        "cta": {
+          "abstained": 0,
+          "agreement_all_decisive_pairs": {
+            "k": 10,
+            "n": 48,
+            "rate": 0.2083,
+            "wilson95": [
+              0.1173,
+              0.3426
+            ]
+          },
+          "agreement_when_decided": {
+            "k": 10,
+            "n": 12,
+            "rate": 0.8333,
+            "wilson95": [
+              0.552,
+              0.953
+            ]
+          },
+          "called_tie": 36,
+          "decided": 12,
+          "decisive_pairs": 48,
+          "name": "행동 유도",
+          "on_own_reason": {
+            "decided": 4,
+            "k": 4,
+            "n": 4,
+            "pairs": 4,
+            "rate": 1.0,
+            "reason_code": "cta",
+            "wilson95": [
+              0.5101,
+              1.0
+            ]
+          },
+          "on_tie_pairs": {
+            "abstained": 0,
+            "called_tie": 6,
+            "n": 8,
+            "separated": 2
+          },
+          "weight": 0.1
+        },
+        "length": {
+          "abstained": 0,
+          "agreement_all_decisive_pairs": {
+            "k": 16,
+            "n": 48,
+            "rate": 0.3333,
+            "wilson95": [
+              0.2168,
+              0.4746
+            ]
+          },
+          "agreement_when_decided": {
+            "k": 16,
+            "n": 16,
+            "rate": 1.0,
+            "wilson95": [
+              0.8064,
+              1.0
+            ]
+          },
+          "called_tie": 32,
+          "decided": 16,
+          "decisive_pairs": 48,
+          "name": "길이",
+          "on_own_reason": {
+            "decided": 4,
+            "k": 4,
+            "n": 4,
+            "pairs": 4,
+            "rate": 1.0,
+            "reason_code": "length",
+            "wilson95": [
+              0.5101,
+              1.0
+            ]
+          },
+          "on_tie_pairs": {
+            "abstained": 0,
+            "called_tie": 8,
+            "n": 8,
+            "separated": 0
+          },
+          "weight": 0.08
+        },
+        "pressure": {
+          "abstained": 0,
+          "agreement_all_decisive_pairs": {
+            "k": 9,
+            "n": 48,
+            "rate": 0.1875,
+            "wilson95": [
+              0.1019,
+              0.3194
+            ]
+          },
+          "agreement_when_decided": {
+            "k": 9,
+            "n": 13,
+            "rate": 0.6923,
+            "wilson95": [
+              0.4237,
+              0.8732
+            ]
+          },
+          "called_tie": 35,
+          "decided": 13,
+          "decisive_pairs": 48,
+          "name": "압박·과장 표현",
+          "on_own_reason": {
+            "decided": 4,
+            "k": 4,
+            "n": 4,
+            "pairs": 4,
+            "rate": 1.0,
+            "reason_code": "hype",
+            "wilson95": [
+              0.5101,
+              1.0
+            ]
+          },
+          "on_tie_pairs": {
+            "abstained": 0,
+            "called_tie": 8,
+            "n": 8,
+            "separated": 0
+          },
+          "weight": 0.12
+        },
+        "readability": {
+          "abstained": 0,
+          "agreement_all_decisive_pairs": {
+            "k": 12,
+            "n": 48,
+            "rate": 0.25,
+            "wilson95": [
+              0.1492,
+              0.3878
+            ]
+          },
+          "agreement_when_decided": {
+            "k": 12,
+            "n": 19,
+            "rate": 0.6316,
+            "wilson95": [
+              0.4104,
+              0.8085
+            ]
+          },
+          "called_tie": 29,
+          "decided": 19,
+          "decisive_pairs": 48,
+          "name": "읽기 쉬움",
+          "on_own_reason": {
+            "decided": 4,
+            "k": 4,
+            "n": 4,
+            "pairs": 4,
+            "rate": 1.0,
+            "reason_code": "readability",
+            "wilson95": [
+              0.5101,
+              1.0
+            ]
+          },
+          "on_tie_pairs": {
+            "abstained": 0,
+            "called_tie": 5,
+            "n": 8,
+            "separated": 3
+          },
+          "weight": 0.14
+        },
+        "redundancy": {
+          "abstained": 1,
+          "agreement_all_decisive_pairs": {
+            "k": 16,
+            "n": 48,
+            "rate": 0.3333,
+            "wilson95": [
+              0.2168,
+              0.4746
+            ]
+          },
+          "agreement_when_decided": {
+            "k": 16,
+            "n": 25,
+            "rate": 0.64,
+            "wilson95": [
+              0.4452,
+              0.7975
+            ]
+          },
+          "called_tie": 22,
+          "decided": 25,
+          "decisive_pairs": 48,
+          "name": "중복·군더더기",
+          "on_own_reason": {
+            "decided": 4,
+            "k": 4,
+            "n": 4,
+            "pairs": 4,
+            "rate": 1.0,
+            "reason_code": "redundancy",
+            "wilson95": [
+              0.5101,
+              1.0
+            ]
+          },
+          "on_tie_pairs": {
+            "abstained": 0,
+            "called_tie": 3,
+            "n": 8,
+            "separated": 5
+          },
+          "weight": 0.1
+        },
+        "specificity": {
+          "abstained": 0,
+          "agreement_all_decisive_pairs": {
+            "k": 31,
+            "n": 48,
+            "rate": 0.6458,
+            "wilson95": [
+              0.5044,
+              0.7657
+            ]
+          },
+          "agreement_when_decided": {
+            "k": 31,
+            "n": 31,
+            "rate": 1.0,
+            "wilson95": [
+              0.8897,
+              1.0
+            ]
+          },
+          "called_tie": 17,
+          "decided": 31,
+          "decisive_pairs": 48,
+          "name": "구체성",
+          "on_own_reason": {
+            "decided": 4,
+            "k": 4,
+            "n": 4,
+            "pairs": 4,
+            "rate": 1.0,
+            "reason_code": "specificity",
+            "wilson95": [
+              0.5101,
+              1.0
+            ]
+          },
+          "on_tie_pairs": {
+            "abstained": 0,
+            "called_tie": 8,
+            "n": 8,
+            "separated": 0
+          },
+          "weight": 0.24
+        },
+        "tone": {
+          "abstained": 0,
+          "agreement_all_decisive_pairs": {
+            "k": 12,
+            "n": 48,
+            "rate": 0.25,
+            "wilson95": [
+              0.1492,
+              0.3878
+            ]
+          },
+          "agreement_when_decided": {
+            "k": 12,
+            "n": 12,
+            "rate": 1.0,
+            "wilson95": [
+              0.7575,
+              1.0
+            ]
+          },
+          "called_tie": 36,
+          "decided": 12,
+          "decisive_pairs": 48,
+          "name": "말투 일관성",
+          "on_own_reason": {
+            "decided": 4,
+            "k": 4,
+            "n": 4,
+            "pairs": 4,
+            "rate": 1.0,
+            "reason_code": "tone",
+            "wilson95": [
+              0.5101,
+              1.0
+            ]
+          },
+          "on_tie_pairs": {
+            "abstained": 0,
+            "called_tie": 8,
+            "n": 8,
+            "separated": 0
+          },
+          "weight": 0.08
+        }
+      },
+      "chance": {
+        "always_one_side": 0.5,
+        "coin_flip": 0.5,
+        "level": 0.5
+      },
+      "decisive_agreement": {
+        "k": 45,
+        "n": 48,
+        "rate": 0.9375,
+        "wilson95": [
+          0.8316,
+          0.9785
+        ]
+      },
+      "decisive_agreement_when_decided": {
+        "coverage": 0.9375,
+        "k": 45,
+        "n": 45,
+        "rate": 1.0,
+        "wilson95": [
+          0.9213,
+          1.0
+        ]
+      },
+      "failures": [
+        {
+          "a": {
+            "body": "은행·카드를 연결하면 지출이 정리돼요. 지금 써 보세요.",
+            "cta": "앱 설치하기",
+            "headline": "소비 내역이 자동으로 분류돼요"
+          },
+          "b": {
+            "body": "은행·카드를 연결하면 지출이 정리돼요. 지금 써 보세요.",
+            "cta": "앱 설치하기",
+            "headline": "소비 내역이 자동으로 분류됩니다"
+          },
+          "id": "QP-D25",
+          "label": "a",
+          "notes": "합쇼체와 해요체가 섞인 문구",
+          "predicted": "tie",
+          "reason_code": "tone",
+          "score_a": 1.0,
+          "score_b": 0.95,
+          "split": "dev",
+          "top_signals": [
+            [
+              "tone",
+              0.05
+            ]
+          ]
+        },
+        {
+          "a": {
+            "body": "중도상환수수료가 없고 서류 제출도 필요 없습니다.",
+            "cta": "한도 확인하기",
+            "headline": "최대 300만원까지 신청하실 수 있습니다"
+          },
+          "b": {
+            "body": "중도상환수수료가 없고 서류 제출도 필요 없어요.",
+            "cta": "한도 확인하기",
+            "headline": "최대 300만원까지 신청하실 수 있습니다"
+          },
+          "id": "QP-D27",
+          "label": "a",
+          "notes": "합쇼체로 통일 vs 해요체가 섞임",
+          "predicted": "tie",
+          "reason_code": "tone",
+          "score_a": 0.86,
+          "score_b": 0.812,
+          "split": "dev",
+          "top_signals": [
+            [
+              "tone",
+              0.048
+            ]
+          ]
+        },
+        {
+          "a": {
+            "body": "쿠폰을 받아 숙소를 예약할 때 쓰세요.",
+            "cta": "쿠폰 받기",
+            "headline": "3박 이상 예약하면 최대 15% 할인"
+          },
+          "b": {
+            "body": "쿠폰을 받아 숙소를 예약할 때 쓰세요.",
+            "cta": "쿠폰 받기",
+            "headline": "할인"
+          },
+          "id": "QP-D31",
+          "label": "a",
+          "notes": "제목이 너무 짧아 정보가 없음",
+          "predicted": "tie",
+          "reason_code": "length",
+          "score_a": 0.99,
+          "score_b": 0.945,
+          "split": "dev",
+          "top_signals": [
+            [
+              "specificity",
+              0.031
+            ],
+            [
+              "length",
+              0.02
+            ],
+            [
+              "redundancy",
+              -0.006
+            ]
+          ]
+        },
+        {
+          "a": {
+            "body": "전월 실적 30만원 이상이면 월 최대 3만원을 받아요.",
+            "cta": "혜택 확인하기",
+            "headline": "연회비 없는 캐시백 카드"
+          },
+          "b": {
+            "body": "연회비는 없고 해외 결제 수수료도 면제돼요.",
+            "cta": "카드 신청하기",
+            "headline": "전월 30만원 쓰면 월 최대 3만원 캐시백"
+          },
+          "id": "QP-D49",
+          "label": "tie",
+          "notes": "둘 다 숫자·조건이 있고 읽기 쉬움",
+          "predicted": "a",
+          "reason_code": "tie_both_good",
+          "score_a": 1.0,
+          "score_b": 0.86,
+          "split": "dev",
+          "top_signals": [
+            [
+              "conditions",
+              0.14
+            ]
+          ]
+        },
+        {
+          "a": {
+            "body": "자동으로 요약해 줘요. 유료로 바꾸려면 직접 신청해야 해요.",
+            "cta": "무료 시작하기",
+            "headline": "팀원 5명까지 무료 회의록 요약"
+          },
+          "b": {
+            "body": "팀원 5명까지 무료예요. 유료 전환은 직접 신청할 때만 돼요.",
+            "cta": "무료로 써 보기",
+            "headline": "회의록을 자동으로 요약해요"
+          },
+          "id": "QP-D56",
+          "label": "tie",
+          "notes": "둘 다 조건을 밝힘",
+          "predicted": "b",
+          "reason_code": "tie_both_good",
+          "score_a": 0.854,
+          "score_b": 0.98,
+          "split": "dev",
+          "top_signals": [
+            [
+              "conditions",
+              -0.14
+            ],
+            [
+              "cta",
+              0.02
+            ],
+            [
+              "redundancy",
+              -0.006
+            ]
+          ]
+        }
+      ],
+      "margin_sweep_info_only": {
+        "0.00": {
+          "decisive_agreement": 1.0,
+          "three_way_accuracy": 0.8571
+        },
+        "0.02": {
+          "decisive_agreement": 1.0,
+          "three_way_accuracy": 0.9286
+        },
+        "0.05": {
+          "decisive_agreement": 0.9375,
+          "three_way_accuracy": 0.9107
+        },
+        "0.08": {
+          "decisive_agreement": 0.8333,
+          "three_way_accuracy": 0.8214
+        },
+        "0.12": {
+          "decisive_agreement": 0.6458,
+          "three_way_accuracy": 0.6607
+        }
+      },
+      "n": 56,
+      "n_decisive_labels": 48,
+      "n_tie_labels": 8,
+      "predicted": {
+        "a": 22,
+        "b": 25,
+        "tie": 9,
+        "unknown": 0
+      },
+      "three_way_accuracy": {
+        "k": 51,
+        "n": 56,
+        "rate": 0.9107,
+        "wilson95": [
+          0.8074,
+          0.9613
+        ]
+      },
+      "tie_pairs": {
+        "n": 8,
+        "predicted_tie": 6,
+        "separated_anyway": 2
+      }
+    },
+    "holdout": {
+      "ablation": {
+        "conditions": {
+          "decisive_agreement": 0.8333,
+          "delta_decisive": -0.0834,
+          "delta_three_way": -0.0715,
+          "name": "조건 표시",
+          "predictions_changed": 2,
+          "three_way_accuracy": 0.8571
+        },
+        "cta": {
+          "decisive_agreement": 0.8333,
+          "delta_decisive": -0.0834,
+          "delta_three_way": -0.0715,
+          "name": "행동 유도",
+          "predictions_changed": 2,
+          "three_way_accuracy": 0.8571
+        },
+        "length": {
+          "decisive_agreement": 0.9167,
+          "delta_decisive": 0.0,
+          "delta_three_way": 0.0,
+          "name": "길이",
+          "predictions_changed": 0,
+          "three_way_accuracy": 0.9286
+        },
+        "pressure": {
+          "decisive_agreement": 0.9167,
+          "delta_decisive": 0.0,
+          "delta_three_way": 0.0,
+          "name": "압박·과장 표현",
+          "predictions_changed": 0,
+          "three_way_accuracy": 0.9286
+        },
+        "readability": {
+          "decisive_agreement": 0.875,
+          "delta_decisive": -0.0417,
+          "delta_three_way": -0.0357,
+          "name": "읽기 쉬움",
+          "predictions_changed": 1,
+          "three_way_accuracy": 0.8929
+        },
+        "redundancy": {
+          "decisive_agreement": 0.875,
+          "delta_decisive": -0.0417,
+          "delta_three_way": -0.0357,
+          "name": "중복·군더더기",
+          "predictions_changed": 1,
+          "three_way_accuracy": 0.8929
+        },
+        "specificity": {
+          "decisive_agreement": 0.7917,
+          "delta_decisive": -0.125,
+          "delta_three_way": -0.1072,
+          "name": "구체성",
+          "predictions_changed": 3,
+          "three_way_accuracy": 0.8214
+        },
+        "tone": {
+          "decisive_agreement": 0.8333,
+          "delta_decisive": -0.0834,
+          "delta_three_way": -0.0715,
+          "name": "말투 일관성",
+          "predictions_changed": 2,
+          "three_way_accuracy": 0.8571
+        }
+      },
+      "ablation_note": "신호를 빼면 남은 신호의 가중치가 다시 합 1 이 되어 점수 차가 커진다 — 무승부 기준(고정) 근처의 쌍이 a/b 로 갈리는 것은 신호의 정보가 아니라 척도 변화일 수 있다. delta 가 음수면 그 신호를 뺄 때 일치율이 떨어졌다(보탬이 됐다)는 뜻이고, 양수면 빼는 편이 일치율이 높았다는 뜻이다. 쌍 수십 개라 한두 쌍 차이는 우연이다.",
+      "baselines": {
+        "always_a": {
+          "k": 12,
+          "n": 24,
+          "rate": 0.5,
+          "wilson95": [
+            0.3143,
+            0.6857
+          ]
+        },
+        "longer_text_wins": {
+          "k": 11,
+          "n": 24,
+          "rate": 0.4583,
+          "wilson95": [
+            0.2789,
+            0.6493
+          ]
+        },
+        "more_digits_wins": {
+          "k": 15,
+          "n": 24,
+          "rate": 0.625,
+          "wilson95": [
+            0.4271,
+            0.7884
+          ]
+        }
+      },
+      "by_reason": {
+        "conditions": {
+          "k": 2,
+          "n": 2,
+          "rate": 1.0,
+          "wilson95": [
+            0.3424,
+            1.0
+          ]
+        },
+        "cta": {
+          "k": 2,
+          "n": 2,
+          "rate": 1.0,
+          "wilson95": [
+            0.3424,
+            1.0
+          ]
+        },
+        "hype": {
+          "k": 2,
+          "n": 2,
+          "rate": 1.0,
+          "wilson95": [
+            0.3424,
+            1.0
+          ]
+        },
+        "length": {
+          "k": 0,
+          "n": 2,
+          "rate": 0.0,
+          "wilson95": [
+            0.0,
+            0.6576
+          ]
+        },
+        "readability": {
+          "k": 2,
+          "n": 2,
+          "rate": 1.0,
+          "wilson95": [
+            0.3424,
+            1.0
+          ]
+        },
+        "redundancy": {
+          "k": 2,
+          "n": 2,
+          "rate": 1.0,
+          "wilson95": [
+            0.3424,
+            1.0
+          ]
+        },
+        "specificity": {
+          "k": 2,
+          "n": 2,
+          "rate": 1.0,
+          "wilson95": [
+            0.3424,
+            1.0
+          ]
+        },
+        "tie_both_good": {
+          "k": 4,
+          "n": 4,
+          "rate": 1.0,
+          "wilson95": [
+            0.5101,
+            1.0
+          ]
+        },
+        "tone": {
+          "k": 2,
+          "n": 2,
+          "rate": 1.0,
+          "wilson95": [
+            0.3424,
+            1.0
+          ]
+        },
+        "trap_hype_specific": {
+          "k": 2,
+          "n": 2,
+          "rate": 1.0,
+          "wilson95": [
+            0.3424,
+            1.0
+          ]
+        },
+        "trap_long": {
+          "k": 2,
+          "n": 2,
+          "rate": 1.0,
+          "wilson95": [
+            0.3424,
+            1.0
+          ]
+        },
+        "trap_numbers": {
+          "k": 2,
+          "n": 2,
+          "rate": 1.0,
+          "wilson95": [
+            0.3424,
+            1.0
+          ]
+        },
+        "trap_short_vague": {
+          "k": 2,
+          "n": 2,
+          "rate": 1.0,
+          "wilson95": [
+            0.3424,
+            1.0
+          ]
+        }
+      },
+      "by_signal": {
+        "conditions": {
+          "abstained": 20,
+          "agreement_all_decisive_pairs": {
+            "k": 3,
+            "n": 24,
+            "rate": 0.125,
+            "wilson95": [
+              0.0434,
+              0.31
+            ]
+          },
+          "agreement_when_decided": {
+            "k": 3,
+            "n": 3,
+            "rate": 1.0,
+            "wilson95": [
+              0.4385,
+              1.0
+            ]
+          },
+          "called_tie": 1,
+          "decided": 3,
+          "decisive_pairs": 24,
+          "name": "조건 표시",
+          "on_own_reason": {
+            "decided": 2,
+            "k": 2,
+            "n": 2,
+            "pairs": 2,
+            "rate": 1.0,
+            "reason_code": "conditions",
+            "wilson95": [
+              0.3424,
+              1.0
+            ]
+          },
+          "on_tie_pairs": {
+            "abstained": 1,
+            "called_tie": 3,
+            "n": 4,
+            "separated": 0
+          },
+          "weight": 0.14
+        },
+        "cta": {
+          "abstained": 0,
+          "agreement_all_decisive_pairs": {
+            "k": 5,
+            "n": 24,
+            "rate": 0.2083,
+            "wilson95": [
+              0.0924,
+              0.4047
+            ]
+          },
+          "agreement_when_decided": {
+            "k": 5,
+            "n": 5,
+            "rate": 1.0,
+            "wilson95": [
+              0.5655,
+              1.0
+            ]
+          },
+          "called_tie": 19,
+          "decided": 5,
+          "decisive_pairs": 24,
+          "name": "행동 유도",
+          "on_own_reason": {
+            "decided": 2,
+            "k": 2,
+            "n": 2,
+            "pairs": 2,
+            "rate": 1.0,
+            "reason_code": "cta",
+            "wilson95": [
+              0.3424,
+              1.0
+            ]
+          },
+          "on_tie_pairs": {
+            "abstained": 0,
+            "called_tie": 3,
+            "n": 4,
+            "separated": 1
+          },
+          "weight": 0.1
+        },
+        "length": {
+          "abstained": 0,
+          "agreement_all_decisive_pairs": {
+            "k": 6,
+            "n": 24,
+            "rate": 0.25,
+            "wilson95": [
+              0.12,
+              0.449
+            ]
+          },
+          "agreement_when_decided": {
+            "k": 6,
+            "n": 6,
+            "rate": 1.0,
+            "wilson95": [
+              0.6097,
+              1.0
+            ]
+          },
+          "called_tie": 18,
+          "decided": 6,
+          "decisive_pairs": 24,
+          "name": "길이",
+          "on_own_reason": {
+            "decided": 2,
+            "k": 2,
+            "n": 2,
+            "pairs": 2,
+            "rate": 1.0,
+            "reason_code": "length",
+            "wilson95": [
+              0.3424,
+              1.0
+            ]
+          },
+          "on_tie_pairs": {
+            "abstained": 0,
+            "called_tie": 4,
+            "n": 4,
+            "separated": 0
+          },
+          "weight": 0.08
+        },
+        "pressure": {
+          "abstained": 0,
+          "agreement_all_decisive_pairs": {
+            "k": 5,
+            "n": 24,
+            "rate": 0.2083,
+            "wilson95": [
+              0.0924,
+              0.4047
+            ]
+          },
+          "agreement_when_decided": {
+            "k": 5,
+            "n": 7,
+            "rate": 0.7143,
+            "wilson95": [
+              0.3589,
+              0.9178
+            ]
+          },
+          "called_tie": 17,
+          "decided": 7,
+          "decisive_pairs": 24,
+          "name": "압박·과장 표현",
+          "on_own_reason": {
+            "decided": 2,
+            "k": 2,
+            "n": 2,
+            "pairs": 2,
+            "rate": 1.0,
+            "reason_code": "hype",
+            "wilson95": [
+              0.3424,
+              1.0
+            ]
+          },
+          "on_tie_pairs": {
+            "abstained": 0,
+            "called_tie": 4,
+            "n": 4,
+            "separated": 0
+          },
+          "weight": 0.12
+        },
+        "readability": {
+          "abstained": 0,
+          "agreement_all_decisive_pairs": {
+            "k": 4,
+            "n": 24,
+            "rate": 0.1667,
+            "wilson95": [
+              0.0668,
+              0.3585
+            ]
+          },
+          "agreement_when_decided": {
+            "k": 4,
+            "n": 8,
+            "rate": 0.5,
+            "wilson95": [
+              0.2152,
+              0.7848
+            ]
+          },
+          "called_tie": 16,
+          "decided": 8,
+          "decisive_pairs": 24,
+          "name": "읽기 쉬움",
+          "on_own_reason": {
+            "decided": 2,
+            "k": 2,
+            "n": 2,
+            "pairs": 2,
+            "rate": 1.0,
+            "reason_code": "readability",
+            "wilson95": [
+              0.3424,
+              1.0
+            ]
+          },
+          "on_tie_pairs": {
+            "abstained": 0,
+            "called_tie": 3,
+            "n": 4,
+            "separated": 1
+          },
+          "weight": 0.14
+        },
+        "redundancy": {
+          "abstained": 0,
+          "agreement_all_decisive_pairs": {
+            "k": 4,
+            "n": 24,
+            "rate": 0.1667,
+            "wilson95": [
+              0.0668,
+              0.3585
+            ]
+          },
+          "agreement_when_decided": {
+            "k": 4,
+            "n": 12,
+            "rate": 0.3333,
+            "wilson95": [
+              0.1381,
+              0.6094
+            ]
+          },
+          "called_tie": 12,
+          "decided": 12,
+          "decisive_pairs": 24,
+          "name": "중복·군더더기",
+          "on_own_reason": {
+            "decided": 2,
+            "k": 2,
+            "n": 2,
+            "pairs": 2,
+            "rate": 1.0,
+            "reason_code": "redundancy",
+            "wilson95": [
+              0.3424,
+              1.0
+            ]
+          },
+          "on_tie_pairs": {
+            "abstained": 0,
+            "called_tie": 1,
+            "n": 4,
+            "separated": 3
+          },
+          "weight": 0.1
+        },
+        "specificity": {
+          "abstained": 0,
+          "agreement_all_decisive_pairs": {
+            "k": 16,
+            "n": 24,
+            "rate": 0.6667,
+            "wilson95": [
+              0.4671,
+              0.8203
+            ]
+          },
+          "agreement_when_decided": {
+            "k": 16,
+            "n": 16,
+            "rate": 1.0,
+            "wilson95": [
+              0.8064,
+              1.0
+            ]
+          },
+          "called_tie": 8,
+          "decided": 16,
+          "decisive_pairs": 24,
+          "name": "구체성",
+          "on_own_reason": {
+            "decided": 2,
+            "k": 2,
+            "n": 2,
+            "pairs": 2,
+            "rate": 1.0,
+            "reason_code": "specificity",
+            "wilson95": [
+              0.3424,
+              1.0
+            ]
+          },
+          "on_tie_pairs": {
+            "abstained": 0,
+            "called_tie": 4,
+            "n": 4,
+            "separated": 0
+          },
+          "weight": 0.24
+        },
+        "tone": {
+          "abstained": 0,
+          "agreement_all_decisive_pairs": {
+            "k": 5,
+            "n": 24,
+            "rate": 0.2083,
+            "wilson95": [
+              0.0924,
+              0.4047
+            ]
+          },
+          "agreement_when_decided": {
+            "k": 5,
+            "n": 5,
+            "rate": 1.0,
+            "wilson95": [
+              0.5655,
+              1.0
+            ]
+          },
+          "called_tie": 19,
+          "decided": 5,
+          "decisive_pairs": 24,
+          "name": "말투 일관성",
+          "on_own_reason": {
+            "decided": 2,
+            "k": 2,
+            "n": 2,
+            "pairs": 2,
+            "rate": 1.0,
+            "reason_code": "tone",
+            "wilson95": [
+              0.3424,
+              1.0
+            ]
+          },
+          "on_tie_pairs": {
+            "abstained": 0,
+            "called_tie": 4,
+            "n": 4,
+            "separated": 0
+          },
+          "weight": 0.08
+        }
+      },
+      "chance": {
+        "always_one_side": 0.5,
+        "coin_flip": 0.5,
+        "level": 0.5
+      },
+      "decisive_agreement": {
+        "k": 22,
+        "n": 24,
+        "rate": 0.9167,
+        "wilson95": [
+          0.7415,
+          0.9768
+        ]
+      },
+      "decisive_agreement_when_decided": {
+        "coverage": 0.9167,
+        "k": 22,
+        "n": 22,
+        "rate": 1.0,
+        "wilson95": [
+          0.8513,
+          1.0
+        ]
+      },
+      "failures": [
+        {
+          "a": {
+            "body": "견적 조회는 1분이면 돼요.",
+            "cta": "견적 조회하기",
+            "headline": "온라인으로 가입하면 보험료를 최대 10%까지 할인받을 수 있는 다이렉트 자동차보험"
+          },
+          "b": {
+            "body": "견적 조회는 1분이면 돼요.",
+            "cta": "견적 조회하기",
+            "headline": "온라인 가입 시 최대 10% 할인"
+          },
+          "id": "QP-H15",
+          "label": "b",
+          "notes": "제목이 한도(30자)를 크게 넘음",
+          "predicted": "tie",
+          "reason_code": "length",
+          "score_a": 0.951,
+          "score_b": 0.965,
+          "split": "holdout",
+          "top_signals": [
+            [
+              "length",
+              -0.024
+            ],
+            [
+              "redundancy",
+              0.008
+            ],
+            [
+              "readability",
+              0.003
+            ]
+          ]
+        },
+        {
+          "a": {
+            "body": "5분",
+            "cta": "계좌 개설하기",
+            "headline": "500만원까지 연 2.0% 입출금 계좌"
+          },
+          "b": {
+            "body": "비대면으로 5분이면 계좌 개설이 끝나요.",
+            "cta": "계좌 개설하기",
+            "headline": "500만원까지 연 2.0% 입출금 계좌"
+          },
+          "id": "QP-H16",
+          "label": "b",
+          "notes": "본문이 너무 짧아 정보가 없음",
+          "predicted": "tie",
+          "reason_code": "length",
+          "score_a": 0.973,
+          "score_b": 0.98,
+          "split": "holdout",
+          "top_signals": [
+            [
+              "length",
+              -0.023
+            ],
+            [
+              "redundancy",
+              0.016
+            ]
+          ]
+        }
+      ],
+      "margin_sweep_info_only": {
+        "0.00": {
+          "decisive_agreement": 1.0,
+          "three_way_accuracy": 0.8571
+        },
+        "0.02": {
+          "decisive_agreement": 0.9167,
+          "three_way_accuracy": 0.8571
+        },
+        "0.05": {
+          "decisive_agreement": 0.9167,
+          "three_way_accuracy": 0.9286
+        },
+        "0.08": {
+          "decisive_agreement": 0.75,
+          "three_way_accuracy": 0.7857
+        },
+        "0.12": {
+          "decisive_agreement": 0.6667,
+          "three_way_accuracy": 0.7143
+        }
+      },
+      "n": 28,
+      "n_decisive_labels": 24,
+      "n_tie_labels": 4,
+      "predicted": {
+        "a": 12,
+        "b": 10,
+        "tie": 6,
+        "unknown": 0
+      },
+      "three_way_accuracy": {
+        "k": 26,
+        "n": 28,
+        "rate": 0.9286,
+        "wilson95": [
+          0.7735,
+          0.9802
+        ]
+      },
+      "tie_pairs": {
+        "n": 4,
+        "predicted_tie": 4,
+        "separated_anyway": 0
+      }
+    }
+  },
+  "tie_handling": "라벨 tie 는 예측도 tie(종합 점수 차 < 무승부 기준)일 때만 맞다. 라벨 a/b 인 쌍에서 예측 tie 는 일치로 세지 않는다. '예측이 tie 가 아닌 쌍만 본 일치율'과 그 비율도 따로 적는다.",
+  "title": "소재 퀄리티 신호 — 작성자 선호 쌍과의 일치율"
+}
