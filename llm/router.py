@@ -221,7 +221,7 @@ class Router:
                 self.budget.attempt()
                 span.event("truncation_retry", provider=provider.name, max_tokens=req.max_tokens * 2)
                 bigger = LLMRequest(task=req.task, system=req.system, user=req.user, schema=req.schema,
-                                    max_tokens=req.max_tokens * 2, temperature=req.temperature, context=req.context, label=req.label)
+                                    max_tokens=req.max_tokens * 2, temperature=req.temperature, context=req.context, label=req.label, images=req.images)
                 resp = provider.complete(bigger)
         except BudgetExceeded:
             raise
