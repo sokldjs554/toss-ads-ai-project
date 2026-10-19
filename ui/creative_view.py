@@ -19,6 +19,7 @@ from core.images import MAX_RASTER_BYTES, MAX_SVG_BYTES, ImageRejection, load_im
 from core.schemas import AdCopy, Decision, Fact, ProductFacts
 from guardrails import image_checks as ic
 from ui import theme
+from ui.components import download_or_show
 from ui.funding import funded_by_server, server_cap, usd_text
 from ui.labels import DECISION_HELP
 
@@ -127,8 +128,7 @@ def _banner_card(cd: Candidate, k: str) -> None:
                     st.markdown(_score_line(it.label, it.value_text, it.score >= 0.8), unsafe_allow_html=True)
                     st.caption(it.detail)
             st.caption("글자 폭은 글꼴 없이 추정한 값이라 실제 글꼴에서는 줄바꿈이 달라질 수 있습니다. 배너 크기 규격은 이 프로젝트가 가정한 값이며 실제 광고 콘솔의 규격과 다를 수 있습니다.")
-        st.download_button("이 배너 SVG 내려받기", data=b.svg.encode("utf-8"), file_name=f"banner_{cd.size_key}_{cd.template_key}_{cd.palette_key}.svg",
-                           mime="image/svg+xml", key=f"{k}_dl_{cd.rank}")
+        download_or_show("이 배너 SVG 내려받기", b.svg.encode("utf-8"), f"banner_{cd.size_key}_{cd.template_key}_{cd.palette_key}.svg", "image/svg+xml", f"{k}_dl_{cd.rank}")
 
 
 # ---------------------------------------------------------------------------

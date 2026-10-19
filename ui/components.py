@@ -7,6 +7,8 @@ from typing import Optional
 
 import streamlit as st
 
+from core.config import IN_BROWSER
+
 from core.schemas import AdCopy, Decision, Finding, Layer, PipelineRun, PreflightReport, ProductFacts, RewriteStatus, Severity
 from ui.labels import DECISION_LABEL, LAYER_LABEL, SEVERITY_LABEL, SEVERITY_STYLE, check_name
 
@@ -243,3 +245,22 @@ def unique_findings(findings: list[Finding], catalog) -> list[tuple[Finding, int
 
 def finding_line(f: Finding, n: int, catalog) -> str:
     return finding_sentence(f, catalog) + (f" ({n}곳)" if n > 1 else "")
+
+
+MAX_SHOWN_CHARS = 200_000
+
+
+def download_or_show(label: str, data, file_name: str, mime: str, key: str, *, on_click=None) -> None:
+    """파일 내려받기. 브라우저 실행판(stlite)에는 파일을 내려 줄 서버가 없어 내려받기 단추가 동작하지 않는다 —
+    그곳에서는 내용을 그대로 보여 주고 복사해서 파일로 저장하게 한다(다른 화면의 처리 기록 내보내기와 같은 방식)."""
+    if IN_BROWSER:
+        text = data.decode("utf-8-sig", errors="replace") if isinstance(data, (bytes, bytearray)) else str(data)
+        st.caption(f"{file_name} — 브라우저 실행판에서는 내려받기 대신 내용을 보여 드립니다. 오른쪽 위 복사 단추로 복사해 파일로 저장하세요.")
+        if len(text) > MAX_SHOWN_CHARS:
+            st.caption(f"내용이 길어 앞 {MAX_SHOWN_CHARS:,}자만 보여 드립니다.")
+        st.code(text[:MAX_SHOWN_CHARS], language=None, wrap_lines=True)
+        if on_click is not None:
+            st.button("파일로 옮겼다고 표시", key=f"{key}_shown", on_click=on_click)
+        return
+    kw = {"on_click": on_click} if on_click is not None else {}
+    st.download_button(label, data=data, file_name=file_name, mime=mime, key=key, **kw)

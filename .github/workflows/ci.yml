@@ -37,6 +37,19 @@ jobs:
         env:
           PREFLIGHT_FORCE_DEMO: "1"
         run: python -m evals.run --dataset conditions --no-llm --require-zero-unsafe && python -m evals.run --dataset conditions_extra --no-llm --require-zero-unsafe
+      - name: new-feature evaluations on synthetic data (no network, no model) — safety counts must stay zero
+        env:
+          PREFLIGHT_FORCE_DEMO: "1"
+        run: |
+          python -m evals.dialogs --split dev --gate
+          python -m evals.url_ingest_eval --gate
+          python -m evals.image_eval --gate
+          python -m evals.insights_eval --gate
+          python -m evals.quality_signals --gate
+      - name: conversation holdout (report only — it contains one known injection contamination)
+        env:
+          PREFLIGHT_FORCE_DEMO: "1"
+        run: python -m evals.dialogs --split holdout || true
       - name: app smoke (import + headless start)
         env:
           PREFLIGHT_FORCE_DEMO: "1"

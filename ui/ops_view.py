@@ -22,6 +22,7 @@ from ops import impact, monitors
 from ops.audit import AuditLog, audit_from_run
 from ops.metrics import Metrics, compute_metrics
 from ui import theme
+from ui.components import download_or_show
 from ui.labels import DECISION_LABEL
 
 LOADTEST_FILE = Path(__file__).resolve().parents[1] / "evals" / "reports" / "loadtest.json"
@@ -312,7 +313,7 @@ def _audit_section(runs: list[PipelineRun]) -> None:
     log, from_session = _session_audit(runs)
     text = log.export_jsonl()
     st.caption(("이 세션의 실행으로 만든 감사 기록" if from_session else "세션에 실행이 없어 합성한 예시 기록") + f" · 항목 {len(log)}개 · 마지막 지문 {log.head_hash[:16]}…")
-    st.download_button("감사 기록 내려받기 (.jsonl)", data=text, file_name="preflight_audit.jsonl", mime="application/json", key="opsv_audit_dl")
+    download_or_show("감사 기록 내려받기 (.jsonl)", text, "preflight_audit.jsonl", "application/json", "opsv_audit_dl")
     st.markdown("**올려서 검증하기**")
     up = st.file_uploader("내려받은 감사 기록(JSONL)", type=["jsonl", "json", "txt"], key="opsv_upload")
     c1, c2 = st.columns(2)

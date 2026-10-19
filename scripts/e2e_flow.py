@@ -169,6 +169,126 @@ def run_flow(browser, name: str, size: tuple[int, int], out: Path) -> list[dict]
     return f.checks
 
 
+def _go(page, f: "Flow", view: str, wait_for: str) -> None:
+    """화면 주소(?view=)로 바로 열고 기대한 글자가 보일 때까지 기다린다."""
+    page.goto(f"http://127.0.0.1:{PORT}/?view={view}", wait_until="load", timeout=60_000)
+    f.wait_text(wait_for, 90_000)
+    time.sleep(1.5)
+
+
+def _digits(s: str) -> str:
+    return re.sub(r"\D", "", s)
+
+
+def run_features_flow(browser, name: str, size: tuple[int, int], out: Path) -> list[dict]:
+    """새 기능 흐름: 대화로 시작 → 상품 페이지(예시)에서 가져오기 → 소재 퀄리티·배너·이미지 검사 → 성과 리포트 → 운영 → 품질 확인의 새 기능 평가.
+    예시 실행(AI 호출 없음)으로만 돈다. 단계마다 기대한 글자·예외 표시·가로 넘침을 확인한다."""
+    ctx = browser.new_context(viewport={"width": size[0], "height": size[1]})
+    page = ctx.new_page()
+    errors: list[str] = []
+    page.on("pageerror", lambda e: errors.append(str(e)[:200]))
+    f = Flow(page, name, out)
+    print(f"== {name} {size[0]}x{size[1]} (새 기능)")
+    page.goto(f"http://127.0.0.1:{PORT}/", wait_until="load", timeout=60_000)
+    f.wait_text("세 가지 결과는 서로 다릅니다", 90_000)
+    t = f.text()
+    f.check("시작 방법 세 가지가 보인다", all(w in t for w in ("예시로 시작", "대화로 시작", "상품 페이지에서 가져오기")))
+
+    # 1) 대화로 시작 → 입력 칸 채우기
+    page.get_by_text("대화로 시작", exact=True).first.click()
+    box = page.get_by_test_id("stChatInputTextArea")
+    box.wait_for(timeout=30_000)
+    box.fill("20대 직장인 대상 신용대출, 월 300만원, 신청 전환이에요")
+    box.press("Enter")
+    f.wait_text("이 내용으로 광고 작업 채우기", 90_000)
+    time.sleep(1.0)
+    t = f.text()
+    f.check("대화: 말한 값이 ‘지금까지 이해한 내용’ 에 나온다 (업종·예산)", "신용대출" in t and "300만원" in t.replace(",", "").replace("3000000", "300만원") or "3,000,000" in t)
+    f.check("대화: 예시 실행(규칙 기반) 표시", "규칙 기반" in t)
+    f.no_exception("대화 한 번 뒤")
+    f.shot("feat1_chat", "이 내용으로 광고 작업 채우기")
+    page.get_by_role("button", name="이 내용으로 광고 작업 채우기").first.click()
+    f.wait_text("대화에서 이해한 내용으로 입력 칸을 채웠습니다", 60_000)
+    time.sleep(1.0)
+    budget = page.get_by_label("월 예산", exact=False).first.input_value()
+    f.check("대화: 월 예산이 입력 칸에 3,000,000원으로 들어갔다", _digits(budget) == "3000000", budget)
+    f.check("대화: 시작 방법이 다시 ‘예시로 시작’ 이다", page.get_by_role("radio", name="예시로 시작", exact=True).is_checked())
+    f.no_exception("입력 칸 채운 뒤")
+
+    # 2) 상품 페이지(예시)에서 가져오기 — 사실은 사용자가 고른 것만
+    page.get_by_text("상품 페이지에서 가져오기", exact=True).first.click()
+    page.get_by_role("button", name="읽어 오기").first.wait_for(timeout=30_000)
+    page.get_by_role("button", name="읽어 오기").first.click()
+    time.sleep(3.0)
+    checked = page.locator('[data-testid="stCheckbox"] input:checked').count()
+    boxes = page.locator('[data-testid="stCheckbox"]').count()
+    f.check("상품 페이지: 사실 후보가 보이고 기본은 아무것도 고르지 않았다", boxes >= 1 and checked == 0, f"boxes={boxes} checked={checked}")
+    f.no_exception("예시 페이지 읽은 뒤")
+    f.shot("feat2_url", "읽어 오기")
+    page.locator('[data-testid="stCheckbox"]').first.click()
+    time.sleep(1.0)
+    page.get_by_role("button", name="선택한 사실로 광고 작업 채우기").first.click()
+    f.wait_text("상품 페이지에서 확인한 내용으로", 60_000)
+    f.check("상품 페이지: 고른 사실이 ‘반드시 포함해야 할 조건’ 칸에 들어갔다", "F1:" in page.get_by_label("사실 목록", exact=False).first.input_value())
+    f.no_exception("상품 페이지 내용을 채운 뒤")
+
+    # 3) 예시 실행 → 소재 퀄리티 · 배너 · 이미지 검사
+    page.get_by_text("예시로 시작", exact=True).first.click()
+    time.sleep(1.5)
+    page.get_by_role("button", name="예시로 바로 실행").first.click()
+    f.wait_text("광고안 1", 180_000)
+    f.wait_text("소재 퀄리티 (참고)", 60_000)
+    f.check("광고안마다 ‘소재 퀄리티 (참고)’ 가 붙는다", page.get_by_text("소재 퀄리티 (참고)", exact=False).count() >= 1)
+    page.get_by_text("배너 시안과 이미지 검사 열기", exact=False).first.click()
+    f.wait_text("광고 문구를 그대로 글로 배치한 배너 시안", 60_000)
+    time.sleep(1.5)
+    f.check("배너: 시안이 3개 보인다", page.get_by_role("button", name="SVG 내려받기", exact=False).count() >= 3 or page.get_by_text("SVG", exact=False).count() >= 3)
+    f.no_exception("배너 시안을 연 뒤")
+    f.shot("feat3_banner", "배너 시안")
+    page.get_by_role("tab", name="이미지 검사").first.click()
+    time.sleep(1.0)
+    page.locator('input[type="file"]').first.set_input_files(str(ROOT / "evals" / "datasets" / "images" / "svg_guarantee.svg"))
+    f.wait_text("원금 보장", 60_000)
+    time.sleep(1.0)
+    t = f.text()
+    f.check("이미지 검사: 이미지 속 ‘원금 보장’ 이 문구 규칙으로 걸린다", "원금 보장" in t and "게재 불가" in t)
+    f.no_exception("이미지 검사 뒤")
+    f.shot("feat3_image", "이미지 검사")
+
+    # 4) 성과 리포트
+    _go(page, f, "성과 리포트", "성과 리포트")
+    page.get_by_role("button", name="분석하기").first.click()
+    f.wait_text("무슨 일이 있었나", 120_000)
+    time.sleep(1.5)
+    t = f.text()
+    f.check("성과 리포트: 이상·원인 후보·다음 액션이 나온다", all(w in t for w in ("원인 후보", "다음에 할 일")))
+    f.check("성과 리포트: 합성 데이터와 ‘원인을 확정하지 않는다’ 가 표시된다", "합성" in t and "확정하지 않습니다" in t)
+    f.no_exception("성과 리포트 분석 뒤")
+    f.shot("feat4_performance", "무슨 일이 있었나")
+
+    # 5) 운영
+    _go(page, f, "운영", "검수 대기열")
+    page.get_by_role("tab", name="운영 지표·모니터").first.click()
+    f.wait_text("효과 계산기", 60_000)
+    time.sleep(1.0)
+    t = f.text()
+    f.check("운영: 효과 계산기에 ‘실제 운영 효과가 아닙니다’ 가 붙는다", "실제 운영 효과가 아닙니다" in t)
+    f.no_exception("운영 화면")
+    f.shot("feat5_ops", "효과 계산기")
+
+    # 6) 품질 확인의 새 기능 평가
+    _go(page, f, "품질 확인", "새 기능 평가 (합성 데이터)")
+    page.get_by_text("성과 리포트 인사이트", exact=True).first.click()
+    time.sleep(1.5)
+    t = f.text()
+    f.check("새 기능 평가: 합성 데이터 경고와 한계가 보인다", "합성" in t and "독립 검증은 없으며" in t)
+    f.no_exception("새 기능 평가")
+    f.shot("feat6_new_evals", "새 기능 평가 (합성 데이터)")
+    f.check("브라우저 오류 없음 (새 기능)", not errors, "; ".join(errors))
+    ctx.close()
+    return f.checks
+
+
 def main() -> int:
     out = Path(sys.argv[sys.argv.index("--out") + 1]) if "--out" in sys.argv else ROOT / "docs" / "screenshots"
     env = {**os.environ, "PREFLIGHT_FORCE_DEMO": "1"}
@@ -191,6 +311,7 @@ def main() -> int:
             browser = p.chromium.launch(headless=True, args=["--no-sandbox"], **({"executable_path": exe} if exe else {}))
             for name, size in VIEWPORTS.items():
                 checks += run_flow(browser, name, size, out)
+                checks += run_features_flow(browser, name, size, out)
             browser.close()
     finally:
         proc.terminate()

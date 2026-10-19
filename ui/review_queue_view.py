@@ -40,6 +40,7 @@ from ops.review_queue import (
     build_demo_queue,
 )
 from ui import theme
+from ui.components import download_or_show
 from ui.labels import DECISION_LABEL, RUN_MODE_LABEL
 
 SCOPE_REAL, SCOPE_DEMO = "내 대기열", "합성 예시"
@@ -476,8 +477,8 @@ def _export_section(q: ReviewQueue, *, synthetic: bool, key: str) -> None:
             except QueueError:
                 pass
 
-    st.download_button("평가셋 후보 내려받기 (JSONL)", data=text, file_name="labeling_demo_export.jsonl" if synthetic else "labeling_export.jsonl",
-                       mime="application/x-ndjson", key=f"{key}_download", on_click=_mark)
+    download_or_show("평가셋 후보 내려받기 (JSONL)", text, "labeling_demo_export.jsonl" if synthetic else "labeling_export.jsonl",
+                     "application/x-ndjson", f"{key}_download", on_click=_mark)
 
 
 def _demo_section(catalog: PolicyCatalog) -> None:
@@ -518,7 +519,7 @@ def _advanced_section(q: ReviewQueue) -> None:
             st.rerun()
         if q.gold_pool_size:
             st.caption(f"검증용 항목 {q.gold_pool_size}개가 풀에 있습니다 (라벨러마다 따로, 일정 비율로 섞여 나옵니다).")
-        st.download_button("대기열 저장 (JSONL)", data=q.to_jsonl(), file_name="review_queue.jsonl", mime="application/x-ndjson", key="rq_save")
+        download_or_show("대기열 저장 (JSONL)", q.to_jsonl(), "review_queue.jsonl", "application/x-ndjson", "rq_save")
         up = st.file_uploader("저장한 대기열 불러오기", type=["jsonl"], key="rq_upload")
         if up is not None and st.button("불러오기 (현재 대기열을 바꿉니다)", key="rq_load"):
             try:

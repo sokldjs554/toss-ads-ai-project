@@ -22,6 +22,7 @@ from core.config import IN_BROWSER
 from core.insight_engine import ASSERT_CONFIDENCE, CANDIDATE_CONFIDENCE, CAUSE_HELP, CATALOG, LIKELY_CONFIDENCE, METRIC_LABEL, METRICS, Analysis
 from core.performance import decode_csv_bytes, parse_csv_detailed, rows_to_csv, template_csv
 from observability.tracer import Tracer
+from ui.components import download_or_show
 
 LIMIT_LINE = "이 화면은 광고 성과의 원인을 확정하지 않습니다 — 근거와 가능성을 보여 줍니다."
 SYNTHETIC_LINE = "합성 예시 데이터 — 실제 광고 성과가 아닙니다"
@@ -280,8 +281,7 @@ def _details(rep: InsightReport) -> None:
         if a.avoid:
             st.markdown("**막힌 액션의 규칙 코드**")
             st.dataframe([{"규칙": av.rule, "액션": ", ".join(av.action_ids), "이유": av.reason} for av in a.avoid], width="stretch", hide_index=True)
-        st.download_button("보고서 JSON 내려받기", data=json.dumps(rep.to_dict(), ensure_ascii=False, indent=1).encode("utf-8"), file_name="preflight_성과_보고서.json",
-                           mime="application/json", key="perf_dl_json")
+        download_or_show("보고서 JSON 내려받기", json.dumps(rep.to_dict(), ensure_ascii=False, indent=1).encode("utf-8"), "preflight_성과_보고서.json", "application/json", "perf_dl_json")
 
 
 def _show_result(res: dict) -> None:
@@ -327,7 +327,7 @@ def render(make_settings, tracer: Tracer, router_factory, server_status: dict) -
         sig = f"ex:{pick}"
     else:
         origin = "user"
-        st.download_button("CSV 양식 내려받기", data=template_csv().encode("utf-8-sig"), file_name="preflight_성과_양식.csv", mime="text/csv", key="perf_dl_template")
+        download_or_show("CSV 양식 내려받기", template_csv().encode("utf-8-sig"), "preflight_성과_양식.csv", "text/csv", "perf_dl_template")
         st.caption("필요한 열: 날짜, 노출수, 클릭수, 전환수, 광고비. 있으면 더 정확한 열: 캠페인, 광고세트, 소재, 기기, 도달, 노출종료시각. 행은 최대 20,000개, 2MB까지입니다.")
         up = st.file_uploader("CSV 파일", type=["csv", "txt"], key="perf_upload")
         pasted = st.text_area("또는 CSV 내용을 붙여 넣기", key="perf_csv_text", height=120)
@@ -372,5 +372,5 @@ def render(make_settings, tracer: Tracer, router_factory, server_status: dict) -
         st.info("선택이 바뀌었어요. ‘분석하기’를 눌러 다시 분석해 주세요.")
         return
     if res["origin"] == "synthetic" and res["csv"]:
-        st.download_button("이 예시 데이터를 CSV로 내려받기", data=res["csv"].encode("utf-8-sig"), file_name="preflight_예시_성과.csv", mime="text/csv", key="perf_dl_example")
+        download_or_show("이 예시 데이터를 CSV로 내려받기", res["csv"].encode("utf-8-sig"), "preflight_예시_성과.csv", "text/csv", "perf_dl_example")
     _show_result(res)
