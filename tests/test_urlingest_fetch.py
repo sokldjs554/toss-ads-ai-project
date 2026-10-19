@@ -540,7 +540,8 @@ def test_sample_pages_listing_hides_final_check_pages_by_default():
 
 # --- 가져오기 모듈은 import 시점에 네트워크 모듈을 끌어오지 않는다 ------------------------------
 def test_importing_the_module_does_not_load_socket_ssl_or_http_client():
-    code = (f"import sys\nsys.path.insert(0, {str(ROOT)!r})\nbefore=set(sys.modules)\nimport core.url_ingest\nnew=set(sys.modules)-before\n"
+    # pydantic 은 (Python 3.11 에서) 모델을 만들 때 importlib.metadata → email.utils → socket 을 끌어온다. 우리 코드의 import 가 아니므로 기준선에 넣고 잰다.
+    code = (f"import sys\nsys.path.insert(0, {str(ROOT)!r})\nfrom pydantic import BaseModel\n\nclass _Baseline(BaseModel):\n    x: int = 0\n\nbefore=set(sys.modules)\nimport core.url_ingest\nnew=set(sys.modules)-before\n"
             "bad=[m for m in ('socket','ssl','http.client','urllib.request') if m in new]\nprint(','.join(bad))\n")
     out = subprocess.run([sys.executable, "-c", code], cwd=ROOT, capture_output=True, text=True, timeout=60)
     assert out.returncode == 0, out.stderr
