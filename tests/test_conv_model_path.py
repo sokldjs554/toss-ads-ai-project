@@ -121,7 +121,7 @@ def test_hallucinated_quote_is_dropped_logged_and_does_not_fill_the_slot():
     r, _ = turn(lambda req: model([upd("objective", "conversion", "구매 전환이 목표"), upd("monthly_budget_krw", 5_000_000, "월 500만원")]), "신용대출 광고하고 싶어요")
     assert "objective" not in r.state.slots and "monthly_budget_krw" not in r.state.slots
     assert [d.reason for d in r.dropped_updates] == ["quote_not_in_user_text", "quote_not_in_user_text"]
-    assert [f.code for f in r.failures].count("FM-NEW-A-1") == 2
+    assert [f.code for f in r.failures].count("FM-25") == 2
 
 
 def test_wrong_number_closed_vocab_and_low_confidence_are_dropped_in_a_real_turn():
@@ -138,7 +138,7 @@ def test_deterministic_value_wins_and_the_difference_becomes_a_question():
     sl = r.state.slots["monthly_budget_krw"]
     assert sl.value == 3_000_000 and sl.source == "rule" and sl.status == "conflict" and sl.alternatives[0].value == 1_500_000 and sl.alternatives[0].source == "model"
     assert any(q.slot == "monthly_budget_krw" and q.kind == "conflict" for q in r.questions) and not r.ready
-    assert any(f.code == "FM-NEW-A-2" for f in r.failures)
+    assert any(f.code == "FM-26" for f in r.failures)
 
 
 def test_model_agreeing_with_rules_adds_nothing_and_logs_nothing():
@@ -205,7 +205,7 @@ def test_bad_model_replies_are_replaced_by_the_template(reply, why):
     assert r.reply_source == "template"
     if reply:
         assert reply not in r.assistant_message
-        assert any(f.code == "FM-NEW-A-4" and why in f.message for f in r.failures)
+        assert any(f.code == "FM-28" and why in f.message for f in r.failures)
     assert "이렇게 이해했어요" in r.assistant_message
 
 

@@ -1251,7 +1251,7 @@ def _run_turn(st: ConversationState, raw: str, router: Router, settings: Setting
         msg = (f"‘{shown}’ 처럼 지시로 보이는 문장은 이해에 쓰지 않고 따로 뒀어요." if removed
                else "보이지 않는 문자가 많이 들어 있어 걷어내고 읽었어요.")
         turn_issues.append(Issue(code="INJECTION", severity="warn", message=msg, detail="; ".join(removed)[:400], origin="turn", turn=n))
-        result.failures.append(FailureEvent(code="FM-NEW-A-3", stage="conversation", message=f"{n}번째 말: 지시문 {len(removed)}문장을 격리", fallback="해당 문장을 제외하고 이해"))
+        result.failures.append(FailureEvent(code="FM-27", stage="conversation", message=f"{n}번째 말: 지시문 {len(removed)}문장을 격리", fallback="해당 문장을 제외하고 이해"))
 
     # 2) 정책 위반 의도 · 광고 불가 업종 — 기존 input_guard 의 판정을 그대로 쓴다
     cur_cat = st.slots.get("category")
@@ -1289,13 +1289,13 @@ def _run_turn(st: ConversationState, raw: str, router: Router, settings: Setting
                 cand, drop = validate_update(u, use)
                 if drop is not None:
                     result.dropped_updates.append(drop)
-                    result.failures.append(FailureEvent(code="FM-NEW-A-1", stage="conversation", message=f"{n}번째 말: 모델 제안 {drop.slot} 버림 ({drop.reason})", fallback="해당 제안 무시"))
+                    result.failures.append(FailureEvent(code="FM-25", stage="conversation", message=f"{n}번째 말: 모델 제안 {drop.slot} 버림 ({drop.reason})", fallback="해당 제안 무시"))
                     continue
                 agree = _model_candidate_agrees(cand, ex.candidates)  # type: ignore[arg-type]
                 if agree is True:
                     continue                # 규칙이 이미 같은 값을 찾았다
                 if agree is False:
-                    result.failures.append(FailureEvent(code="FM-NEW-A-2", stage="conversation", message=f"{n}번째 말: 모델과 규칙의 {cand.slot} 값이 다름 — 규칙 우선, 되묻기",  # type: ignore[union-attr]
+                    result.failures.append(FailureEvent(code="FM-26", stage="conversation", message=f"{n}번째 말: 모델과 규칙의 {cand.slot} 값이 다름 — 규칙 우선, 되묻기",  # type: ignore[union-attr]
                                                         fallback="규칙 값을 쓰고 충돌로 되묻기"))
                     cand.weak = False       # type: ignore[union-attr]
                     cand.explicit_update = False   # type: ignore[union-attr]
@@ -1324,7 +1324,7 @@ def _run_turn(st: ConversationState, raw: str, router: Router, settings: Setting
                 model_reply = ok
                 result.reply_source = "model"
             else:
-                result.failures.append(FailureEvent(code="FM-NEW-A-4", stage="conversation", message=f"{n}번째 말: 모델 한마디를 쓰지 않음 ({why})", fallback="정해진 문장으로 대체"))
+                result.failures.append(FailureEvent(code="FM-28", stage="conversation", message=f"{n}번째 말: 모델 한마디를 쓰지 않음 ({why})", fallback="정해진 문장으로 대체"))
                 model_reply = ""
     else:
         model_reply = ""

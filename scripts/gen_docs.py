@@ -9,17 +9,31 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from guardrails.failure_modes import FAILURE_MODES  # noqa: E402
+from guardrails.failure_modes import FAILURE_MODES, FEATURES, by_feature  # noqa: E402
 from guardrails.policy import get_catalog  # noqa: E402
 
 
+def _code_range(modes) -> str:
+    nums = sorted(int(fm.code.split("-")[1]) for fm in modes)
+    return f"FM-{nums[0]:02d} ~ FM-{nums[-1]:02d}" if nums else "-"
+
+
 def failure_modes_md() -> str:
+    groups = by_feature()
+    n_core, n_all = len(groups["core"]), len(FAILURE_MODES)
     lines = ["# 실패 모드 카탈로그", "",
              "`guardrails/failure_modes.py` 에서 생성됨. 각 항목은 **탐지 → 방어 → 보장 테스트** 를 가진다. "
              "파이프라인이 실제로 밟은 실패 모드는 `PipelineRun.failures` 와 트레이스 이벤트에 코드로 남는다.", "",
-             "| 코드 | 이름 | 단계 | 증상 | 탐지 | 방어 | 테스트 |", "|---|---|---|---|---|---|---|"]
-    for fm in FAILURE_MODES:
-        lines.append(f"| {fm.code} | {fm.name} | {fm.stage} | {fm.symptom} | {fm.detection} | {fm.defense} | `{fm.test}` |")
+             f"기능별로 묶었다. 모두 {n_all}개 — 핵심 심사 {n_core}개, 나머지 {n_all - n_core}개는 기능(대화형 셋업·상품 페이지 가져오기·이미지·소재 퀄리티·성과 리포트·라벨링·운영)을 더하면서 같은 형식으로 등록했다. 코드는 FM-01 부터 이어서 붙이며, FailureEvent 와 테스트는 이 정식 코드만 쓴다. "
+             "`fail-closed` 칸이 `아님` 인 항목은 알려진 한계가 남아 있어 그 방어선만으로는 막히지 않는 경로가 있다는 뜻이며, 방어 칸에 그 한계를 적었다.", "",
+             "| 기능 | 코드 | 개수 |", "|---|---|---|"]
+    for key, label in FEATURES.items():
+        lines.append(f"| {label} | {_code_range(groups[key])} | {len(groups[key])} |")
+    for key, label in FEATURES.items():
+        lines += ["", f"## {label} ({_code_range(groups[key])})", "",
+                  "| 코드 | 이름 | 단계 | 증상 | 탐지 | 방어 | 테스트 | fail-closed |", "|---|---|---|---|---|---|---|---|"]
+        for fm in groups[key]:
+            lines.append(f"| {fm.code} | {fm.name} | {fm.stage} | {fm.symptom} | {fm.detection} | {fm.defense} | `{fm.test}` | {'예' if fm.fail_closed else '아님'} |")
     return "\n".join(lines) + "\n"
 
 

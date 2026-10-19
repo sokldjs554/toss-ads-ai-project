@@ -148,7 +148,7 @@ def test_demo_mock_repeats_the_rules_so_no_model_update_is_dropped_on_any_dialog
         run = E.run_dialog(d)
         assert not run.error, (d["id"], run.error)
         assert all(t.dropped == 0 for t in run.turns), (d["id"], [t.dropped for t in run.turns])
-        assert not any(c in ("FM-NEW-A-1", "FM-NEW-A-2", "FM-NEW-A-4") for t in run.turns for c in t.failures), d["id"]
+        assert not any(c in ("FM-25", "FM-26", "FM-28") for t in run.turns for c in t.failures), d["id"]
 
 
 def test_eval_runs_are_deterministic():

@@ -27,19 +27,36 @@ flowchart LR
 
 모든 상자는 트레이스 스팬이다. 실패하면 예외가 밖으로 나가지 않고 `FailureEvent(FM-xx)` 로 기록된 뒤 정해진 대체 경로를 탄다.
 
+### 심사 흐름 앞뒤에 붙은 것
+
+```mermaid
+flowchart LR
+    C[대화로 시작<br/>여러 턴 · 규칙 이해 + 모델 제안을 코드가 검증] --> A
+    U[상품 페이지에서 가져오기<br/>SSRF 방어 · 숨은 글 분리 · 사용자가 고른 사실만] --> A
+    A[기존 심사 흐름 — 위 그림] --> R[판정]
+    R --> Q[소재 퀄리티 신호<br/>판정과 분리]
+    R --> B[배너 시안 · 이미지 검사<br/>이미지 속 글은 문구와 같은 규칙]
+    B --> M[문구+이미지 합산<br/>최악 우선 · 읽지 못함은 통과 아님]
+    R -- 담당자 확인 --> HQ[검수 대기열 → 라벨 → 일치도 → 평가셋 후보]
+    P[성과 표 → 이상 탐지 → 원인 후보 → 액션 가드 → 숫자 검증된 보고서] -.별도 화면.- R
+```
+
+새 기능도 같은 원칙을 따른다: 모델 출력은 신뢰하지 않는 입력이고(근거 구절·숫자·허용 값을 코드가 대조), 읽지 못한 것·확신이 없는 것은 통과가 아니라 ‘확인 필요’ 로 가며, 합성 데이터와 대역 출력은 그렇다고 표시한다. 기능별 설명·측정·한계는 [`FEATURES.md`](FEATURES.md).
+
 ## 디렉터리
 
 | 경로 | 역할 |
 |---|---|
-| `core/` | 도메인 스키마(`schemas.py`), LLM 출력 스키마(`llm_schemas.py` — strict 호환, rule_id Literal), 설정, 플랫폼 제약(`platform_spec.py`) |
-| `llm/` | 제공자 추상화. `router.py` 가 작업→제공자 라우팅, fallback 체인, 서킷브레이커, 예산 상한, 수리 경로, 장애 시뮬레이션을 맡는다 |
-| `guardrails/` | 정책 카탈로그(`policy.yaml`), 정규화(`normalize.py`), 결정론 규칙(`lexical.py`), 고지(`disclosure.py`), 근거·랜딩(`grounding.py`), 인젝션(`injection.py`), 중복(`duplicate.py`), 입력 인터셉트(`input_guard.py`), 출력 묶음(`output_guard.py`), 실패 분류(`failsafe.py`, `failure_modes.py`) |
-| `agents/` | 단계별 에이전트(planner, copywriter, audience, reviewer, adjudicator)와 `pipeline.py`, 자동 수정안의 재검사 `rewrite_check.py`, 직접 고친 문구의 재검사와 재사용 키·시도 기록 `recheck.py`. 프롬프트는 `prompts.py` 한 곳에 버전과 함께 |
+| `core/` | 도메인 스키마(`schemas.py`), LLM 출력 스키마(`llm_schemas.py` 와 기능별 `llm_schemas_*.py` — strict 호환), 설정, 플랫폼 제약(`platform_spec.py`), 상품 페이지 가져오기·읽기(`url_ingest.py`), 이미지 받아들이기(`images.py`)·배너 시안(`banner.py`), 소재 퀄리티 신호(`creative_quality.py`), 성과 데이터·합성 생성기(`performance.py`)와 탐지·진단·액션 엔진(`insight_engine.py`) |
+| `llm/` | 제공자 추상화. `router.py` 가 작업→제공자 라우팅, fallback 체인, 서킷브레이커, 예산 상한, 수리 경로, 장애 시뮬레이션을 맡는다. 작업은 심사·계획·문구·수정 등에 더해 `CONVERSE`(대화 이해)·`VISION`(이미지 읽기, 이미지 입력)·`INSIGHT`(보고서 문장). 새 작업의 대역은 `mock_extra/` |
+| `guardrails/` | 정책 카탈로그(`policy.yaml`), 정규화(`normalize.py`), 결정론 규칙(`lexical.py`), 고지(`disclosure.py`), 근거·랜딩(`grounding.py`), 인젝션(`injection.py`), 중복(`duplicate.py`), 입력 인터셉트(`input_guard.py`), 출력 묶음(`output_guard.py`), 이미지 규칙(`image_checks.py`), 실패 분류(`failsafe.py`, `failure_modes.py` — 기능별로 묶인 카탈로그) |
+| `agents/` | 단계별 에이전트(planner, copywriter, audience, reviewer, adjudicator)와 `pipeline.py`, 자동 수정안의 재검사 `rewrite_check.py`, 직접 고친 문구의 재검사와 재사용 키·시도 기록 `recheck.py`. 프롬프트는 `prompts.py` 한 곳에 버전과 함께. 새로: 여러 턴 대화(`conversation.py` + 규칙 추출기 `conversation_rules.py`), 이미지 읽기(`vision.py`)와 문구+이미지 합산(`creative_review.py`), 성과 보고서(`insights.py`) |
+| `ops/` | 운영·검수 도구(순수 파이썬): 검수 대기열(`review_queue.py`), 라벨링·일치도(`labeling.py`), 평가셋 내보내기·누수·라벨 오류 의심(`dataset_tools.py`), 업종 사전 분류(`prelabel.py`), 감사 기록(`audit.py`), 지표(`metrics.py`), 모니터(`monitors.py`), 효과 모델(`impact.py`) |
 | `observability/` | 의존성 없는 트레이서(`tracer.py`: Trace/Span, contextvars, JSON 직렬화), 가격표, 저장된 기록을 화면용으로 되살리는 `replay.py` |
-| `evals/` | 데이터셋(golden dev · holdout · contrast · conditions · adversarial, 출처는 `PROVENANCE.json`), 지표, 실행기(판정 원본 입력 저장·추천 τ 유효성·재시도 기록), 방식 비교(`compare.py`), 회귀 게이트, 레드팀, 쌍대 판정자, CLI |
-| `ui/` | Streamlit 화면 세 영역 — `workbench.py`(광고 작업) · `cases.py`(검사 사례) · `quality.py`(품질 확인, 방식 비교는 `compare_view.py`). 화면 문구는 `labels.py` 한 곳, 디자인 토큰은 `theme.py`. 계산·판정은 하지 않는다 |
-| `tests/` | 1663개 단위·통합·화면(AppTest) 테스트 (네트워크 없음) |
-| `scripts/` | 사이트·재생 페이지 빌드, 처리 기록 저장, 문서 생성, 스크린샷, **`e2e_flow.py`**(브라우저로 데스크톱·모바일에서 예시 실행→재검사→확인 요청→재시도까지 끝까지 누르며 검사) |
+| `evals/` | 데이터셋(golden dev · holdout · contrast · conditions · adversarial, 출처는 `PROVENANCE.json`), 지표, 실행기(판정 원본 입력 저장·추천 τ 유효성·재시도 기록), 방식 비교(`compare.py`), 회귀 게이트, 레드팀, 쌍대 판정자, CLI. 새 기능의 합성 데이터 평가: `dialogs.py`·`url_ingest_eval.py`·`image_eval.py`·`quality_signals.py`·`insights_eval.py`(각각 `--gate`) |
+| `ui/` | Streamlit 화면 다섯 영역 — `workbench.py`(광고 작업) · `performance_view.py`(성과 리포트) · `cases.py`(검사 사례) · `quality.py`(품질 확인; 방식 비교 `compare_view.py`, 새 기능 평가 `new_evals.py`) · `ops_hub.py`(운영: 검수 대기열 `review_queue_view.py` + 지표·모니터·효과 계산 `ops_view.py`). 광고 작업 안에 대화 `chat_view.py`·상품 페이지 `url_import_view.py`·소재 퀄리티 `creative_quality_view.py`·배너·이미지 `creative_view.py`. 화면 문구는 `labels.py` 한 곳, 디자인 토큰은 `theme.py`. 계산·판정은 하지 않는다 |
+| `tests/` | 3621개 단위·통합·화면(AppTest) 테스트 (네트워크 없음) |
+| `scripts/` | 사이트·재생 페이지 빌드, 처리 기록 저장, 문서 생성, 스크린샷, **`e2e_flow.py`**(브라우저로 데스크톱·모바일에서 예시 실행→재검사→확인 요청→재시도, 그리고 대화·상품 페이지·배너·이미지 검사·성과 리포트·운영·새 기능 평가까지 끝까지 누르며 검사) |
 | `traces/` | 재생용 샘플 트레이스 |
 
 ## 하이브리드 라우팅
@@ -105,9 +122,11 @@ flowchart LR
 
 | 영역 | 내용 | 상태 |
 |---|---|---|
-| 광고 작업 (`ui/workbench.py`) | 시작하기(예시 선택·‘예시로 바로 실행’) → 상품 정보 → 반드시 포함해야 할 조건 → 광고 요청 → 광고 초안 만들기. 광고안마다 **검사 결과**(이유는 한 번만) → **수정할 문구**(원문에서 짚은 구절과 구절별 이유) → **수정 내역**(수정안 확인 완료·다시 수정 필요·확인하지 못함·없음, 원문과 나란히) → **다음 작업**(직접 고쳐서 다시 검사, 확인 요청문) → **상세 기록**(판단 근거·검사 항목·가상 사용자 반응·검토 모델·규칙 코드) | 입력 전 · 실행 중(실제 단계 진행) · 완료 · 일부 단계 실패 · 전체 실행 실패 · 결과 없음 · 입력 변경 후 재실행 필요 · 담당자 확인 필요 |
+| 광고 작업 (`ui/workbench.py`) | 시작하기(**예시로 시작** · **대화로 시작** · **상품 페이지에서 가져오기** 중 선택) → 상품 정보 → 반드시 포함해야 할 조건 → 광고 요청 → 광고 초안 만들기. 광고안마다 **검사 결과**(이유는 한 번만) → **수정할 문구**(원문에서 짚은 구절과 구절별 이유) → **수정 내역**(수정안 확인 완료·다시 수정 필요·확인하지 못함·없음, 원문과 나란히) → **다음 작업**(직접 고쳐서 다시 검사, 확인 요청문) → **소재 퀄리티(참고)** → **배너 시안·이미지 검사**(열 때만 계산) → **상세 기록**(판단 근거·검사 항목·가상 사용자 반응·검토 모델·규칙 코드) | 입력 전 · 실행 중(실제 단계 진행) · 완료 · 일부 단계 실패 · 전체 실행 실패 · 결과 없음 · 입력 변경 후 재실행 필요 · 담당자 확인 필요 |
+| 성과 리포트 (`ui/performance_view.py`) | 예시 시나리오(합성) 또는 CSV → 지표 추이와 이상 구간 → 무슨 일이 있었나 → 원인 후보(증거·반대 증거·‘정하기 어렵습니다’) → 다음에 할 일(막힌 액션 표시) → 보고서 글(모델/템플릿 표시) | 합성/내 데이터 표시 · 예시 실행(템플릿 문장) |
 | 검사 사례 (`ui/cases.py`) | 저장된 실제 모델 실행 기록(날짜·모델·비용 표시, `observability/replay.py`)과 대표 사례. 광고 작업으로 불러오기 | 저장된 결과는 '저장된 실행 결과' 로만 표시 |
-| 품질 확인 (`ui/quality.py`) | 평가 결과(건수와 쉬운 말; ‘평가 다시 실행’ 은 실제 적용 설정을 먼저 보여 주고 방금 실행한 결과를 바로 선택), 개선 이력, **방식 비교**(코드 검사만·검토 모델만·합친 방식, 데이터 출처, 라벨 변경·G-069 효과 분리 — 저장된 결과만 보여 주며 보는 것만으로는 호출 없음), 처리 기록, 기술 상세 | |
+| 품질 확인 (`ui/quality.py`) | 평가 결과(건수와 쉬운 말; ‘평가 다시 실행’ 은 실제 적용 설정을 먼저 보여 주고 방금 실행한 결과를 바로 선택), 개선 이력, **방식 비교**(코드 검사만·검토 모델만·합친 방식, 데이터 출처, 라벨 변경·G-069 효과 분리 — 저장된 결과만 보여 주며 보는 것만으로는 호출 없음), **새 기능 평가**(합성 데이터; 개발용/최종 확인용), 두 문구의 퀄리티 신호 비교, 처리 기록, 기술 상세 | |
+| 운영 (`ui/ops_hub.py`) | **검수 대기열**(담당자 확인 건·라벨 입력·일치도·조정·평가셋 후보 내보내기) / **운영 지표·모니터**(세션 지표·모니터 시뮬레이션·효과 계산기·감사 기록 검증·처리량 측정) | 합성 예시 · 시뮬레이션 표시 |
 
 실행 방식은 항상 표시된다: `예시 실행 · 실제 AI 호출 없음` / `실제 AI 호출 · 한 제공자` / `실제 AI 호출 · 두 제공자` / `저장된 실행 결과 · 날짜`. 서버 API 키는 `app.py` 에서만 읽고 화면에는 설정 여부만 보인다. 담당자 확인은 실제 대기열이 없으므로 '전달되었다' 고 표시하지 않고, 복사·내려받기할 수 있는 확인 요청문만 만든다.
 

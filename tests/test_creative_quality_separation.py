@@ -54,12 +54,20 @@ def test_importing_the_module_loads_no_judging_or_model_layer():
     assert json.loads(out.stdout.strip().splitlines()[-1]) == []
 
 
+# 실패 모드 카탈로그는 보장하는 테스트의 파일 이름(tests/test_creative_quality_*.py)을 글자로 적을 뿐 이 모듈을 부르지 않는다 — 글자 검색 대신 import 만 본다.
+CATALOG_FILES = {"failure_modes.py"}
+
+
 def _offenders(root: Path) -> list[str]:
     needles = ("creative_quality", "quality_signals", "QualityCard", "quality_card")
     out = []
     for folder in ("agents", "guardrails", "llm", "core"):
         for path in (root / folder).rglob("*.py"):
             if path.name == "creative_quality.py":
+                continue
+            if path.name in CATALOG_FILES:
+                if any(n in imp for imp in _imports(path) for n in needles):
+                    out.append(str(path.relative_to(root)))
                 continue
             if any(n in path.read_text(encoding="utf-8") for n in needles):
                 out.append(str(path.relative_to(root)))
@@ -77,6 +85,16 @@ def test_the_offender_scan_really_detects_an_import(tmp_path):
     (tmp_path / "guardrails").mkdir()
     (tmp_path / "guardrails" / "ok.py").write_text("import re\n", encoding="utf-8")
     assert _offenders(tmp_path) == ["agents/adjudicator.py"]
+
+
+def test_the_catalog_exemption_skips_only_the_text_scan_not_an_import(tmp_path):
+    """카탈로그가 테스트 파일 이름을 적는 것은 허용하지만, 카탈로그가 품질 모듈을 import 하면 여전히 집어낸다."""
+    (tmp_path / "guardrails").mkdir()
+    f = tmp_path / "guardrails" / "failure_modes.py"
+    f.write_text('TEST = "tests/test_creative_quality_core.py::test_x"\n', encoding="utf-8")
+    assert _offenders(tmp_path) == []
+    f.write_text("from core.creative_quality import quality_card\n", encoding="utf-8")
+    assert _offenders(tmp_path) == ["guardrails/failure_modes.py"]
 
 
 def test_the_module_exposes_nothing_that_looks_like_a_verdict():

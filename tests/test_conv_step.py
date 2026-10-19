@@ -276,7 +276,7 @@ def test_injection_is_quarantined_before_extraction_and_user_is_told(router, set
     assert any(i.code == "INJECTION" for i in st.issues)
     assert "따로 뒀어요" in rs[1].assistant_message
     assert st.turns[-2].quarantined and st.turns[-2].role == "user"
-    assert any(f.code == "FM-NEW-A-3" for f in rs[1].failures)
+    assert any(f.code == "FM-27" for f in rs[1].failures)
 
 
 def test_hidden_characters_are_stripped_before_reading(router, settings):

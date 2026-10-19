@@ -4,9 +4,14 @@ from __future__ import annotations
 import streamlit as st
 
 from core.schemas import Layer, Severity
-from guardrails.failure_modes import FAILURE_MODES
+from guardrails.failure_modes import FAILURE_MODES, FEATURES, by_feature
 from guardrails.policy import get_catalog
 from ui.labels import LAYER_LABEL, SEVERITY_LABEL
+
+
+def _code_range(modes) -> str:
+    nums = sorted(int(fm.code.split("-")[1]) for fm in modes)
+    return f"FM-{nums[0]:02d} ~ FM-{nums[-1]:02d}" if nums else ""
 
 
 def render_failure_modes() -> None:
@@ -18,8 +23,19 @@ def render_failure_modes() -> None:
             hit[f.code] = hit.get(f.code, 0) + 1
     if hit:
         st.markdown("이 세션에서 실제로 발생한 항목: " + " ".join(f"`{k}`×{v}" for k, v in sorted(hit.items())))
-    st.dataframe([{"코드": fm.code, "이름": fm.name, "단계": fm.stage, "증상": fm.symptom, "탐지": fm.detection, "방어": fm.defense, "테스트": fm.test,
-                   "fail-closed": "✓" if fm.fail_closed else ""} for fm in FAILURE_MODES], width="stretch", hide_index=True, height=720)
+    groups = by_feature()
+    st.markdown(f"모두 **{len(FAILURE_MODES)}개**입니다. 기능별로 묶었으니 제목을 눌러 펼쳐 보세요.")
+    st.caption("‘실패 시 막힘’ 칸에 ‘한계 있음’ 이라고 적힌 항목은, 아직 고치지 못한 한계가 있어 이 방어만으로는 못 막는 경우가 있다는 뜻입니다. 어떤 한계인지는 ‘방어’ 칸에 적었습니다.")
+    for key, label in FEATURES.items():
+        modes = groups[key]
+        if not modes:
+            continue
+        n_limit = sum(1 for fm in modes if not fm.fail_closed)
+        title = f"{label} — {len(modes)}개 ({_code_range(modes)})" + (f" · 한계 있음 {n_limit}개" if n_limit else "")
+        with st.expander(title, expanded=False):
+            rows = [{"코드": fm.code, "이름": fm.name, "단계": fm.stage, "증상": fm.symptom, "탐지": fm.detection, "방어": fm.defense, "테스트": fm.test,
+                     "실패 시 막힘": "✓" if fm.fail_closed else "한계 있음"} for fm in modes]
+            st.dataframe(rows, width="stretch", hide_index=True, height=min(720, 38 + 35 * len(rows)))
 
 
 def render_policy() -> None:

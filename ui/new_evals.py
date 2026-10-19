@@ -83,12 +83,9 @@ def _missing(name: str) -> None:
 
 
 # --- 기능별 -------------------------------------------------------------------
-def _dialogs() -> None:
-    rep = _load("dialogs_controlled.json")
-    if not rep:
-        return _missing("dialogs_controlled.json")
+def rows_dialogs(rep: dict) -> list[tuple[str, str, str]]:
     sp = rep.get("splits", {})
-    rows = [
+    return [
         ("모든 항목을 통과한 대화", *_two(sp, lambda s: _frac(s["dialogs_all_ok"], s["n_dialogs"]))),
         ("말에서 값을 읽은 정확도", *_two(sp, lambda s: _pct(s["slot_micro_accuracy"]))),
         ("준비가 됐는지 판단한 정확도", *_two(sp, lambda s: _pct(s["ready_accuracy"]))),
@@ -96,20 +93,23 @@ def _dialogs() -> None:
         ("꼭 물어야 할 것을 놓친 비율", *_two(sp, lambda s: _frac(*s["missed_ask_counts"]))),
         ("숨은 지시문에 값이 오염된 대화", *_two(sp, lambda s: f"{s['injection_contaminated']}/{s['injection_dialogs']}")),
     ]
-    _table(rows)
-    ho = sp.get("holdout") or {}
+
+
+def _dialogs() -> None:
+    rep = _load("dialogs_controlled.json")
+    if not rep:
+        return _missing("dialogs_controlled.json")
+    _table(rows_dialogs(rep))
+    ho = (rep.get("splits") or {}).get("holdout") or {}
     _notes(["이 숫자는 **정해진 규칙이 말을 읽은 결과**입니다. 실제 AI 모델이 얼마나 잘 이해하는지는 측정하지 않았습니다.",
             "대화는 만든 사람이 직접 쓴 가상 대화이고 라벨도 같은 사람이 달았습니다. 개발용은 규칙을 고치며 본 대화라 점수가 높게 나옵니다.",
             f"최종 확인용에서 숨은 지시문에 값이 오염된 대화는 {ho.get('injection_contaminated', '—')}건이었습니다 — 바꿔 쓴 지시문을 못 잡는 알려진 한계입니다(확정된 값은 조용히 바뀌지 않고 되묻는 상태가 됩니다)."],
            str(rep.get("repro") or ""))
 
 
-def _urls() -> None:
-    rep = _load("url_ingest_eval.json")
-    if not rep:
-        return _missing("url_ingest_eval.json")
+def rows_urls(rep: dict) -> list[tuple[str, str, str]]:
     sp = rep.get("by_split", {})
-    rows = [
+    return [
         ("페이지 수", *_two(sp, lambda s: str(s["pages"]))),
         ("상품 이름 정확도", *_two(sp, lambda s: _pct(s["name_accuracy"]))),
         ("가격 정확도", *_two(sp, lambda s: _pct(s["price_accuracy"]))),
@@ -118,54 +118,63 @@ def _urls() -> None:
         ("화면에 안 보이는 글이 사실로 새어 든 수", *_two(sp, lambda s: f"{s['leak_count']}/{s['forbidden_total']}")),
         ("바꿔 쓴 지시문이 새어 든 수(알려진 한계)", *_two(sp, lambda s: f"{s['known_gap']['leaked']}/{s['known_gap']['total']}")),
     ]
-    _table(rows)
+
+
+def _urls() -> None:
+    rep = _load("url_ingest_eval.json")
+    if not rep:
+        return _missing("url_ingest_eval.json")
+    _table(rows_urls(rep))
     _notes(["합성 페이지 위의 값이며 실제 쇼핑몰 페이지의 정확도가 아닙니다. 페이지와 기대값을 같은 사람이 만들었습니다.",
             "읽어 온 내용은 사용자가 직접 골라 확인하기 전에는 광고 사실이 되지 않습니다. 자바스크립트로 그려지는 페이지는 읽지 못합니다."],
            str(rep.get("reproduce") or "python -m evals.url_ingest_eval"))
 
 
-def _images() -> None:
-    rep = _load("image_eval.json")
-    if not rep:
-        return _missing("image_eval.json")
+def rows_images(rep: dict) -> list[tuple[str, str, str]]:
     sp = rep.get("by_split", {})
-    rows = [
+    return [
         ("사례 수", *_two(sp, lambda s: str(s["n"]))),
         ("기대한 결과를 모두 충족한 사례", *_two(sp, lambda s: _kn(s["all_expectations_met"]))),
         ("규칙을 제대로 찾아낸 사례", *_two(sp, lambda s: _kn(s["rule_detection"]))),
         ("문제 있는 이미지를 통과시킨 수", *_two(sp, lambda s: f"{s['bad_pass']['k']}/{s['bad_pass']['n']}")),
         ("읽지 못한 이미지를 통과시킨 수", *_two(sp, lambda s: f"{s['unreadable_pass']['k']}/{s['unreadable_pass']['n']}")),
     ]
-    _table(rows)
+
+
+def _images() -> None:
+    rep = _load("image_eval.json")
+    if not rep:
+        return _missing("image_eval.json")
+    _table(rows_images(rep))
     _notes(["**실제 AI 모델이 이미지 속 글자를 얼마나 정확히 읽는지는 측정하지 않았습니다.** 모델이 혼자 읽은 결과는 사용자가 적은 글과 맞춰 보기 전에는 통과가 되지 않고, 읽지 못한 이미지는 어떤 경우에도 통과가 아닙니다.",
             "100%에 가까운 값은 사례가 적고 규칙과 사례를 같은 사람이 만들었기 때문입니다 — 강한 증거가 아닙니다. 배너 크기·여백·글자 크기는 이 프로젝트가 가정한 값입니다."],
            str((rep.get("repro") or "python -m evals.image_eval")))
+
+
+def rows_quality(rep: dict) -> list[tuple[str, str, str]]:
+    sp = rep.get("splits", {})
+    return [
+        ("선호가 갈린 쌍에서 사람의 선택과 일치", *_two(sp, lambda s: _kn(s["decisive_agreement"]))),
+        ("무승부까지 포함한 세 갈래 정확도", *_two(sp, lambda s: _kn(s["three_way_accuracy"]))),
+        ("비교: 긴 쪽이 이긴다고 본 경우", *_two(sp, lambda s: _kn(s["baselines"]["longer_text_wins"]))),
+        ("비교: 숫자가 많은 쪽이 이긴다고 본 경우", *_two(sp, lambda s: _kn(s["baselines"]["more_digits_wins"]))),
+    ]
 
 
 def _quality() -> None:
     rep = _load("quality_signals.json")
     if not rep:
         return _missing("quality_signals.json")
-    sp = rep.get("splits", {})
-    rows = [
-        ("선호가 갈린 쌍에서 사람의 선택과 일치", *_two(sp, lambda s: _kn(s["decisive_agreement"]))),
-        ("무승부까지 포함한 세 갈래 정확도", *_two(sp, lambda s: _kn(s["three_way_accuracy"]))),
-        ("비교: 긴 쪽이 이긴다고 본 경우", *_two(sp, lambda s: _kn(s["baselines"]["longer_text_wins"]))),
-        ("비교: 숫자가 많은 쪽이 이긴다고 본 경우", *_two(sp, lambda s: _kn(s["baselines"]["more_digits_wins"]))),
-    ]
-    _table(rows)
+    _table(rows_quality(rep))
     _notes(["소재 퀄리티 신호는 **문구를 규칙으로 읽은 참고 점수**이며 심사 판정과 별개입니다. 품질이 높아도 위반은 통과되지 않습니다.",
             "실제 클릭률·전환과 얼마나 같이 움직이는지는 측정하지 않았습니다. 선호 라벨은 만든 사람 한 명의 판단이고 문구는 모두 가상입니다.",
             "개발용은 신호를 만들 때 본 쌍이라 낙관적이고, 최종 확인용은 신호를 고정한 뒤 쓴 쌍이지만 같은 사람이 쓴 쉬운 편의 쌍입니다."],
            str(rep.get("reproduce") or "python -m evals.quality_signals"))
 
 
-def _insights() -> None:
-    rep = _load("insights_controlled.json")
-    if not rep:
-        return _missing("insights_controlled.json")
+def rows_insights(rep: dict) -> list[tuple[str, str, str]]:
     sp = rep.get("splits", {})
-    rows = [
+    return [
         ("시나리오 수", *_two(sp, lambda s: str(s["n_scenarios"]))),
         ("이상을 찾아낸 비율(재현율)", *_two(sp, lambda s: _str_frac(s["detection_recall_n"]))),
         ("찾은 것 중 실제 이상인 비율(정밀도)", *_two(sp, lambda s: _str_frac(s["detection_precision_n"]))),
@@ -174,12 +183,35 @@ def _insights() -> None:
         ("해서는 안 되는 액션을 제안한 수", *_two(sp, lambda s: str(s["forbidden_proposals"]))),
         ("보고서에 근거 없는 숫자가 든 수", *_two(sp, lambda s: str(s["unsupported_numbers"]))),
     ]
-    _table(rows)
+
+
+def _insights() -> None:
+    rep = _load("insights_controlled.json")
+    if not rep:
+        return _missing("insights_controlled.json")
+    _table(rows_insights(rep))
+    sp = rep.get("splits", {})
     ho = sp.get("holdout") or {}
     _notes(["시나리오는 **합성 데이터**이고 생성기와 진단 규칙을 같은 사람이 설계했습니다 — 실제 광고 데이터의 정확도가 아닙니다.",
             f"최종 확인용에서 이상이 없는 시나리오 {_get(ho, 'control_false_alarm_n') or '—'}에서 오경보가 났고, 동시에 일어난 사건은 원인을 하나만 맞히거나 정하지 못한 경우가 있었습니다. 엔진은 그 결과를 보고 고치지 않았습니다.",
             "AI가 쓴 보고서 문장의 품질은 측정하지 않았습니다. 코드가 확인하는 것은 문장 속 숫자·근거·액션이 계산 결과와 맞는지입니다."],
            str(rep.get("command") or "python -m evals.insights_eval"))
+
+
+ROWS = {   # 문서 생성기(scripts/gen_feature_docs.py)가 같은 표를 쓴다
+    "dialogs": ("dialogs_controlled.json", rows_dialogs),
+    "urls": ("url_ingest_eval.json", rows_urls),
+    "images": ("image_eval.json", rows_images),
+    "quality": ("quality_signals.json", rows_quality),
+    "insights": ("insights_controlled.json", rows_insights),
+}
+
+
+def rows_for(key: str) -> Optional[list[tuple[str, str, str]]]:
+    """저장된 리포트에서 만든 (지표, 개발용, 최종 확인용) 행. 리포트가 없으면 None."""
+    name, fn = ROWS[key]
+    rep = _load(name)
+    return fn(rep) if rep else None
 
 
 SECTIONS = [

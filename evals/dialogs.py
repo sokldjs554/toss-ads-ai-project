@@ -44,8 +44,11 @@ CAVEATS = [
 ]
 # 최종 확인용(holdout) 대화를 쓰기 직전의 코드 지문. holdout 은 추출기·대화 로직을 고정한 '뒤에' 썼고 그 결과를 보고 고치지 않았다는 약속을 코드로 남긴 것이다.
 # 이 지문과 지금 코드의 지문이 다르면(= 그 뒤에 규칙을 고쳤으면) 리포트의 holdout.clean 이 False 가 되고 테스트가 실패한다 — holdout 숫자를 '고정한 뒤의 값' 으로 읽을 수 없다는 뜻이다.
+# 고정 뒤의 변경 기록(이것 하나뿐): agents/conversation.py 의 FailureEvent 코드 문자열 4개를 임시 자리표시자에서 정식 카탈로그 코드 FM-25~28 로 바꿨다.
+# 상수 문자열만 바뀌고 동작은 같다. 바꾸기 전 지문은 conversation_sha256 = 26ecc0f13045edea058dbb1f74ed73a0d33e1e58d05947325cc25c984568fa14 였고,
+# 그 네 문자열만 되돌려 다시 계산하면 정확히 그 값이 나온다. 추출기(conversation_rules.py)와 holdout 대화·정답은 그대로다.
 HOLDOUT_FROZEN = {"extractor_sha256": "4ec735c9a3216036471bfe4433b523c6edadbe7b7b4c8b1fe22fe8638758f5c6",
-                  "conversation_sha256": "26ecc0f13045edea058dbb1f74ed73a0d33e1e58d05947325cc25c984568fa14"}
+                  "conversation_sha256": "918526f3c36f3e89ab79246b8a6f79f56c11bbec495d815ef0e7de9c2e49119a"}
 HIGHER_BETTER = ["slot_micro_accuracy", "ready_accuracy", "conflict_handling_accuracy", "issue_accuracy", "injection_safe_rate", "plan_accuracy"]
 LOWER_BETTER = ["unnecessary_reask_rate", "missed_ask_rate", "mean_turns_to_ready"]
 

@@ -20,12 +20,12 @@
   },
   "code": {
     "extractor_sha256": "4ec735c9a3216036471bfe4433b523c6edadbe7b7b4c8b1fe22fe8638758f5c6",
-    "conversation_sha256": "26ecc0f13045edea058dbb1f74ed73a0d33e1e58d05947325cc25c984568fa14"
+    "conversation_sha256": "918526f3c36f3e89ab79246b8a6f79f56c11bbec495d815ef0e7de9c2e49119a"
   },
   "holdout": {
     "frozen": {
       "extractor_sha256": "4ec735c9a3216036471bfe4433b523c6edadbe7b7b4c8b1fe22fe8638758f5c6",
-      "conversation_sha256": "26ecc0f13045edea058dbb1f74ed73a0d33e1e58d05947325cc25c984568fa14"
+      "conversation_sha256": "918526f3c36f3e89ab79246b8a6f79f56c11bbec495d815ef0e7de9c2e49119a"
     },
     "clean": true,
     "note": "holdout 대화는 위 지문의 코드로 고정한 뒤에 썼고, 그 결과를 보고 코드를 고치지 않았다. clean=false 면 그 뒤에 코드를 고친 것이다."
