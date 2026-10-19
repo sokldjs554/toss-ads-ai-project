@@ -65,6 +65,7 @@ LAYER_LABEL: dict[Layer, str] = {
     Layer.GROUNDING: "상품 정보와 일치하는지 확인",
     Layer.SEMANTIC: "검토 모델의 의미 검사",
     Layer.STRUCTURAL: "형식 검사",
+    Layer.IMAGE: "이미지 소재 검사",
 }
 SEVERITY_LABEL: dict[Severity, str] = {Severity.BLOCK: "게재 불가 사유", Severity.FIX: "수정 필요", Severity.WARN: "참고"}
 SEVERITY_STYLE: dict[Severity, str] = {Severity.BLOCK: "#A32116", Severity.FIX: "#8A5A00", Severity.WARN: "#475467"}

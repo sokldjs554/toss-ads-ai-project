@@ -16,6 +16,18 @@ from observability.pricing import estimate_cost_usd
 _TEMPERATURE_OK_PREFIXES = ("gpt-4o", "gpt-4.1", "gpt-4-", "gpt-3.5")
 
 
+def _user_content(req: LLMRequest):
+    """이미지가 없으면 글 그대로, 있으면 글 + 이미지(data URL) 조각 목록."""
+    if not req.images:
+        return req.user
+    import base64
+
+    parts: list[dict] = [{"type": "text", "text": req.user}]
+    for img in req.images:
+        parts.append({"type": "image_url", "image_url": {"url": f"data:{img.mime};base64,{base64.b64encode(img.data).decode('ascii')}", "detail": "high"}})
+    return parts
+
+
 class OpenAIProvider:
     name = "openai"
 
@@ -41,7 +53,7 @@ class OpenAIProvider:
         import openai
 
         client = self._get_client()
-        messages = [{"role": "system", "content": req.system}, {"role": "user", "content": req.user}]
+        messages = [{"role": "system", "content": req.system}, {"role": "user", "content": _user_content(req)}]
         kwargs: dict = dict(model=self.model, messages=messages, max_completion_tokens=req.max_tokens)
         if self.model.startswith(_TEMPERATURE_OK_PREFIXES):
             kwargs["temperature"] = req.temperature

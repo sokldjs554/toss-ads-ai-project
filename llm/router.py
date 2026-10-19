@@ -142,6 +142,10 @@ class Router:
         with self.tracer.span(label, kind="llm", task=req.task.value, chain=chain) as span:
             span.set(prompt_system=req.system, prompt_user=req.user, schema=req.schema.__name__ if req.schema else None,
                      constrained=req.constrained, max_tokens=req.max_tokens)
+            if req.images:  # 이미지 바이트는 처리 기록에 넣지 않는다 — 이름·종류·크기·해시만
+                import hashlib
+
+                span.set(images=[{"name": i.name, "mime": i.mime, "bytes": i.size, "sha256": hashlib.sha256(i.data).hexdigest()[:16]} for i in req.images])
             for name in chain:
                 provider = self.providers[name]
                 breaker = self.breakers[name]

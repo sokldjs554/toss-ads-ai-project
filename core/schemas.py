@@ -196,6 +196,7 @@ class Layer(str, Enum):
     GROUNDING = "grounding"    # 근거 없는 주장·숫자
     SEMANTIC = "semantic"      # LLM 심사
     STRUCTURAL = "structural"  # 스키마·예산 등 구조 검증
+    IMAGE = "image"            # 이미지 소재 검사 (규격·글자 대비·이미지 속 글자)
 
 
 class Finding(BaseModel):

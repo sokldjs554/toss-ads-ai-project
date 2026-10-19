@@ -19,6 +19,17 @@ _EFFORT_PREFIXES = ("claude-sonnet-5", "claude-opus-5", "claude-haiku-5", "claud
                     "claude-opus-4-7", "claude-opus-4-8", "claude-sonnet-4-6")
 
 
+def _user_content(req: LLMRequest):
+    """이미지가 없으면 글 그대로, 있으면 이미지 조각들 뒤에 글을 붙인 목록."""
+    if not req.images:
+        return req.user
+    import base64
+
+    parts: list[dict] = [{"type": "image", "source": {"type": "base64", "media_type": img.mime, "data": base64.b64encode(img.data).decode("ascii")}} for img in req.images]
+    parts.append({"type": "text", "text": req.user})
+    return parts
+
+
 class AnthropicProvider:
     name = "anthropic"
 
@@ -45,7 +56,7 @@ class AnthropicProvider:
     def _common_kwargs(self, req: LLMRequest) -> dict:
         kwargs: dict = dict(
             model=self.model, max_tokens=req.max_tokens, system=req.system,
-            messages=[{"role": "user", "content": req.user}],
+            messages=[{"role": "user", "content": _user_content(req)}],
         )
         if self._effort and self.model.startswith(_EFFORT_PREFIXES):
             kwargs["output_config"] = {"effort": self._effort}

@@ -18,6 +18,7 @@ from typing import Any
 from llm.base import LLMRequest, LLMResponse, Task
 from llm.errors import SchemaMismatch
 from llm.json_utils import extract_json
+from llm.mock_extra import conversation as mock_conversation, insight as mock_insight, vision as mock_vision
 
 PERSONAS = [
     {"persona_id": "p1", "name": "사회초년생 (27세, 첫 대출 고민)", "trait": "조건·총비용을 꼼꼼히 봄, 과장 표현에 불신"},
@@ -52,6 +53,9 @@ class MockProvider:
             Task.REPAIR: self._repair,
             Task.ATTACK: self._attack,
             Task.JUDGE: self._judge,
+            Task.CONVERSE: mock_conversation.handle,
+            Task.VISION: mock_vision.handle,
+            Task.INSIGHT: mock_insight.handle,
         }[req.task]
         payload = handler(req)
         text = json.dumps(payload, ensure_ascii=False, indent=2)

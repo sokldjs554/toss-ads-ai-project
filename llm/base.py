@@ -17,6 +17,9 @@ class Task(str, Enum):
     ATTACK = "attack"        # 레드팀 공격 소재 (창의 → Claude)
     JUDGE = "judge"          # 품질 쌍대 비교 (구조화 → OpenAI)
     SECOND_OPINION = "second_opinion"  # 교차 검증 심사 (다른 계열 → Claude)
+    CONVERSE = "converse"    # 대화형 캠페인 셋업의 한 턴: 말에서 값 뽑기·되묻기 (구조화 → OpenAI)
+    VISION = "vision"        # 이미지 속 글자·시각 요소 읽기 (구조화, 이미지 입력 가능한 모델)
+    INSIGHT = "insight"      # 성과 리포트 문장화: 계산된 근거를 말로 옮기기 (구조화 → OpenAI)
 
 
 # 작업별 제공자 우선순위. 앞이 1순위, 뒤가 fallback. 'mock' 은 키가 없을 때만 붙는다.
@@ -30,11 +33,27 @@ ROUTING: dict[Task, list[str]] = {
     Task.ATTACK: ["anthropic", "openai"],
     Task.JUDGE: ["openai", "anthropic"],
     Task.SECOND_OPINION: ["anthropic", "openai"],
+    Task.CONVERSE: ["openai", "anthropic"],
+    Task.VISION: ["openai", "anthropic"],
+    Task.INSIGHT: ["openai", "anthropic"],
 }
 
 # 창의 작업은 제약 디코딩 없이(자유 텍스트 → 사후 정규화) 돌린다. 형식 제약이 창의성·추론을 떨어뜨린다는
 # 보고(“Let Me Speak Freely?”, Tam et al. 2024)를 따른 선택이며, 그 대가(FM-01)는 수리 경로가 진다.
 UNCONSTRAINED_TASKS = {Task.COPY, Task.AUDIENCE, Task.REDIRECT, Task.ATTACK}
+
+
+@dataclass(frozen=True)
+class ImageInput:
+    """모델에 보여 줄 이미지 한 장. 바이트는 호출 직전에만 base64 로 바꾼다 (트레이스·로그에는 해시와 크기만 남긴다)."""
+
+    data: bytes
+    mime: str                 # image/png · image/jpeg · image/gif · image/webp
+    name: str = ""
+
+    @property
+    def size(self) -> int:
+        return len(self.data)
 
 
 @dataclass
@@ -47,6 +66,7 @@ class LLMRequest:
     temperature: float = 0.7
     context: dict[str, Any] = field(default_factory=dict)  # mock 제공자와 트레이스용 구조화 입력
     label: str = ""  # 트레이스에 보일 이름 (예: review:var_ab12)
+    images: list[ImageInput] = field(default_factory=list)  # 비어 있으면 글만 보낸다. 이미지 입력을 못 받는 제공자는 요청 자체를 거부한다
 
     @property
     def constrained(self) -> bool:
