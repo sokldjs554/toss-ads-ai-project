@@ -3,21 +3,13 @@
 [![ci](https://github.com/sokldjs554/toss-ads-ai-project/actions/workflows/ci.yml/badge.svg)](https://github.com/sokldjs554/toss-ads-ai-project/actions/workflows/ci.yml)
 ![python](https://img.shields.io/badge/python-3.11%2B-blue) ![streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B) ![tests](https://img.shields.io/badge/tests-1663%20passed-brightgreen)
 
-> **🌐 공개 데모 — <https://sokldjs554.github.io/toss-ads-ai-project/>**
-> · **[광고 작업 (브라우저 실행판)](https://sokldjs554.github.io/toss-ads-ai-project/app/)** — 서버 없이 브라우저(WebAssembly) 안에서 전체 앱이 돕니다. 예시 실행(실제 AI 호출 없음), 첫 로딩 20~60초
-> · **[실제 실행 기록 재생](https://sokldjs554.github.io/toss-ads-ai-project/replay/)** — GitHub Actions 에서 실제 GPT-4o 로 돌린 5개 사례의 처리 기록과 1차→5차 평가 결과
-> · **[Render 서버](<https://preflight-toss-ads.onrender.com>)** — 같은 앱의 서버 실행판 (무료 플랜이라 15분 무접속이면 잠들고 첫 접속에 30초~1분). 대시보드에 API 키를 넣으면 실제 모델로 돕니다. 화면 맨 위에 배포된 빌드(커밋)가 표시됩니다
-> · 직접 띄우려면 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/sokldjs554/toss-ads-ai-project) 또는 아래 한 줄.
+![데모 — 예시를 고르고 실행 → 걸린 구절과 이유 → 고친 문구 재검사](docs/screenshots/demo.gif)
 
-```bash
-pip install -r requirements.txt && streamlit run app.py
-```
+<sub>위 화면은 실제 앱을 예시 실행(API 키 없음 · 실제 AI 호출 없음 — 모델 단계는 정해진 규칙의 대역)으로 눌러 찍은 것입니다 (`python scripts/make_demo_gif.py`).</sub>
 
-토스 Ads **AI Engineer (Ads)** 공고(대화형 캠페인 셋업 · AI 광고 심사 · 가상 피드백 · 소재 생성)를 읽고 만든 **개인 프로젝트**입니다. 모든 상품·광고주·수치는 가상이고, 검사 규칙은 토스애즈 **공개** 광고주 가이드와 금융소비자보호법·대부업법·표시광고법의 공개 조문을 읽고 **이 프로젝트가 재구성**한 것이며 토스·토스애즈의 내부 심사 기준이 아닙니다. 화면의 '점검 통과'·'게재 불가' 는 이 검사 기준에 따른 결과이지 어느 회사의 실제 심사·집행 승인이 아닙니다. 법률 자문도 아닙니다. 운영 데이터(사용자 수·트래픽·심사 시간·승인율)는 이 저장소에 없고, 시간 절감이나 승인율 개선 같은 효과는 주장하지 않습니다.
+## 30초 요약
 
-## 먼저 읽는 요약
-
-**누구의 어떤 문제인가.** 광고를 만드는 사람은 "이 문구가 심사에서 걸릴까?" 를 올리고 나서야 압니다. 이 도구는 광고 초안을 만들고, **걸릴 구절을 원문에서 짚어 이유와 함께** 보여 주고, 고친 문구를 다시 검사하게 하며, 자동으로 확정하기 어려운 건은 담당자에게 넘길 확인 요청문까지 만듭니다.
+광고를 만드는 사람은 "이 문구가 심사에서 걸릴까?" 를 올리고 나서야 압니다. Preflight 는 올리기 전에 **걸릴 구절을 원문에서 짚어 이유와 함께** 보여 주고, 고친 문구를 같은 기준으로 다시 검사하며, 자동으로 확정하기 어려운 건은 담당자에게 넘길 확인 요청문까지 만듭니다. 토스 Ads **AI Engineer (Ads)** 공고를 읽고 만든 개인 프로젝트입니다.
 
 **입력 → 결과 (실제로 재현되는 예)**
 
@@ -26,6 +18,27 @@ pip install -r requirements.txt && streamlit run app.py
 | `7일 무료 체험 후 월 19,900원 자동결제` | 제목 “7일 무료 체험” · 본문 “자동결제 없음” | **수정 필요** — “자동결제 없음” · 상품 정보와 다른 조건 (사실은 자동결제가 있음) |
 | `전 상품 10% 할인, 50,000원 이상 구매 시` | 제목 “전 상품 10% 할인” · 안내 “5,000원 이상 구매 시” | **수정 필요** — “5,000원 이상” · 상품 정보와 다른 조건 (사실은 50,000원 이상). “5만원 이상” 은 같은 금액이라 통과 |
 | `배송까지 15일 소요` | 제목 “할인5%” | **수정 필요** — “5%” · 상품 정보에 없는 숫자 |
+
+**세 가지만 기억하면 됩니다**
+
+1. **판정은 코드가 하고 모델은 제안만 합니다.** 규칙 순서가 담긴 함수 하나(`decide()`)가 최종 판정을 내고, 코드가 게재 불가를 확인하면 모델은 뒤집지 못합니다. 원문·자동 수정안·직접 고친 문구가 모두 같은 함수를 지납니다.
+2. **확신이 없거나 확인하지 못하면 통과시키지 않습니다.** 모델 호출이 실패하거나 원문에 없는 인용을 들면 ‘담당자 확인 필요’ 로 넘기고, 재검사에 걸린 자동 수정안은 어느 화면에도 보여 주지 않습니다.
+3. **재고, 한계를 적었습니다.** 실제 GPT-4o 로 110건을 *코드만 · 모델만 · 합친 방식* 으로 한 번 비교했습니다(6절). 최종 확인용(holdout) 12건 중 문제 있는 광고 10건에서 잘못 통과시킨 수는 코드만 2 · 모델만 1 · 합친 방식 0 이고, 개발용 사례에서 정상 광고를 불필요하게 막은 수는 모델만 13/32 · 합친 방식 3/32 입니다. 표본이 작고 라벨은 만든 사람이 달았으므로 보장이 아니라 관측값입니다.
+
+**바로 보기 (설치 없이)**
+
+- **[광고 작업 — 브라우저 실행판](https://sokldjs554.github.io/toss-ads-ai-project/app/)**: 서버 없이 브라우저(WebAssembly) 안에서 전체 앱이 돕니다. 예시 실행(실제 AI 호출 없음), 첫 로딩 20~60초
+- **[실제 실행 기록 재생](https://sokldjs554.github.io/toss-ads-ai-project/replay/)**: GitHub Actions 에서 실제 GPT-4o 로 돌린 5개 사례의 처리 기록과 1차→5차 평가 결과
+- 직접 실행: `pip install -r requirements.txt && streamlit run app.py`
+- 서버판(Render)과 배포 방식은 [공개 데모는 어떻게 떠 있나](#공개-데모는-어떻게-떠-있나) 에 있습니다. 무료 플랜이라 잠들 수 있으니 화면 맨 위의 빌드(커밋) 표시로 최신인지 확인하세요. 코드를 읽는다면 맨 아래 [읽기 순서(10분)](#읽기-순서-10분) 부터.
+
+> 모든 상품·광고주·수치는 가상이고, 검사 규칙은 공개 자료로 이 프로젝트가 재구성한 것이며 토스·토스애즈의 내부 심사 기준이나 실제 심사 결과가 아닙니다. 전문은 아래 ‘범위와 면책’.
+
+## 범위와 면책
+
+토스 Ads **AI Engineer (Ads)** 공고(대화형 캠페인 셋업 · AI 광고 심사 · 가상 피드백 · 소재 생성)를 읽고 만든 **개인 프로젝트**입니다. 모든 상품·광고주·수치는 가상이고, 검사 규칙은 토스애즈 **공개** 광고주 가이드와 금융소비자보호법·대부업법·표시광고법의 공개 조문을 읽고 **이 프로젝트가 재구성**한 것이며 토스·토스애즈의 내부 심사 기준이 아닙니다. 화면의 '점검 통과'·'게재 불가' 는 이 검사 기준에 따른 결과이지 어느 회사의 실제 심사·집행 승인이 아닙니다. 법률 자문도 아닙니다. 운영 데이터(사용자 수·트래픽·심사 시간·승인율)는 이 저장소에 없고, 시간 절감이나 승인율 개선 같은 효과는 주장하지 않습니다.
+
+## 먼저 읽는 요약 (3분)
 
 **코드와 모델의 역할**
 
@@ -42,14 +55,30 @@ pip install -r requirements.txt && streamlit run app.py
 - 모델 호출이 실패한 문구는 **같은 문구로 다시 시도**할 수 있고, 성공한 결과만 재사용합니다. 재시도가 성공해도 첫 실패와 사용량은 기록에 남습니다.
 - 코드가 비교하는 조건은 **여섯 종류**(자동결제·심사 조건·최소 금액·기간·1인 횟수·제외)뿐입니다. 그 밖의 조건은 모델과 사람의 몫이라고 화면·프롬프트에 그대로 적습니다.
 
-**검증한 것 / 아직 확인하지 못한 것** (자세한 근거는 4절)
+**검증한 것 / 아직 확인하지 못한 것** (전체 목록과 근거는 4절)
 
-- 검증: 테스트 1663개(네트워크 없음, 셸의 API 키·`PREFLIGHT_*` 환경변수와 무관), 브라우저에서 데스크톱·모바일로 끝까지 누른 흐름 56개 검사(`docs/screenshots/e2e_report.json`), 숫자·조건 비교 213건(외부 리뷰 기반 39 + 내부 재점검 보강 174; 틀린 문구와 정상 대조) 전부 라벨대로 판정, 골든셋·holdout·대조·우회 표현 게이트에서 **문제 있는 광고 통과 0건**(결정론 계층 — 이 ‘0건’ 이 무엇을 뜻하는지는 4절).
-- 미확인: 지금 코드(검사 기준 2026.10.4·프롬프트 2026.10.4)의 실제 모델 값은 **방식 비교 한 번(110건, 6절)** 뿐입니다. 평가 기준선·확신 곡선(ECE)·우회 표현 검사·처리 기록은 이전 기준의 5차 값입니다. 라벨은 규칙을 쓴 사람이 달았고 독립 검증자는 없습니다.
+- 검증: 테스트 1663개(네트워크 없음), 브라우저에서 데스크톱·모바일로 끝까지 누른 흐름 56개 검사, 숫자·조건 비교 213건이 모두 라벨대로 판정.
+- 검증: 골든셋·holdout·대조·우회 표현에서 **모델 없이 코드 검사만 돌린 층**(결정론 계층)이 문제 있는 광고를 통과시킨 것은 0건. 다만 이 층은 코드가 못 잡은 광고를 ‘통과’ 가 아니라 ‘담당자 확인’ 으로 두는 구조라 0 이 나오기 쉬운 값입니다 — 코드가 실제로 잡은 수는 4절.
+- 검증: 지금 코드의 실제 모델 값은 6절의 방식 비교 한 번(110건, GPT-4o)입니다.
+- 미확인: 평가 기준선·확신 곡선(ECE)·우회 표현 검사·처리 기록은 이전 기준(5차)의 값입니다.
+- 미확인: 라벨은 규칙을 쓴 사람이 달았고 독립 검증자가 없습니다. 숫자·조건 비교 213건은 개발용이라 독립 평가가 아닙니다.
+- 미확인: 실제 모델 비교는 한 모델(GPT-4o)·한 번의 측정이고 교차 확인의 독립성이 없습니다(OpenAI 키 하나).
+
+**용어 풀이**
+
+| 용어 | 뜻 |
+|---|---|
+| 코드 검사 · 결정론 계층 | 모델을 부르지 않고 규칙만으로 같은 입력에 항상 같은 결과를 내는 검사 (표현 규칙·필수 안내 문구·숫자와 조건 대조·형식) |
+| 판정 4가지 | 점검 통과 · 수정 필요 · 게재 불가 · 담당자 확인 필요. ‘담당자 확인 필요’ 는 통과도 반려도 아닌, 사람이 봐야 한다는 뜻 |
+| 담당자 확인 / τ | 모델의 확신이 τ(기본 0.80) 보다 낮으면 자동으로 확정하지 않고 담당자 확인으로 넘김 |
+| 교차 확인 | 경계 사례를 다른 계열 모델이 한 번 더 보는 것. 키가 하나뿐이면 같은 모델이 두 번 본 것이라 독립성이 없음 |
+| 골든셋 · holdout | 정답 라벨이 붙은 사례 모음. 골든셋은 규칙·프롬프트를 고치는 데 쓴 개발용, holdout 은 고칠 때 보지 않고 따로 둔 최종 확인용 |
+| 확신 보정 오차(ECE) | 모델이 ‘확신 90%’ 라고 한 판단이 실제로 맞은 비율과 얼마나 어긋나는지. 작을수록 확신을 믿을 수 있음 |
+| 잘못 통과 | 문제 있는 광고를 통과시킨 것(가장 나쁜 오류). 반대로 ‘불필요한 수정 요청’ 은 정상 광고를 막은 것 |
 
 ## 1. 어떤 광고 업무 문제를 푸나
 
-광고를 만드는 사람은 "이 문구가 심사에서 걸릴까?" 를 올리고 나서야 압니다. 이 도구는 그 순서를 바꿉니다.
+30초 요약의 문제를 단계로 나누면 다음과 같습니다.
 
 | 단계 | 하는 일 | 코드 |
 |---|---|---|
@@ -271,7 +300,7 @@ ui/          labels.py(화면 문구 한곳) · funding.py(비용이 누구 계�
 tests/       1663개, 네트워크 없음·환경변수 무관 (AppTest 화면 테스트·워크플로 YAML 테스트 포함)
 docs/        ARCHITECTURE.md · EVALS.md · FAILURE_MODES.md(생성) · POLICY.md(생성) · screenshots/
 site/        공개 데모 소스 — index.html(랜딩) · app/(브라우저 실행판) · replay/(실제 기록 재생 템플릿)
-scripts/     build_site.py · build_replay.py · record_traces.py · gen_docs.py · screenshot.py · e2e_flow.py(브라우저로 끝까지 누르기, 결과를 e2e_report.json 에) · check_dataset_at_commit.py(이전 커밋의 코드 검사 결과 재현)
+scripts/     build_site.py · build_replay.py · record_traces.py · gen_docs.py · screenshot.py · e2e_flow.py(브라우저로 끝까지 누르기, 결과를 e2e_report.json 에) · make_demo_gif.py(맨 위 움직이는 화면) · check_dataset_at_commit.py(이전 커밋의 코드 검사 결과 재현)
 Dockerfile · render.yaml   Render 무료 웹 서비스 블루프린트
 ```
 
@@ -294,6 +323,8 @@ Dockerfile · render.yaml   Render 무료 웹 서비스 블루프린트
 | <https://sokldjs554.github.io/toss-ads-ai-project/app/> | **브라우저 실행판** — 전체 앱이 서버 없이 브라우저(WebAssembly·[stlite](https://github.com/whitphx/stlite)) 안에서 돈다 | `main` 에 push 될 때마다 `.github/workflows/pages.yml` 이 `scripts/build_site.py` 로 소스를 zip 으로 묶어 GitHub Pages 에 올린다. `sys.platform == "emscripten"` 이면 예시 실행으로 고정 |
 | <https://sokldjs554.github.io/toss-ads-ai-project/replay/> | **실제 GPT-4o 실행 기록 재생** — `live-eval` 워크플로가 기록한 5개 사례와 1차→5차 평가 | `scripts/build_replay.py` 가 `traces/sample_partial_*.json` · `evals/reports/` 를 정적 페이지로 굽는다. 모델 호출 없음 |
 | <https://preflight-toss-ads.onrender.com> | **Render 서버** — 같은 앱의 서버 실행판. 대시보드에서 `OPENAI_API_KEY`·`ANTHROPIC_API_KEY` 를 넣으면 실제 모델 | `render.yaml` + `Dockerfile`, push 마다 자동 재배포. `.github/workflows/render-check.yml` 로 상태 확인 |
+
+직접 띄우려면 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/sokldjs554/toss-ads-ai-project) 또는 `pip install -r requirements.txt && streamlit run app.py`. Render 서버는 화면 맨 위에 배포된 빌드(커밋)가 표시되고, 무료 플랜이라 15분 무접속이면 잠들어 첫 접속에 30초~1분이 걸립니다.
 
 브라우저 실행판의 한계: 네트워크 SDK 를 못 쓰므로 모델 단계는 대역이고, 파일 다운로드 대신 내용을 화면에 보여 준다.
 
