@@ -12,7 +12,7 @@ import pytest
 
 from agents.pipeline import RunOptions, run_pipeline
 from core.config import Settings
-from core.schemas import Decision
+from core.schemas import AdCopy, Claim, Decision, Fact
 from observability.tracer import Tracer
 from ops.labeling import AdjudicationRecord, AnnotationRejected, LabelDecision
 from ops.review_queue import (
@@ -433,6 +433,35 @@ def test_gold_items_look_exactly_like_normal_items_to_the_labeler():
         assert needle not in dumped, needle
     assert view.reason_label == normal.reason_label                                # 사유 문구도 같다
     assert view.ad_copy.variant_id.startswith("var_") and "G-9" not in view.ad_copy.variant_id and "G-9" not in view.product_name
+
+
+@pytest.mark.parametrize("gold", [False, True])
+def test_blinded_fact_ids_preserve_claim_links_without_leaking_or_mutating_sources(gold):
+    q, _ = make_queue(gold_rate=1.0 if gold else 0.0)
+    facts = [Fact(id="G-901-source-fact", text="전 상품 10% 할인"), Fact(id="F1", text="10월 31일까지")]
+    copy = AdCopy(headline="전 상품 10% 할인", body="10월 31일까지", cta="쇼핑하기", claims=[
+        Claim(text="전 상품 10% 할인", fact_id="G-901-source-fact"),
+        Claim(text="10월 31일까지", fact_id="F1"),
+        Claim(text="추가 혜택", fact_id="G-901-missing-fact"),
+        Claim(text="배송 혜택", fact_id=None),
+    ])
+    if gold:
+        q.enqueue_gold([{"id": "G-901", "category": "ecommerce", "label": "APPROVE", "rule_ids": [],
+                         **copy.model_dump(), "facts": [f.model_dump() for f in facts]}])
+        add_item(q, 1)
+    else:
+        q.enqueue_ad(copy, dataset_id="G-901", category="ecommerce", facts=facts)
+    view = q.claim("가")
+    original = q.get(view.item_id).model_dump(mode="json")
+    assert [f.id for f in view.facts] == ["F1", "F2"]
+    assert [c.fact_id for c in view.ad_copy.claims] == ["F1", "F2", None, None]
+    assert [f.text for f in view.facts] == [f.text for f in facts]
+    assert [c.text for c in view.ad_copy.claims] == [c.text for c in copy.claims]
+    assert "G-901" not in view.model_dump_json()
+    view.facts[0].text = "changed view"
+    view.ad_copy.claims[0].fact_id = "changed view"
+    assert q.get(view.item_id).model_dump(mode="json") == original
+    assert q.view(view.item_id, "가").facts[0].id == "F1"
 
 
 def test_the_reason_shown_to_the_labeler_is_the_same_for_every_item():

@@ -140,7 +140,7 @@
 | FM-94 | CSV 수식 주입 | insight_input | =HYPERLINK(...) 같은 칸이 엑셀에서 실행된다 | 칸의 첫 글자가 =, +, -, @ 인지 검사 | 앞에 작은따옴표를 붙여 무해화 (화면·내보내기) | `tests/test_insights_csv.py::test_formula_cells_become_plain_text` | 예 |
 | FM-95 | CSV 칸·항목 이름 속 지시문이 모델·화면에 닿음 | insight_input | 소재 이름에 '이전 지시 무시' 같은 글이 들어 있다 | 항목 이름을 별칭으로 바꾸고, 인젝션을 스캔하고, 화면에서 이스케이프 | 모델에는 별칭만 보내고, 화면에서는 HTML·마크다운 글자를 처리 | `tests/test_insights_report.py::test_item_names_never_reach_the_model_only_aliases_do` | 예 |
 | FM-96 | 불가능한 값·거대한 CSV | insight_input | 클릭이 노출보다 많은 행이나 수 GB 파일이 들어온다 | 행 단위 검증, 20,000행·2MB 상한 | 행 단위로 거절하고(줄 번호와 쉬운 말로 알림), 파일이 상한을 넘으면 파일을 거절 | `tests/test_insights_csv.py::test_impossible_rows_are_rejected_one_by_one_with_line_number_and_plain_reason` | 예 |
-| FM-97 | 합성 평가를 실제 정확도로 오해하거나 holdout 오염 | insight_eval | holdout 을 만든 뒤 엔진을 그 결과를 보고 고친다 | 엔진 지문(fingerprint)을 비교 | 지문이 어긋나면 테스트가 실패하고 경고한다 | `tests/test_insights_eval.py::test_engine_has_not_changed_since_the_holdout_was_created` | 예 |
+| FM-97 | 합성 평가를 실제 정확도로 오해하거나 holdout 오염 | insight_eval | holdout 을 만든 뒤 엔진을 그 결과를 보고 고친다 | 시나리오·메타데이터·현재 엔진의 지문을 비교 | 엔진 변경은 기본 게이트가 거부하고 명시적 회귀 검사로 구분한다. 지문 누락·충돌은 회귀 모드에서도 거부 | `tests/test_insights_eval.py::test_regression_mode_is_explicit_and_labels_the_seen_holdout` | 예 |
 
 ## 라벨링·검수 (FM-98 ~ FM-119)
 

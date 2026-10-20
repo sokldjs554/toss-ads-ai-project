@@ -75,6 +75,20 @@ def test_every_palette_meets_aa_contrast_verified_by_code():
     assert any("weak.body" in m for m in verify_palettes([weak]))                      # 검증 함수가 나쁜 팔레트를 실제로 잡는다
 
 
+@pytest.mark.parametrize("color", [
+    'white"/><script>alert(1)</script><rect fill="white',
+    "url(https://example.invalid/paint.svg)",
+    "\x0cwhite",
+])
+@pytest.mark.parametrize("field", ["bg", "title", "body", "accent", "button_text", "disclosure"])
+def test_custom_palette_rejects_values_that_are_not_supported_colors(field, color):
+    from dataclasses import replace
+
+    palette = replace(PALETTES["paper"], **{field: color})
+    with pytest.raises(ValueError, match="색"):
+        compose(TYPICAL, palette=palette)
+
+
 def test_every_size_template_palette_combination_keeps_aa_contrast_on_every_block():
     n = 0
     for sz in ASSUMED_BANNER_SIZES:

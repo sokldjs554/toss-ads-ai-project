@@ -359,12 +359,14 @@ _BLOCKED_TAGS = {"script", "foreignobject", "iframe", "object", "embed", "applet
 _UNREAD_SHAPES = {"path", "image", "polygon", "polyline"}      # 글자 모양을 그릴 수 있는 요소 (rect·circle 같은 기본 도형은 세지 않는다)
 _DATA_IMAGE = re.compile(r"^data:image/(?:png|jpe?g|gif|webp);base64,[a-z0-9+/=]*$", re.I)
 _CSS_IMPORT = re.compile(r"@import\b[^;]*;?", re.I)
-_CSS_URL = re.compile(r"url\(\s*(['\"]?)(.*?)\1\s*\)", re.I | re.S)
-_CSS_BAD_DECL = re.compile(r"[^;{}]*(?:expression\s*\(|javascript:|vbscript:|-moz-binding|behavior\s*:)[^;{}]*;?", re.I)
+_CSS_URL = re.compile(r"url\(", re.I)
+_CSS_DECLARATION = re.compile(r"[^;{}]+;?")
+_CSS_BAD_DECL = re.compile(r"expression\s*\(|javascript:|vbscript:|-moz-binding|behavior\s*:", re.I)
+_CSS_URL_ATTRS = {"fill", "stroke", "filter", "clip-path", "mask", "cursor", "marker", "marker-start", "marker-mid", "marker-end", "color-profile"}
 _DOCTYPE = re.compile(r"<!\s*(?:DOCTYPE|ENTITY|ELEMENT|ATTLIST|NOTATION)\b", re.I)
 _XML_STYLESHEET = re.compile(r"<\?xml-stylesheet", re.I)
 _CTRL = re.compile(r"[\x00-\x20\x7f\u200b-\u200f\u2028\u2029\ufeff]+")
-_LEN = re.compile(r"^\s*([+-]?(?:\d+\.?\d*|\.\d+))\s*(px|pt|pc|mm|cm|in|em|rem|%)?\s*$", re.I)
+_LEN = re.compile(r"([+-]?(?:\d+(?:\.\d*)?|\.\d+))(?:\s*(px|pt|pc|mm|cm|in|em|rem|%))?", re.I)
 _TO_PX = {"": 1.0, "px": 1.0, "pt": 96 / 72, "pc": 16.0, "mm": 96 / 25.4, "cm": 96 / 2.54, "in": 96.0, "em": 16.0, "rem": 16.0}
 
 
@@ -375,7 +377,40 @@ def _local(tag: str) -> tuple[str, str]:
     return "", tag
 
 
-_CSS_COMMENT = re.compile(r"/\*.*?\*/", re.S)
+_CSS_COMMENT = re.compile(r"/\*.*?(?:\*/|\Z)", re.S)   # 끝나지 않은 주석도 EOF 까지 한 번만 읽고 버린다
+
+
+def _clean_css_urls(css: str) -> tuple[str, bool]:
+    """URL 토큰을 한 번씩 읽는다. 끝나지 않은 토큰은 스타일을 비워 닫는다 (다음 url( 부터 같은 나머지를 다시 훑지 않는다)."""
+    parts: list[str] = []
+    pos = 0
+    while match := _CSS_URL.search(css, pos):
+        start = match.end()
+        while start < len(css) and css[start].isspace():
+            start += 1
+        quote = css[start:start + 1]
+        if quote in ("'", '"'):
+            value_start = start + 1
+            value_end = css.find(quote, value_start)
+            if value_end < 0:
+                return "", True
+            end = value_end + 1
+            while end < len(css) and css[end].isspace():
+                end += 1
+            if end == len(css) or css[end] != ")":
+                return "", True
+        else:
+            value_start = start
+            end = value_end = css.find(")", start)
+            if end < 0:
+                return "", True
+        parts.append(css[pos:match.start()])
+        value = css[value_start:value_end].strip()
+        parts.append(css[match.start():end + 1] if value.startswith("#") else "none")
+        pos = end + 1
+    parts.append(css[pos:])
+    out = "".join(parts)
+    return out, out != css
 
 
 def _clean_css(css: str) -> tuple[str, bool]:
@@ -384,19 +419,15 @@ def _clean_css(css: str) -> tuple[str, bool]:
         return "", True
     out = _CSS_COMMENT.sub("", css)
     out = _CSS_IMPORT.sub("", out)
-    out = _CSS_BAD_DECL.sub("", out)
-
-    def drop(m: re.Match) -> str:
-        return m.group(0) if m.group(2).strip().startswith("#") else "none"
-
-    out = _CSS_URL.sub(drop, out)
+    out = _CSS_DECLARATION.sub(lambda m: "" if _CSS_BAD_DECL.search(m.group(0)) else m.group(0), out)
+    out, _ = _clean_css_urls(out)
     return out, out != css
 
 
 def _svg_length(value: Optional[str]) -> Optional[float]:
     if not value:
         return None
-    m = _LEN.match(value)
+    m = _LEN.fullmatch(value.strip())
     if not m or (m.group(2) or "") == "%":
         return None
     return float(m.group(1)) * _TO_PX[(m.group(2) or "").lower()]
@@ -543,11 +574,10 @@ def sanitize_svg(raw: bytes) -> Union[tuple[bytes, list[str], dict], ImageReject
                 if changed:
                     bump("css")
                     el.set(attr, cleaned)
-            elif "url(" in norm:
-                for m in _CSS_URL.finditer(value):
-                    if not m.group(2).strip().startswith("#"):
-                        drop = "external_ref"
-                        break
+            elif lan in _CSS_URL_ATTRS or "url(" in norm:
+                _, changed = _clean_css(value)
+                if changed:
+                    drop = "external_ref"
             if drop:
                 bump(drop)
                 del el.attrib[attr]

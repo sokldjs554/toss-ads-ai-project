@@ -370,6 +370,86 @@ def test_corrupt_report_file_is_treated_as_missing(tmp_path):
     assert not load_measured(tmp_path).available
 
 
+@pytest.mark.parametrize("path,value", [
+    (("failures",), ["malformed"]),
+    (("overall_by_split", "dev"), ["malformed"]),
+    (("systems", "combined"), "malformed"),
+    (("datasets", "golden"), ["malformed"]),
+    (("rows",), [None]),
+    (("complete",), "true"),
+    (("overall_by_split", "dev", "combined", "n"), -1),
+    (("overall_by_split", "dev", "combined", "human_review", "k"), 101),
+    (("overall_by_split", "dev", "combined", "human_review", "n"), 99),
+    (("overall_by_split", "dev", "combined", "good_to_human", "n"), 39),
+    (("overall_by_split", "dev", "combined", "cost_usd"), -1.0),
+    (("overall_by_split", "dev", "combined", "latency_ms_total"), float("nan")),
+    (("overall_by_split", "dev", "combined", "failed"), 1),
+    (("overall_by_split", "dev", "combined"), {}),
+])
+def test_malformed_comparison_measurements_are_unavailable_with_a_reason(reports, path, value):
+    tmp, write = reports
+    d = make_compare()
+    target = d
+    for part in path[:-1]:
+        target = target[part]
+    target[path[-1]] = value
+    write("compare_live.json", d)
+    m = load_measured(tmp)
+    assert not m.available and not m.systems
+    assert m.missing["compare_live.json"]
+    assert not estimate(A, m).computed
+
+
+@pytest.mark.parametrize("case", [
+    None,
+    {"label": "UNKNOWN", "predicted": "APPROVE", "cost_usd": 0.01, "latency_ms": 10.0},
+    {"label": "APPROVE", "predicted": "UNKNOWN", "cost_usd": 0.01, "latency_ms": 10.0},
+    {"label": "APPROVE", "predicted": "HUMAN_REVIEW", "cost_usd": 0.01, "latency_ms": 10.0, "error": "provider failed"},
+    {"label": "APPROVE", "predicted": "HUMAN_REVIEW", "cost_usd": 0.01, "latency_ms": 10.0, "rewrite_error": "provider failed"},
+    {"label": "APPROVE", "predicted": "APPROVE", "cost_usd": float("inf"), "latency_ms": 10.0},
+    {"label": "APPROVE", "predicted": "APPROVE", "cost_usd": 0.01, "latency_ms": -1.0},
+])
+def test_malformed_or_failed_baseline_cases_are_not_measurements(reports, case):
+    tmp, write = reports
+    write("baseline_partial.json", {"mode": "partial", "cases": [case], "provider_failures": {"n": 0}})
+    m = load_measured(tmp)
+    assert not m.available and not m.systems and m.missing["baseline_partial.json"]
+
+
+def test_valid_baseline_is_used_after_a_malformed_comparison(reports):
+    tmp, write = reports
+    write("compare_live.json", make_compare(overall_by_split={"dev": ["bad"], "holdout": {}}))
+    write("baseline_partial.json", {"mode": "partial", "cases": [
+        {"label": "APPROVE", "predicted": "APPROVE", "cost_usd": 0.01, "latency_ms": 10.0},
+    ], "provider_failures": {"n": 0}})
+    m = load_measured(tmp)
+    assert m.available and m.sources == ["baseline_partial.json"] and m.missing["compare_live.json"]
+
+
+def test_baseline_without_cost_or_latency_does_not_invent_zero_measurements(reports):
+    tmp, write = reports
+    write("baseline_partial.json", {"mode": "partial", "cases": [
+        {"label": "APPROVE", "predicted": "APPROVE"},
+    ], "provider_failures": {"n": 0}})
+    m = load_measured(tmp)
+    assert m.available and m.systems["combined"].human_review.rate == 0.0
+    assert m.systems["combined"].cost_per_case_usd is None
+    assert m.systems["combined"].latency_mean_ms is None
+
+
+@pytest.mark.parametrize("metadata", [{"dataset": "holdout"}, {"dataset": "some/path/holdout.jsonl"}, {"split": "holdout"}])
+def test_holdout_baseline_is_never_silently_counted_as_development_data(reports, metadata):
+    tmp, write = reports
+    write("baseline_partial.json", {"mode": "partial", "cases": [
+        {"label": "REJECT", "predicted": "HUMAN_REVIEW", "cost_usd": 0.02, "latency_ms": 20.0},
+    ], "provider_failures": {"n": 0}, **metadata})
+    assert not load_measured(tmp, split="dev").available
+    holdout = load_measured(tmp, split="holdout")
+    assert holdout.available and holdout.split == "holdout" and holdout.n_cases == 1
+    assert load_measured(tmp, split="all").available
+    assert all("골든셋" not in note and "개발용 사례만" not in note for note in holdout.notes)
+
+
 def test_invalid_split_is_refused():
     with pytest.raises(ValueError):
         load_measured(split="nope")

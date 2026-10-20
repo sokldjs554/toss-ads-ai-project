@@ -181,7 +181,7 @@ def _score_block() -> None:
         if normal:
             fa = normal["false_alarm_streams"]
             st.caption(f"변화가 없는 스트림 {normal['n_streams']}개 중 한 번이라도 잘못 울린 스트림: {sum(fa.values()) if fa else 0}개(점검별 합) · 시드 {score['seed']} · 평가 간격 {score['eval_every']}회마다. "
-                       "표본이 작아 오경보율은 거칠게만 알 수 있습니다.")
+                       "표본이 작아 이상이 없는 상황에서 잘못 알린 비율은 거칠게만 알 수 있습니다.")
 
 
 # ---------------------------------------------------------------------------

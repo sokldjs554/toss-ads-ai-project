@@ -1,0 +1,113 @@
+{
+  "run_at_utc": "2026-10-20T09:48:37.092338+00:00",
+  "python": "3.11.17",
+  "paid_model_calls": 0,
+  "historical_reports_overwritten": false,
+  "checks": [
+    {
+      "name": "policy_golden_code",
+      "command": "python -m evals.run --dataset golden --no-llm --gate",
+      "exit_code": 0,
+      "duration_seconds": 0.413,
+      "report_only": false
+    },
+    {
+      "name": "policy_adversarial",
+      "command": "python -m evals.run --dataset adversarial --no-llm --require-zero-unsafe",
+      "exit_code": 0,
+      "duration_seconds": 0.324,
+      "report_only": false
+    },
+    {
+      "name": "policy_golden_demo",
+      "command": "python -m evals.run --dataset golden --gate",
+      "exit_code": 0,
+      "duration_seconds": 0.628,
+      "report_only": false
+    },
+    {
+      "name": "policy_holdout",
+      "command": "python -m evals.run --dataset holdout --no-llm --require-zero-unsafe",
+      "exit_code": 0,
+      "duration_seconds": 0.27,
+      "report_only": false
+    },
+    {
+      "name": "policy_contrast",
+      "command": "python -m evals.run --dataset contrast_g069 --no-llm --require-zero-unsafe",
+      "exit_code": 0,
+      "duration_seconds": 0.282,
+      "report_only": false
+    },
+    {
+      "name": "policy_conditions",
+      "command": "python -m evals.run --dataset conditions --no-llm --require-zero-unsafe",
+      "exit_code": 0,
+      "duration_seconds": 0.332,
+      "report_only": false
+    },
+    {
+      "name": "policy_conditions_extra",
+      "command": "python -m evals.run --dataset conditions_extra --no-llm --require-zero-unsafe",
+      "exit_code": 0,
+      "duration_seconds": 0.476,
+      "report_only": false
+    },
+    {
+      "name": "dialogs_dev",
+      "command": "python -m evals.dialogs --split dev --gate",
+      "exit_code": 0,
+      "duration_seconds": 0.732,
+      "report_only": false
+    },
+    {
+      "name": "url_ingest",
+      "command": "python -m evals.url_ingest_eval --gate",
+      "exit_code": 0,
+      "duration_seconds": 0.828,
+      "report_only": false
+    },
+    {
+      "name": "images",
+      "command": "python -m evals.image_eval --gate",
+      "exit_code": 0,
+      "duration_seconds": 0.549,
+      "report_only": false
+    },
+    {
+      "name": "insights_regression",
+      "command": "python -m evals.insights_eval --split all --gate --regression --out evals/reports/insights_regression.json",
+      "exit_code": 0,
+      "duration_seconds": 3.415,
+      "report_only": false
+    },
+    {
+      "name": "creative_quality",
+      "command": "python -m evals.quality_signals --gate",
+      "exit_code": 0,
+      "duration_seconds": 0.675,
+      "report_only": false
+    },
+    {
+      "name": "dialogs_holdout_report_only",
+      "command": "python -m evals.dialogs --split holdout",
+      "exit_code": 0,
+      "duration_seconds": 0.791,
+      "report_only": true
+    },
+    {
+      "name": "document_tables",
+      "command": "python scripts/gen_feature_docs.py --check",
+      "exit_code": 0,
+      "duration_seconds": 0.485,
+      "report_only": false
+    },
+    {
+      "name": "pages_build",
+      "command": "python scripts/build_site.py --out _site",
+      "exit_code": 0,
+      "duration_seconds": 0.561,
+      "report_only": false
+    }
+  ]
+}

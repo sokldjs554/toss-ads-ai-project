@@ -3,7 +3,7 @@
 
     pip install playwright pillow && python scripts/e2e_flow.py [--out docs/screenshots]
 화면 캡처만으로 검증을 대신하지 않기 위한 스크립트다: 단계마다 기대한 글자가 보이는지, 예외 표시와 가로 넘침이 없는지, 스타일이 실제로 적용됐는지 확인하고 하나라도 어긋나면 실패(종료 코드 1)한다.
-실행 결과(검사 목록과 통과 여부)는 <out>/e2e_report.json 에 남는다. flow_*.png 열 장(다섯 단계 × 데스크톱·모바일)이 이 스크립트가 찍은 화면이고, 01·02·03·04·05_cases·06_quality·07_mobile_result·08_compare 는 scripts/screenshot.py 가 찍는다.
+실행 결과(검사 목록과 통과 여부)는 <out>/e2e_report.json 에 남는다. flow_*.png 는 심사·재시도 흐름과 대화·상품 페이지·배너·이미지·성과·운영·평가 화면을 데스크톱·모바일에서 찍은 것이고, 01·02·03·04·05_cases·06_quality·07_mobile_result·08_compare 는 scripts/screenshot.py 가 찍는다.
 """
 from __future__ import annotations
 
@@ -14,6 +14,8 @@ import subprocess
 import sys
 import time
 import urllib.request
+from datetime import datetime, timezone
+from importlib.metadata import version
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -203,7 +205,7 @@ def run_features_flow(browser, name: str, size: tuple[int, int], out: Path) -> l
     f.wait_text("이 내용으로 광고 작업 채우기", 90_000)
     time.sleep(1.0)
     t = f.text()
-    f.check("대화: 말한 값이 ‘지금까지 이해한 내용’ 에 나온다 (업종·예산)", "신용대출" in t and "300만원" in t.replace(",", "").replace("3000000", "300만원") or "3,000,000" in t)
+    f.check("대화: 말한 값이 ‘지금까지 이해한 내용’ 에 나온다 (업종·예산)", "신용대출" in t and ("300만원" in t.replace(",", "").replace("3000000", "300만원") or "3,000,000" in t))
     f.check("대화: 예시 실행(규칙 기반) 표시", "규칙 기반" in t)
     f.no_exception("대화 한 번 뒤")
     f.shot("feat1_chat", "이 내용으로 광고 작업 채우기")
@@ -322,8 +324,8 @@ def main() -> int:
         import streamlit
 
         sha = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
-        dirty = bool(subprocess.run(["git", "status", "--porcelain", "--", "app.py", "ui", "agents", "guardrails", "core", "llm"], cwd=ROOT, capture_output=True, text=True).stdout.strip())
-        report = {"commit": sha + ("+uncommitted" if dirty else ""), "streamlit": streamlit.__version__, "python": sys.version.split()[0], "viewports": list(VIEWPORTS),
+        dirty = bool(subprocess.run(["git", "status", "--porcelain", "--", "app.py", "ui", "agents", "guardrails", "core", "llm", "ops", "evals", "observability", ".streamlit/config.toml", "requirements.txt", "scripts/e2e_flow.py"], cwd=ROOT, capture_output=True, text=True).stdout.strip())
+        report = {"commit": sha + ("+uncommitted" if dirty else ""), "run_at_utc": datetime.now(timezone.utc).isoformat(), "browser": browser.version, "playwright": version("playwright"), "streamlit": streamlit.__version__, "python": sys.version.split()[0], "viewports": list(VIEWPORTS),
                   "checks": len(checks), "failed": len(bad), "per_viewport": {n: sum(1 for c in checks if c["viewport"] == n) for n in VIEWPORTS},
                   "results": [{"viewport": c["viewport"], "check": c["check"], "ok": c["ok"]} for c in checks]}
         out.mkdir(parents=True, exist_ok=True)

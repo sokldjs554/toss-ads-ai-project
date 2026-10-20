@@ -1,6 +1,6 @@
 """성과 인사이트 평가 — 합성 시나리오로 '이상 탐지 → 원인 진단 → 개선 액션 → 보고서 숫자 충실도' 를 잰다.
 
-    python -m evals.insights_eval [--split dev|holdout|all] [--gate] [--out evals/reports/insights_controlled.json]
+    python -m evals.insights_eval [--split dev|holdout|all] [--gate] [--regression] [--out path.json]
 
 모델을 부르지 않는다(결정론). 시나리오(evals/datasets/perf_scenarios.jsonl)는 이 프로젝트가 만든 합성 데이터이고 정답도 같은 사람이 정했다.
 
@@ -28,6 +28,7 @@ import argparse
 import datetime as dt
 import hashlib
 import json
+import shlex
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -295,15 +296,29 @@ def evaluate(split: str = "all") -> dict:
         if sub:
             by_split[s] = aggregate(sub)
     fp = engine_fingerprint()
-    frozen = sorted({sc.frozen_engine for sc in scenarios if sc.split == "holdout" and sc.frozen_engine})
+    held = [sc for sc in scenarios if sc.split == "holdout"]
+    frozen = sorted({sc.frozen_engine for sc in held})
+    provenance_issues = []
+    if held:
+        if "" in frozen:
+            provenance_issues.append("holdout 시나리오에 동결 엔진 지문이 빠져 있습니다.")
+        if len(frozen) != 1:
+            provenance_issues.append("holdout 시나리오의 동결 엔진 지문이 서로 다릅니다.")
+        meta_fp = dataset_meta().get("holdout_frozen_engine_fingerprint", "")
+        if not meta_fp or frozen != [meta_fp]:
+            provenance_issues.append("holdout 시나리오와 데이터셋 메타데이터의 동결 엔진 지문이 일치하지 않습니다.")
+    engine_changed = bool(held) and any(value != fp for value in frozen)
     return {
-        "dataset": "perf_scenarios", "data": "synthetic", "command": f"python -m evals.insights_eval --split {split} --out evals/reports/insights_controlled.json",
-        "engine_fingerprint": fp, "dataset_fingerprint": dataset_fingerprint(), "holdout_frozen_engine": frozen[0] if frozen else "",
-        "engine_changed_after_holdout": bool(frozen) and frozen[0] != fp,
+        "dataset": "perf_scenarios", "data": "synthetic",
+        "command": f"python -m evals.insights_eval --split {split}" + (" --regression --out evals/reports/insights_regression.json" if engine_changed else " --out evals/reports/insights_controlled.json"),
+        "engine_fingerprint": fp, "dataset_fingerprint": dataset_fingerprint(), "holdout_frozen_engine": frozen[0] if len(frozen) == 1 else "",
+        "engine_changed_after_holdout": engine_changed, "holdout_provenance_issues": provenance_issues,
+        "holdout_role": ("regression" if engine_changed else "held_out") if held else "",
         "engine_params": {"recent_days": ie.RECENT_DAYS, "baseline_days": ie.BASELINE_DAYS, "h_score": ie.H_SCORE, "h_single": ie.H_SINGLE, "min_effect": ie.MIN_EFFECT,
                           "sigma_inflate": ie.SIGMA_INFLATE, "seg_h_score": ie.SEG_H_SCORE, "assert_confidence": ie.ASSERT_CONFIDENCE, "likely_confidence": ie.LIKELY_CONFIDENCE,
                           "candidate_confidence": ie.CANDIDATE_CONFIDENCE},
         "splits": by_split, "holdout_observations": HOLDOUT_OBSERVATIONS if "holdout" in by_split else [], "scenarios": results,
+        "holdout_observations_note": "관찰은 원래 고정 엔진으로 처음 평가했을 때의 기록입니다. 엔진 변경 후 재실행은 이미 확인한 시나리오의 회귀 검사입니다." if held else "",
         "limitations": [
             "시나리오는 우리가 만든 합성 데이터이고 생성기와 진단 규칙을 같은 사람이 설계했다(순환 위험). holdout 은 이를 줄이려는 시도일 뿐 실제 광고 데이터의 정확도가 아니다.",
             "모델 문장화의 품질은 측정하지 않았다(대역·템플릿·주입 시험만).",
@@ -313,8 +328,8 @@ def evaluate(split: str = "all") -> dict:
     }
 
 
-def check_gates(report: dict, stored: Optional[dict]) -> list[str]:
-    fails: list[str] = []
+def check_gates(report: dict, stored: Optional[dict], *, regression: bool = False) -> list[str]:
+    fails: list[str] = list(report.get("holdout_provenance_issues", []))
     for split, agg in report["splits"].items():
         for g in ZERO_GATES:
             if agg.get(g):
@@ -327,7 +342,7 @@ def check_gates(report: dict, stored: Optional[dict]) -> list[str]:
             for k in LOWER_BETTER:
                 if agg.get(k) is not None and old.get(k) is not None and agg[k] > old[k] + REGRESSION_TOLERANCE:
                     fails.append(f"{split}: {k} {old[k]} → {agg[k]} (허용 폭 {REGRESSION_TOLERANCE} 초과 상승)")
-    if report.get("engine_changed_after_holdout"):
+    if report.get("engine_changed_after_holdout") and not regression:
         fails.append("엔진이 holdout 시나리오를 만든 뒤 바뀌었습니다 — holdout 결과는 '엔진을 고정한 뒤 한 번 본 값' 이 아닙니다.")
     return fails
 
@@ -341,6 +356,8 @@ def load_report(path: Path = REPORT_PATH) -> Optional[dict]:
 
 def format_summary(report: dict) -> str:
     lines = []
+    if report.get("holdout_role") == "regression":
+        lines.append("이미 확인한 최종 확인용 시나리오의 회귀 검사입니다. 새 최종 확인용 평가 결과로 해석할 수 없습니다.")
     for split, a in report["splits"].items():
         lines.append(f"[{split}] 시나리오 {a['n_scenarios']}개 (사건 {a['n_events']} · 대조 {a['n_controls']} · 원인 가릴 수 있음 {a['n_resolvable']} · 가릴 수 없게 설계 {a['n_ambiguous']})")
         lines.append(f"  이상 탐지 재현율 {a['detection_recall']} ({a['detection_recall_n']}) · 정밀도 {a['detection_precision']} ({a['detection_precision_n']}) · 대조 오경보율 {a['control_false_alarm_rate']} ({a['control_false_alarm_n']})")
@@ -356,11 +373,26 @@ def main(argv: Optional[list[str]] = None) -> int:
     ap = argparse.ArgumentParser(description="성과 인사이트 평가 (합성 시나리오, 모델 호출 없음)")
     ap.add_argument("--split", default="all", choices=["dev", "holdout", "all"])
     ap.add_argument("--gate", action="store_true", help="게이트(0 이어야 하는 항목 + 저장된 보고서 대비 회귀)를 검사하고 실패하면 종료 코드 1")
-    ap.add_argument("--out", default="", help="결과 JSON 을 쓸 경로 (예: evals/reports/insights_controlled.json)")
+    ap.add_argument("--regression", action="store_true", help="이미 확인한 holdout 을 회귀 검사로 사용 (동결 지문·메타데이터 및 수치 게이트는 계속 검사)")
+    ap.add_argument("--out", default="", help="결과 JSON 을 쓸 별도 경로 (예: evals/reports/insights_regression.json)")
     args = ap.parse_args(argv)
-    report = evaluate(args.split)
+    historical_output = bool(args.out) and Path(args.out).resolve() == REPORT_PATH.resolve()
+    if historical_output:
+        ap.error("과거 평가 기록은 덮어쓸 수 없습니다. 회귀 결과의 --out 에 별도 경로를 지정하세요.")
+    stored = load_report() if args.gate else None
+    report = dict(evaluate(args.split))
+    if args.regression and "holdout" in report["splits"]:
+        report["holdout_role"] = "regression"
+    command = ["python", "-m", "evals.insights_eval", "--split", args.split]
+    if args.gate:
+        command.append("--gate")
+    if args.regression:
+        command.append("--regression")
+    if args.out:
+        command.extend(["--out", args.out])
+    report["command"] = shlex.join(command)
     print(format_summary(report))
-    if report["engine_changed_after_holdout"]:
+    if report["engine_changed_after_holdout"] and not args.regression:
         print("경고: 엔진이 holdout 시나리오를 만든 뒤 바뀌었습니다 — holdout 결과를 '고정 후 한 번 본 값' 으로 쓸 수 없습니다.")
     if args.out:
         out = Path(args.out)
@@ -370,7 +402,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         out.write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding="utf-8")
         print(f"저장: {out}")
     if args.gate:
-        fails = check_gates(report, load_report())
+        fails = check_gates(report, stored, regression=args.regression)
         if fails:
             print("게이트 실패:\n  " + "\n  ".join(fails))
             return 1

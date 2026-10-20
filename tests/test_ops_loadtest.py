@@ -89,6 +89,49 @@ def test_percentile_helper(lt):
     assert s["p50"] == 2.0 and s["max"] == 3.0 and lt.summarize_ms([])["p50"] is None
 
 
+def test_throughput_counts_successes_and_uses_the_median_for_even_repeats(lt, monkeypatch):
+    """Known wall times isolate rate arithmetic from machine speed; tasks still use the real report builder."""
+    runs = iter([
+        {"wall_s": 1.0, "latencies_ms": [1.0] * 6, "errors": ["failed"] * 2},
+        {"wall_s": 2.0, "latencies_ms": [1.0] * 6, "errors": ["failed"] * 4},
+    ])
+    monkeypatch.setattr(lt, "run_once", lambda task, n, concurrency: next(runs))
+    report = lt.measure_workload("test", lambda seed: (lambda i: None, 1, "local test"),
+                                 n=6, warmup=0, concurrency=(1,), repeats=2, seed=0)
+    result = report["results"][0]
+    assert result["throughput_per_s_all"] == [4.0, 1.0]
+    assert result["throughput_per_s_median"] == 2.5
+    assert result["attempt_throughput_per_s_all"] == [6.0, 3.0]
+    assert result["attempt_throughput_per_s_median"] == 4.5
+    assert result["successful_calls"] == 6 and result["attempted_calls"] == 12 and result["errors"] == 6
+
+
+@pytest.mark.parametrize("failed_phase", ["warmup", "timed", "memory"])
+def test_cli_saves_failures_from_each_phase_and_returns_nonzero(lt, monkeypatch, tmp_path, failed_phase):
+    calls = 0
+
+    def task(i):
+        nonlocal calls
+        calls += 1
+        phase = "warmup" if calls == 1 else "timed" if calls <= 4 else "memory"
+        if phase == failed_phase:
+            raise RuntimeError(f"local {phase} failure")
+
+    monkeypatch.setattr(lt, "WORKLOADS", {"test": lambda seed: (task, 1, "local test")})
+    out = tmp_path / "failures.json"
+    result = lt.main(["--n", "3", "--warmup", "1", "--concurrency", "1", "--repeats", "1", "--out", str(out)])
+    assert result == 1
+    report = json.loads(out.read_text(encoding="utf-8"))
+    workload = report["workloads"]["test"]
+    assert calls == 7
+    assert workload["warmup"]["errors"] == (1 if failed_phase == "warmup" else 0)
+    assert workload["results"][0]["errors"] == (3 if failed_phase == "timed" else 0)
+    assert workload["memory"]["errors"] == (3 if failed_phase == "memory" else 0)
+    if failed_phase == "timed":
+        assert workload["results"][0]["throughput_per_s_median"] == 0.0
+    assert report["model_calls"] == 0 and report["network_calls"] == 0
+
+
 # --- 저장된 측정 결과 ---------------------------------------------------------------------------
 def test_stored_report_exists_with_environment_and_the_required_caveats():
     assert STORED.exists(), "evals/reports/loadtest.json 이 없다 — python scripts/loadtest.py 로 만든다"
