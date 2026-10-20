@@ -39,7 +39,7 @@ from ops.review_queue import (
     ReviewQueue,
     build_demo_queue,
 )
-from ui import theme
+from ui import review_queue_storage, theme
 from ui.components import download_or_show
 from ui.labels import DECISION_LABEL, RUN_MODE_LABEL
 
@@ -343,7 +343,7 @@ def _labeling_section(q: ReviewQueue, catalog: PolicyCatalog) -> None:
     saved = ss.setdefault("rq_saved", {})          # 다른 화면에 다녀오면 위젯 상태가 지워지므로, 설정은 위젯이 아닌 세션 값에도 적어 둔다
     c0, c1 = st.columns([3, 2])
     name = c0.text_input("라벨러 이름", value=saved.get("name", ""), key="rq_annotator", max_chars=40, placeholder="예: 홍길동",
-                         help="이 세션 안에서만 쓰입니다. 같은 사람이 같은 광고를 두 번 라벨할 수 없고, 이름이 다른 두 사람이어야 일치도를 잴 수 있습니다.")
+                         help="이 대기열에 기록할 이름입니다. 새로고침한 뒤에도 같은 이름을 쓰면 진행 중인 광고를 이어서 볼 수 있습니다. 같은 사람이 같은 광고를 두 번 라벨할 수 없습니다.")
     hide = c1.toggle("자동 제안 숨기기", value=bool(saved.get("hide", True)), key="rq_hide_prelabel",
                      help="자동 검사의 제안을 보면 그 제안에 끌려갈 수 있습니다. 켜 두면 먼저 직접 판단하고, 보였는지 숨겼는지는 라벨에 기록됩니다.")
     saved["name"], saved["hide"] = name or "", bool(hide)
@@ -519,7 +519,8 @@ def _advanced_section(q: ReviewQueue) -> None:
             st.rerun()
         if q.gold_pool_size:
             st.caption(f"검증용 항목 {q.gold_pool_size}개가 풀에 있습니다 (라벨러마다 따로, 일정 비율로 섞여 나옵니다).")
-        download_or_show("대기열 저장 (JSONL)", q.to_jsonl(), "review_queue.jsonl", "application/x-ndjson", "rq_save")
+        st.caption("작업은 이 브라우저에 자동 저장됩니다. 아래 파일은 다른 기기로 옮기거나 사이트 데이터 삭제에 대비하는 별도 백업입니다.")
+        review_queue_storage.backup_download(q.to_jsonl(), file_name="review_queue.jsonl", label="대기열 전체 백업 내려받기 (JSONL)", key="rq_save")
         up = st.file_uploader("저장한 대기열 불러오기", type=["jsonl"], key="rq_upload")
         if up is not None and st.button("불러오기 (현재 대기열을 바꿉니다)", key="rq_load"):
             try:
@@ -535,7 +536,8 @@ def _real_section(entries: list[tuple[PipelineRun, str]], catalog: PolicyCatalog
     ss = st.session_state
     q = _queue()
     c0, c1 = st.columns([2, 3])
-    c0.radio("광고 하나를 확정하는 데 필요한 라벨 수", [1, 2], index=0 if q.required_labels == 1 else 1, key="rq_required", horizontal=True, disabled=len(q) > 0,
+    required_options = sorted({1, 2, q.required_labels})
+    c0.radio("광고 하나를 확정하는 데 필요한 라벨 수", required_options, index=None if "rq_required" in ss else required_options.index(q.required_labels), key="rq_required", horizontal=True, disabled=len(q) > 0,
              help="2 로 두면 서로 다른 두 사람이 라벨해야 확정됩니다(일치도를 잴 수 있음). 1 은 한 사람 모드이며 독립 확인이 아닙니다. 대기열에 광고가 있으면 바꿀 수 없습니다.")
     if int(ss.get("rq_required", 2)) != q.required_labels and len(q) == 0:
         ss["rq_queue"] = q = ReviewQueue(required_labels=int(ss["rq_required"]))
@@ -581,11 +583,14 @@ def render(source: Any = None, *, catalog: Optional[PolicyCatalog] = None) -> No
     st.markdown("자동 검사가 확정하지 못한 광고를 사람이 직접 보고 **판정(라벨)** 을 남기는 곳입니다. 남긴 라벨은 코드가 검증하고, 라벨러가 여럿이면 서로 얼마나 같게 판단했는지 재고, "
                 "확정된 라벨은 평가셋 후보로 내려받을 수 있습니다.")
     st.info("이 프로젝트에는 사람 라벨러가 한 명뿐입니다. 여러 명이 라벨하는 기능은 만들었지만 합성 예시로만 검증했고, 독립 라벨러가 확보됐다는 뜻이 아닙니다.", icon="ℹ️")
-    _show_flash()
     saved = ss.setdefault("rq_saved", {})
     scope = st.radio("보기", [SCOPE_REAL, SCOPE_DEMO], index=1 if saved.get("scope") == SCOPE_DEMO else 0, horizontal=True, key="rq_scope", label_visibility="collapsed")
     saved["scope"] = scope
     if scope == SCOPE_DEMO:
+        if "rq_persistence" not in ss or ss["rq_persistence"].ready:
+            _show_flash()
         _demo_section(catalog)
-    else:
+    elif review_queue_storage.ready():
+        _show_flash()
         _real_section(entries, catalog)
+        review_queue_storage.save_changes()

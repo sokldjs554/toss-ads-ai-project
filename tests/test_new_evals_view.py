@@ -65,3 +65,20 @@ def test_a_broken_report_shape_degrades_to_dashes(monkeypatch, tmp_path):
     for _, fn in new_evals.SECTIONS:
         fn()   # 예외 없이 끝나야 한다 (AppTest 밖이라 st 호출은 무시된다)
     assert new_evals._frac(None, 3) == "—" and new_evals._str_frac("x") == "—" and new_evals._pct("a") == "—"
+
+
+def test_insights_distinguishes_followup_regression_from_the_historical_record(monkeypatch, tmp_path):
+    original = new_evals._load("insights_controlled.json")
+    followup = json.loads(json.dumps(original))
+    followup["holdout_role"] = "regression"
+    followup["engine_changed_after_holdout"] = True
+    followup["splits"]["holdout"]["control_false_alarm_n"] = "0/4"
+    (tmp_path / "insights_controlled.json").write_text(json.dumps(original), encoding="utf-8")
+    (tmp_path / "insights_followup_regression.json").write_text(json.dumps(followup), encoding="utf-8")
+    monkeypatch.setattr(new_evals, "REPORTS", tmp_path)
+    at = AppTest.from_string("from ui import new_evals\nnew_evals._insights()", default_timeout=60).run()
+    assert not at.exception
+    text = _all_text(at)
+    assert "후속 엔진 회귀 검사" in text and "처음 저장한 평가 기록" in text
+    assert "0/4" in text and "2/4" in text and "새 독립 평가가 아닙니다" in text
+    assert all(word not in text for word in ("오탐", "미탐", "오경보율"))

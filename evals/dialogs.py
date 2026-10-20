@@ -1,11 +1,12 @@
 """대화형 캠페인 셋업 평가 — 스크립트 대화를 `agents.conversation.step` 으로 돌리고 코드가 지표를 계산한다.
 
-    python -m evals.dialogs [--split dev|holdout|all] [--gate] [--out evals/reports/dialogs_controlled.json]
+    python -m evals.dialogs [--split dev|holdout|all] [--gate] [--dataset PATH] [--out evals/reports/dialogs_regression_v2.json]
 
 이 숫자가 의미하지 않는 것 (리포트의 `extractor: "rules"` 가 뜻하는 것)
 - 지표는 **규칙 기반 추출기(와 그것을 되풀이하는 대역 제공자)** 의 값이다. 실제 언어 모델의 이해력·되묻기 품질이 아니다. 실제 모델을 부르지 않았다.
-- 대화 65개는 이 프로젝트 저자가 직접 쓴 가상 대화다. 라벨(기대 슬롯·되묻기)도 같은 저자가 달았고 독립 라벨러가 없다. 실제 광고주의 말투·분포가 아니다.
-- dev 는 추출기를 고치는 데 쓴 대화라 점수가 높게 나온다(과적합). holdout 은 추출기를 고정한 뒤에 쓴 대화이며 그 결과를 보고 추출기를 고치지 않았다 — 두 값을 함께 읽는다.
+- 대화 66개는 이 프로젝트 저자가 직접 쓴 가상 대화다. 라벨(기대 슬롯·되묻기)도 같은 저자가 달았고 독립 라벨러가 없다. 실제 광고주의 말투·분포가 아니다.
+- 2026-10-20에 기존 holdout의 여섯 실패를 보고 추출기를 수정했다. dev/holdout 이름은 과거 묶음을 식별하기 위해 남겼으며, 이제 둘 다 수정하며 본 회귀 데이터다. 처음 보는 입력에서의 성능을 뜻하지 않는다.
+- 원본 데이터·당시 리포트는 보존한다. 회귀판 v2는 첫 공격 뒤 같은 턴을 격리하는 계약에 맞춰 DLG-035에 다음 턴의 정상 요청 재진술을 추가했다. 원본을 새 코드로 돌린 결과도 별도 보고한다.
 - 모델 경로(증거 구절 대조·충돌 처리·reply 가드)의 검증 로직은 여기서가 아니라 `TaskScriptedProvider` 를 쓴 단위 테스트(tests/test_conv_model_path.py)가 확인한다.
 - 되묻기 지표(불필요한 되묻기·놓친 되묻기)는 데이터셋의 `must_not_ask` / `must_ask` 표시 건수만큼만 센다. 표시하지 않은 되묻기는 평가하지 않는다.
 
@@ -30,21 +31,27 @@ from llm.router import Router
 from observability.tracer import Tracer
 
 ROOT = Path(__file__).resolve().parents[1]
-DATASET = Path(__file__).with_name("datasets") / "dialogs.jsonl"
+ORIGINAL_DATASET = Path(__file__).with_name("datasets") / "dialogs.jsonl"
+DATASET = Path(__file__).with_name("datasets") / "dialogs_regression_v2.jsonl"
+PROVENANCE = Path(__file__).with_name("datasets") / "dialogs_regression_v2.provenance.json"
 REPORTS = Path(__file__).with_name("reports")
-DEFAULT_REPORT = REPORTS / "dialogs_controlled.json"
-REPRO = "python -m evals.dialogs --split all --out evals/reports/dialogs_controlled.json"
+HISTORICAL_REPORT = REPORTS / "dialogs_controlled.json"
+ORIGINAL_CURRENT_REPORT = REPORTS / "dialogs_original_after_fix_20261020.json"
+DEFAULT_REPORT = REPORTS / "dialogs_regression_v2.json"
+REPRO = "python -m evals.dialogs --split all --out evals/reports/dialogs_regression_v2.json"
 
 EVAL_SLOTS = ["product_name", "category", "objective", "monthly_budget_krw", "audience", "period", "landing_url", "key_conditions", "tone", "ad_set_count", "bid_strategy"]
 CAVEATS = [
     "extractor: rules — 규칙 기반 추출기(와 그것을 되풀이하는 대역 제공자)의 값이다. 실제 언어 모델의 이해력이 아니다.",
     "대화는 저자가 쓴 가상 대화이고 라벨도 같은 저자가 달았다(독립 라벨러 없음). 실제 광고주의 말투·분포가 아니다.",
-    "dev 는 추출기를 고치는 데 쓴 대화(과적합된 값), holdout 은 추출기를 고정한 뒤에 쓰고 결과를 보고 고치지 않은 대화다.",
+    "dev/holdout은 과거 묶음 이름이다. 2026-10-20에 holdout의 실패를 보고 수정했으므로 둘 다 이미 본 회귀 데이터이며 처음 보는 입력의 성능이 아니다.",
+    "회귀판 v2의 DLG-035는 공격 턴 격리 뒤 정상 요청을 다음 턴에 다시 말한다. 원본 데이터·과거 보고서와 원본의 수정 후 결과도 별도로 보존한다.",
     "되묻기 지표는 must_not_ask / must_ask 로 표시한 건수만 센다.",
 ]
-# 최종 확인용(holdout) 대화를 쓰기 직전의 코드 지문. holdout 은 추출기·대화 로직을 고정한 '뒤에' 썼고 그 결과를 보고 고치지 않았다는 약속을 코드로 남긴 것이다.
-# 이 지문과 지금 코드의 지문이 다르면(= 그 뒤에 규칙을 고쳤으면) 리포트의 holdout.clean 이 False 가 되고 테스트가 실패한다 — holdout 숫자를 '고정한 뒤의 값' 으로 읽을 수 없다는 뜻이다.
-# 고정 뒤의 변경 기록(이것 하나뿐): agents/conversation.py 의 FailureEvent 코드 문자열 4개를 임시 자리표시자에서 정식 카탈로그 코드 FM-25~28 로 바꿨다.
+# 과거 holdout 대화를 쓰기 직전의 코드 지문. 값을 새 코드로 덮어쓰지 않는다.
+# 2026-10-20에 그 결과를 보고 수정했으므로 현재 보고서는 항상 holdout.clean=False다.
+# 아래 지문은 HISTORICAL_REPORT의 당시 주장만 재현한다. 당시 유일한 변경:
+# agents/conversation.py의 FailureEvent 코드 문자열 4개를 임시 자리표시자에서 정식 카탈로그 코드 FM-25~28로 바꿨다.
 # 상수 문자열만 바뀌고 동작은 같다. 바꾸기 전 지문은 conversation_sha256 = 26ecc0f13045edea058dbb1f74ed73a0d33e1e58d05947325cc25c984568fa14 였고,
 # 그 네 문자열만 되돌려 다시 계산하면 정확히 그 값이 나온다. 추출기(conversation_rules.py)와 holdout 대화·정답은 그대로다.
 HOLDOUT_FROZEN = {"extractor_sha256": "4ec735c9a3216036471bfe4433b523c6edadbe7b7b4c8b1fe22fe8638758f5c6",
@@ -104,9 +111,9 @@ def default_settings() -> Settings:
     return Settings.from_env(openai_api_key="", anthropic_api_key="", force_demo=True)
 
 
-def run_dialog(d: dict, settings: Optional[Settings] = None) -> DialogRun:
-    settings = settings or default_settings()
-    router = Router(settings, tracer=Tracer(max_traces=8))
+def run_dialog(d: dict, settings: Optional[Settings] = None, *, router: Optional[Router] = None) -> DialogRun:
+    settings = settings or (router.settings if router is not None else default_settings())
+    router = router or Router(settings, tracer=Tracer(max_traces=8))
     run = DialogRun(dialog=d)
     st = C.new_state()
     try:
@@ -250,6 +257,8 @@ def evaluate(run: DialogRun) -> dict:
                     fails.append(f"인젝션 오염: {slot} 의 근거 구절에 지시문이 있음 ({ev.quote[:30]!r})")
         res["injection"] = True
     res["contaminated"] = contaminated
+    # 금지 값 검사는 일반 정정 사례에도 쓰인다. 공격 대화의 분모와 따로 기록한다.
+    res["attack_case"] = "INJECTION" in d.get("expected_issues", []) or d.get("kind") == "injection"
     # 플랜
     if d.get("expect_plan"):
         ep = d["expect_plan"]
@@ -279,6 +288,7 @@ def compute_metrics(evals: list[dict]) -> dict:
         total += len(rows)
     ready_turns = [e["ready_turn"] for e in evals if e["ready_ok"] and e["ready_turn"] is not None]
     inj = [e for e in evals if e.get("injection")]
+    attacks = [e for e in evals if e.get("attack_case")]
     plan = [e for e in evals if "plan_ok" in e]
     return {
         "n_dialogs": len(evals),
@@ -295,6 +305,8 @@ def compute_metrics(evals: list[dict]) -> dict:
         "injection_dialogs": len(inj),
         "injection_contaminated": sum(e["contaminated"] for e in inj),
         "injection_safe_rate": _rate(sum(not e["contaminated"] for e in inj), len(inj)),
+        "attack_dialogs": len(attacks),
+        "attack_contaminated": sum(e["contaminated"] for e in attacks),
         "conflict_handling_accuracy": _rate(sum(e["conflict_ok"] for e in evals), sum(e["conflict_items"] for e in evals)),
         "conflict_items": sum(e["conflict_items"] for e in evals),
         "issue_accuracy": _rate(sum(e["issue_ok"] for e in evals), len(evals)),
@@ -304,10 +316,11 @@ def compute_metrics(evals: list[dict]) -> dict:
 
 def code_fingerprints() -> dict:
     return {"extractor_sha256": sha256_of(ROOT / "agents" / "conversation_rules.py"),
-            "conversation_sha256": sha256_of(ROOT / "agents" / "conversation.py", ROOT / "llm" / "mock_extra" / "conversation.py", ROOT / "core" / "llm_schemas_conversation.py")}
+            "conversation_sha256": sha256_of(ROOT / "agents" / "conversation.py", ROOT / "llm" / "mock_extra" / "conversation.py", ROOT / "core" / "llm_schemas_conversation.py"),
+            "injection_sha256": sha256_of(ROOT / "guardrails" / "injection.py", ROOT / "guardrails" / "policy.yaml")}
 
 
-def build_report(split: str = "all", path: Path = DATASET, settings: Optional[Settings] = None) -> dict:
+def build_report(split: str = "all", path: Path = DATASET, settings: Optional[Settings] = None, output_path: Optional[Path] = None) -> dict:
     dialogs = load_dialogs("all", path)
     evals_by_id: dict[str, dict] = {}
     for d in dialogs:
@@ -321,17 +334,25 @@ def build_report(split: str = "all", path: Path = DATASET, settings: Optional[Se
     counts = {sp: sum(1 for d in dialogs if d.get("split") == sp) for sp in ("dev", "holdout")}
     counts["all"] = len(dialogs)
     shown = [e for e in evals_by_id.values() if split == "all" or e["split"] == split]
-    return {
-        "name": "dialogs_controlled",
+    try:
+        dataset_path = path.resolve().relative_to(ROOT).as_posix()
+    except ValueError:
+        dataset_path = str(path)
+    repro = REPRO if path.resolve() == DATASET.resolve() else (
+        f"python -m evals.dialogs --split {split} --dataset {dataset_path} --out evals/reports/dialogs_original_after_fix_20261020.json")
+    report = {
+        "name": "dialogs_regression",
         "extractor": "rules",
         "run_mode": "demo — 대역 제공자(mock)가 규칙 추출기를 되풀이한다. 실제 모델 호출 없음",
         "caveats": CAVEATS,
-        "repro": REPRO,
-        "dataset": {"path": "evals/datasets/dialogs.jsonl", "sha256": sha256_of(path), "counts": counts},
+        "repro": repro,
+        "dataset": {"path": dataset_path, "sha256": sha256_of(path), "counts": counts, "role": "seen_regression",
+                    "provenance": "evals/datasets/dialogs_regression_v2.provenance.json"},
         "code": code_fingerprints(),
         "holdout": {"frozen": dict(HOLDOUT_FROZEN),
-                    "clean": HOLDOUT_FROZEN["extractor_sha256"] is not None and HOLDOUT_FROZEN == code_fingerprints(),
-                    "note": "holdout 대화는 위 지문의 코드로 고정한 뒤에 썼고, 그 결과를 보고 코드를 고치지 않았다. clean=false 면 그 뒤에 코드를 고친 것이다."},
+                    "clean": False, "used_for_tuning": True, "role": "seen_regression",
+                    "historical_report": "evals/reports/dialogs_controlled.json", "historical_report_sha256": sha256_of(HISTORICAL_REPORT),
+                    "note": "기존 holdout의 실패를 보고 코드를 수정했다. 이 수치는 회귀 확인용이며 새 입력 성능이 아니다. frozen은 당시 코드 지문을 보존한 값이다."},
         "constants": {"MAX_TURNS": C.MAX_TURNS, "MAX_USER_CHARS": C.MAX_USER_CHARS, "MAX_QUESTIONS": C.MAX_QUESTIONS,
                       "ASSUMED_MIN_MONTHLY_BUDGET_KRW": R.ASSUMED_MIN_MONTHLY_BUDGET_KRW, "ASSUMED_MIN_BUDGET_PER_AD_SET_KRW": R.ASSUMED_MIN_BUDGET_PER_AD_SET_KRW,
                       "ASSUMED_DAYS_PER_MONTH": R.ASSUMED_DAYS_PER_MONTH, "ASSUMED_WEEKS_PER_MONTH": R.ASSUMED_WEEKS_PER_MONTH},
@@ -339,6 +360,22 @@ def build_report(split: str = "all", path: Path = DATASET, settings: Optional[Se
         "splits": splits,
         "dialogs": [{k: v for k, v in e.items() if k in ("id", "split", "kind", "ok", "ready_turn", "failures")} for e in shown],
     }
+    if path.resolve() not in {DATASET.resolve(), ORIGINAL_DATASET.resolve()}:
+        provenance_path = path.with_suffix(".provenance.json")
+        provenance = json.loads(provenance_path.read_text()) if provenance_path.exists() else {}
+        try:
+            displayed_provenance = provenance_path.resolve().relative_to(ROOT).as_posix()
+        except ValueError:
+            displayed_provenance = str(provenance_path)
+        report["name"] = "dialogs_custom_replay"
+        report["dataset"].update(role="replay", provenance=displayed_provenance if provenance else None)
+        report["holdout"] = {"frozen": provenance.get("frozen_code_sha256", {}), "clean": False,
+                             "role": "replay", "first_evaluation_claimed": False,
+                             "note": "별도 데이터 재실행이다. 이 실행을 새로운 맹검 평가로 주장하지 않는다. 첫 실행은 별도 보존한다."}
+        report["caveats"] = [CAVEATS[0], CAVEATS[1], CAVEATS[-1], report["holdout"]["note"]]
+        target = output_path or Path(f"evals/reports/{path.stem}_replay.json")
+        report["repro"] = f"python -m evals.dialogs --split {split} --dataset {dataset_path} --out {target.as_posix()}"
+    return report
 
 
 # ---------------------------------------------------------------------------
@@ -409,15 +446,19 @@ def summarize(report: dict) -> str:
 def main(argv: Optional[list[str]] = None) -> int:
     ap = argparse.ArgumentParser(prog="python -m evals.dialogs", description="대화형 캠페인 셋업 평가 (규칙 기반 추출기 — 모델 품질이 아님)")
     ap.add_argument("--split", choices=["dev", "holdout", "all"], default="all")
+    ap.add_argument("--dataset", type=Path, default=DATASET, help="대화 데이터 경로 (기본: 이미 본 회귀판 v2; 원본은 dialogs.jsonl)")
     ap.add_argument("--gate", action="store_true", help="기준선보다 나빠지거나 인젝션 오염이 있으면 종료 코드 1")
     ap.add_argument("--out", type=Path, default=None, help="결과를 저장할 경로 (게이트를 쓰면 통과했을 때만 저장)")
     ap.add_argument("--baseline", type=Path, default=DEFAULT_REPORT, help="게이트가 비교할 기준선 (기본: 저장된 리포트)")
     ap.add_argument("--quiet", action="store_true")
     args = ap.parse_args(argv)
+    protected = {HISTORICAL_REPORT.resolve(), (REPORTS / "dialogs_holdout_20261020.json").resolve()}
+    if args.out is not None and args.out.resolve() in protected:
+        ap.error("처음 저장한 평가 기록은 덮어쓰지 않습니다. 새 --out 경로를 사용하세요.")
     baseline = None
     if args.gate and args.baseline.exists():
         baseline = json.loads(args.baseline.read_text(encoding="utf-8"))
-    report = build_report(args.split)
+    report = build_report(args.split, path=args.dataset, output_path=args.out)
     if not args.quiet:
         print(summarize(report))
     code = 0

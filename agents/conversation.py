@@ -316,14 +316,18 @@ def _split_sentences(text: str) -> list[str]:
 
 
 def quarantine(text: str, catalog: PolicyCatalog) -> tuple[str, list[str], int]:
-    """인젝션이 든 문장을 걷어낸다. (남은 글, 걷어낸 문장들, 보이지 않는 문자 수). 걷어낸 문장은 슬롯을 읽는 데도, 모델 프롬프트에도 쓰지 않는다."""
-    res = injection.scan_text(text, catalog)
+    """첫 지시문부터 같은 입력의 끝까지 격리한다. 앞의 정상 문장과 다음 턴은 읽는다.
+
+    지시문 뒤의 '예산은 …로 바꿔'도 공격의 일부일 수 있으므로 슬롯·모델 양쪽에 보내지 않는다.
+    반환값은 (남은 글, 걷어낸 문장들, 보이지 않는 제어 문자 수)다.
+    """
+    res = injection.scan_text(text, catalog, quarantine_tail=True)
     clean = res.sanitized
     removed = [x for x in res.removed if x]
     kept: list[str] = []
     extra = False
     for s in _split_sentences(clean):
-        if _EXTRA_INJ.search(s):
+        if extra or _EXTRA_INJ.search(s):
             removed.append(s.strip())
             extra = True
         else:

@@ -1,6 +1,7 @@
 # 광고 심사 규칙 카탈로그
 #
 # 버전 이력 (규칙의 뜻이나 코드가 규칙을 읽는 방식이 바뀌면 올린다 — 평가 결과는 이 버전에 묶어서 비교한다)
+#   2026.10.5  한국어·영어 지시 변경 표현 보강, 대화에서는 첫 공격부터 같은 턴 끝까지 격리.
 #   2026.10.4  근거 결합(GRND-*) 비교 보강: 하이픈 범위·복합 금액(1만5천원)·전각/구어 단위·주기 수식어·연도·부정 표현·마감 표기·기준일/식별번호 제외.
 #              규칙 목록과 문구는 2026.10.3 과 같다.
 #   2026.10.3  GRND-NUM-01/CLAIM-01/COND-01/COND-02 제목 정리, 고지 문구 속 숫자·조건도 비교.
@@ -16,7 +17,7 @@
 #   patterns : 정규화된 표면(loose/tight)에 적용하는 정규식. 한글 조사·어미는 패턴 안에서 허용
 #   negation_aware : true 면 매치 직후 부정 표현이 있으면 warn 으로 내리고 의미 심사로 넘긴다
 #   exceptions : 이 정규식에 걸리는 매치는 무시 (예: 상품 자체의 금리 범위 '최저 연 4.5%')
-version: "2026.10.4"
+version: "2026.10.5"
 rules:
   # ───────────────────────────── 토스애즈 공통 · 소재별 ─────────────────────────────
   - id: TA-SUPERLATIVE-01
@@ -525,8 +526,8 @@ rules:
     layer: injection
     applies: [all]
     patterns:
-      - "(이전|위의|앞의|기존)\\s*(지시|명령|규칙|프롬프트)(을|를|은|는)?\\s*(무시|잊|해제|취소)"
-      - "ignore\\s+(all\\s+)?(previous|prior|above)\\s+(instructions?|rules?|prompts?)"
+      - "(이전|위의?|앞의?|기존)\\s*(모든\\s*)?(지시(?:사항)?|명령|규칙|지침|프롬프트)(을|를|은|는)?\\s*(?:(?:모두|전부|다|완전히)\\s*)?(무시|잊|해제|취소|폐기)"
+      - "\\b(ignore|disregard|forget)\\s+(?:all\\s+)?(?:the\\s+)?(?:(?:previous|prior|above|earlier)\\s+(?:instructions?|rules?|prompts?|guidelines?)|(?:instructions?|rules?|prompts?|guidelines?)\\s+(?:above|before|earlier))\\b"
       - "(system\\s*prompt|시스템\\s*프롬프트)(을|를)?\\s*(출력|보여|공개|무시|변경|reveal|print|show)"
       - "you\\s+are\\s+now\\s+|(이제|지금)부터\\s*(너는|당신은|넌)\\s*"
       - "(개발자|관리자|운영자)\\s*모드|developer\\s*mode|jailbreak|DAN\\s*mode"
@@ -545,6 +546,7 @@ rules:
       - "(이|본|해당)\\s*(광고|소재)(는|은)\\s*(이미|사전)\\s*(승인|검수\\s*완료|심의\\s*통과)"
       - "(반려|거절)\\s*(하지\\s*마|금지|불가)"
       - "(findings?|위반\\s*사항)(을|를|은|는)?\\s*(비워|빈\\s*배열|없다고|empty)"
+      - "\\byou\\s+(?:must|should|will)\\s+(?:now\\s+)?approve\\s+(?:this|the)\\s+(?:ad|advertisement)\\b"
     explanation: "심사 모델의 판정을 직접 지정하려는 문장."
     fix_hint: "해당 문장을 제거하고 소재를 HUMAN_REVIEW 로"
 

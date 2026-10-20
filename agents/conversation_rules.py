@@ -401,7 +401,7 @@ def _extract_budget(text: str, ctx: ExtractContext, consumed: list[tuple[int, in
 # ---------------------------------------------------------------------------
 # (목표, 정규식, 강한 단서인가) — 앞에서부터 구간을 차지한다. 한 구간은 한 목표에만 쓰인다.
 _OBJ_CUES: list[tuple[Objective, re.Pattern, bool]] = [
-    (Objective.LEAD, re.compile(r"상담(?:\s*(?:신청|예약|문의))?|잠재\s*고객|리드|견적|문의\s*(?:유도|받|늘|가\s*늘|증가|확대)|\blead", re.I), True),
+    (Objective.LEAD, re.compile(r"상담(?:\s*(?:신청|예약|문의))?|(?:잠재\s*고객|리드)(?:\s*확보)?|견적|문의\s*(?:유도|받|늘|가\s*늘|증가|확대)|\blead", re.I), True),
     (Objective.APP_INSTALL, re.compile(r"앱\s*설치|설치|인스톨|다운로드|\binstall", re.I), True),
     (Objective.CONVERSION, re.compile(r"구매|주문|결제|판매|매출|신청|가입|예약|구독|전환|\bconversion|\bpurchase|\bsign[\s-]?up|\border(?:s)?\b", re.I), True),
     (Objective.TRAFFIC, re.compile(r"방문|유입|트래픽|클릭|접속|\btraffic|\bvisit|\bclick", re.I), True),
@@ -430,7 +430,7 @@ def _overlaps(spans: list[tuple[int, int]], s: int, e: int) -> bool:
     return any(s < te and e > ts for ts, te in spans)
 
 
-_NEG_AFTER = re.compile(r"^\s*(?:은|는|이|가|도|을|를)?\s*(?:필요\s*없|필요하지|필요\s*않|아니|말고|싫|안\s*할|하지\s*않|원치|원하지)")
+_NEG_AFTER = re.compile(r"^\s*(?:은|는|이|가|도|을|를)?\s*(?:필요\s*없|필요하지|필요\s*않|아니|아닌|아닙|말고|싫|안\s*할|하지\s*않|원치|원하지)")
 
 
 def _negated(text: str, end: int) -> bool:
@@ -494,7 +494,7 @@ _EXTRA_CUES: dict[str, list[re.Pattern]] = {
     "savings": [re.compile(r"\bsavings?\b", re.I)],
     "crypto": [re.compile(r"\bcrypto\b|\bbitcoin\b", re.I)],
     "realestate": [re.compile(r"부동산|분양|아파트|오피스텔|전세|월세|청약|공인중개|\breal\s*estate\b", re.I)],
-    "health": [re.compile(r"건강기능식품|건기식|영양제|비타민|프로바이오틱스|병원|의원|치과|한의원|의료|다이어트|헬스|피트니스|\bhealth\b", re.I)],
+    "health": [re.compile(r"건강기능식품|건강\s*관리\s*서비스|건기식|영양제|비타민|프로바이오틱스|병원|의원|치과|한의원|의료|다이어트|헬스|피트니스|\bhealth\b", re.I)],
     "education": [re.compile(r"강의|강좌|교육|학원|클래스|수강|과외|자격증|어학|부트캠프|교재|\beducation\b|\bcourse\b", re.I)],
     "ecommerce": [re.compile(r"쇼핑몰|쇼핑|스토어|온라인\s*몰|이커머스|커머스|쿠폰|상품\s*판매|배송|패션|의류|뷰티|화장품|식품|가전|굿즈|공동구매|특가|세일|[가-힣A-Za-z0-9]몰(?![가-힣])|마켓|\be-?commerce\b|\bshop(?:ping)?\b|\bstore\b", re.I)],
     "app": [re.compile(r"(?<![가-힣])앱(?:[을를은는이가에의도로과와]|(?![가-힣]))|어플|애플리케이션|\bapp\b|플랫폼|\bSaaS\b|게임", re.I)],
@@ -505,7 +505,12 @@ _CATEGORY_WORD = {
     "가상자산": "crypto", "코인": "crypto", "커머스": "ecommerce", "쇼핑": "ecommerce", "쇼핑몰": "ecommerce", "앱": "app", "서비스": "app", "교육": "education",
     "건강": "health", "의료": "health", "부동산": "realestate", "기타": "other",
 }
-_CAT_DECLARE = re.compile(r"(?:업종|카테고리|분야)\s*(?:은|는|이|가|:)?\s*(?P<w>[가-힣A-Za-z]{1,8})")
+_CAT_DECLARE = re.compile(r"(?:업종|카테고리|분야)\s*(?:은|는|이|가|을|를|:)?\s*(?P<w>[가-힣A-Za-z]{1,8})")
+_CATEGORY_UNSURE = re.compile(r"^(?:아직|모르|몰라|미정|미확정|결정|정하지|잘|어떤|뭐|추천|알아서|알$|아니|아닌|아닙)")
+# 플랫폼 열거에 전용 항목이 없는 일상 업종. 업종을 직접 선언한 미등록 명칭도 아래에서 기타로 받는다.
+_OTHER_BUSINESS = r"(?:카페|커피숍|음식점|식당|빵집|베이커리|꽃집|미용실|세탁소|사진관|공방|문구점|서점|호텔|펜션)"
+_EXTRA_CUES["other"] = [re.compile(r"(?<![가-힣])" + _OTHER_BUSINESS + r"(?=[은는이가을를의에도로과와]|(?![가-힣]))")]
+_OTHER_DECLARE = re.compile(r"(?<![가-힣])" + _OTHER_BUSINESS + r"\s*(?:예요|이에요|입니다|이야|이고|[을를]\s*운영)")
 
 
 def _category_hits(text: str, catalog: PolicyCatalog) -> dict[str, list[tuple[int, int]]]:
@@ -548,11 +553,21 @@ def _extract_category(text: str, catalog: PolicyCatalog, consumed: list[tuple[in
     m = _CAT_DECLARE.search(text)
     if m:
         w = m.group("w")
-        for word, cat in _CATEGORY_WORD.items():
-            if w.startswith(word):
-                cands.append(Candidate("category", cat, text[m.start():m.end()].strip(), "confirmed", is_update_at(text, m.start(), m.end()), "", m.start(), m.end()))
-                consumed.append((m.start(), m.end()))
-                return cands, amb
+        named = next(((cat, m.start("w") + len(word)) for word, cat in sorted(_CATEGORY_WORD.items(), key=lambda item: -len(item[0])) if w.startswith(word)), None)
+        if named is None:
+            known = infer_categories(w, catalog)
+            named = (known[0][0], m.start("w") + known[0][2]) if known else ("other", m.end())
+        cat, cue_end = named
+        if not _CATEGORY_UNSURE.match(w) and not _negated(text, cue_end):
+            # 선언 구절은 '적금으로'까지 포함해도 수정 표지는 업종 낱말 뒤에서 읽는다.
+            cands.append(Candidate("category", cat, text[m.start():m.end()].strip(), "confirmed", is_update_at(text, m.start(), cue_end), "", m.start(), m.end()))
+            consumed.append((m.start(), m.end()))
+            return cands, amb
+    for m in _OTHER_DECLARE.finditer(text):
+        if not _negated(text, m.end()):
+            cands.append(Candidate("category", "other", m.group(0).strip(), "confirmed", is_update_at(text, m.start(), m.end()), "", m.start(), m.end()))
+            consumed.append((m.start(), m.end()))
+            return cands, amb
     ranked = infer_categories(text, catalog)
     if not ranked:
         return cands, amb
@@ -582,6 +597,7 @@ _AGE_PATTERNS: list[tuple[re.Pattern, str]] = [
     (re.compile(r"만\s*(?P<a>\d{1,2})\s*[~\-–∼]\s*(?P<b>\d{1,2})\s*세"), "age_range"),
     (re.compile(r"(?<!\d)(?P<a>\d{1,2})\s*[~\-–∼]\s*(?P<b>\d{1,2})\s*세"), "age_range"),
     (re.compile(r"(?:만\s*)?(?<!\d)(?P<a>\d{1,2})\s*세\s*(?P<d>이상|이하|미만|초과)"), "age_bound"),
+    (re.compile(r"(?<!\d)(?P<a>[1-9])0\s*대\s*(?P<sub>초반|중반|후반)?\s*(?P<d>이상|이하|미만|초과)"), "decade_bound"),
     (re.compile(r"(?<!\d)(?P<a>[1-9])0\s*대\s*(?P<sub>초반|중반|후반)?"), "decade"),
     (re.compile(r"(?<![\w])(?P<a>[1-9])0s(?![\w])", re.I), "decade"),
     (re.compile(r"(?<!\d)(?P<a>\d{1,2})\s*살"), "age_exact"),
@@ -610,7 +626,7 @@ def _age_from(kind: str, m: re.Match) -> Optional[dict]:
         return {"age_min": lo, "age_max": hi}
     if kind == "decade_compact":
         return {"age_min": a * 10, "age_max": int(m.group("b")) * 10 + 9}
-    if kind == "decade":
+    if kind in ("decade", "decade_bound"):
         sub = m.groupdict().get("sub")
         lo, hi = a * 10, a * 10 + 9
         if sub == "초반":
@@ -619,6 +635,16 @@ def _age_from(kind: str, m: re.Match) -> Optional[dict]:
             lo, hi = a * 10 + 4, a * 10 + 6
         elif sub == "후반":
             lo = a * 10 + 7
+        if kind == "decade_bound":
+            direction = m.group("d")
+            if direction == "이상":
+                hi = None
+            elif direction == "초과":
+                lo, hi = hi + 1, None
+            elif direction == "이하":
+                lo = None
+            else:
+                lo, hi = None, lo - 1
         return {"age_min": lo, "age_max": hi}
     if kind == "age_range":
         b = int(m.group("b"))
@@ -711,7 +737,8 @@ def is_minor_audience(value: Any) -> bool:
     lo, hi = value.get("age_min"), value.get("age_max")
     if lo is not None and lo < MIN_AGE:
         return True
-    if lo is None and hi is not None and hi < MIN_AGE:
+    if lo is None and hi is not None:
+        # '40세 미만'도 하한을 말하지 않았으므로 미성년자를 포함할 수 있다.
         return True
     return False
 
@@ -919,19 +946,33 @@ def _extract_url(text: str, consumed: list[tuple[int, int]]) -> list[Candidate]:
     return cands
 
 
-_TONE = re.compile(r"(?:톤|분위기|느낌|말투)\s*(?:은|는|을|를|으로|로|:)?\s*(?P<t>[가-힣]{2,10})|(?P<t2>친근|신뢰감?|전문적|캐주얼|유머러스|감성적|담백|차분|고급스러운|따뜻|발랄|진중)(?:한|하게|적인|스러운|있는|있게)?")
+_TONE_LABEL = re.compile(r"(?:톤|분위기|느낌|말투)\s*(?:은|는|을|를|으로|로|:)?\s*(?P<t>[^,.!?;。\n]{2,80})")
+_TONE_REQUEST = re.compile(r"\s+(?:(?:해|써|작성해|표현해|만들어|바꿔)\s*(?:주(?:세요|십시오|시고|면)|줘(?:요)?)|부탁(?:해요|드려요|드립니다|합니다))")
+_TONE = re.compile(r"(?:친근|신뢰감?|전문적|캐주얼|유머러스|감성적|담백|차분|고급스러운|따뜻|발랄|진중)(?:한|하게|적인|스러운|있는|있게)?")
 
 
 def _extract_tone(text: str, consumed: list[tuple[int, int]]) -> list[Candidate]:
-    m = _TONE.search(text)
+    m = _TONE_LABEL.search(text)
+    if m:
+        start, end = m.span("t")
+        # 같은 문장에 이어진 예산·타겟 등은 말투 설명에 포함하지 않는다.
+        end = min([end] + [s for s, _ in consumed if start <= s < end])
+        request = _TONE_REQUEST.search(text, start, end)
+        if request:
+            end = request.start()
+        value = text[start:end].strip()
+        end = start + len(text[start:end].rstrip())
+    else:
+        m = _TONE.search(text)
+        value = m.group(0) if m else ""
+        end = m.end() if m else 0
     if not m:
         return []
-    quote = text[m.start():m.end()].strip()
-    if len(quote) < 2:
+    quote = text[m.start():end].strip()
+    if len(value) < 2:
         return []
-    consumed.append((m.start(), m.end()))
-    value = (m.group("t") or quote).strip()          # '말투는 차분하게' 에서 값은 '차분하게' — 근거 구절은 말한 그대로
-    return [Candidate("tone", value, quote, "confirmed", True, "", m.start(), m.end())]
+    consumed.append((m.start(), end))
+    return [Candidate("tone", value, quote, "confirmed", True, "", m.start(), end)]
 
 
 _NUMWORD = {"한": 1, "하나": 1, "일": 1, "1": 1, "두": 2, "둘": 2, "이": 2, "2": 2, "세": 3, "셋": 3, "삼": 3, "3": 3, "네": 4, "넷": 4, "사": 4, "4": 4, "다섯": 5, "5": 5}

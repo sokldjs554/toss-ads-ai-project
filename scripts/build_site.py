@@ -52,7 +52,15 @@ def build_zip(out: Path) -> int:
                 rel = f.relative_to(REPO)
                 if not _want(rel):
                     continue
-                zf.write(f, rel.as_posix())
+                if rel.as_posix() == "ui/review_storage_frontend/index.html":
+                    # stlite renders v1 components through iframe srcdoc. Relative
+                    # module imports then resolve against the app page instead of
+                    # this virtual directory. Embed the same tested storage module.
+                    js = (f.parent / "storage.js").read_text(encoding="utf-8").replace("export async function execute", "async function execute")
+                    component = f.read_text(encoding="utf-8").replace('import { execute } from "./storage.js";', js)
+                    zf.writestr(rel.as_posix(), component)
+                else:
+                    zf.write(f, rel.as_posix())
                 n += 1
         sha = _build_sha()
         if sha:  # 브라우저 실행판 상단에 '빌드 <커밋>' 을 보여 주기 위한 표식 (app.py 가 읽는다)

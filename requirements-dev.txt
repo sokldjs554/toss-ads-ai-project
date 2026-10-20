@@ -1,0 +1,3 @@
+-r requirements.txt
+# Chromium을 사용하는 실제 브라우저 저장/충돌 검증용. 런타임 배포에는 필요 없다.
+playwright==1.51.0

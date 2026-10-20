@@ -198,6 +198,10 @@ def run_features_flow(browser, name: str, size: tuple[int, int], out: Path) -> l
     print(f"== {name} {size[0]}x{size[1]} (새 기능)")
     page.goto(f"http://127.0.0.1:{PORT}/", wait_until="load", timeout=60_000)
     f.wait_text("세 가지 결과는 서로 다릅니다", 90_000)
+    # Streamlit streams each widget after the introduction. Wait for all three
+    # actionable controls instead of taking a body snapshot mid-render.
+    for mode in ("예시로 시작", "대화로 시작", "상품 페이지에서 가져오기"):
+        page.get_by_role("radio", name=mode, exact=True).wait_for(timeout=30_000)
     t = f.text()
     f.check("시작 방법 세 가지가 보인다", all(w in t for w in ("예시로 시작", "대화로 시작", "상품 페이지에서 가져오기")))
 

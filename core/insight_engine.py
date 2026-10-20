@@ -1,8 +1,8 @@
 """성과 인사이트 엔진 — 이상 탐지 → 원인 진단 → 개선 액션. 순수 계산이며 모델을 쓰지 않고 결정론적이다.
 
 철학: 계산은 코드가, 문장화는 모델이, 검증은 코드가 한다. 이 모듈은 앞의 '계산' 전부다.
-- 탐지: 요일을 보정한 기준선(중앙값/MAD 기반 로버스트 z, 기준 기간 안의 뚜렷한 완만한 추세는 이어 감) 과 비교하고, 기간을 훑는 CUSUM 형 점수로 변화 구간을 찾는다.
-  전체 지표뿐 아니라 소재·기기·광고세트별로도 따로 본다(국소 변화가 전체에 묻히지 않게, 더 엄격한 임계값으로). 표본이 모자라면 판단을 보류한다.
+- 탐지: 요일을 보정한 기준선(중앙값/MAD 기반, 기준 기간 안의 뚜렷한 완만한 추세는 이어 감)과 비교한다.
+  구간 점수에는 기준 요일값·외삽 추세의 추정 오차를 포함하고 전체 지표와 부분 집합을 검사한 수만큼 기준을 강화한다. 표본이 모자라면 판단을 보류한다.
 - 진단: 원인 가설을 미리 정의해 두고(필요 근거·맞는 근거·반대 근거·최소 표본), 근거가 충족된 비율로 확신을 계산한다.
   근거가 모자라면 억지로 1순위를 고르지 않고 '원인을 정하기 어렵다(undetermined)' 를 낸다.
 - 액션: 닫힌 카탈로그에서만 고르고, 금지 조건(가드 규칙)은 코드로 강제한다.
@@ -30,8 +30,9 @@ RECENT_DAYS = 14                 # 살펴볼 최근 기간
 BASELINE_DAYS = 28               # 그 앞의 기준 기간 (요일마다 4번씩 본다)
 MIN_BASELINE_DAYS = 14           # 기준 기간이 이보다 짧으면 판단하지 않는다 (요일마다 최소 2번)
 MIN_WINDOW_DAYS = 3
-H_SCORE = 5.0                    # 구간 점수 |Σz|/√길이 의 임계값
+H_SCORE = 5.0                    # 기준선 추정 오차를 포함한 구간 점수의 기본 임계값
 H_SINGLE = 6.5                   # 하루짜리 변화는 더 강해야 한다
+BASELINE_ESTIMATION_FACTOR = math.pi / 2  # 정규 잡음에서 중앙값 추정 분산의 근사 배율
 MIN_EFFECT = 0.08                # 통계적으로 튀어도 이 비율(8%)보다 작은 변화는 이상으로 보지 않는다
 SIGMA_FLOOR = 0.02               # 잡음 크기의 하한 (로그 단위)
 SIGMA_INFLATE = 1.3             # 표본 안에서 요일 보정한 잔차는 실제보다 작게 나오므로 키운다
@@ -42,7 +43,8 @@ MIN_BASE_CONV_PER_DAY = 4
 GROUP_MIN_CLICKS = 150           # 소재·기기 같은 묶음 하나를 따로 볼 최소 표본 (기준 기간 합계)
 GROUP_MIN_CONV = 30
 
-ASSERT_CONFIDENCE = 0.75         # 이상이면 '원인은 …' 이라고 말할 수 있다
+SUPPORTED_CONFIDENCE = 0.75      # 관측 신호가 많이 일치하는 가설. 원인 확정 기준이 아니다
+ASSERT_CONFIDENCE = SUPPORTED_CONFIDENCE  # 과거 보고서/외부 코드 호환용 이름; 단정 권한을 주지 않는다
 LIKELY_CONFIDENCE = 0.45         # 이상이면 '가능성이 높습니다'
 CANDIDATE_CONFIDENCE = 0.25      # 이상이면 '가능성이 있습니다' (후보)
 SUSPECT_CONFIDENCE = 0.30        # 금지 규칙은 이보다 낮은 의심에서도 건다 (보수적으로)
@@ -69,6 +71,15 @@ CAUSE_HELP = {"budget_cap": "하루 예산이 일찍 소진되어 노출이 줄�
               "bid_competition": "다른 광고주와의 경쟁으로 같은 노출을 얻는 데 더 많은 비용이 드는 상태",
               "audience_saturation": "겨냥한 사람들에게 이미 충분히 보여 줘서 새로 닿을 사람이 줄어든 상태",
               "mix_shift": "전환율이 낮은 쪽(예: 특정 기기)으로 노출이 쏠려 전체 전환율이 내려간 것처럼 보이는 상태"}
+CAUSE_VERIFICATION = {
+    "budget_cap": "광고 관리자에서 예산 소진 시각과 게재 중단 기록을 대조하세요. 예산이 남아 있었는지도 확인한 뒤 증액을 검토하세요.",
+    "creative_fatigue": "같은 타겟에서 기존 소재와 새 소재를 같은 조건으로 비교하세요. 반응 차이가 재현되는지 확인한 뒤 교체를 검토하세요.",
+    "tracking_break": "같은 시간대의 서버 전환 로그와 광고 관리자 기록을 대조하세요. 실제 전환이 있었는데 광고 기록만 빠졌는지 확인하세요.",
+    "landing_issue": "랜딩 페이지를 기기별로 열어 신청 완료까지 직접 확인하세요. 오류가 재현되는지와 서버 전환 기록을 함께 확인하세요.",
+    "bid_competition": "입찰 변경 이력과 광고 관리자의 경쟁 지표를 대조하세요. 경쟁 지표가 그대로라면 게재 설정도 확인한 뒤 입찰 변경을 검토하세요.",
+    "audience_saturation": "도달과 반복 노출 기록을 대조하고 새 타겟과 기존 타겟을 같은 조건으로 비교하세요. 반응 차이가 재현되는지 확인하세요.",
+    "mix_shift": "같은 기간의 기기별 클릭 비중과 전환율을 나눠 비교하세요. 각 기기의 전환율도 달라졌는지 확인한 뒤 배분 변경을 검토하세요.",
+}
 # 서로 같은 현상을 설명할 수 있는 후보 쌍 — 한쪽이 확실히 앞서지 않으면 둘 다 단정하지 않는다
 EXCLUSIVE_PAIRS = (("tracking_break", "landing_issue"), ("creative_fatigue", "audience_saturation"), ("bid_competition", "budget_cap"), ("landing_issue", "mix_shift"))
 
@@ -280,7 +291,7 @@ class Span:
     end: dt.date
     direction: str            # up · down
     pct: float                # 기대 대비 변화율 (부호 있음)
-    score: float              # |Σz|/√길이
+    score: float              # |Σz| / √(하루 잡음 + 기준선·외삽 추세의 추정 분산)
     peak_z: float
     days: int
     segment: str = ""         # 소재·기기 같은 묶음 하나에서만 잡힌 변화면 "소재: 소재A1" 꼴 (전체 지표에서 잡힌 것은 빈 문자열)
@@ -299,6 +310,25 @@ class MetricDetection:
     z: dict = field(default_factory=dict)
     expected: dict = field(default_factory=dict)
     actual: dict = field(default_factory=dict)
+    comparisons: int = 1
+    score_threshold: float = H_SCORE
+
+
+def _forecast_counts(reference: Counts, day: dt.date, detections: dict) -> Counts:
+    """Use the detector's count forecasts for diagnosis and summary cards.
+
+    Rates are derived from these same counts so CPA = CPC / CVR remains true.
+    A weekday-only historical level can reverse an event's direction when the
+    selected reference has a continuing trend. Reach has no forecasting model;
+    do not combine an extrapolated impression count with historical reach.
+    """
+    values = {}
+    for metric, attr in (("impressions", "imp"), ("clicks", "clk"), ("conversions", "conv"), ("cost", "cost")):
+        det = detections.get(metric)
+        values[attr] = det.expected.get(day, getattr(reference, attr)) if det and det.status == "ok" else getattr(reference, attr)
+    imp_detection = detections.get("impressions")
+    reach = None if imp_detection and imp_detection.trend else reference.reach
+    return Counts(**values, reach=reach, hour=reference.hour)
 
 
 def _mad(vals: list[float]) -> float:
@@ -318,9 +348,15 @@ def _sampling_sd(metric: str, mean_clk: float, mean_conv: float) -> float:
 
 
 def detect_metric(metric: str, total: dict, present: set, base_dates: list[dt.date], win_dates: list[dt.date], sample: "SampleStatus", *,
-                  h_score: float = H_SCORE, h_single: float = H_SINGLE, min_effect: float = MIN_EFFECT, min_len: int = 1) -> MetricDetection:
+                  h_score: float = H_SCORE, h_single: float = H_SINGLE, min_effect: float = MIN_EFFECT, min_len: int = 1,
+                  comparisons: int = 1) -> MetricDetection:
     """지표 하나의 변화 구간을 찾는다. total 은 날짜 → Counts (전체 또는 묶음 하나)."""
-    det = MetricDetection(metric=metric, status="ok")
+    # 한 보고서에서 더 많은 지표·묶음을 검사할수록 같은 신호에 더 엄격한 기준을 쓴다.
+    # 정규 꼬리 상계의 union bound 형태다. 보정된 점수도 실서비스의 유의확률은 아니다.
+    comparisons = max(1, comparisons)
+    h_score = math.sqrt(h_score ** 2 + 2 * math.log(comparisons))
+    h_single = math.sqrt(h_single ** 2 + 2 * math.log(comparisons))
+    det = MetricDetection(metric=metric, status="ok", comparisons=comparisons, score_threshold=h_score)
     if metric in CONV_METRICS and not sample.conv_ok:
         det.status, det.reason = "withheld", "전환이 너무 적어 전환 관련 지표는 판단을 보류합니다"
         return det
@@ -344,17 +380,18 @@ def detect_metric(metric: str, total: dict, present: set, base_dates: list[dt.da
     dow = {w: median(vs) for w, vs in by_wd.items()}
     n, k = len(base_y), len(by_wd)
     t0 = base_y[0][0] + (base_y[-1][0] - base_y[0][0]) / 2
-    # 완만한 추세: 기준 기간 안에서 뚜렷할 때만 (Theil–Sen 기울기가 표준오차의 3배 이상) 기준선을 그 기울기로 이어 간다. 기준 기간 끝에서 14일까지만 이어 간다
+    # 완만한 추세: 기준 기간 안에서 뚜렷할 때만 (Theil–Sen 기울기가 표준오차의 3배 이상) 이어 간다.
+    # 이전 기준 기간을 쓰면 예측 거리가 길어진다. 추세를 중간에 멈추지 않고 아래의 예측 분산을 늘린다.
     r0 = [(d, v - dow.get(d.weekday(), 0.0)) for d, v in base_y]
     slopes = [(r0[j][1] - r0[i][1]) / (r0[j][0] - r0[i][0]).days for i in range(n) for j in range(i + 1, n) if (r0[j][0] - r0[i][0]).days >= 7]
     slope = median(slopes) if slopes else 0.0
     span = max((r0[-1][0] - r0[0][0]).days, 1)
     se = 1.4826 * _mad([r for _, r in r0]) * math.sqrt(12) / (math.sqrt(n) * span)
     trend = slope if (abs(slope) >= 3 * se and abs(slope) * span >= 0.03) else 0.0
-    base_end = base_y[-1][0]
+    forecast_gap = bool(win_dates and (win_dates[0] - base_y[-1][0]).days > 1)
 
     def drift(d: dt.date) -> float:
-        return trend * (min((d - t0).days, (base_end - t0).days + 14) if trend else 0)
+        return trend * (d - t0).days if trend else 0.0
 
     resid = [r - drift(d) for d, r in r0]
     mu = median(resid)
@@ -377,6 +414,30 @@ def detect_metric(metric: str, total: dict, present: set, base_dates: list[dt.da
         z = (y[d] - dow.get(d.weekday(), 0.0) - drift(d) - mu) / sigma if d in y else 0.0
         det.z[d] = z
         zs.append(z)
+    # 기준선은 알려진 상수가 아니다. 같은 요일의 기준값 오차는 구간 내 여러 날에
+    # 공유되므로 날짜 수의 제곱으로 누적한다. 추세를 외삽했다면 그 기울기 오차도 더한다.
+    # 독립 하루 오차만 √일수로 나누던 방식은 긴 구간과 우연한 추세를 과대평가했다.
+    base_times = {w: [(d - t0).days for d, _ in base_y if d.weekday() == w] for w in by_wd}
+    mean_time = {w: sum(ts) / len(ts) for w, ts in base_times.items()}
+    slope_information = sum((t - mean_time[w]) ** 2 for w, ts in base_times.items() for t in ts)
+
+    def span_score(i: int, j: int, acc: float) -> float:
+        weekdays: dict[int, int] = defaultdict(int)
+        horizon = 0.0
+        for d in win_dates[i:j + 1]:
+            if d not in y:
+                continue
+            w = d.weekday()
+            weekdays[w] += 1
+            horizon += (d - t0).days - mean_time.get(w, 0.0)
+        observed = sum(weekdays.values())
+        variance = observed + BASELINE_ESTIMATION_FACTOR * sum(count ** 2 / len(by_wd[w]) for w, count in weekdays.items() if w in by_wd)
+        # 짧고 오래된 기준선에서는 기울기가 유의하지 않다는 것이 기울기 0의 증거가 아니다.
+        # 선택한 추세가 0이어도, 기간 사이에 간격이 있으면 가능한 기울기의 오차를 포함한다.
+        if (trend or forecast_gap) and slope_information:
+            variance += BASELINE_ESTIMATION_FACTOR * horizon ** 2 / slope_information
+        return abs(acc) / math.sqrt(max(variance, 1.0))
+
     work = list(zs)
     for _ in range(2):                         # 한 지표에서 최대 두 구간
         best = None
@@ -388,8 +449,8 @@ def detect_metric(metric: str, total: dict, present: set, base_dates: list[dt.da
                 ln = j - i + 1
                 if ln < min_len:
                     continue
-                score = abs(acc) / math.sqrt(ln)
-                if ln == 1 and abs(acc) < h_single:
+                score = span_score(i, j, acc)
+                if ln == 1 and score < h_single:
                     continue
                 if best is None or score > best[0]:
                     best = (score, i, j)
@@ -520,7 +581,7 @@ class Hypothesis:
     cause: str
     label: str
     confidence: float
-    state: str                # asserted · likely · candidate · unlikely
+    state: str                # supported · likely · candidate · unlikely
     evidence: list = field(default_factory=list)           # 맞는 근거 id
     contradicted_by: list = field(default_factory=list)    # 반대 근거 id
     data_missing: list = field(default_factory=list)       # 확인하지 못한 것 (쉬운 말)
@@ -532,17 +593,20 @@ class Hypothesis:
     evidence_id: str = ""     # 이 가설의 요약 근거 (확신 숫자)
     raw_confidence: float = 0.0   # 상한을 적용하기 전 계산값
     cap_reason: str = ""          # 상한이 걸렸다면 그 이유 (쉬운 말)
+    verification: str = ""        # 집계 자료만으로 가설을 확정하지 않고 실제로 확인할 일
+    verification_evidence: str = ""
 
     def to_dict(self) -> dict:
         return {"cause": self.cause, "label": self.label, "confidence": round(self.confidence, 4), "state": self.state, "evidence": list(self.evidence),
                 "contradicted_by": list(self.contradicted_by), "data_missing": list(self.data_missing), "checks": [c.to_dict() for c in self.checks],
                 "support_ratio": round(self.support_ratio, 4), "coverage": round(self.coverage, 4), "contradiction_ratio": round(self.contradiction_ratio, 4),
-                "rival_note": self.rival_note, "evidence_id": self.evidence_id, "raw_confidence": round(self.raw_confidence, 4), "cap_reason": self.cap_reason}
+                "rival_note": self.rival_note, "evidence_id": self.evidence_id, "raw_confidence": round(self.raw_confidence, 4), "cap_reason": self.cap_reason,
+                "verification": self.verification, "verification_evidence": self.verification_evidence}
 
 
 def state_of(conf: float) -> str:
     if conf >= ASSERT_CONFIDENCE:
-        return "asserted"
+        return "supported"
     if conf >= LIKELY_CONFIDENCE:
         return "likely"
     if conf >= CANDIDATE_CONFIDENCE:
@@ -554,7 +618,7 @@ def state_of(conf: float) -> str:
 class Diagnosis:
     incident: Incident
     hypotheses: list          # 확신 순
-    cause_state: str          # asserted · likely · undetermined · not_applicable
+    cause_state: str          # supported · likely · undetermined · not_applicable
     top_cause: str = ""
     undetermined_evidence: str = ""
     funnel_evidence: list = field(default_factory=list)
@@ -570,8 +634,10 @@ class Diagnosis:
 class Diagnoser:
     """한 이상 구간에 대해 관측값(근거)을 계산하고 가설별 검사를 돌린다."""
 
-    def __init__(self, table: Table, base_dates: list[dt.date], inc: Incident, detections: dict, sample: SampleStatus, book: EvidenceBook):
+    def __init__(self, table: Table, base_dates: list[dt.date], inc: Incident, detections: dict, sample: SampleStatus, book: EvidenceBook, *,
+                 onset_left_censored: bool = False):
         self.t, self.base, self.inc, self.det, self.sample, self.book = table, [d for d in base_dates if d in table.present], inc, detections, sample, book
+        self.onset_left_censored = onset_left_censored
         self.days = [d for d in table.dates if inc.start <= d <= inc.end and d in table.present]
         self._obs: dict[str, Obs] = {}
         wd: dict[int, list[dt.date]] = defaultdict(list)
@@ -585,7 +651,8 @@ class Diagnoser:
     # ----- 기대/실제 합계 -----
     def _exp_day(self, series: dict, d: dt.date) -> Counts:
         days = self._base_by_wd.get(d.weekday()) or self.base
-        return cmean([series.get(x, _ZERO) for x in days])
+        reference = cmean([series.get(x, _ZERO) for x in days])
+        return _forecast_counts(reference, d, self.det) if series is self.t.total else reference
 
     def _exp(self, series: dict, days: Optional[list] = None) -> Counts:
         return csum(self._exp_day(series, d) for d in (days if days is not None else self.days))
@@ -642,6 +709,8 @@ class Diagnoser:
         return Obs(f"metric:{metric}", eid, {"pct": pct, "act": a, "exp": e}, ok=True)
 
     def _o_onset(self) -> Obs:
+        if self.onset_left_censored:
+            return Obs("onset", missing="표시 기간 첫날에 이미 변화가 있어 실제 시작 속도를 확인하지 못했습니다")
         first = self.days[:2]
         a, e = self._act(self.t.total, first), self._exp(self.t.total, first)
         if e.conv <= 0 or not self.sample.conv_ok:
@@ -798,6 +867,8 @@ class Diagnoser:
 
     def _o_shape(self, which: str = "creative") -> Obs:
         """하락이 서서히(여러 날에 걸쳐) 왔는가 단번에 왔는가. which=creative 는 가장 나빠진 소재의 클릭률, which=ctr 는 전체 클릭률."""
+        if self.onset_left_censored:
+            return Obs(f"shape:{which}", missing="표시 기간 첫날에 이미 변화가 있어 서서히 시작했는지 단번에 시작했는지 확인하지 못했습니다")
         if which == "creative":
             co = self.obs("creative")
             ratios = co.v.get("ratios", []) if co.ok else []
@@ -982,10 +1053,13 @@ class Diagnoser:
                 CheckDef("K2", "against", 1, "metric:cvr", lambda v: v["pct"] <= -0.15, "전환율이 크게 떨어졌는가"),
             ],
             "mix_shift": [
-                CheckDef("M1", "for", 2, "metric:cvr", lambda v: v["pct"] <= -0.08, "전체 전환율이 기대보다 8% 넘게 낮은가", critical=True),
-                CheckDef("M2", "for", 4, "mix", lambda v: v["mix_share"] >= 0.6, "하락의 60% 넘게가 노출 비중 변화(구성)로 설명되는가", critical=True),
+                # 배분 자체의 변화가 탐지됐을 때 전체 전환율이 8% 미만으로 움직여도
+                # 구성 가설은 검사할 수 있다. 하락 크기는 지지 근거이며 필수 조건이 아니다.
+                CheckDef("M1", "for", 2, "metric:cvr", lambda v: v["pct"] <= -0.08, "전체 전환율이 기대보다 8% 넘게 낮은가"),
+                CheckDef("M2", "for", 4, "mix", lambda v: v["mix_share"] >= 0.6 and v["mix"] < 0 and v["total"] < 0,
+                         "전환율 하락의 60% 넘게가 클릭 비중 변화(구성)와 맞는가", critical=True),
                 CheckDef("M3", "for", 2, "mix", lambda v: v["max_group_dev"] <= max(0.15, 2.5 / math.sqrt(max(self.act_total.conv / max(v["n"], 1), 1.0))), "묶음 안의 전환율은 거의 그대로인가"),
-                CheckDef("M4", "for", 1, "mix", lambda v: v["max_share_move"] >= 0.05, "어느 묶음의 클릭 비중이 5%p 넘게 움직였는가"),
+                CheckDef("M4", "for", 1, "mix", lambda v: v["max_share_move"] >= 0.05, "어느 묶음의 클릭 비중이 5%p 넘게 움직였는가", critical=True),
                 CheckDef("K1", "against", 3, "mix", lambda v: v["rate_share"] >= 0.6, "하락 대부분이 묶음 안 전환율 자체의 변화인가"),
             ],
         }
@@ -1021,15 +1095,16 @@ class Diagnoser:
         raw = support * coverage * (1 - CONTRADICTION_WEIGHT * contra)
         conf, cap_reason = raw, ""
         if any(r.critical is True and r.passed is None for r in fors):
-            conf, cap_reason = min(conf, CAP_MISSING_CRITICAL), "꼭 필요한 근거를 확인하지 못해 '가능성이 높다' 단계로 올리지 않았습니다"
+            conf, cap_reason = min(conf, CAP_MISSING_CRITICAL), "꼭 필요한 근거를 확인하지 못해 우선 가설로 올리지 않았습니다"
         if any(r.critical in (True, "eval") and r.passed is False for r in fors):
             conf, cap_reason = min(conf, CAP_FAILED_CRITICAL), "꼭 필요한 근거가 맞지 않아 후보에서 낮췄습니다"
         if any(r.critical == "assert" and not r.passed for r in fors) and conf > ASSERT_CONFIDENCE - 0.01:
-            conf, cap_reason = ASSERT_CONFIDENCE - 0.01, "단정하려면 필요한 근거가 갖춰지지 않아 '가능성이 높다' 까지만 말합니다"
+            conf, cap_reason = ASSERT_CONFIDENCE - 0.01, "일치하는 근거가 충분하지 않아 우선 확인할 가설로 표시합니다"
         if conf >= raw - 1e-9:
             cap_reason = ""
         h = Hypothesis(cause=cause, label=CAUSE_LABEL[cause], confidence=round(conf, 4), state=state_of(conf), checks=results,
-                       support_ratio=support, coverage=coverage, contradiction_ratio=contra, raw_confidence=raw, cap_reason=cap_reason)
+                       support_ratio=support, coverage=coverage, contradiction_ratio=contra, raw_confidence=raw, cap_reason=cap_reason,
+                       verification=CAUSE_VERIFICATION[cause])
         h.evidence = [r.evidence_id for r in fors if r.passed and r.evidence_id]
         h.contradicted_by = [r.evidence_id for r in fors if r.passed is False and r.evidence_id and r.weight >= 2] + [r.evidence_id for r in againsts if r.passed and r.evidence_id]
         seen: list[str] = []
@@ -1065,7 +1140,7 @@ class Diagnoser:
                     for h in (ha, hb):
                         other = hb if h is ha else ha
                         if h.confidence > ASSERT_CONFIDENCE - 0.01:
-                            h.cap_reason = "비슷한 증거의 경쟁 후보가 있어 단정하지 않았습니다"
+                            h.cap_reason = "맞는 근거가 비슷한 다른 가설이 있어 함께 확인해야 합니다"
                         h.confidence = min(h.confidence, ASSERT_CONFIDENCE - 0.01)
                         h.rival_note = f"'{other.label}' 후보와 근거가 비슷해 둘 중 하나로 가르지 못했습니다."
                 else:
@@ -1083,19 +1158,21 @@ class Diagnoser:
             n_pass = sum(1 for r in h.checks if r.role == "for" and r.passed)
             if n_eval == 0:
                 continue
-            text = f"'{h.label}' 후보의 확신은 {h.confidence * 100:.1f}%입니다 (확인한 근거 {n_eval}개 중 {n_pass}개 충족)."
+            text = f"'{h.label}' 가설의 근거 일치 점수는 {h.confidence * 100:.1f}%입니다 (확인한 근거 {n_eval}개 중 {n_pass}개 충족)."
             h.evidence_id = self.book.add("hypothesis", text, [Num("confidence", round(h.confidence * 100, 1), "%"), Num("checked", n_eval, "개"), Num("passed", n_pass, "개")],
                                           cause=h.cause, key=f"hyp:{h.cause}:{inc.index}")
+            if h.confidence >= CANDIDATE_CONFIDENCE:
+                h.verification_evidence = self.book.add("verification", h.verification, cause=h.cause, key=f"verify:{h.cause}:{inc.index}")
         dg.hypotheses = hyps
         top = hyps[0]
         if top.confidence >= LIKELY_CONFIDENCE:
             dg.top_cause = top.cause
-            dg.cause_state = "asserted" if top.confidence >= ASSERT_CONFIDENCE else "likely"
+            dg.cause_state = "supported" if top.confidence >= ASSERT_CONFIDENCE else "likely"
         else:
             dg.cause_state = "undetermined"
             dg.top_cause = ""
             missing = sorted({m for h in hyps[:3] for m in h.data_missing})
-            text = (f"가장 높은 후보('{top.label}')도 확신이 {top.confidence * 100:.1f}%로, 원인으로 볼 기준({LIKELY_CONFIDENCE * 100:.0f}%)에 못 미칩니다."
+            text = (f"가장 높은 가설('{top.label}')도 근거 일치 점수가 {top.confidence * 100:.1f}%로, 우선 확인할 기준({LIKELY_CONFIDENCE * 100:.0f}%)에 못 미칩니다."
                     + (" 확인하지 못한 자료가 있습니다." if missing else ""))
             dg.undetermined_evidence = self.book.add("undetermined", text, [Num("top_confidence", round(top.confidence * 100, 1), "%"),
                                                                            Num("threshold", round(LIKELY_CONFIDENCE * 100), "%")], key=f"undet:{inc.index}")
@@ -1147,7 +1224,7 @@ CATALOG: dict[str, ActionSpec] = {a.id: a for a in [
                ("conversions", "cvr"), "점검만 하므로 위험이 거의 없습니다.", "없음 (설정을 바꾸지 않는 점검입니다)"),
     ActionSpec("expand_audience", "타겟 확장", "change", "겨냥하는 사람의 범위를 넓힙니다.", "같은 사람에게 반복 노출되어 반응이 넓게 떨어졌을 때", "새로운 도달 확보",
                ("impressions", "ctr", "cvr"), "관심이 낮은 사람이 섞여 전환율이 떨어질 수 있습니다.", "전환 추적이 의심되거나 랜딩 문제가 유력하거나 표본이 적을 때"),
-    ActionSpec("pause", "일시 중지", "change", "광고를 잠시 멈춥니다.", "랜딩 페이지 문제가 거의 확실하고 크게 나빠졌을 때", "낭비 중단",
+    ActionSpec("pause", "일시 중지", "change", "광고를 잠시 멈춥니다.", "전환율 하락이 크고 페이지 점검에서 신청 오류가 확인된 경우에만 검토", "낭비 중단",
                ("cost", "conversions"), "멈추면 노출·학습이 끊깁니다.", "전환 추적이 의심되거나 원인이 불명확하거나 표본이 적을 때"),
     ActionSpec("keep_watching", "관찰 유지", "wait", "지금은 설정을 바꾸지 않고 며칠 더 지켜봅니다.", "눈에 띄는 이상이 없거나 요일 효과로 설명될 때", "불필요한 변경 방지",
                ("ctr", "cvr", "cpa"), "없음", "없음"),
@@ -1179,7 +1256,7 @@ class ActionState:
     def likely(self, cause: str) -> bool:
         return self.conf.get(cause, 0.0) >= LIKELY_CONFIDENCE
 
-    def asserted(self, cause: str) -> bool:
+    def supported(self, cause: str) -> bool:
         return self.conf.get(cause, 0.0) >= ASSERT_CONFIDENCE
 
 
@@ -1232,7 +1309,7 @@ def evaluate_action(action_id: str, st: ActionState) -> ActionVerdict:
         "check_landing": st.has_incident,
         "check_tracking": st.has_incident,
         "expand_audience": st.likely("audience_saturation"),
-        "pause": st.asserted("landing_issue") and st.severe_landing,
+        "pause": st.supported("landing_issue") and st.severe_landing,
         "keep_watching": True,
         "collect_more_data": st.sample_insufficient or st.sample_partial,
         "review_segment_mix": st.likely("mix_shift"),
@@ -1258,7 +1335,7 @@ class ProposedAction:
     action_id: str
     label: str
     cause: str                 # 이 액션을 고른 이유가 된 원인 (없으면 "")
-    cause_state: str           # asserted · likely · ""
+    cause_state: str           # supported · likely · ""
     evidence_ids: list
     watch: tuple
     risk: str
@@ -1302,6 +1379,8 @@ class Analysis:
     n_rows: int = 0
     series: dict = field(default_factory=dict)
     window_stats: dict = field(default_factory=dict)   # 지표 → {"actual", "expected", "pct"} (살펴본 기간 전체, 같은 요일 기준)
+    reference_windows: int = 1
+    reference_evidence: str = ""
 
     @property
     def evidence(self) -> dict:
@@ -1321,6 +1400,7 @@ class Analysis:
         """모델·대역·화면이 받는 JSON 형태 요약. 모델은 이 안의 근거 id 와 숫자만 인용할 수 있다."""
         return {
             "status": self.status, "window": [d.isoformat() for d in self.window], "baseline": [d.isoformat() for d in self.baseline],
+            "reference_windows": self.reference_windows, "reference_evidence": self.reference_evidence,
             "evidence": [e.to_dict() for e in self.book.items.values()],
             "incidents": [{
                 "index": dg.incident.index, "start": dg.incident.start.isoformat(), "end": dg.incident.end.isoformat(), "days": dg.incident.days,
@@ -1337,13 +1417,13 @@ class Analysis:
             "notes": list(self.notes), "status_evidence": self.status_evidence, "overview_evidence": self.overview_evidence,
             "cause_confidence": {k: round(v, 4) for k, v in self.cause_conf().items()},
             "names": list(self.names),
-            "thresholds": {"assert": ASSERT_CONFIDENCE, "likely": LIKELY_CONFIDENCE, "candidate": CANDIDATE_CONFIDENCE},
+            "thresholds": {"supported": SUPPORTED_CONFIDENCE, "likely": LIKELY_CONFIDENCE, "candidate": CANDIDATE_CONFIDENCE},
             "catalog": {k: {"label": v.label, "kind": v.kind} for k, v in CATALOG.items()},
         }
 
 
 def _window_stats(table: Table, base_dates: list[dt.date], win_dates: list[dt.date], detections: dict) -> dict:
-    """살펴본 기간 전체의 지표별 실제값과 기대값(같은 요일 기준기간 평균). 화면의 요약 카드에 쓴다."""
+    """살펴본 기간의 실제값과 요일·추세를 반영한 기대값. 비율은 같은 예측 합계에서 계산한다."""
     base = [d for d in base_dates if d in table.present]
     days = [d for d in win_dates if d in table.present]
     if not base or not days:
@@ -1352,7 +1432,7 @@ def _window_stats(table: Table, base_dates: list[dt.date], win_dates: list[dt.da
     for d in base:
         by_wd[d.weekday()].append(d)
     act = csum(table.total[d] for d in days)
-    exp = csum(cmean([table.total.get(x, _ZERO) for x in (by_wd.get(d.weekday()) or base)]) for d in days)
+    exp = csum(_forecast_counts(cmean([table.total.get(x, _ZERO) for x in (by_wd.get(d.weekday()) or base)]), d, detections) for d in days)
     out = {}
     for m in METRICS:
         det = detections.get(m)
@@ -1373,11 +1453,60 @@ def _weekday_note(table: Table, base: list[dt.date], win: list[dt.date], book: E
             return None
         return (sum(we) / len(we)) / (sum(wk) / len(wk)), len(we), len(wk)
     rb, rw = ratio(base), ratio(win)
-    if rb is None or rw is None or rb[0] > 0.92:
+    if rb is None or rw is None or rb[0] > 0.92 or rw[0] > 0.92:
         return ""
     text = (f"주말(토·일)에는 기준 기간에도 평일보다 클릭이 평균 {(1 - rb[0]) * 100:.1f}% 적었고, 이번 기간에도 {abs(1 - rw[0]) * 100:.1f}% "
             f"{'적어' if rw[0] < 1 else '많아'} 같은 요일 패턴입니다.")
     return book.add("note", text, [Num("base_gap", round((1 - rb[0]) * 100, 1), "%"), Num("win_gap", round(abs(1 - rw[0]) * 100, 1), "%")], direction="down", key="weekday")
+
+
+def _reference_candidates(table: Table, base_dates: list[dt.date]) -> list[list[dt.date]]:
+    """기준 기간의 앞부분들. 모든 후보에 14일 이상, 각 요일의 관측이 두 번 이상 필요하다.
+
+    최근 표시 기간은 바꾸지 않는다. 기준 기간 중간부터 이어진 변화가 중앙값·잡음·추세에
+    흡수되는 경우를 점검한다. 정답 사건이나 시나리오 정보는 받지 않는다.
+    """
+    out = []
+    counts: dict[int, int] = defaultdict(int)
+    for i, day in enumerate(base_dates[:-1]):
+        if day not in table.present:
+            continue
+        counts[day.weekday()] += 1
+        if sum(counts.values()) >= MIN_BASELINE_DAYS and all(counts[w] >= 2 for w in range(7)):
+            out.append(base_dates[:i + 1])
+    return out + [base_dates]
+
+
+def _detect_against_reference(table: Table, base_dates: list[dt.date], win_dates: list[dt.date], comparisons: int) -> tuple:
+    sample = sample_status(table, base_dates)
+    detections = {m: detect_metric(m, table.total, table.present, base_dates, win_dates, sample, comparisons=comparisons) for m in METRICS}
+    findings = [(m, s) for m, d in detections.items() if d.status == "ok" for s in d.spans]
+    if sample.level != "insufficient":
+        findings += _segment_findings(table, base_dates, win_dates, comparisons=comparisons)
+    return sample, detections, findings
+
+
+def _select_reference(table: Table, base_dates: list[dt.date], win_dates: list[dt.date]) -> tuple:
+    candidates = _reference_candidates(table, base_dates)
+    series_count = len(METRICS) + sum(len(metrics) * len([v for v in table.dims[dim] if v != NO_DIM])
+                                    for dim, metrics in SEGMENT_METRICS.items() if table.has_dim(dim))
+    # 직전 기준선 검사와 이전 기준선 탐색에 같은 꼬리 상계 예산을 나눈다.
+    # 직전 기준선은 1/2, 이전 후보 K개는 각각 1/(2K)다. 어느 쪽에서 일찍 멈추든
+    # 합계는 1을 넘지 않는다. 보통의 최근 변화가 추가 후보 수에 비례해 약해지지 않게 한다.
+    earlier_count = len(candidates) - 1
+    selected = _detect_against_reference(table, base_dates, win_dates, series_count * (2 if earlier_count else 1))
+    if selected[2] or selected[0].level == "insufficient":
+        return base_dates, *selected, len(candidates)
+    best_score = 0.0
+    selected_dates = base_dates
+    comparisons = series_count * 2 * earlier_count
+    for dates in reversed(candidates[:-1]):
+        result = _detect_against_reference(table, dates, win_dates, comparisons)
+        score = max((s.score / math.sqrt((SEG_H_SCORE if s.segment else H_SCORE) ** 2 + 2 * math.log(comparisons))
+                     for _, s in result[2]), default=0.0)
+        if score > best_score:
+            selected_dates, selected, best_score = dates, result, score
+    return selected_dates, *selected, len(candidates)
 
 
 def choose_window(dates: list[dt.date], period: Optional[tuple], recent_days: int, baseline_days: int) -> tuple:
@@ -1420,9 +1549,18 @@ def analyze(rows: list[MetricRow], period: Optional[tuple] = None, *, recent_day
         a = Analysis("insufficient_history", win, bwin, None, {}, [], [], [], [], state, book, names=names, has_dims=has_dims, status_evidence=ev, n_rows=len(rows))
         _finalize_actions(a)
         return a
-    sample = sample_status(table, base_dates)
-    detections = {m: detect_metric(m, table.total, table.present, base_dates, win_dates, sample) for m in METRICS}
-    a = Analysis(sample.level, win, bwin, sample, detections, [], [], [], [], state, book, names=names, has_dims=has_dims, n_rows=len(rows))
+    original_base_end = bwin[1]
+    base_dates, sample, detections, findings, reference_windows = _select_reference(table, base_dates, win_dates)
+    bwin = (base_dates[0], base_dates[-1])
+    n_base_days = sample.base_days
+    a = Analysis(sample.level, win, bwin, sample, detections, [], [], [], [], state, book, names=names, has_dims=has_dims, n_rows=len(rows),
+                 reference_windows=reference_windows)
+    if bwin[1] < original_base_end:
+        a.reference_evidence = book.add(
+            "reference", f"이전 기준 기간({fmt_date(bwin[0])}부터 {fmt_date(bwin[1])}까지 {n_base_days}일)과 최근 기간을 비교했습니다. "
+            f"가능한 기준 기간 {reference_windows}개를 함께 점검하므로 탐지 기준을 강화했습니다. 표시한 변화 구간은 최근 기간 안의 관측이며 실제 시작일을 확정한 것은 아닙니다.",
+            [date_num("base_start", bwin[0]), date_num("base_end", bwin[1]), Num("base_days", n_base_days, "일"),
+             Num("reference_windows", reference_windows, "개")], key="reference")
     if sample.level != "ok":
         txt = (f"기준 기간({n_base_days}일) 합계 클릭 {sample.base_clicks:,}회, 전환 {sample.base_conv:,}건입니다. "
                + ("클릭이 너무 적어 모든 지표의 판단을 보류합니다." if sample.level == "insufficient" else "전환이 너무 적어 전환 관련 지표(전환율·전환당 비용·전환수)는 판단을 보류합니다.")
@@ -1431,12 +1569,10 @@ def analyze(rows: list[MetricRow], period: Optional[tuple] = None, *, recent_day
                                                       Num("need_clicks", MIN_BASE_CLICKS, "회"), Num("need_conv", MIN_BASE_CONV, "건")], key="sample")
         state.sample_insufficient = sample.level == "insufficient"
         state.sample_partial = sample.level == "partial"
-    findings = [(m, s) for m, d in detections.items() if d.status == "ok" for s in d.spans]
-    if sample.level != "insufficient":
-        findings += _segment_findings(table, base_dates, win_dates)
     a.incidents = _cluster(findings, win[1]) if sample.level != "insufficient" else []
     for inc in a.incidents:
-        dg = Diagnoser(table, base_dates, inc, detections, sample, book).diagnose()
+        dg = Diagnoser(table, base_dates, inc, detections, sample, book,
+                       onset_left_censored=bool(a.reference_evidence) and inc.start == win[0]).diagnose()
         a.diagnoses.append(dg)
     a.notes = []
     if not a.incidents:
@@ -1462,12 +1598,12 @@ def analyze(rows: list[MetricRow], period: Optional[tuple] = None, *, recent_day
 SEG_H_SCORE = 6.0
 SEG_MIN_EFFECT = 0.15
 SEG_MIN_LEN = 2
-SEGMENT_METRICS = {"creative": ("ctr",), "ad_set": ("ctr", "cvr"), "device": ("cvr",)}
+SEGMENT_METRICS = {"creative": ("ctr",), "ad_set": ("ctr", "cvr"), "device": ("clicks", "cvr")}
 DIM_NAME = {"creative": "소재", "ad_set": "광고세트", "device": "기기"}
 
 
-def _segment_findings(table: Table, base_dates: list[dt.date], win_dates: list[dt.date]) -> list:
-    """전체 지표에서는 묻히는 국소 변화(한 소재의 클릭률, 한 기기의 전환율)를 묶음별로 따로 본다. 비교 횟수가 늘어나므로 임계값을 더 엄격하게 둔다."""
+def _segment_findings(table: Table, base_dates: list[dt.date], win_dates: list[dt.date], *, comparisons: int = 1) -> list:
+    """전체에 묻힌 소재 반응·기기 전환율·기기별 클릭 배분 변화를 본다. 늘어난 비교 수는 탐지 기준에 반영한다."""
     out = []
     for dim, metrics in SEGMENT_METRICS.items():
         if not table.has_dim(dim):
@@ -1477,7 +1613,8 @@ def _segment_findings(table: Table, base_dates: list[dt.date], win_dates: list[d
                 continue
             ss = sample_status(table, base_dates, series, min_clicks=GROUP_MIN_CLICKS, min_conv=GROUP_MIN_CONV, per_day_clicks=5, per_day_conv=1)
             for m in metrics:
-                det = detect_metric(m, series, table.present, base_dates, win_dates, ss, h_score=SEG_H_SCORE, h_single=99.0, min_effect=SEG_MIN_EFFECT, min_len=SEG_MIN_LEN)
+                det = detect_metric(m, series, table.present, base_dates, win_dates, ss, h_score=SEG_H_SCORE, h_single=99.0, min_effect=SEG_MIN_EFFECT, min_len=SEG_MIN_LEN,
+                                    comparisons=comparisons)
                 if det.status != "ok":
                     continue
                 for sp in det.spans:
@@ -1541,11 +1678,11 @@ def _finalize_actions(a: Analysis) -> None:
             if inc.polarity == "better":
                 consider("keep_watching", "", "", [dg.incident_evidence] + dg.primary_evidence[:2], inc.index)
                 continue
-            if dg.cause_state in ("asserted", "likely"):
+            if dg.cause_state in ("supported", "likely"):
                 for h in dg.hypotheses:
                     if h.confidence < LIKELY_CONFIDENCE:
                         continue
-                    ev = [h.evidence_id] + h.evidence[:2]
+                    ev = [h.evidence_id, h.verification_evidence] + h.evidence[:2]
                     for aid in CAUSE_ACTIONS_ORDER[h.cause]:
                         consider(aid, h.cause, h.state, ev, inc.index)
             else:
@@ -1561,6 +1698,16 @@ def _finalize_actions(a: Analysis) -> None:
             for aid in MONEY_IDS + ("replace_creative", "add_creative"):
                 consider(aid, "", "", [dg.incident_evidence], inc.index)
     # 점검 → 변경 → 관찰 순으로 정렬하고 4개까지만
+    if not proposals:
+        # 주된 가설의 변경안이 다른 의심 신호 때문에 전부 막혀도 다음 확인 절차를 남긴다.
+        ev = [dg.incident_evidence for dg in a.diagnoses] or [a.overview_evidence or a.status_evidence]
+        if st.has_incident and st.suspect("tracking_break", TRACKING_SUSPECT_CONFIDENCE):
+            consider("check_tracking", "", "", ev, -1)
+        if st.has_incident and st.suspect("landing_issue"):
+            consider("check_landing", "", "", ev, -1)
+        if st.sample_partial:
+            consider("collect_more_data", "", "", ev, -1)
+        consider("keep_watching", "", "", ev, -1)
     order = {"check": 0, "change": 1, "wait": 2}
     proposals = [p for _, p in sorted(enumerate(proposals), key=lambda ip: (order[CATALOG[ip[1].action_id].kind], ip[0]))]
     a.actions = proposals[:4]
@@ -1604,15 +1751,7 @@ ACTION_INSTRUCTION = {
     "collect_more_data": "표본이 쌓일 때까지 설정을 바꾸지 말고 기다린 뒤 다시 확인하세요.",
     "review_segment_mix": "기기·세트별로 나누어 보고 노출 비중이 쏠린 이유를 확인하세요.",
 }
-CAUSE_REASON = {   # 원인 → (단정해도 될 때, 가능성 수준일 때) 이유 문장
-    "budget_cap": ("하루 예산이 일찍 소진되어 노출이 줄었습니다.", "하루 예산이 일찍 소진되어 노출이 줄었을 가능성이 높습니다."),
-    "creative_fatigue": ("한 소재의 반응이 서서히 떨어졌습니다.", "한 소재가 오래 노출되어 반응이 떨어졌을 가능성이 높습니다."),
-    "tracking_break": ("전환 추적에 오류가 있어 전환이 기록되지 않고 있습니다.", "전환 추적이 끊겼을 가능성이 높습니다."),
-    "landing_issue": ("랜딩 페이지 문제로 전환율이 떨어졌습니다.", "랜딩 페이지 문제로 전환율이 떨어졌을 가능성이 높습니다."),
-    "bid_competition": ("입찰 경쟁이 심해져 노출이 줄고 클릭당 비용이 올랐습니다.", "입찰 경쟁이 심해져 노출이 줄고 클릭당 비용이 올랐을 가능성이 높습니다."),
-    "audience_saturation": ("겨냥한 사람들에게 반복 노출되어 반응이 넓게 떨어졌습니다.", "겨냥한 사람들에게 반복 노출되어 반응이 넓게 떨어졌을 가능성이 높습니다."),
-    "mix_shift": ("전환율이 낮은 쪽으로 노출이 쏠려 전체 전환율이 내려갔습니다.", "전환율이 낮은 쪽으로 노출이 쏠려 전체 전환율이 내려갔을 가능성이 높습니다."),
-}
+CAUSE_REASON = {cause: f"{label} 가설과 맞는 신호가 있어 확인이 필요합니다." for cause, label in CAUSE_LABEL.items()}
 GENERIC_WHY = {
     "check_tracking": "원인을 정하기 어렵습니다. 설정을 바꾸기 전에 전환 측정부터 확인하는 것이 안전합니다.",
     "check_landing": "원인을 정하기 어렵습니다. 전환율이 떨어졌으니 도착 페이지도 함께 확인하는 것이 안전합니다.",
@@ -1652,6 +1791,9 @@ def template_narrative(ctx: dict) -> dict:
     status = ctx["status"]
     win = _period(*ctx["window"])
     actions_in = ctx["actions"]
+    reference = ctx.get("reference_evidence")
+    if reference:
+        add(ev[reference]["text"], [reference])
     if status in ("insufficient", "insufficient_history"):
         headline = "표본이 부족해 이번에는 성과 변화를 판단하지 않았습니다."
         add(ev[ctx["status_evidence"]]["text"], [ctx["status_evidence"]])
@@ -1659,14 +1801,14 @@ def template_narrative(ctx: dict) -> dict:
     elif not ctx["incidents"]:
         add(ev[ctx["overview_evidence"]]["text"], [ctx["overview_evidence"]])
         for n in ctx["notes"]:
-            add(ev[n]["text"] + " 그래서 이상으로 보지 않았습니다.", [n])
+            add(ev[n]["text"], [n])
         if ctx["status"] == "partial":
             headline = f"{win} 전환이 적어 전환 관련 지표는 판단하지 못했고, 나머지 지표에는 눈에 띄는 이상이 없었습니다."
             add(ev[ctx["status_evidence"]]["text"], [ctx["status_evidence"]])
             summary = "전환 표본이 쌓일 때까지 예산·입찰 같은 큰 변경은 하지 말고 기다려 주세요."
         else:
             headline = f"{win} 눈에 띄는 이상은 없었습니다."
-            summary = "기준 기간의 같은 요일과 견줘 지표가 정상 범위 안에 있어 설정을 바꿀 필요가 없습니다."
+            summary = "기준 기간의 같은 요일과 견줘 설정 변경을 뒷받침할 뚜렷한 변화 신호를 찾지 못했습니다. 현재 비교로 모든 문제가 없다고 보장할 수는 없습니다."
     else:
         add(ev[ctx["overview_evidence"]]["text"], [ctx["overview_evidence"]])
         order = {"high": 0, "medium": 1, "low": 2}
@@ -1702,17 +1844,14 @@ def template_narrative(ctx: dict) -> dict:
             hyps = inc["hypotheses"]
             shown = [h for h in hyps if h["confidence"] >= LIKELY_CONFIDENCE][:3]
             if shown:
-                first_assert = True
                 for h in shown:
                     ids = [h["evidence_id"]] + h["evidence"][:2]
                     shown_ids = {i for f in findings for i in f["evidence_ids"]}
-                    if h["state"] == "asserted":
-                        add(f"{'원인은' if first_assert else '또 다른 원인은'} {h['label']}입니다." , ids)
-                        first_assert = False
-                        cause_line = cause_line or f"원인은 {h['label']}입니다."
-                    else:
-                        add(f"{h['label']}일 가능성이 높습니다.", ids)
-                        cause_line = cause_line or f"{h['label']}일 가능성이 높습니다."
+                    line = f"{h['label']} 가설과 맞는 신호가 있습니다. 집계 자료만으로 원인을 확정할 수는 없습니다."
+                    add(line, ids)
+                    cause_line = cause_line or f"{h['label']} 가설을 먼저 확인할 수 있습니다."
+                    if h.get("verification_evidence"):
+                        add(h["verification"], [h["verification_evidence"]])
                     for eid in h["evidence"]:
                         if eid not in shown_ids and ev[eid]["kind"] in ("group", "plateau", "hour", "freq", "mix", "shape", "onset") and len(findings) < 16:
                             add(ev[eid]["text"], [eid])
@@ -1737,11 +1876,14 @@ def template_narrative(ctx: dict) -> dict:
         summary = summary.replace("을(를) 권합니다", "을 권합니다" if first_label and _has_batchim(first_label) else "를 권합니다")
     actions: list[dict] = []
     for a in actions_in:
-        if a["cause"] and a["cause_state"] in ("asserted", "likely"):
-            reason = CAUSE_REASON[a["cause"]][0 if a["cause_state"] == "asserted" else 1]
+        if a["cause"] and a["cause_state"] in ("supported", "likely"):
+            reason = CAUSE_REASON[a["cause"]]
         else:
             reason = GENERIC_WHY.get(a["action_id"], "")
-        why = (reason + " " + ACTION_INSTRUCTION[a["action_id"]]).strip()
+        instruction = ACTION_INSTRUCTION[a["action_id"]]
+        if CATALOG[a["action_id"]].kind == "change":
+            instruction = "관련 설정과 기록을 먼저 확인하고 가설과 맞는 경우에만 소규모 변경을 검토하세요. " + instruction
+        why = (reason + " " + instruction).strip()
         ids = list(dict.fromkeys(i for i in a["evidence_ids"] if i in ev)) or ([ctx["status_evidence"]] if ctx["status_evidence"] else [ctx["overview_evidence"]])
         actions.append({"action_id": a["action_id"], "why": why, "evidence_ids": ids})
     return {"headline": headline, "summary": summary, "findings": findings, "actions": actions}

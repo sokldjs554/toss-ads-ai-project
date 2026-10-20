@@ -19,7 +19,7 @@ import streamlit as st
 
 from agents.insights import InsightReport, build_report
 from core.config import IN_BROWSER
-from core.insight_engine import ASSERT_CONFIDENCE, CANDIDATE_CONFIDENCE, CAUSE_HELP, CATALOG, LIKELY_CONFIDENCE, METRIC_LABEL, METRICS, Analysis
+from core.insight_engine import SUPPORTED_CONFIDENCE, CANDIDATE_CONFIDENCE, CAUSE_HELP, CATALOG, LIKELY_CONFIDENCE, METRIC_LABEL, METRICS, Analysis
 from core.performance import decode_csv_bytes, parse_csv_detailed, rows_to_csv, template_csv
 from observability.tracer import Tracer
 from ui.components import download_or_show
@@ -36,6 +36,7 @@ DROP_REASON = {
     "no_evidence": "근거가 없는 문장", "unknown_evidence": "없는 근거를 인용한 문장", "number_unsupported": "근거에 없는 숫자가 들어간 문장", "direction_conflict": "오르내림 방향이 근거와 반대인 문장",
     "cause_overclaim": "근거보다 강하게 원인을 단정한 문장", "all_clear_conflict": "이상이 있는데 문제없다고 쓴 문장", "unsafe_text": "링크 등 허용되지 않는 글이 든 문장", "injection": "지시문처럼 보이는 글이 든 문장",
     "empty": "빈 문장", "too_long": "너무 긴 문장", "unknown_action": "목록에 없는 액션", "precondition": "선행 조건이 맞지 않는 액션", "over_limit": "개수 제한을 넘은 문장",
+    "verification_required": "설정 변경 전 확인 조건이 빠진 제안",
 }
 FALLBACK_TEXT = {
     "model_not_used": "AI 문장 생성을 쓰지 않아 템플릿이 만들었습니다.", "model_call_failed": "AI 호출이 실패해 템플릿으로 바꿨습니다.",
@@ -187,10 +188,10 @@ def _what_happened(rep: InsightReport) -> None:
 
 def _hyp_card(h, ev: dict, rank: int) -> None:
     pct = int(round(h.confidence * 100))
-    stage = "단정 가능" if h.confidence >= ASSERT_CONFIDENCE else "가능성 높음" if h.confidence >= LIKELY_CONFIDENCE else "후보" if h.confidence >= CANDIDATE_CONFIDENCE else "가능성 낮음"
+    stage = "근거 일치가 많은 가설" if h.confidence >= SUPPORTED_CONFIDENCE else "우선 확인할 가설" if h.confidence >= LIKELY_CONFIDENCE else "추가 확인할 가설" if h.confidence >= CANDIDATE_CONFIDENCE else "근거가 적은 가설"
     body = [f'<div class="t">{rank}. {safe(h.label)} <span class="pf-chip">{safe(stage)}</span></div>',
             f'<div class="pf-muted">{safe(CAUSE_HELP.get(h.cause, ""))}</div>',
-            f'<div class="pf-perf-bar"><span style="width:{pct}%"></span></div><div class="pf-muted">확신 {pct}%</div>']
+            f'<div class="pf-perf-bar"><span style="width:{pct}%"></span></div><div class="pf-muted">근거 일치 점수 {pct}% · 원인이 맞을 확률이 아닙니다</div>']
     if h.rival_note:
         body.append(f'<div class="pf-perf-line pf-perf-warn">{safe(h.rival_note)}</div>')
     elif h.cap_reason:
@@ -201,6 +202,8 @@ def _hyp_card(h, ev: dict, rank: int) -> None:
         body.append(f'<div class="pf-perf-line pf-perf-warn">✗ 반대 증거: {safe(ev[eid].text)}</div>')
     for m in h.data_missing[:2]:
         body.append(f'<div class="pf-perf-line pf-muted">? 확인하지 못한 것: {safe(m)}</div>')
+    if h.verification:
+        body.append(f'<div class="pf-perf-line"><strong>확인할 일</strong> · {safe(h.verification)}</div>')
     _html(f'<div class="pf-perf-card">{"".join(body)}</div>')
 
 
@@ -209,7 +212,7 @@ def _causes(rep: InsightReport) -> None:
     if not a.diagnoses:
         return
     st.markdown("### 원인 후보")
-    st.caption("확신은 확률이 아닙니다. 정해 둔 확인 항목 중 맞는 것의 비율을 점수로 바꾼 값입니다. 광고 관리자에서 직접 확인하기 전에는 원인을 확정하지 마세요.")
+    st.caption("근거 일치 점수는 원인이 맞을 확률이 아닙니다. 정해 둔 확인 항목과 관측 자료가 얼마나 맞는지 나타냅니다. 점수가 높아도 원인을 확정할 수 없으며 아래 확인할 일을 먼저 수행해야 합니다.")
     ev = a.evidence
     for dg in a.diagnoses:
         inc = dg.incident
@@ -220,7 +223,7 @@ def _causes(rep: InsightReport) -> None:
             continue
         if dg.cause_state == "undetermined":
             _html('<div class="pf-perf-card"><div class="t pf-perf-warn">원인을 정하기 어렵습니다</div>'
-                  '<div>확인한 근거만으로는 어느 원인도 기준(확신 45%)에 닿지 않았습니다. 억지로 1순위를 고르지 않았습니다.</div></div>')
+                  '<div>어느 가설도 우선 확인할 기준(근거 일치 점수 45%)에 닿지 않았습니다. 추가 자료가 필요합니다.</div></div>')
         shown = [h for h in dg.hypotheses if h.confidence >= CANDIDATE_CONFIDENCE][:3] or dg.hypotheses[:1]
         for i, h in enumerate(shown, start=1):
             _hyp_card(h, ev, i)
@@ -275,7 +278,7 @@ def _details(rep: InsightReport) -> None:
             for h in dg.hypotheses:
                 checks = [{"항목": c.cid, "기준": c.label, "결과": "확인 못함" if c.passed is None else ("맞음" if c.passed else "아님"), "가중치": c.weight, "근거": c.evidence_id}
                           for c in h.checks]
-                st.markdown(f"**{h.label}** 확신 {h.confidence:.2f} — 계산값 {h.raw_confidence:.2f} = 맞는 비율 {h.support_ratio:.2f} × 확인한 비율 {h.coverage:.2f} × (1 − 0.6 × 반대 비율 {h.contradiction_ratio:.2f})"
+                st.markdown(f"**{h.label}** 근거 일치 점수 {h.confidence:.2f} — 계산값 {h.raw_confidence:.2f} = 맞는 비율 {h.support_ratio:.2f} × 확인한 비율 {h.coverage:.2f} × (1 − 0.6 × 반대 비율 {h.contradiction_ratio:.2f})"
                             + (f", 상한 적용: {h.cap_reason}" if h.cap_reason else ""))
                 st.dataframe(checks, width="stretch", hide_index=True)
         if a.avoid:

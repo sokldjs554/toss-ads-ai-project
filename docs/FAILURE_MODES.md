@@ -50,7 +50,7 @@
 |---|---|---|---|---|---|---|---|
 | FM-25 | 모델이 사용자 말에 없는 값을 슬롯으로 제안 | conversation | 모델이 사용자가 하지 않은 말을 근거로 슬롯 값을 제안한다 (환각 인용, 다른 숫자, 허용 어휘 밖의 값, 지어낸 낱말) | 근거 구절을 정규화해 사용자 원문에서 찾고, 금액은 원문의 금액과 대조하고, 값은 닫힌 어휘와 대조 | 통과하지 못한 제안은 버리고 dropped_updates 에 이유를 남긴다 | `tests/test_conv_model_path.py::test_model_updates_that_do_not_match_the_users_words_are_dropped` | 예 |
 | FM-26 | 모델 값과 규칙 값이 다름 | conversation | 같은 슬롯에 대해 모델이 제안한 값과 결정론 규칙이 읽은 값이 서로 다르다 | 같은 말에서 규칙이 읽은 값과 모델 제안을 슬롯마다 비교 | 규칙 값을 먼저 쓰고, 다른 점은 충돌로 남겨 사용자에게 되묻는다 | `tests/test_conv_model_path.py::test_deterministic_value_wins_and_the_difference_becomes_a_question` | 예 |
-| FM-27 | 대화 중 인젝션이 슬롯·프롬프트로 유입 | conversation | 사용자 말 속의 지시문('이전 규칙을 무시하고…')이 슬롯 값이나 모델 프롬프트로 들어간다 | 슬롯을 읽기 전에 사용자 말에 인젝션 탐지를 먼저 적용 (알려진 한계는 FM-40) | 지시문 절을 따로 격리해 이해에 쓰지 않고 사용자에게 알린다. 모델 프롬프트에는 격리를 거친 글만 보낸다 | `tests/test_conv_step.py::test_injection_is_quarantined_before_extraction_and_user_is_told` | 예 |
+| FM-27 | 대화 중 인젝션이 슬롯·프롬프트로 유입 | conversation | 사용자 말 속의 지시문('이전 규칙을 무시하고…')이 슬롯 값이나 모델 프롬프트로 들어간다 | 슬롯을 읽기 전에 사용자 말에 인젝션 탐지를 먼저 적용 (알려진 한계는 FM-40) | 첫 지시문부터 같은 입력의 끝까지 격리해 슬롯과 모델 프롬프트에 쓰지 않고 사용자에게 다시 요청하도록 알린다 | `tests/test_conv_step.py::test_injection_is_quarantined_before_extraction_and_user_is_told` | 예 |
 | FM-28 | 모델 한마디가 보장·없는 숫자·정책 표현 | conversation | 모델이 사용자에게 돌려줄 한마디에 보장 표현, 근거 없는 숫자, 정책에 걸리는 표현이 들어 있다 | output_guard 의 표현·인젝션 계층 검사에 보장 표현과 없는 숫자를 보는 자체 검사를 더한다 | 그 한마디를 쓰지 않고 정해진 문장으로 대체 | `tests/test_conv_model_path.py::test_bad_model_replies_are_replaced_by_the_template` | 예 |
 | FM-29 | 수정 요청을 모순으로, 모순을 수정으로 오인 | conversation | 값을 바꿔 달라는 말을 앞말과의 모순으로 보거나, 앞말과 어긋나는 말을 조용히 수정으로 받아들인다 | 수정 표지('…로 바꿔줘', '…말고')가 있는지로 구분 | 표지가 있으면 수정으로 반영하고, 표지 없이 값이 다르면 충돌로 두어 되묻는다 | `tests/test_conv_step.py::test_explicit_change_request_is_an_update_not_a_conflict` | 예 |
 | FM-30 | 모델 장애로 대화 중단 | conversation | 대화 중 모델 호출이 실패해 대화가 끊긴다 | 모델 호출 예외를 잡아 실패 모드 코드로 분류 | 규칙 기반 경로로 대화를 이어 가고 사용자에게 알린다 | `tests/test_conv_model_path.py::test_model_failure_continues_on_the_rules_path` | 예 |
@@ -63,7 +63,7 @@
 | FM-37 | 미성년·광고 불가 업종 통과 | conversation | 만 19세 미만 타겟이나 광고 불가 업종 요청이 그대로 다음 단계로 넘어간다 | 플랫폼 제약 점검(최소 연령)과 기존 입력 검사(광고 불가 업종 판정) | 대화를 막힘 상태로 두고 고쳐 말하도록 안내한다. 막힌 말은 슬롯에 남기지 않는다 | `tests/test_conv_step.py::test_minor_target_blocks_and_asks_to_fix_then_continues` | 예 |
 | FM-38 | 사용자 글이 화면에서 HTML·마크다운으로 실행 | ui | 사용자가 입력한 글이 대화 화면에서 HTML 이나 마크다운으로 해석된다 | 화면 출력에서 사용자 글이 이스케이프되는지 검사 | 사용자 글을 모두 이스케이프하고 <br> 외의 태그는 쓰지 않는다 | `tests/test_conv_ui.py::test_user_text_is_escaped_never_rendered_as_html_or_markdown` | 예 |
 | FM-39 | 모델이 옮긴 업종·목표가 확인 없이 확정 | conversation | 사용자가 말하지 않은 업종·목표를 모델이 말뜻으로 옮기고 그대로 확정한다 | 모델이 의미로 옮긴 값에 확인 필요(needs_confirmation) 표시를 붙인다 | 사용자가 '네' 라고 확인하기 전에는 확정하지 않고, 그 전에는 ready 가 되지 못한다 | `tests/test_conv_model_path.py::test_model_only_value_is_accepted_but_not_confirmed_until_the_user_says_yes` | 예 |
-| FM-40 | (알려진 구멍) 바꿔 쓴 인젝션이 격리되지 않음 | conversation | '시스템: 이전 규칙은 모두 잊어…' 나 영어 'ignore the rules above' 처럼 바꿔 쓴 지시문이 탐지 규칙에 걸리지 않아 격리되지 않고, 말의 일부가 슬롯으로 읽힌다 | 지시문 탐지가 정규식 패턴이라 바꿔 쓴 문장은 걸리지 않는다. 이미 확정된 슬롯 값과 다르게 읽히면 충돌로 드러난다 | 알려진 한계: 바꿔 쓴 지시문은 격리하지 못한다. 그래도 이미 확정된 값은 조용히 바뀌지 않고 충돌로 남아 사용자에게 되묻고, 충돌이 풀리기 전에는 ready 가 되지 못한다 | `tests/test_conv_known_gaps.py::test_an_unquarantined_injection_still_cannot_silently_overwrite_a_confirmed_value` | 아님 |
+| FM-40 | 지시문 뒤의 문장이 설정값을 오염 | conversation | 지시문 한 문장만 제거하면 같은 턴의 다음 문장에 있는 예산·목표 변경이 정상 요청처럼 읽힌다 | 한·영 규칙 무시/승인 강요 표현과 제어 문자를 검사하고 첫 지시문의 위치를 찾는다 | 재현된 한·영 지시문과 그 뒤 같은 턴의 내용을 격리하며 확정 값과 모델 프롬프트를 보호한다. 알려진 한계: 정규식이 포괄하지 못한 새 표현의 완전 차단은 보장하지 않는다. 서로 다른 값은 여전히 충돌로 되묻는다 | `tests/test_conv_known_gaps.py::test_quarantined_instruction_continuation_cannot_create_a_conflict` | 아님 |
 
 ## 상품 페이지 가져오기 (FM-41 ~ FM-55)
 
@@ -127,7 +127,7 @@
 
 | 코드 | 이름 | 단계 | 증상 | 탐지 | 방어 | 테스트 | fail-closed |
 |---|---|---|---|---|---|---|---|
-| FM-84 | 요일 효과를 이상으로 오인 | insight_detect | 주말 하락을 성과 악화로 보고 설정을 바꾸게 한다 | 같은 요일끼리 비교하는 로버스트 z 점수 | 요일을 보정하고, 이상이 없으면 설정 변경 액션을 막는다 (G3). 알려진 한계: holdout 의 대조 시나리오 4개 중 2개(요일 효과 3.5배 시나리오 포함)에서 이상을 잘못 냈다 | `tests/test_insights_engine.py::test_weekend_dip_is_not_an_anomaly_but_a_naive_comparison_would_flag_it` | 아님 |
+| FM-84 | 요일 효과를 이상으로 오인 | insight_detect | 주말 하락을 성과 악화로 보고 설정을 바꾸게 한다 | 요일·추세 추정 오차와 기준기간·지표·부분 집합의 비교 수를 반영한 점수 | 요일과 추세를 보정하고, 이상이 없으면 설정 변경 액션을 막는다 (G3). 처음 평가에서 정상 4개 중 2개에 잘못 알린 기록을 보존하며, 후속 회귀와 새 합성 사례의 결과를 구분한다. 남은 한계: 실제 광고의 정확도는 별도 검증이 필요하다 | `tests/test_insights_engine.py::test_weekend_dip_is_not_an_anomaly_but_a_naive_comparison_would_flag_it` | 아님 |
 | FM-85 | 표본이 적은데 원인·액션 단정 | insight_detect | 전환 몇 건만으로 원인을 단정한다 | 기준 기간의 클릭·전환 합계를 확인 | 판단을 보류하고 광고 중지·큰 변경 액션을 막는다 (G1/G2) | `tests/test_insights_engine.py::test_too_few_conversions_withholds_conversion_metrics_and_blocks_big_changes` | 예 |
 | FM-86 | 구성 변화(심슨 역설)를 악화로 오진 | insight_diagnose | 기기별 전환율은 그대로인데 전체 전환율이 떨어진 것을 랜딩 문제로 판단한다 | 구성 효과와 비율 효과로 분해 | 필수 근거가 어긋나므로 랜딩 후보를 낮추고 점검 액션을 낸다 | `tests/test_insights_engine.py::test_mix_shift_is_diagnosed_as_composition_not_a_worsening_of_each_group` | 예 |
 | FM-87 | 근거 부족인데 1순위를 억지로 고름 | insight_diagnose | 구분 열이 없는데도 원인을 단정한다 | 필수 근거를 확인하지 못했으면 확신에 상한을 둔다 | 원인을 정하지 못함(undetermined)으로 두고 점검·관찰 액션을 낸다 | `tests/test_insights_engine.py::test_without_dimension_columns_the_cause_is_left_undetermined` | 예 |
