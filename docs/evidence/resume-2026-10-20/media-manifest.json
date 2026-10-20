@@ -1,0 +1,238 @@
+{
+  "capture_date": "2026-10-20",
+  "mode": "DEMO; no model/provider calls",
+  "note": "b89b67d changes only browser capture framing relative to 773a1fb; application code is identical.",
+  "media": [
+    {
+      "path": "docs/screenshots/01_workbench_input.png",
+      "source_commit": "773a1fb127bdc51c8ad9c07051070549549ff6ff",
+      "script": "scripts/screenshot.py",
+      "bytes": 127290,
+      "sha256": "310e7b7d23b4daf9216cfc687686478b55081e374b606e878028beb3942bda40"
+    },
+    {
+      "path": "docs/screenshots/02_result_malicious.png",
+      "source_commit": "773a1fb127bdc51c8ad9c07051070549549ff6ff",
+      "script": "scripts/screenshot.py",
+      "bytes": 225059,
+      "sha256": "a45676354cf22d3854203ea2d966d5cf5cc1ab449e835278460d67cad420f68a"
+    },
+    {
+      "path": "docs/screenshots/03_variant_reject.png",
+      "source_commit": "773a1fb127bdc51c8ad9c07051070549549ff6ff",
+      "script": "scripts/screenshot.py",
+      "bytes": 175065,
+      "sha256": "b331f6505ef9e811ba13b8f85a7807cbf2fc3a94eb3c6e81ff4c938fe424417f"
+    },
+    {
+      "path": "docs/screenshots/04_recheck.png",
+      "source_commit": "773a1fb127bdc51c8ad9c07051070549549ff6ff",
+      "script": "scripts/screenshot.py",
+      "bytes": 123276,
+      "sha256": "c034b8585ad78b47859948c9311f65af1f537a692e392e4f83b7e1846ba468d3"
+    },
+    {
+      "path": "docs/screenshots/05_cases.png",
+      "source_commit": "773a1fb127bdc51c8ad9c07051070549549ff6ff",
+      "script": "scripts/screenshot.py",
+      "bytes": 222784,
+      "sha256": "b0ce49281f12306825cb2b97b5820b2a7faa59265b82903a9b9982038a74fdc0"
+    },
+    {
+      "path": "docs/screenshots/06_quality.png",
+      "source_commit": "773a1fb127bdc51c8ad9c07051070549549ff6ff",
+      "script": "scripts/screenshot.py",
+      "bytes": 252315,
+      "sha256": "983d443ebdc0ff044fde2793c578adc9cfdd4ddedf53a2a92ae179fc6d5202ee"
+    },
+    {
+      "path": "docs/screenshots/07_mobile_result.png",
+      "source_commit": "773a1fb127bdc51c8ad9c07051070549549ff6ff",
+      "script": "scripts/screenshot.py",
+      "bytes": 192233,
+      "sha256": "17e82d5297715c6ce5271f7590833c1f4142d3ef23bb244a861a1c2a883d2567"
+    },
+    {
+      "path": "docs/screenshots/08_compare.png",
+      "source_commit": "773a1fb127bdc51c8ad9c07051070549549ff6ff",
+      "script": "scripts/screenshot.py",
+      "bytes": 239363,
+      "sha256": "512229c0bb91461f24f7563f2ed44a560bc65d87df004c88adfb2c3c3c7f6fc1"
+    },
+    {
+      "path": "docs/screenshots/demo.gif",
+      "source_commit": "773a1fb127bdc51c8ad9c07051070549549ff6ff",
+      "script": "scripts/make_demo_gif.py",
+      "bytes": 158174,
+      "sha256": "21be33a92829685239dad4f23a892c22ae1e2e4ec5d9769af3cccfbaa08a6297"
+    },
+    {
+      "path": "docs/screenshots/flow_desktop_1_start.png",
+      "source_commit": "b89b67dacc1872ade2837a8617a3e9f2ef595667",
+      "script": "scripts/e2e_flow.py",
+      "bytes": 102414,
+      "sha256": "0c7c1b13a7d5d98047657499043a8eb99f891d780a9fce7bfb3212c8fafb16bb"
+    },
+    {
+      "path": "docs/screenshots/flow_desktop_2_result.png",
+      "source_commit": "b89b67dacc1872ade2837a8617a3e9f2ef595667",
+      "script": "scripts/e2e_flow.py",
+      "bytes": 142215,
+      "sha256": "6f8fe7e60995357faed3e6160c0111b0c1fad87e62909fd27b4e6b022302f22d"
+    },
+    {
+      "path": "docs/screenshots/flow_desktop_3_recheck.png",
+      "source_commit": "b89b67dacc1872ade2837a8617a3e9f2ef595667",
+      "script": "scripts/e2e_flow.py",
+      "bytes": 113759,
+      "sha256": "1846fc56ee495c1bc74b4c472a76d318df09c9867bb2181470c24ddf46488156"
+    },
+    {
+      "path": "docs/screenshots/flow_desktop_4_failed_handoff.png",
+      "source_commit": "b89b67dacc1872ade2837a8617a3e9f2ef595667",
+      "script": "scripts/e2e_flow.py",
+      "bytes": 142834,
+      "sha256": "5c2f7ef126875d6dea6162bb305a461636db76ccea134f15b3484589c1febe66"
+    },
+    {
+      "path": "docs/screenshots/flow_desktop_5_retry_ok.png",
+      "source_commit": "b89b67dacc1872ade2837a8617a3e9f2ef595667",
+      "script": "scripts/e2e_flow.py",
+      "bytes": 93514,
+      "sha256": "2b563bbb33bcf873c5de34c0ad78f6f08e941a8bf5b588280cf71e99d9112e40"
+    },
+    {
+      "path": "docs/screenshots/flow_desktop_feat1_chat.png",
+      "source_commit": "b89b67dacc1872ade2837a8617a3e9f2ef595667",
+      "script": "scripts/e2e_flow.py",
+      "bytes": 167287,
+      "sha256": "bec9da62981957c87016ade00bf1a4dac6ef13db2dcb7d9235165e032142fa78"
+    },
+    {
+      "path": "docs/screenshots/flow_desktop_feat2_url.png",
+      "source_commit": "b89b67dacc1872ade2837a8617a3e9f2ef595667",
+      "script": "scripts/e2e_flow.py",
+      "bytes": 83193,
+      "sha256": "3f326de1cf570edf8831086e22f413117acda35d25c942e0d050ab0e138b6bd2"
+    },
+    {
+      "path": "docs/screenshots/flow_desktop_feat3_banner.png",
+      "source_commit": "b89b67dacc1872ade2837a8617a3e9f2ef595667",
+      "script": "scripts/e2e_flow.py",
+      "bytes": 157844,
+      "sha256": "332564f6e5960ff2cc5cd5212e13dfa49ede73f6e313fa6cad8e9b1ff03ad7e3"
+    },
+    {
+      "path": "docs/screenshots/flow_desktop_feat3_image.png",
+      "source_commit": "b89b67dacc1872ade2837a8617a3e9f2ef595667",
+      "script": "scripts/e2e_flow.py",
+      "bytes": 106437,
+      "sha256": "e76feae2ae38240c6c25279007a30c4835addda7219f07f9337cecaec5d83e0f"
+    },
+    {
+      "path": "docs/screenshots/flow_desktop_feat4_performance.png",
+      "source_commit": "b89b67dacc1872ade2837a8617a3e9f2ef595667",
+      "script": "scripts/e2e_flow.py",
+      "bytes": 115317,
+      "sha256": "18adfc67d55cf61fbc413aff917f0171b99b8b6b6c5bbc065fb978b5e73bc213"
+    },
+    {
+      "path": "docs/screenshots/flow_desktop_feat5_ops.png",
+      "source_commit": "b89b67dacc1872ade2837a8617a3e9f2ef595667",
+      "script": "scripts/e2e_flow.py",
+      "bytes": 106759,
+      "sha256": "6c50415a58b860f72517298a0abbb126cc39bbaddafa3a5dc67c5f43e27d855e"
+    },
+    {
+      "path": "docs/screenshots/flow_desktop_feat6_new_evals.png",
+      "source_commit": "b89b67dacc1872ade2837a8617a3e9f2ef595667",
+      "script": "scripts/e2e_flow.py",
+      "bytes": 121183,
+      "sha256": "b9fdbe9f4d9816a2569080ae1054dc47fcdd83787e7fbfb2424de6b44ee75aca"
+    },
+    {
+      "path": "docs/screenshots/flow_mobile_1_start.png",
+      "source_commit": "b89b67dacc1872ade2837a8617a3e9f2ef595667",
+      "script": "scripts/e2e_flow.py",
+      "bytes": 66966,
+      "sha256": "8d8bb3eac793fbf9f7fa2b0ed88949747a5e98218447b043b94594972e147f41"
+    },
+    {
+      "path": "docs/screenshots/flow_mobile_2_result.png",
+      "source_commit": "b89b67dacc1872ade2837a8617a3e9f2ef595667",
+      "script": "scripts/e2e_flow.py",
+      "bytes": 76301,
+      "sha256": "6f6024502486e5769d826288b8069fd3467e02f7360b5ea95b9e7de1958ea68e"
+    },
+    {
+      "path": "docs/screenshots/flow_mobile_3_recheck.png",
+      "source_commit": "b89b67dacc1872ade2837a8617a3e9f2ef595667",
+      "script": "scripts/e2e_flow.py",
+      "bytes": 63478,
+      "sha256": "217e812e1c6f1701e8e86fbc48908310ea0fbb7ca75c528e02f1235fccbda041"
+    },
+    {
+      "path": "docs/screenshots/flow_mobile_4_failed_handoff.png",
+      "source_commit": "b89b67dacc1872ade2837a8617a3e9f2ef595667",
+      "script": "scripts/e2e_flow.py",
+      "bytes": 71606,
+      "sha256": "79ba235b94c76a65cd4db19c8be688d6c7664c64dbe2ba1898c4f6cb04733512"
+    },
+    {
+      "path": "docs/screenshots/flow_mobile_5_retry_ok.png",
+      "source_commit": "b89b67dacc1872ade2837a8617a3e9f2ef595667",
+      "script": "scripts/e2e_flow.py",
+      "bytes": 73382,
+      "sha256": "4e335dfa8187557043e66f4a1fd42ca8a979a69d859396df0c56cefb7e4198bd"
+    },
+    {
+      "path": "docs/screenshots/flow_mobile_feat1_chat.png",
+      "source_commit": "b89b67dacc1872ade2837a8617a3e9f2ef595667",
+      "script": "scripts/e2e_flow.py",
+      "bytes": 76497,
+      "sha256": "fffc1b10a7c7f8867360b637f108870baca3aa14b85e1166dd3a37002448de89"
+    },
+    {
+      "path": "docs/screenshots/flow_mobile_feat2_url.png",
+      "source_commit": "b89b67dacc1872ade2837a8617a3e9f2ef595667",
+      "script": "scripts/e2e_flow.py",
+      "bytes": 67052,
+      "sha256": "0bd722f9470cd4809729fdbb8e8167a275339f70f8e383c96b9ac69fe9823763"
+    },
+    {
+      "path": "docs/screenshots/flow_mobile_feat3_banner.png",
+      "source_commit": "b89b67dacc1872ade2837a8617a3e9f2ef595667",
+      "script": "scripts/e2e_flow.py",
+      "bytes": 68863,
+      "sha256": "eeebe97fb2ce0b8e59a0a12d5e4409495d298b0440cee74376c149fbbbba8524"
+    },
+    {
+      "path": "docs/screenshots/flow_mobile_feat3_image.png",
+      "source_commit": "b89b67dacc1872ade2837a8617a3e9f2ef595667",
+      "script": "scripts/e2e_flow.py",
+      "bytes": 65601,
+      "sha256": "d7b2412ad963ca4411372351d9b2c38958d08b3edde1ed350746d34a70cba4c3"
+    },
+    {
+      "path": "docs/screenshots/flow_mobile_feat4_performance.png",
+      "source_commit": "b89b67dacc1872ade2837a8617a3e9f2ef595667",
+      "script": "scripts/e2e_flow.py",
+      "bytes": 89027,
+      "sha256": "d531ddeb4a458518e46191eb3728a3d5d7a60f007bf112d7b2bbdf3ba7c294f2"
+    },
+    {
+      "path": "docs/screenshots/flow_mobile_feat5_ops.png",
+      "source_commit": "b89b67dacc1872ade2837a8617a3e9f2ef595667",
+      "script": "scripts/e2e_flow.py",
+      "bytes": 74937,
+      "sha256": "33e3ed011fc5df52f71a613f0137ed20988e985c7a137c1b68af8202fd49ccba"
+    },
+    {
+      "path": "docs/screenshots/flow_mobile_feat6_new_evals.png",
+      "source_commit": "b89b67dacc1872ade2837a8617a3e9f2ef595667",
+      "script": "scripts/e2e_flow.py",
+      "bytes": 80564,
+      "sha256": "9f2ff630c40d4999b7f376d038837eb72ce61f1ac9f9675a944e98f848359a08"
+    }
+  ]
+}
