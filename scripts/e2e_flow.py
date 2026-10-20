@@ -41,8 +41,13 @@ class Flow:
         """anchor 글자가 있는 곳으로 스크롤한 뒤 화면을 저장한다 (결과가 첫 화면 밖에 있어도 그 결과가 찍히게)."""
         self.out.mkdir(parents=True, exist_ok=True)
         if anchor:
-            self.page.get_by_text(anchor, exact=False).first.scroll_into_view_if_needed()
-            self.page.evaluate("window.scrollBy(0, -40)")
+            heading = self.page.get_by_role("heading", name=anchor, exact=False)
+            target = heading.first if heading.count() else self.page.get_by_text(anchor, exact=False).first
+            target.evaluate("""e => {
+                e.scrollIntoView({block: 'start'});
+                const main = document.querySelector('[data-testid="stMain"]');
+                if (main) main.scrollBy(0, -24); else window.scrollBy(0, -24);
+            }""")
             time.sleep(0.8)
         self.page.screenshot(path=str(self.out / f"flow_{self.name}_{step}.png"), full_page=False)
 
@@ -208,7 +213,7 @@ def run_features_flow(browser, name: str, size: tuple[int, int], out: Path) -> l
     f.check("대화: 말한 값이 ‘지금까지 이해한 내용’ 에 나온다 (업종·예산)", "신용대출" in t and ("300만원" in t.replace(",", "").replace("3000000", "300만원") or "3,000,000" in t))
     f.check("대화: 예시 실행(규칙 기반) 표시", "규칙 기반" in t)
     f.no_exception("대화 한 번 뒤")
-    f.shot("feat1_chat", "이 내용으로 광고 작업 채우기")
+    f.shot("feat1_chat", "대화로 광고 설정")
     page.get_by_role("button", name="이 내용으로 광고 작업 채우기").first.click()
     f.wait_text("대화에서 이해한 내용으로 입력 칸을 채웠습니다", 60_000)
     time.sleep(1.0)
@@ -256,7 +261,7 @@ def run_features_flow(browser, name: str, size: tuple[int, int], out: Path) -> l
     t = f.text()
     f.check("이미지 검사: 이미지 속 ‘원금 보장’ 이 문구 규칙으로 걸린다", "원금 보장" in t and "게재 불가" in t)
     f.no_exception("이미지 검사 뒤")
-    f.shot("feat3_image", "이미지 검사")
+    f.shot("feat3_image", "이미지 검사 결과")
 
     # 4) 성과 리포트
     _go(page, f, "성과 리포트", "성과 리포트")
