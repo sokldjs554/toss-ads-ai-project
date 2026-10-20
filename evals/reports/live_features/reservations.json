@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "total_cap_usd": "10",
+  "reserved_total_usd": "4",
+  "policy": "예약액은 성공·실패·중단 여부와 관계없이 다시 사용하지 않음",
+  "reservations": [
+    {
+      "run_id": "features-20261020-run1",
+      "reserved_cap_usd": "4",
+      "workflow_run_id": "39446680702",
+      "manifest_sha256": "5b3e6588b73e214e15727158c34c04c050cc9c2bf303aa10be61bf3497c28686",
+      "reserved_at": "2026-10-20T15:15:35.829651+00:00"
+    }
+  ]
+}
