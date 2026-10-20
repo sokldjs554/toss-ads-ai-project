@@ -745,8 +745,13 @@ class ReviewQueue:
                 pre = PrelabelView(decision=sug, rule_ids=it.verdict.suggested_rules(), cited_spans=it.verdict.suggested_spans(), confidence=it.verdict.confidence)
         # 광고안 id·어조·이어받은 사실 id 는 출처(데이터셋 id 등)를 드러낼 수 있어 모두 같은 모양으로 지운 사본을 준다
         shown = it.ad_copy.model_copy(deep=True, update={"variant_id": "var_" + it.id[3:], "tone": "", "carried_fact_ids": []})
+        # 사실 id 도 출처를 담을 수 있다. 화면용 별칭으로 바꾸되 주장→사실 연결은 함께 옮기고, 없는 사실은 근거 없음으로 둔다.
+        fact_ids = {f.id: f"F{i}" for i, f in enumerate(it.facts, 1)}
+        facts = [f.model_copy(update={"id": fact_ids[f.id]}) for f in it.facts]
+        for claim in shown.claims:
+            claim.fact_id = fact_ids.get(claim.fact_id)
         return AnnotatorView(item_id=it.id, ad_copy=shown, product_name=it.product_name, category=it.category,
-                             facts=[f.model_copy() for f in it.facts], landing_text=it.landing_text, reason_label=VIEW_REASON_LABEL,
+                             facts=facts, landing_text=it.landing_text, reason_label=VIEW_REASON_LABEL,
                              priority=it.priority, due_at=it.due_at, prelabel=pre, prelabel_mode=mode)
 
     def submit(self, annotation: Annotation) -> SubmitResult:

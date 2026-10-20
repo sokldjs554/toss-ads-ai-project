@@ -12,7 +12,7 @@ jobs:
           python-version: "3.11"
       - run: pip install -r requirements.txt
       - name: unit tests (no network)
-        run: python -m pytest -q
+        run: python -m pytest -o addopts='' -q -ra
       - name: regression gate — deterministic layer vs committed baseline
         env:
           PREFLIGHT_FORCE_DEMO: "1"
@@ -44,7 +44,7 @@ jobs:
           python -m evals.dialogs --split dev --gate
           python -m evals.url_ingest_eval --gate
           python -m evals.image_eval --gate
-          python -m evals.insights_eval --gate
+          python -m evals.insights_eval --gate --regression
           python -m evals.quality_signals --gate
       - name: conversation holdout (report only — it contains one known injection contamination)
         env:

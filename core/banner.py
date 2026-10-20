@@ -360,6 +360,10 @@ def _as_size(size: Union[str, BannerSize]) -> BannerSize:
 
 def _as_palette(p: Union[str, Palette]) -> Palette:
     if isinstance(p, Palette):
+        for role in ("bg", "title", "body", "accent", "button_text", "disclosure"):
+            color = getattr(p, role)
+            if parse_color(color) is None or any(ord(ch) < 32 and ch not in "\t\n\r" for ch in color):
+                raise ValueError(f"해석할 수 없는 팔레트 색({role}): {color!r}")
         return p
     if p not in PALETTES:
         raise ValueError(f"알 수 없는 팔레트: {p!r} (가능: {', '.join(PALETTES)})")

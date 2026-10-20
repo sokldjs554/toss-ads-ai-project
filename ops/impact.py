@@ -203,8 +203,10 @@ class Measured:
 
 
 def _rm(d: Mapping[str, Any], key: str) -> RateMeasure:
-    x = d.get(key) or {}
-    return RateMeasure(int(x.get("k", 0)), int(x.get("n", 0)))
+    x = d.get(key)
+    if not isinstance(x, dict) or any(type(x.get(f)) is not int for f in ("k", "n")) or not 0 <= x["k"] <= x["n"]:
+        raise ValueError(f"{key} 의 건수는 0 ≤ k ≤ n 인 정수여야 합니다")
+    return RateMeasure(x["k"], x["n"])
 
 
 def _pctl(sorted_v: list[float], q: float) -> float:
@@ -222,6 +224,25 @@ def _pool(blocks: list[Mapping[str, Any]], key: str) -> RateMeasure:
 
 
 def _system_measure(system: str, label: str, blocks: list[Mapping[str, Any]], rows: list[Mapping[str, Any]]) -> SystemMeasure:
+    for b in blocks:
+        if any(type(b.get(f)) is not int or b[f] < 0 for f in ("n", "calls", "failed")) or b["n"] == 0:
+            raise ValueError("사례 수·호출 수·실패 수가 올바르지 않습니다")
+        if b["failed"] or b.get("scored", b["n"]) != b["n"]:
+            raise ValueError("호출 실패 또는 점수를 내지 못한 사례가 섞인 결과입니다")
+        if any(not _isnum(b.get(f)) or b[f] < 0 for f in ("cost_usd", "latency_ms_total")):
+            raise ValueError("비용·시간은 0 이상의 유한한 숫자여야 합니다")
+        rates = {k: _rm(b, k) for k in ("human_review", "unsafe_pass", "bad_to_human", "good_to_human", "unnecessary_revision", "correct_pass")}
+        bad, good = rates["bad_to_human"], rates["good_to_human"]
+        if (rates["human_review"].n != b["n"] or bad.n + good.n != b["n"]
+                or rates["unsafe_pass"].n != bad.n or any(rates[k].n != good.n for k in ("unnecessary_revision", "correct_pass"))
+                or rates["human_review"].k != bad.k + good.k
+                or good.k + rates["unnecessary_revision"].k + rates["correct_pass"].k != good.n):
+            raise ValueError("측정 항목 사이의 사례 수가 맞지 않습니다")
+    for r in rows:
+        if r.get("error") or r.get("rewrite_error"):
+            raise ValueError("호출 실패가 섞인 사례별 기록입니다")
+        if any(not _isnum(r.get(f)) or r[f] < 0 for f in ("cost_usd", "latency_ms")):
+            raise ValueError("사례별 비용·시간은 0 이상의 유한한 숫자여야 합니다")
     n = sum(int(b.get("n", 0)) for b in blocks)
     cost = sum(float(b.get("cost_usd", 0.0)) for b in blocks)
     lat_total = sum(float(b.get("latency_ms_total", 0.0)) for b in blocks)
@@ -257,24 +278,37 @@ def _from_compare(d: dict, split: str, fname: str) -> tuple[Optional[Measured], 
         return None, "비교 결과 형식이 아닙니다"
     if d.get("run_kind") != "live":
         return None, f"실제 모델로 돌린 결과가 아닙니다 (run_kind={d.get('run_kind')})"
-    if not d.get("complete") or d.get("aborted"):
+    if d.get("complete") is not True or d.get("aborted"):
         return None, "끝까지 돌지 못했거나 중단된 결과입니다"
-    if (d.get("failures") or {}).get("n"):
+    failures = d.get("failures", {})
+    if not isinstance(failures, dict) or type(failures.get("n", 0)) is not int or failures.get("n", 0) < 0:
+        return None, "호출 실패 집계의 형식이 올바르지 않습니다"
+    if failures.get("n"):
         return None, "호출 실패가 섞인 결과입니다 (측정이 아닌 장애 기록)"
-    by_split = d.get("overall_by_split") or {}
+    by_split = d.get("overall_by_split", {})
     wanted = ["dev", "holdout"] if split == "all" else [split]
+    if not isinstance(by_split, dict) or any(w in by_split and not isinstance(by_split[w], dict) for w in wanted):
+        return None, "분할별 측정 결과의 형식이 올바르지 않습니다"
     if any(w not in by_split for w in wanted):
         return None, f"{split} 구간 결과가 없습니다"
-    labels = {k: (v.get("label") or k) for k, v in (d.get("systems") or {}).items()}
-    datasets = ([ds for ds in (d.get("datasets") or {})] if split == "all" else
-                [ds for ds, meta in (d.get("datasets") or {}).items() if (meta.get("split") == "holdout") == (split == "holdout")])
-    rows = [r for r in (d.get("rows") or []) if r.get("dataset") in datasets]
+    metadata = d.get("systems", {})
+    datasets_meta = d.get("datasets", {})
+    all_rows = d.get("rows", [])
+    if (not isinstance(metadata, dict) or any(not isinstance(v, dict) for v in metadata.values())
+            or not isinstance(datasets_meta, dict) or any(not isinstance(v, dict) or v.get("split") not in ("dev", "holdout") for v in datasets_meta.values())
+            or not isinstance(all_rows, list) or any(not isinstance(r, dict) for r in all_rows)):
+        return None, "방식·데이터셋·사례별 기록의 형식이 올바르지 않습니다"
+    labels = {k: (v.get("label") or k) for k, v in metadata.items()}
+    datasets = [ds for ds, meta in datasets_meta.items() if split == "all" or meta["split"] == split]
+    rows = [r for r in all_rows if r.get("dataset") in datasets]
     systems: dict[str, SystemMeasure] = {}
     for sysname in ("code_only", "llm_only", "combined"):
         blocks = [by_split[w][sysname] for w in wanted if isinstance(by_split[w].get(sysname), dict)]
         if len(blocks) != len(wanted):
             continue
         systems[sysname] = _system_measure(sysname, labels.get(sysname, sysname), blocks, [r for r in rows if r.get("system") == sysname])
+    if "combined" not in systems:
+        return None, "합친 방식의 측정 결과가 없습니다"
     m = Measured(available="combined" in systems, split=split, systems=systems, sources=[fname], generated_at=str(d.get("generated_at", "")),
                  provider=str(d.get("provider", "")), model=str(d.get("model", "")),
                  n_cases=systems["combined"].n if "combined" in systems else 0, caveats=[str(c) for c in d.get("caveats", [])])
@@ -285,30 +319,44 @@ def _from_compare(d: dict, split: str, fname: str) -> tuple[Optional[Measured], 
 
 
 def _from_baseline(d: dict, split: str, fname: str) -> tuple[Optional[Measured], str]:
-    """baseline_partial.json(실제 모델, 골든셋) → '합친 방식' 한 줄만. 검토 모델만·코드만 비교는 없다."""
+    """baseline_partial.json(실제 모델) → '합친 방식' 한 줄만. 파일의 분할을 따르고 검토 모델만·코드만 비교는 없다."""
     if d.get("mode") not in ("partial", "live"):
         return None, f"실제 모델 결과가 아닙니다 (mode={d.get('mode')})"
-    if d.get("aborted") or (d.get("provider_failures") or {}).get("n"):
+    failures = d.get("provider_failures", {})
+    if not isinstance(failures, dict) or type(failures.get("n", 0)) is not int or failures.get("n", 0) < 0:
+        return None, "호출 실패 집계의 형식이 올바르지 않습니다"
+    if d.get("aborted") or failures.get("n"):
         return None, "중단되었거나 호출 실패가 섞인 결과입니다"
-    if split == "holdout":
-        return None, "이 파일은 개발용 사례(골든셋)만 담고 있습니다"
-    cases = d.get("cases") or []
-    if not cases:
+    baseline_split = d.get("split", "holdout" if Path(str(d.get("dataset", "golden"))).stem in _HOLDOUT_DATASETS else "dev")
+    if baseline_split not in ("dev", "holdout"):
+        return None, "파일의 개발용·최종 확인용 분할 정보가 올바르지 않습니다"
+    split_name = "최종 확인용" if baseline_split == "holdout" else "개발용"
+    if split != "all" and split != baseline_split:
+        return None, f"이 파일은 {split_name} 사례만 담고 있습니다"
+    cases = d.get("cases", [])
+    if not isinstance(cases, list) or not cases or any(not isinstance(c, dict) for c in cases):
         return None, "사례별 결과가 없습니다"
+    for c in cases:
+        if c.get("label") not in ("APPROVE", "REVISE", "REJECT") or c.get("predicted") not in ("APPROVE", "REVISE", "REJECT", "HUMAN_REVIEW"):
+            return None, "사례별 라벨·판정이 올바르지 않습니다"
+        if c.get("error") or c.get("rewrite_error"):
+            return None, "호출 실패가 섞인 사례별 기록입니다"
+        if any(f in c and (not _isnum(c[f]) or c[f] < 0) for f in ("cost_usd", "latency_ms")):
+            return None, "사례별 비용·시간은 0 이상의 유한한 숫자여야 합니다"
     bad = [c for c in cases if c.get("label") in ("REJECT", "REVISE")]
     good = [c for c in cases if c.get("label") == "APPROVE"]
     hr = [c for c in cases if c.get("predicted") == "HUMAN_REVIEW"]
-    lat = sorted(float(c["latency_ms"]) for c in cases if "latency_ms" in c)
-    cost = sum(float(c.get("cost_usd", 0.0)) for c in cases)
+    lat = sorted(float(c["latency_ms"]) for c in cases) if all("latency_ms" in c for c in cases) else []
+    cost = sum(float(c["cost_usd"]) for c in cases) if all("cost_usd" in c for c in cases) else None
     sm = SystemMeasure(
-        system="combined", label="합친 방식 (골든셋만, 교차 확인·가상 사용자 없음)", n=len(cases), human_review=RateMeasure(len(hr), len(cases)),
+        system="combined", label=f"합친 방식 ({split_name}만, 교차 확인·가상 사용자 없음)", n=len(cases), human_review=RateMeasure(len(hr), len(cases)),
         unsafe_pass=RateMeasure(sum(c.get("predicted") == "APPROVE" for c in bad), len(bad)), bad_to_human=RateMeasure(sum(c.get("predicted") == "HUMAN_REVIEW" for c in bad), len(bad)),
         good_to_human=RateMeasure(sum(c.get("predicted") == "HUMAN_REVIEW" for c in good), len(good)),
         unnecessary_revision=RateMeasure(sum(c.get("predicted") in ("REVISE", "REJECT") for c in good), len(good)),
         correct_pass=RateMeasure(sum(c.get("predicted") == "APPROVE" for c in good), len(good)),
-        cost_per_case_usd=cost / len(cases), latency_mean_ms=sum(lat) / len(lat) if lat else None, latency_p50_ms=_pctl(lat, 0.5) if lat else None, latency_p95_ms=_pctl(lat, 0.95) if lat else None)
-    m = Measured(True, split if split in ("dev", "all") else "dev", {"combined": sm}, [fname], str(d.get("generated_at", "")), str(d.get("provider", "")), str(d.get("model", "")), len(cases))
-    m.notes.append("비교 결과(compare_live.json)가 없어 골든셋 실행 결과로 대신했습니다 — 개발용 사례만이고 검토 모델만·코드만 방식과의 비교는 없습니다.")
+        cost_per_case_usd=cost / len(cases) if cost is not None else None, latency_mean_ms=sum(lat) / len(lat) if lat else None, latency_p50_ms=_pctl(lat, 0.5) if lat else None, latency_p95_ms=_pctl(lat, 0.95) if lat else None)
+    m = Measured(True, split, {"combined": sm}, [fname], str(d.get("generated_at", "")), str(d.get("provider", "")), str(d.get("model", "")), len(cases))
+    m.notes.append(f"사용할 수 있는 비교 결과(compare_live.json)가 없어 단일 방식의 실행 결과로 대신했습니다 — {split_name} 사례만이고 검토 모델만·코드만 방식과의 비교는 없습니다.")
     return m, ""
 
 
@@ -323,7 +371,10 @@ def load_measured(reports_dir: Optional[Path] = None, split: str = "all") -> Mea
         if d is None:
             reasons[fname] = "파일이 없거나 읽을 수 없습니다"
             continue
-        m, why = fn(d, split, fname)
+        try:
+            m, why = fn(d, split, fname)
+        except (KeyError, TypeError, ValueError, AttributeError, OverflowError):
+            m, why = None, "측정 파일의 구조나 값이 올바르지 않습니다"
         if m is not None:
             m.missing.update({f: r for f, r in reasons.items()})
             if "llm_only" not in m.systems:

@@ -1,0 +1,54 @@
+{
+  "source_commit": "773a1fb127bdc51c8ad9c07051070549549ff6ff",
+  "command": "PREFLIGHT_BUILD=773a1fb python scripts/screenshot.py",
+  "captures": [
+    {
+      "name": "01_workbench_input",
+      "overflow": false,
+      "exceptions": 0,
+      "errors": []
+    },
+    {
+      "name": "02_result_malicious",
+      "overflow": false,
+      "exceptions": 0,
+      "errors": []
+    },
+    {
+      "name": "03_variant_reject",
+      "overflow": false,
+      "exceptions": 0,
+      "errors": []
+    },
+    {
+      "name": "04_recheck",
+      "overflow": false,
+      "exceptions": 0,
+      "errors": []
+    },
+    {
+      "name": "05_cases",
+      "overflow": false,
+      "exceptions": 0,
+      "errors": []
+    },
+    {
+      "name": "06_quality",
+      "overflow": false,
+      "exceptions": 0,
+      "errors": []
+    },
+    {
+      "name": "08_compare",
+      "overflow": false,
+      "exceptions": 0,
+      "errors": []
+    },
+    {
+      "name": "07_mobile_result",
+      "overflow": false,
+      "exceptions": 0,
+      "errors": []
+    }
+  ]
+}

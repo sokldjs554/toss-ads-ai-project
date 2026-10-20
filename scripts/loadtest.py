@@ -32,6 +32,7 @@ import tracemalloc
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
+from statistics import median
 from typing import Any, Callable, Optional, Sequence
 
 REPO = Path(__file__).resolve().parents[1]
@@ -43,7 +44,8 @@ DATASETS = ("golden", "holdout", "conditions")
 PRESET_ORDER = ("loan_ok", "malicious", "injection", "prohibited", "commerce_landing", "investment")
 
 WHAT_THIS_IS = ("모델 호출이 없는 결정론 검사 계층과 대역(mock) 파이프라인의 처리량·지연·메모리를 이 환경에서 잰 값이다. "
-                "대역은 모델 지연이 없으므로 '네트워크·모델 지연을 뺀 우리 코드의 처리량' 이다.")
+                "대역은 모델 지연이 없으므로 '네트워크·모델 지연을 뺀 우리 코드의 처리량' 이다. "
+                "처리량은 성공한 호출 수로 계산하고, 실패를 포함한 시도 처리량과 각 측정 구간의 오류를 따로 기록한다.")
 WHAT_THIS_IS_NOT = [
     "실제 모델을 부르는 서비스의 처리량·응답 시간이 아니다 (실제 모델 지연은 compare_live.json 에서 사례당 약 3초로 따로 쟀다).",
     "용량 계획의 근거로 그대로 쓸 수 없다 — 실제 요청 구성·동시 접속·네트워크·모델 제공자의 속도 제한이 빠져 있다.",
@@ -136,7 +138,7 @@ def _timed(task: Callable[[int], None], i: int) -> tuple[float, Optional[str]]:
     err = None
     try:
         task(i)
-    except Exception as e:  # noqa: BLE001 — 실패도 센다 (처리량에서 빼지 않고 오류 수로 보고)
+    except Exception as e:  # noqa: BLE001 — 실패도 기록한다 (성공 처리량에서는 빼고 시도 처리량·오류 수에 포함)
         err = f"{type(e).__name__}: {str(e)[:120]}"
     return (time.perf_counter() - t0) * 1000.0, err
 
@@ -171,21 +173,30 @@ def run_once(task: Callable[[int], None], n: int, concurrency: int) -> dict[str,
 def measure_workload(name: str, builder: Callable[[int], tuple[Callable[[int], None], int, str]], n: int, warmup: int, concurrency: Sequence[int],
                      repeats: int, seed: int) -> dict[str, Any]:
     task, n_distinct, desc = builder(seed)
+    warmup_errors: list[str] = []
     for i in range(warmup):                       # 정규식 컴파일·캐시·임포트 지연을 측정에서 뺀다
-        task(i)
+        _, err = _timed(task, i)
+        if err:
+            warmup_errors.append(err)
     results = []
     for c in concurrency:
         runs = [run_once(task, n, c) for _ in range(repeats)]
         walls = [r["wall_s"] for r in runs]
-        thr = [n / w if w > 0 else math.inf for w in walls]
+        successes = [n - len(r["errors"]) for r in runs]
+        thr = [ok / w if w > 0 else 0.0 for ok, w in zip(successes, walls)]
+        attempts = [n / w if w > 0 else 0.0 for w in walls]
         pooled = [x for r in runs for x in r["latencies_ms"]]
         results.append({
             "concurrency": c, "n_per_repeat": n, "repeats": repeats, "warmup_calls": warmup,
-            "throughput_per_s_median": round(sorted(thr)[len(thr) // 2], 2), "throughput_per_s_all": [round(t, 2) for t in thr],
+            "successful_calls": sum(successes), "attempted_calls": n * repeats,
+            "throughput_per_s_median": round(median(thr), 2), "throughput_per_s_all": [round(t, 2) for t in thr],
+            "attempt_throughput_per_s_median": round(median(attempts), 2), "attempt_throughput_per_s_all": [round(t, 2) for t in attempts],
             "wall_s_all": [round(w, 3) for w in walls], "latency_ms": summarize_ms(pooled), "errors": sum(len(r["errors"]) for r in runs),
             "error_examples": sorted({e for r in runs for e in r["errors"]})[:3],
         })
-    return {"description": desc, "distinct_inputs": n_distinct, "results": results, "memory": measure_memory(task, n)}
+    return {"description": desc, "distinct_inputs": n_distinct,
+            "warmup": {"calls": warmup, "errors": len(warmup_errors), "error_examples": sorted(set(warmup_errors))[:3]},
+            "results": results, "memory": measure_memory(task, n)}
 
 
 def _rss_kb() -> Optional[int]:
@@ -205,12 +216,18 @@ def measure_memory(task: Callable[[int], None], n: int) -> dict[str, Any]:
     rss_before = _rss_kb()
     third = max(1, n // 3)
     marks: list[int] = []
+    errors = 0
+    error_examples: set[str] = set()
     tracemalloc.start()
     try:
         i = 0
         for _phase in range(3):
             for _ in range(third):
-                task(i)
+                _, err = _timed(task, i)
+                if err:
+                    errors += 1
+                    if len(error_examples) < 3:
+                        error_examples.add(err)
                 i += 1
             gc.collect()
             marks.append(tracemalloc.get_traced_memory()[0])
@@ -220,6 +237,7 @@ def measure_memory(task: Callable[[int], None], n: int) -> dict[str, Any]:
     rss_after = _rss_kb()
     return {
         "calls": third * 3, "retained_after_each_third_kb": [round(m / 1024, 1) for m in marks], "peak_during_kb": round(peak / 1024, 1),
+        "errors": errors, "error_examples": sorted(error_examples),
         "growth_per_call_first_to_second_third_bytes": round((marks[1] - marks[0]) / third, 1), "growth_per_call_second_to_last_third_bytes": round((marks[2] - marks[1]) / third, 1),
         "rss_peak_before_kb": rss_before, "rss_peak_after_kb": rss_after, "rss_peak_growth_kb": (rss_after - rss_before) if (rss_before is not None and rss_after is not None) else None,
         "note": "tracemalloc 은 실행을 느리게 하므로 이 구간의 시간은 처리량 측정에 쓰지 않았다. RSS 는 프로세스 전체의 최대치라 앞선 측정의 영향을 받고 줄어들지 않는다.",
@@ -267,13 +285,19 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"저장: {out}")
+    errors = 0
     for name, w in report["workloads"].items():
+        errors += w["warmup"]["errors"]
+        if w["warmup"]["errors"]:
+            print(f"{name:14s} 준비 호출 오류 {w['warmup']['errors']}")
         for r in w["results"]:
             lat = r["latency_ms"]
-            print(f"{name:14s} 병렬도 {r['concurrency']}: 처리량 {r['throughput_per_s_median']}/초 · 지연 p50 {lat['p50']}ms p95 {lat['p95']}ms p99 {lat['p99']}ms · 오류 {r['errors']}")
+            errors += r["errors"]
+            print(f"{name:14s} 병렬도 {r['concurrency']}: 성공 처리량 {r['throughput_per_s_median']}/초 · 시도 처리량 {r['attempt_throughput_per_s_median']}/초 · 지연 p50 {lat['p50']}ms p95 {lat['p95']}ms p99 {lat['p99']}ms · 오류 {r['errors']}")
         m = w["memory"]
-        print(f"{name:14s} 메모리: 구간별 남은 파이썬 객체 {m['retained_after_each_third_kb']}KB, 뒤 구간 건당 증가 {m['growth_per_call_second_to_last_third_bytes']}B, 최대 RSS 증가 {m['rss_peak_growth_kb']}KB")
-    return 0
+        errors += m["errors"]
+        print(f"{name:14s} 메모리: 구간별 남은 파이썬 객체 {m['retained_after_each_third_kb']}KB, 뒤 구간 건당 증가 {m['growth_per_call_second_to_last_third_bytes']}B, 최대 RSS 증가 {m['rss_peak_growth_kb']}KB · 오류 {m['errors']}")
+    return 1 if errors else 0
 
 
 if __name__ == "__main__":

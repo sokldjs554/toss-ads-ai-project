@@ -44,7 +44,7 @@ def test_nothing_reads_as_production_experience():
 
 
 def test_the_known_bad_holdout_results_are_stated_not_hidden():
-    assert "오경보" in DOC and "2개에서 오경보" in DOC          # 성과 리포트 최종 확인용
+    assert "이상이 없는 대조 4개 중 **2개를 이상이 있다고 잘못 알림**" in DOC  # 처음 저장한 성과 리포트 평가
     assert "바꿔 쓴 지시문 2개가 사실 후보로 새어 듦" in DOC        # 상품 페이지 최종 확인용
     assert "tests/test_conv_known_gaps.py" in DOC               # 대화형 알려진 구멍
 

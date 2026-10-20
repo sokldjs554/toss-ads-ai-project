@@ -603,9 +603,9 @@ FAILURE_MODES: list[FailureMode] = [
         feature="insights"),
     FailureMode("FM-97", "합성 평가를 실제 정확도로 오해하거나 holdout 오염", "insight_eval",
         "holdout 을 만든 뒤 엔진을 그 결과를 보고 고친다",
-        "엔진 지문(fingerprint)을 비교",
-        "지문이 어긋나면 테스트가 실패하고 경고한다",
-        "tests/test_insights_eval.py::test_engine_has_not_changed_since_the_holdout_was_created",
+        "시나리오·메타데이터·현재 엔진의 지문을 비교",
+        "엔진 변경은 기본 게이트가 거부하고 명시적 회귀 검사로 구분한다. 지문 누락·충돌은 회귀 모드에서도 거부",
+        "tests/test_insights_eval.py::test_regression_mode_is_explicit_and_labels_the_seen_holdout",
         feature="insights"),
 
     # ── 라벨링·검수 (feature="labeling") — FM-98 ~ FM-119 ──────────────────────────────────────────────────

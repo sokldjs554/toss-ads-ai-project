@@ -197,8 +197,8 @@ def cmean(items: list[Counts]) -> Counts:
     return Counts(s.imp / n, s.clk / n, s.conv / n, s.cost / n, None if s.reach is None else s.reach / n)
 
 
-def metric_value(metric: str, c: Counts) -> Optional[float]:
-    """지표 값. 비율은 0.5 건짜리 가짜 관측을 더해 0 으로 나누지 않게 한다(추적이 끊겨 전환이 0 이 돼도 로그를 쓸 수 있도록). 표본이 크면 영향이 없다."""
+def metric_value(metric: str, c: Counts, *, smooth: bool = True) -> Optional[float]:
+    """탐지에는 가짜 관측을 더해 로그를 안정화하고, 보고서에는 smooth=False 로 실제 비율을 쓴다."""
     if metric == "impressions":
         return c.imp
     if metric == "clicks":
@@ -208,12 +208,14 @@ def metric_value(metric: str, c: Counts) -> Optional[float]:
     if metric == "cost":
         return c.cost
     if metric == "ctr":
-        return (c.clk + 0.5) / (c.imp + 1.0) if c.imp > 0 else None
+        return ((c.clk + 0.5) / (c.imp + 1.0) if smooth else c.clk / c.imp) if c.imp > 0 else None
     if metric == "cpc":
         return c.cost / c.clk if c.clk > 0 else None
     if metric == "cvr":
-        return (c.conv + 0.5) / (c.clk + 1.0) if c.clk > 0 else None
+        return ((c.conv + 0.5) / (c.clk + 1.0) if smooth else c.conv / c.clk) if c.clk > 0 else None
     if metric == "cpa":
+        if not smooth:
+            return c.cost / c.conv if c.conv > 0 else None
         return c.cost / max(c.conv, 0.5) if c.cost > 0 else None
     raise KeyError(metric)
 
@@ -627,7 +629,7 @@ class Diagnoser:
         det = self.det.get(metric)
         if det is None or det.status != "ok":
             return Obs(f"metric:{metric}", missing=(det.reason if det else "확인하지 못했습니다"))
-        a, e = metric_value(metric, self.act_total), metric_value(metric, self.exp_total)
+        a, e = metric_value(metric, self.act_total, smooth=False), metric_value(metric, self.exp_total, smooth=False)
         if a is None or e is None or e <= 0:
             return Obs(f"metric:{metric}", missing=f"{METRIC_LABEL[metric]}을 계산할 수 없습니다")
         pct = a / e - 1
@@ -896,11 +898,15 @@ class Diagnoser:
 
     def _o_funnel(self) -> Obs:
         """전환당 비용(CPA) 변화를 클릭당 비용(CPC) 변화와 전환율(CVR) 변화로 로그 분해: ln(CPA₁/CPA₀) = ln(CPC₁/CPC₀) − ln(CVR₁/CVR₀)."""
+        if self.sample.conv_ok and self.act_total.conv == 0:
+            text = "이 구간의 전환이 0건이어서 전환당 비용과 비용 기여도를 계산할 수 없습니다."
+            eid = self.book.add("funnel", text, [Num("conversions", 0, "건")], key=f"funnel:{self.inc.index}")
+            return Obs("funnel", eid, missing=text)
         mc, mv, ma = self.obs("metric:cpc"), self.obs("metric:cvr"), self.obs("metric:cpa")
-        if not (mc.ok and mv.ok and ma.ok):
+        if not (mc.ok and mv.ok and ma.ok) or any(o.v[k] <= 0 for o in (mc, mv, ma) for k in ("act", "exp")):
             return Obs("funnel", missing="전환당 비용을 클릭당 비용과 전환율로 나누지 못했습니다")
         a_cpa, e_cpa = ma.v["act"], ma.v["exp"]
-        dl = math.log(a_cpa / e_cpa) if a_cpa > 0 and e_cpa > 0 else 0.0
+        dl = math.log(a_cpa / e_cpa)
         part_cpc = math.log(mc.v["act"] / mc.v["exp"])
         part_cvr = -math.log(mv.v["act"] / mv.v["exp"])
         if abs(dl) < 0.10:
@@ -1095,7 +1101,7 @@ class Diagnoser:
                                                                            Num("threshold", round(LIKELY_CONFIDENCE * 100), "%")], key=f"undet:{inc.index}")
         for key in ("funnel",):
             o = self.obs(key)
-            if o.ok:
+            if o.ev:
                 dg.funnel_evidence.append(o.ev)
         missing: list[str] = []
         for h in hyps[:3]:
@@ -1352,7 +1358,7 @@ def _window_stats(table: Table, base_dates: list[dt.date], win_dates: list[dt.da
         det = detections.get(m)
         if det is None or det.status != "ok":
             continue
-        a, e = metric_value(m, act), metric_value(m, exp)
+        a, e = metric_value(m, act, smooth=False), metric_value(m, exp, smooth=False)
         if a is not None and e:
             out[m] = {"actual": a, "expected": e, "pct": a / e - 1}
     return out
@@ -1571,9 +1577,9 @@ def _series(table: Table, det: dict, base_dates: list[dt.date], win_dates: list[
         for day in base_dates + win_dates:
             if day not in table.present:
                 continue
-            act = metric_value(m, table.total[day])
+            act = metric_value(m, table.total[day], smooth=False)
             exp = d.expected.get(day)
-            if act is None or exp is None:
+            if exp is None:
                 continue
             band = math.exp(2.5 * d.sigma)
             pts.append({"date": day.isoformat(), "actual": act, "expected": exp, "lo": exp / band, "hi": exp * band, "z": d.z.get(day), "window": day in set(win_dates)})

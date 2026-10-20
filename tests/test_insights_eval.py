@@ -1,12 +1,13 @@
-"""성과 인사이트 평가 — 시나리오 구성(dev/holdout 분리·엔진 동결), 지표 계산, 게이트, 저장된 보고서의 최신성.
+"""성과 인사이트 평가 — 시나리오 구성, 지표 계산, 게이트, 과거 보고서 보존과 현재 회귀 검사.
 
-holdout 은 엔진을 동결한 뒤 만들었고 결과를 보고 엔진을 고치지 않았다. 그래서 엔진 지문이 바뀌면 이 파일의 테스트가 실패한다 —
-의도한 변경이라면 holdout 을 '고정 후 한 번 본 값' 이라고 더는 말할 수 없으니 새 holdout 을 만들고 문서에 그 사실을 적어야 한다.
+원래 holdout 과 보고서는 동결 엔진의 지문을 그대로 보존한다. 2026-10-20 보고서의 실제 비율 계산을 고친 뒤에는
+같은 시나리오를 이미 본 데이터의 회귀 검사로만 사용한다. 새 최종 확인용 결과라고 주장하지 않는다.
 """
 from __future__ import annotations
 
 import json
 import shutil
+from dataclasses import replace
 
 import pytest
 
@@ -17,6 +18,7 @@ from evals import insights_eval as EV
 
 DEV = EV.load_scenarios("dev")
 HOLD = EV.load_scenarios("holdout")
+HISTORICAL_ENGINE_FINGERPRINT = "fe53a3d060030913"
 
 
 # ───────────── 시나리오 구성 ─────────────
@@ -65,14 +67,12 @@ def test_dataset_file_declares_that_it_is_synthetic_and_names_its_limits():
 
 
 # ───────────── 엔진 동결 ─────────────
-def test_engine_has_not_changed_since_the_holdout_was_created():
+def test_historical_holdout_preserves_its_original_frozen_engine(stored):
     frozen = {s.frozen_engine for s in HOLD}
     assert len(frozen) == 1 and "" not in frozen, "holdout 시나리오는 만든 시점의 엔진 지문을 가져야 한다"
-    assert frozen == {EV.engine_fingerprint()}, (
-        "엔진(core/insight_engine.py·core/performance.py)이 holdout 을 만든 뒤 바뀌었다. holdout 결과를 보고 엔진을 고쳤다면 holdout 은 더 이상 최종 확인용이 아니다 — "
-        "새 holdout 을 만들고 그 사실을 문서에 적을 것.")
+    assert frozen == {stored["engine_fingerprint"]} == {HISTORICAL_ENGINE_FINGERPRINT}
     assert EV.dataset_meta()["holdout_frozen_engine_fingerprint"] in frozen
-    assert not EV.evaluate("holdout")["engine_changed_after_holdout"]
+    assert stored["engine_changed_after_holdout"] is False
 
 
 def test_the_fingerprint_notices_a_change_to_the_engine(monkeypatch, tmp_path):
@@ -84,6 +84,24 @@ def test_the_fingerprint_notices_a_change_to_the_engine(monkeypatch, tmp_path):
     (fake / "insight_engine.py").write_text((fake / "insight_engine.py").read_text(encoding="utf-8") + "\n# changed\n", encoding="utf-8")
     monkeypatch.setattr(EV, "ROOT", tmp_path)
     assert EV.engine_fingerprint() != base
+
+
+@pytest.mark.parametrize("invalid", ["missing", "mixed", "metadata"])
+def test_holdout_gate_rejects_incomplete_or_conflicting_frozen_fingerprints(monkeypatch, invalid):
+    historical_fp = HOLD[0].frozen_engine
+    scenarios = HOLD[:2]
+    if invalid == "missing":
+        scenarios = [replace(s, frozen_engine="") for s in scenarios]
+    elif invalid == "mixed":
+        scenarios = [scenarios[0], replace(scenarios[1], frozen_engine="zz-conflicting")]
+    else:
+        meta = dict(EV.dataset_meta(), holdout_frozen_engine_fingerprint="conflicting-meta")
+        monkeypatch.setattr(EV, "dataset_meta", lambda: meta)
+    monkeypatch.setattr(EV, "load_scenarios", lambda split: scenarios)
+    monkeypatch.setattr(EV, "engine_fingerprint", lambda: historical_fp)
+
+    report = EV.evaluate("holdout")
+    assert any("지문" in failure for failure in EV.check_gates(report, None))
 
 
 # ───────────── 저장된 보고서 ─────────────
@@ -99,9 +117,12 @@ def stored():
     return rep
 
 
-def test_stored_report_is_up_to_date_and_reproducible(fresh, stored):
-    assert stored["engine_fingerprint"] == fresh["engine_fingerprint"] and stored["dataset_fingerprint"] == fresh["dataset_fingerprint"]
-    assert stored["splits"] == fresh["splits"]                                                    # 결정론: 같은 코드·같은 시나리오면 같은 숫자
+def test_reporting_fix_preserves_historical_decision_outcomes(fresh, stored):
+    assert stored["engine_fingerprint"] != fresh["engine_fingerprint"]
+    assert stored["dataset_fingerprint"] == fresh["dataset_fingerprint"]
+    assert fresh["engine_changed_after_holdout"] is True and fresh["holdout_role"] == "regression"
+    assert fresh["holdout_provenance_issues"] == []
+    assert stored["splits"] == fresh["splits"]                                                    # 보고 수치는 고쳐도 탐지·진단·액션과 집계 결과는 바꾸지 않았다
     assert stored["scenarios"] == json.loads(json.dumps(fresh["scenarios"]))
 
 
@@ -158,9 +179,48 @@ def test_cli_writes_the_report_and_the_gate_passes(tmp_path, capsys):
     out = tmp_path / "r.json"
     assert EV.main(["--split", "dev", "--out", str(out)]) == 0
     assert json.loads(out.read_text(encoding="utf-8"))["splits"]["dev"]["n_scenarios"] == len(DEV)
-    assert EV.main(["--split", "all", "--gate"]) == 0
+    assert EV.main(["--split", "all", "--gate", "--regression"]) == 0
     printed = capsys.readouterr().out
     assert "게이트 통과" in printed and "이상 탐지 재현율" in printed and "금지 액션 제안 0건" in printed
+
+
+def test_cli_gate_reads_the_baseline_before_writing_to_its_path(monkeypatch, tmp_path, capsys, stored):
+    baseline = tmp_path / "baseline.json"
+    baseline.write_text(json.dumps(stored), encoding="utf-8")
+    regressed = json.loads(json.dumps(stored))
+    regressed["splits"]["dev"]["detection_recall"] -= 0.2
+    monkeypatch.setattr(EV, "evaluate", lambda split: regressed)
+    monkeypatch.setattr(EV, "load_report", lambda: json.loads(baseline.read_text(encoding="utf-8")))
+
+    assert EV.main(["--gate", "--out", str(baseline)]) == 1
+    assert "dev: detection_recall" in capsys.readouterr().out
+
+
+def test_regression_mode_is_explicit_and_labels_the_seen_holdout(monkeypatch, tmp_path, fresh, capsys):
+    monkeypatch.setattr(EV, "evaluate", lambda split: dict(fresh))
+    assert EV.main(["--gate"]) == 1
+    out = tmp_path / "regression.json"
+    assert EV.main(["--gate", "--regression", "--out", str(out)]) == 0
+    report = json.loads(out.read_text(encoding="utf-8"))
+    assert report["holdout_role"] == "regression" and report["engine_changed_after_holdout"] is True
+    assert "이미 확인한" in capsys.readouterr().out
+
+
+def test_regression_mode_does_not_allow_invalid_frozen_metadata(stored):
+    report = dict(stored, engine_changed_after_holdout=True, holdout_role="regression", holdout_provenance_issues=["holdout 지문 누락"])
+    assert "holdout 지문 누락" in EV.check_gates(report, stored, regression=True)
+
+
+@pytest.mark.parametrize("arguments", [["--regression"], ["--split", "dev"]])
+def test_regression_output_cannot_overwrite_the_historical_report(monkeypatch, tmp_path, capsys, arguments):
+    historical = tmp_path / "historical.json"
+    historical.write_text("historical evidence", encoding="utf-8")
+    monkeypatch.setattr(EV, "REPORT_PATH", historical)
+    with pytest.raises(SystemExit) as exc:
+        EV.main([*arguments, "--out", str(historical)])
+    assert exc.value.code == 2
+    assert "별도 경로" in capsys.readouterr().err
+    assert historical.read_text(encoding="utf-8") == "historical evidence"
 
 
 # ───────────── 지표 정의 (손으로 만든 결과로 확인) ─────────────
