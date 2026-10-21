@@ -184,7 +184,7 @@ def test_successive_mutations_append_one_receipt_and_preserve_previous_receipts(
     previous_receipts = {}
     for revision in (1, 2):
         rid = str(uuid4())
-        payload = {"account_id": "acct_" + uuid4().hex, "name": "영수증 보존",
+        payload = {"account_id": "acct_" + uuid4().hex, "name": f"영수증 보존 {revision}",
                    "role": "reviewer", "key_digest": team.key_digest(team.new_access_key())}
         store.execute(owner, "create_account", payload, request_id=rid)
         with api_space["admin_store"]._connect() as conn:
