@@ -21,6 +21,19 @@ def test_installer_definitions_use_pinned_path_and_no_untrusted_identifier():
         api.function_definitions('bad"; DROP SCHEMA public')
 
 
+def test_every_installable_function_has_a_safe_signature():
+    signatures = [api._function_signature("preflight_team", name, args)
+                  for name, args, _ in api.function_definitions("preflight_team")]
+    assert len(signatures) == 7
+    assert signatures[0] == '"preflight_team"."_api_stamp"(text)'
+    with pytest.raises(ValueError):
+        api._function_signature("_invalid_schema", "_api_stamp", "text")
+    with pytest.raises(ValueError):
+        api.owner_role("_invalid_schema")
+    with pytest.raises(ValueError):
+        api._function_signature("preflight_team", '_api_stamp"; SELECT 1', "text")
+
+
 def test_runtime_is_api_by_default_and_explicit_admin_has_no_environment_switch(monkeypatch):
     monkeypatch.setenv("PREFLIGHT_TEAM_DATABASE_URL", "configured-placeholder")
     monkeypatch.setenv("PREFLIGHT_TEAM_ADMIN_MODE", "1")

@@ -345,7 +345,11 @@ def function_definitions(schema):
 
 
 def _function_signature(schema, name, args):
-    return f"{_identifier(schema)}.{_identifier(name)}({args})"
+    # Private helpers begin with an underscore. Schema/role identifiers retain
+    # the stricter public-name rule; only this static function-name path differs.
+    if not isinstance(name, str) or not re.fullmatch(r"[a-z_][a-z0-9_]{0,62}", name):
+        raise ValueError("invalid database function identifier")
+    return f'{_identifier(schema)}."{name}"({args})'
 
 
 def install_api(conn, *, schema="preflight_team", runtime_role=None):
