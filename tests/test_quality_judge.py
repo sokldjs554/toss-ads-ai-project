@@ -49,6 +49,17 @@ def _judgment(a, b, winner="A"):
             "reason": "버튼의 다음 행동이 구체적이다." if winner in {"A", "B"} else "뚜렷한 차이가 없다."}
 
 
+def _wire_fixture(response):
+    """Controlled fixture migration only; impossible legacy observations are not repaired."""
+    raw = copy.deepcopy(response)
+    states = {("A", "material"): "A_material", ("A", "minor"): "A_minor",
+              ("B", "material"): "B_material", ("B", "minor"): "B_minor",
+              ("TIE", "none"): "TIE", ("UNKNOWN", "unknown"): "UNKNOWN"}
+    for dimension in raw["dimensions"]:
+        dimension["judgment"] = states[(dimension.pop("preference"), dimension.pop("impact"))]
+    return raw
+
+
 class SavedResponses:
     """Returns only supplied test observations; never instantiates a provider."""
     def __init__(self, responses):
@@ -60,6 +71,7 @@ class SavedResponses:
         raw = self.responses.pop(0)
         if isinstance(raw, Exception):
             raise raw
+        raw = _wire_fixture(raw)
         return LLMResponse(text=json.dumps(raw, ensure_ascii=False), parsed=req.schema.model_validate(raw),
                            provider="controlled", model="saved-test-response")
 
@@ -117,13 +129,22 @@ def test_missing_or_invented_copy_quote_cannot_support_a_consensus():
     (lambda r: r[0]["dimensions"].pop(), "incomplete_rubric"),
     (lambda r: r[0]["dimensions"][2].update(evidence_b=[]), "missing_side_evidence"),
     (lambda r: r[0].update(decisive_criteria=[]), "unsupported_preference"),
-    (lambda r: r[0]["dimensions"][2].update(impact="none"), "preference_impact_conflict"),
     (lambda r: r[0].update(decisive_criteria=["expression"]), "unsupported_preference"),
 ])
 def test_incomplete_or_contradictory_evidence_is_not_given_preference_credit(mutation, issue):
     result, _ = _compare(mutate=mutation)
     assert result["winner"] == "abstain" and result["evidence_valid"] is False
     assert issue in " ".join(result["orders"][0]["issues"])
+
+
+def test_legacy_contradictory_preference_and_impact_remain_audit_failures():
+    q = _module()
+    a, b = _copies()
+    raw = _judgment(a, b)
+    raw["dimensions"][2]["impact"] = "none"
+    verdict = q.QualityJudgeOut.model_validate(raw)
+    assert "action:preference_impact_conflict" in q.audit_evidence(verdict, a, b, [])
+    assert verdict.model_dump() == raw  # Historical observations are never repaired.
 
 
 def test_empty_quote_only_verifies_an_actually_empty_field():

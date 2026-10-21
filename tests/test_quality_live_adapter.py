@@ -15,7 +15,7 @@ from llm.base import LLMResponse
 from llm.errors import BudgetExceeded
 from llm.router import Router
 from tests.fakes import FakeProvider
-from tests.test_quality_judge import _judgment
+from tests.test_quality_judge import _judgment, _wire_fixture
 from ui import new_evals
 
 
@@ -36,6 +36,7 @@ def controlled_run(tmp_path, monkeypatch, *, contradict=False):
         raw = _judgment(a, b, "A" if a.cta == "견적 확인하기" else "B")
         if contradict and count == 2:
             raw["dimensions"][0].update(preference="A", impact="material")
+        raw = _wire_fixture(raw)
         return LLMResponse(text=json.dumps(raw, ensure_ascii=False), parsed=req.schema.model_validate(raw),
                            provider="openai", model=live.OPENAI_MODEL, input_tokens=40, output_tokens=20)
 
@@ -59,6 +60,7 @@ def test_live_adapter_preserves_old_metric_and_new_acceptance_evidence(tmp_path,
     assert row["aggregation_status"] == "consensus"
     assert [o["displayed_winner"] for o in row["orders"]] == ["A", "B"]
     assert all(o["response"]["dimensions"] for o in row["orders"])
+    assert all(o["wire_response"]["dimensions"] and o["wire_text"] and o["wire_contract_version"] for o in row["orders"])
     assert stored["summaries"]["quality"]["all_checks_passed"] == 1
     assert stored["quality_audit_summary"]["accepted_cases"] == 1
     assert row["call_ordinals"] == [1, 2]

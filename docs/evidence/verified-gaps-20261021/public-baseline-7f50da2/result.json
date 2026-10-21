@@ -1,0 +1,2773 @@
+{
+  "kind": "remaining-shared-review-and-evaluation-ui",
+  "started_at": "2026-10-21T09:41:06.416877+00:00",
+  "head": "7f50da2d634f5f7d31bd321354e72db0252f0dc2",
+  "modes": [
+    "native",
+    "pages"
+  ],
+  "viewports": [
+    [
+      "desktop",
+      1280,
+      900
+    ],
+    [
+      "mobile",
+      390,
+      844
+    ]
+  ],
+  "playwright": "1.56.0",
+  "ignore_https_errors": false,
+  "expected_run_id": "features-20261021-run1",
+  "require_remaining_evaluation": true,
+  "saved_report": {
+    "run_id": "features-20261021-run1",
+    "path": "evals/reports/live_features/features-20261021-run1.json",
+    "sha256": "7c7c1947986ab168d09b4913b951a8c1529b25c7c26f6d454a461b1901b75c7f",
+    "status": "completed",
+    "source_sha": "3887041588690f7fb3259d66b60f25f92373a126"
+  },
+  "scope": "read-only public deployment screens; no access-key entry or shared-review commands",
+  "public_urls": {
+    "native": "https://preflight-toss-ads.onrender.com/",
+    "pages": "https://sokldjs554.github.io/toss-ads-ai-project/app/"
+  },
+  "expected_build": "7f50da2",
+  "native_shared_state": "unconfigured",
+  "probe_sha256": "7b3061d2eaf84ebf3cc5b91214d063e32307e9d35bfa6d8bc212be0413cfe3c5",
+  "checks": [
+    {
+      "scope": "saved-report",
+      "check": "newest report is the requested run",
+      "ok": true,
+      "detail": "features-20261021-run1"
+    },
+    {
+      "scope": "saved-report",
+      "check": "remaining evaluation has quality audit and separate supplemental records",
+      "ok": true,
+      "detail": {
+        "supplemental_planned": {
+          "rewrite": 4,
+          "conversation_followup": 1
+        },
+        "quality_audit": {
+          "attempted_cases": 28,
+          "accepted_cases": 16,
+          "abstained_cases": 12,
+          "accepted_author_matches": 13,
+          "raw_stable_author_matches": 18,
+          "by_status": {
+            "consensus": 16,
+            "order_disagreement": 2,
+            "invalid_evidence": 7,
+            "rubric_disagreement": 3
+          }
+        }
+      }
+    },
+    {
+      "scope": "pages-build",
+      "check": "all new UI and reports bundled unchanged",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages-build",
+      "check": "no secret configuration files bundled",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "public-pages-bundle",
+      "check": "archive build matches expected deployment",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-bundle",
+      "check": "public UI and saved reports match the checked local files",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-bundle",
+      "check": "no secret configuration files bundled",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "page build matches expected deployment",
+      "ok": true,
+      "detail": "7f50da2"
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "operations has all three tabs in order",
+      "ok": true,
+      "detail": [
+        "검수 대기열",
+        "운영 지표·모니터",
+        "공동 검수"
+      ]
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "correct shared review availability message",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "no access key input before server setup",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "no secret or unnecessary internal control names",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "accounts do not claim independent people",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop:shared-review",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop:shared-review",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 1280,
+        "viewport": 1280
+      }
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "evaluation limits are displayed",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "stored calls are not advertised as new calls",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "latest stored report is expanded",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop:live-summary",
+      "check": "이미지 속 글자·검사 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이미지 속 글자·검사",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ],
+        "expected": [
+          [
+            "이미지 속 글자·검사",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:live-summary",
+      "check": "여러 턴 캠페인 설정 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "여러 턴 캠페인 설정",
+            "20/20",
+            "19/20",
+            "17/20"
+          ]
+        ],
+        "expected": [
+          [
+            "여러 턴 캠페인 설정",
+            "20/20",
+            "19/20",
+            "17/20"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:live-summary",
+      "check": "성과 보고서 문장화 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "성과 보고서 문장화",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ],
+        "expected": [
+          [
+            "성과 보고서 문장화",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:live-summary",
+      "check": "광고 문구 비교 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "광고 문구 비교",
+            "28/28",
+            "28/28",
+            "아래 채택·보류 표 확인"
+          ]
+        ],
+        "expected": [
+          [
+            "광고 문구 비교",
+            "28/28",
+            "28/28",
+            "아래 채택·보류 표 확인"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:live-summary",
+      "check": "캠페인 구성·문구 생성·검사 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "캠페인 구성·문구 생성·검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ],
+        "expected": [
+          [
+            "캠페인 구성·문구 생성·검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:quality-audit",
+      "check": "근거 검사 후 채택한 비교 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "근거 검사 후 채택한 비교",
+            "16/28",
+            "두 순서와 중요한 근거가 같은 비교"
+          ]
+        ],
+        "expected": [
+          [
+            "근거 검사 후 채택한 비교",
+            "16/28",
+            "두 순서와 중요한 근거가 같은 비교"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:quality-audit",
+      "check": "판단 보류 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "판단 보류",
+            "12/28",
+            "불일치·인용 문제·응답 실패는 무승부로 세지 않음"
+          ]
+        ],
+        "expected": [
+          [
+            "판단 보류",
+            "12/28",
+            "불일치·인용 문제·응답 실패는 무승부로 세지 않음"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:quality-audit",
+      "check": "채택했고 작성자 선호와도 일치 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "채택했고 작성자 선호와도 일치",
+            "13/28",
+            "전체 시도 쌍을 분모로 사용"
+          ]
+        ],
+        "expected": [
+          [
+            "채택했고 작성자 선호와도 일치",
+            "13/28",
+            "전체 시도 쌍을 분모로 사용"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:quality-audit",
+      "check": "기존 비교 지표 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "기존 비교 지표",
+            "18/28",
+            "원래 두 선택이 같고 작성자 선호와 일치; 근거 검사 전 수치"
+          ]
+        ],
+        "expected": [
+          [
+            "기존 비교 지표",
+            "18/28",
+            "원래 두 선택이 같고 작성자 선호와 일치; 근거 검사 전 수치"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "quality status counts match the stored summary",
+      "ok": true,
+      "detail": "결과별 수: 채택 16쌍, 순서에 따라 선택이 달라짐 2쌍, 인용·근거 검사 실패 7쌍, 중요한 근거가 달라짐 3쌍"
+    },
+    {
+      "scope": "public-native-desktop:conversation_followup",
+      "check": "최소 연령 답변 → 미리보기 → 광고 작업 전달 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "최소 연령 답변 → 미리보기 → 광고 작업 전달",
+            "1/1",
+            "1/1",
+            "1/1"
+          ]
+        ],
+        "expected": [
+          [
+            "최소 연령 답변 → 미리보기 → 광고 작업 전달",
+            "1/1",
+            "1/1",
+            "1/1"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "one age follow-up is separate from the original twenty",
+      "ok": true,
+      "detail": {
+        "followup_planned": 1,
+        "followup_attempted": 1,
+        "original_attempted": 20
+      }
+    },
+    {
+      "scope": "public-native-desktop:rewrite",
+      "check": "원문 → 모델 수정안 → 동일 정책 재검사 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "원문 → 모델 수정안 → 동일 정책 재검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ],
+        "expected": [
+          [
+            "원문 → 모델 수정안 → 동일 정책 재검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "saved call count and usage cost match",
+      "ok": true,
+      "detail": "호출 159회 · 응답 토큰으로 계산한 비용 $0.5304 · 사용량 미확인 0회"
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "evaluation source revision is shown",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop:evaluations",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop:evaluations",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 1280,
+        "viewport": 1280
+      }
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "versioned conversation report is available",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop:conversation-evaluation",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop:conversation-evaluation",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 1280,
+        "viewport": 1280
+      }
+    },
+    {
+      "scope": "public-native-desktop:current-insights",
+      "check": "이상을 찾아낸 비율(재현율) matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "34/35 (97.1%)"
+          ]
+        ],
+        "expected": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "34/35 (97.1%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:current-insights",
+      "check": "찾은 것 중 실제 이상인 비율(정밀도) matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "찾은 것 중 실제 이상인 비율(정밀도)",
+            "—",
+            "35/35 (100.0%)"
+          ]
+        ],
+        "expected": [
+          [
+            "찾은 것 중 실제 이상인 비율(정밀도)",
+            "—",
+            "35/35 (100.0%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:current-insights",
+      "check": "이상이 없는데 이상이라고 한 시나리오 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이상이 없는데 이상이라고 한 시나리오",
+            "—",
+            "0/40 (0.0%)"
+          ]
+        ],
+        "expected": [
+          [
+            "이상이 없는데 이상이라고 한 시나리오",
+            "—",
+            "0/40 (0.0%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:current-insights",
+      "check": "원인 가설 1순위가 합성 정답과 맞은 비율 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "원인 가설 1순위가 합성 정답과 맞은 비율",
+            "—",
+            "30/32 (93.8%)"
+          ]
+        ],
+        "expected": [
+          [
+            "원인 가설 1순위가 합성 정답과 맞은 비율",
+            "—",
+            "30/32 (93.8%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:insight-contrasts",
+      "check": "한 광고세트의 작은 하락 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "한 광고세트의 작은 하락",
+            "5/12 (41.7%)",
+            "작은 하락을 찾은 수"
+          ]
+        ],
+        "expected": [
+          [
+            "한 광고세트의 작은 하락",
+            "5/12 (41.7%)",
+            "작은 하락을 찾은 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:insight-contrasts",
+      "check": "변화 없는 구간 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "변화 없는 구간",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ],
+        "expected": [
+          [
+            "변화 없는 구간",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:insight-contrasts",
+      "check": "이어지는 추세 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이어지는 추세",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ],
+        "expected": [
+          [
+            "이어지는 추세",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:insight-contrasts",
+      "check": "표시 기간 전에 회복한 변화 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "표시 기간 전에 회복한 변화",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ],
+        "expected": [
+          [
+            "표시 기간 전에 회복한 변화",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "remaining undetected contrasts are explicit",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop:historical-insights",
+      "check": "이상을 찾아낸 비율(재현율) matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "33/35 (94.3%)"
+          ]
+        ],
+        "expected": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "33/35 (94.3%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:insight-evaluation",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop:insight-evaluation",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 1280,
+        "viewport": 1280
+      }
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "no browser page exception",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "no model provider request",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "page build matches expected deployment",
+      "ok": true,
+      "detail": "7f50da2"
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "operations has all three tabs in order",
+      "ok": true,
+      "detail": [
+        "검수 대기열",
+        "운영 지표·모니터",
+        "공동 검수"
+      ]
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "correct shared review availability message",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "no access key input before server setup",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "no secret or unnecessary internal control names",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "accounts do not claim independent people",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile:shared-review",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile:shared-review",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "evaluation limits are displayed",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "stored calls are not advertised as new calls",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "latest stored report is expanded",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile:live-summary",
+      "check": "이미지 속 글자·검사 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이미지 속 글자·검사",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ],
+        "expected": [
+          [
+            "이미지 속 글자·검사",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:live-summary",
+      "check": "여러 턴 캠페인 설정 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "여러 턴 캠페인 설정",
+            "20/20",
+            "19/20",
+            "17/20"
+          ]
+        ],
+        "expected": [
+          [
+            "여러 턴 캠페인 설정",
+            "20/20",
+            "19/20",
+            "17/20"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:live-summary",
+      "check": "성과 보고서 문장화 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "성과 보고서 문장화",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ],
+        "expected": [
+          [
+            "성과 보고서 문장화",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:live-summary",
+      "check": "광고 문구 비교 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "광고 문구 비교",
+            "28/28",
+            "28/28",
+            "아래 채택·보류 표 확인"
+          ]
+        ],
+        "expected": [
+          [
+            "광고 문구 비교",
+            "28/28",
+            "28/28",
+            "아래 채택·보류 표 확인"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:live-summary",
+      "check": "캠페인 구성·문구 생성·검사 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "캠페인 구성·문구 생성·검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ],
+        "expected": [
+          [
+            "캠페인 구성·문구 생성·검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:quality-audit",
+      "check": "근거 검사 후 채택한 비교 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "근거 검사 후 채택한 비교",
+            "16/28",
+            "두 순서와 중요한 근거가 같은 비교"
+          ]
+        ],
+        "expected": [
+          [
+            "근거 검사 후 채택한 비교",
+            "16/28",
+            "두 순서와 중요한 근거가 같은 비교"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:quality-audit",
+      "check": "판단 보류 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "판단 보류",
+            "12/28",
+            "불일치·인용 문제·응답 실패는 무승부로 세지 않음"
+          ]
+        ],
+        "expected": [
+          [
+            "판단 보류",
+            "12/28",
+            "불일치·인용 문제·응답 실패는 무승부로 세지 않음"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:quality-audit",
+      "check": "채택했고 작성자 선호와도 일치 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "채택했고 작성자 선호와도 일치",
+            "13/28",
+            "전체 시도 쌍을 분모로 사용"
+          ]
+        ],
+        "expected": [
+          [
+            "채택했고 작성자 선호와도 일치",
+            "13/28",
+            "전체 시도 쌍을 분모로 사용"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:quality-audit",
+      "check": "기존 비교 지표 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "기존 비교 지표",
+            "18/28",
+            "원래 두 선택이 같고 작성자 선호와 일치; 근거 검사 전 수치"
+          ]
+        ],
+        "expected": [
+          [
+            "기존 비교 지표",
+            "18/28",
+            "원래 두 선택이 같고 작성자 선호와 일치; 근거 검사 전 수치"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "quality status counts match the stored summary",
+      "ok": true,
+      "detail": "결과별 수: 채택 16쌍, 순서에 따라 선택이 달라짐 2쌍, 인용·근거 검사 실패 7쌍, 중요한 근거가 달라짐 3쌍"
+    },
+    {
+      "scope": "public-native-mobile:conversation_followup",
+      "check": "최소 연령 답변 → 미리보기 → 광고 작업 전달 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "최소 연령 답변 → 미리보기 → 광고 작업 전달",
+            "1/1",
+            "1/1",
+            "1/1"
+          ]
+        ],
+        "expected": [
+          [
+            "최소 연령 답변 → 미리보기 → 광고 작업 전달",
+            "1/1",
+            "1/1",
+            "1/1"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "one age follow-up is separate from the original twenty",
+      "ok": true,
+      "detail": {
+        "followup_planned": 1,
+        "followup_attempted": 1,
+        "original_attempted": 20
+      }
+    },
+    {
+      "scope": "public-native-mobile:rewrite",
+      "check": "원문 → 모델 수정안 → 동일 정책 재검사 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "원문 → 모델 수정안 → 동일 정책 재검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ],
+        "expected": [
+          [
+            "원문 → 모델 수정안 → 동일 정책 재검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "saved call count and usage cost match",
+      "ok": true,
+      "detail": "호출 159회 · 응답 토큰으로 계산한 비용 $0.5304 · 사용량 미확인 0회"
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "evaluation source revision is shown",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile:evaluations",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile:evaluations",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "versioned conversation report is available",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile:conversation-evaluation",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile:conversation-evaluation",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "scope": "public-native-mobile:current-insights",
+      "check": "이상을 찾아낸 비율(재현율) matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "34/35 (97.1%)"
+          ]
+        ],
+        "expected": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "34/35 (97.1%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:current-insights",
+      "check": "찾은 것 중 실제 이상인 비율(정밀도) matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "찾은 것 중 실제 이상인 비율(정밀도)",
+            "—",
+            "35/35 (100.0%)"
+          ]
+        ],
+        "expected": [
+          [
+            "찾은 것 중 실제 이상인 비율(정밀도)",
+            "—",
+            "35/35 (100.0%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:current-insights",
+      "check": "이상이 없는데 이상이라고 한 시나리오 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이상이 없는데 이상이라고 한 시나리오",
+            "—",
+            "0/40 (0.0%)"
+          ]
+        ],
+        "expected": [
+          [
+            "이상이 없는데 이상이라고 한 시나리오",
+            "—",
+            "0/40 (0.0%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:current-insights",
+      "check": "원인 가설 1순위가 합성 정답과 맞은 비율 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "원인 가설 1순위가 합성 정답과 맞은 비율",
+            "—",
+            "30/32 (93.8%)"
+          ]
+        ],
+        "expected": [
+          [
+            "원인 가설 1순위가 합성 정답과 맞은 비율",
+            "—",
+            "30/32 (93.8%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:insight-contrasts",
+      "check": "한 광고세트의 작은 하락 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "한 광고세트의 작은 하락",
+            "5/12 (41.7%)",
+            "작은 하락을 찾은 수"
+          ]
+        ],
+        "expected": [
+          [
+            "한 광고세트의 작은 하락",
+            "5/12 (41.7%)",
+            "작은 하락을 찾은 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:insight-contrasts",
+      "check": "변화 없는 구간 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "변화 없는 구간",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ],
+        "expected": [
+          [
+            "변화 없는 구간",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:insight-contrasts",
+      "check": "이어지는 추세 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이어지는 추세",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ],
+        "expected": [
+          [
+            "이어지는 추세",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:insight-contrasts",
+      "check": "표시 기간 전에 회복한 변화 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "표시 기간 전에 회복한 변화",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ],
+        "expected": [
+          [
+            "표시 기간 전에 회복한 변화",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "remaining undetected contrasts are explicit",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile:historical-insights",
+      "check": "이상을 찾아낸 비율(재현율) matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "33/35 (94.3%)"
+          ]
+        ],
+        "expected": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "33/35 (94.3%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:insight-evaluation",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile:insight-evaluation",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "no browser page exception",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "no model provider request",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "browser supports the deployed stlite JSPI runtime",
+      "ok": true,
+      "detail": {
+        "Suspending": "function",
+        "promising": "function"
+      }
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "page build matches expected deployment",
+      "ok": true,
+      "detail": "7f50da2"
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "operations has all three tabs in order",
+      "ok": true,
+      "detail": [
+        "검수 대기열",
+        "운영 지표·모니터",
+        "공동 검수"
+      ]
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "correct shared review availability message",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "no access key input before server setup",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "no secret or unnecessary internal control names",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "accounts do not claim independent people",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "server link is correct",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "browser mode is identified",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop:shared-review",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop:shared-review",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 1280,
+        "viewport": 1280
+      }
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "evaluation limits are displayed",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "stored calls are not advertised as new calls",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "latest stored report is expanded",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop:live-summary",
+      "check": "이미지 속 글자·검사 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이미지 속 글자·검사",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ],
+        "expected": [
+          [
+            "이미지 속 글자·검사",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:live-summary",
+      "check": "여러 턴 캠페인 설정 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "여러 턴 캠페인 설정",
+            "20/20",
+            "19/20",
+            "17/20"
+          ]
+        ],
+        "expected": [
+          [
+            "여러 턴 캠페인 설정",
+            "20/20",
+            "19/20",
+            "17/20"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:live-summary",
+      "check": "성과 보고서 문장화 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "성과 보고서 문장화",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ],
+        "expected": [
+          [
+            "성과 보고서 문장화",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:live-summary",
+      "check": "광고 문구 비교 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "광고 문구 비교",
+            "28/28",
+            "28/28",
+            "아래 채택·보류 표 확인"
+          ]
+        ],
+        "expected": [
+          [
+            "광고 문구 비교",
+            "28/28",
+            "28/28",
+            "아래 채택·보류 표 확인"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:live-summary",
+      "check": "캠페인 구성·문구 생성·검사 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "캠페인 구성·문구 생성·검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ],
+        "expected": [
+          [
+            "캠페인 구성·문구 생성·검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:quality-audit",
+      "check": "근거 검사 후 채택한 비교 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "근거 검사 후 채택한 비교",
+            "16/28",
+            "두 순서와 중요한 근거가 같은 비교"
+          ]
+        ],
+        "expected": [
+          [
+            "근거 검사 후 채택한 비교",
+            "16/28",
+            "두 순서와 중요한 근거가 같은 비교"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:quality-audit",
+      "check": "판단 보류 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "판단 보류",
+            "12/28",
+            "불일치·인용 문제·응답 실패는 무승부로 세지 않음"
+          ]
+        ],
+        "expected": [
+          [
+            "판단 보류",
+            "12/28",
+            "불일치·인용 문제·응답 실패는 무승부로 세지 않음"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:quality-audit",
+      "check": "채택했고 작성자 선호와도 일치 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "채택했고 작성자 선호와도 일치",
+            "13/28",
+            "전체 시도 쌍을 분모로 사용"
+          ]
+        ],
+        "expected": [
+          [
+            "채택했고 작성자 선호와도 일치",
+            "13/28",
+            "전체 시도 쌍을 분모로 사용"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:quality-audit",
+      "check": "기존 비교 지표 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "기존 비교 지표",
+            "18/28",
+            "원래 두 선택이 같고 작성자 선호와 일치; 근거 검사 전 수치"
+          ]
+        ],
+        "expected": [
+          [
+            "기존 비교 지표",
+            "18/28",
+            "원래 두 선택이 같고 작성자 선호와 일치; 근거 검사 전 수치"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "quality status counts match the stored summary",
+      "ok": true,
+      "detail": "결과별 수: 채택 16쌍, 순서에 따라 선택이 달라짐 2쌍, 인용·근거 검사 실패 7쌍, 중요한 근거가 달라짐 3쌍"
+    },
+    {
+      "scope": "public-pages-desktop:conversation_followup",
+      "check": "최소 연령 답변 → 미리보기 → 광고 작업 전달 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "최소 연령 답변 → 미리보기 → 광고 작업 전달",
+            "1/1",
+            "1/1",
+            "1/1"
+          ]
+        ],
+        "expected": [
+          [
+            "최소 연령 답변 → 미리보기 → 광고 작업 전달",
+            "1/1",
+            "1/1",
+            "1/1"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "one age follow-up is separate from the original twenty",
+      "ok": true,
+      "detail": {
+        "followup_planned": 1,
+        "followup_attempted": 1,
+        "original_attempted": 20
+      }
+    },
+    {
+      "scope": "public-pages-desktop:rewrite",
+      "check": "원문 → 모델 수정안 → 동일 정책 재검사 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "원문 → 모델 수정안 → 동일 정책 재검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ],
+        "expected": [
+          [
+            "원문 → 모델 수정안 → 동일 정책 재검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "saved call count and usage cost match",
+      "ok": true,
+      "detail": "호출 159회 · 응답 토큰으로 계산한 비용 $0.5304 · 사용량 미확인 0회"
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "evaluation source revision is shown",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop:evaluations",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop:evaluations",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 1280,
+        "viewport": 1280
+      }
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "versioned conversation report is available",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop:conversation-evaluation",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop:conversation-evaluation",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 1280,
+        "viewport": 1280
+      }
+    },
+    {
+      "scope": "public-pages-desktop:current-insights",
+      "check": "이상을 찾아낸 비율(재현율) matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "34/35 (97.1%)"
+          ]
+        ],
+        "expected": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "34/35 (97.1%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:current-insights",
+      "check": "찾은 것 중 실제 이상인 비율(정밀도) matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "찾은 것 중 실제 이상인 비율(정밀도)",
+            "—",
+            "35/35 (100.0%)"
+          ]
+        ],
+        "expected": [
+          [
+            "찾은 것 중 실제 이상인 비율(정밀도)",
+            "—",
+            "35/35 (100.0%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:current-insights",
+      "check": "이상이 없는데 이상이라고 한 시나리오 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이상이 없는데 이상이라고 한 시나리오",
+            "—",
+            "0/40 (0.0%)"
+          ]
+        ],
+        "expected": [
+          [
+            "이상이 없는데 이상이라고 한 시나리오",
+            "—",
+            "0/40 (0.0%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:current-insights",
+      "check": "원인 가설 1순위가 합성 정답과 맞은 비율 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "원인 가설 1순위가 합성 정답과 맞은 비율",
+            "—",
+            "30/32 (93.8%)"
+          ]
+        ],
+        "expected": [
+          [
+            "원인 가설 1순위가 합성 정답과 맞은 비율",
+            "—",
+            "30/32 (93.8%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:insight-contrasts",
+      "check": "한 광고세트의 작은 하락 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "한 광고세트의 작은 하락",
+            "5/12 (41.7%)",
+            "작은 하락을 찾은 수"
+          ]
+        ],
+        "expected": [
+          [
+            "한 광고세트의 작은 하락",
+            "5/12 (41.7%)",
+            "작은 하락을 찾은 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:insight-contrasts",
+      "check": "변화 없는 구간 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "변화 없는 구간",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ],
+        "expected": [
+          [
+            "변화 없는 구간",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:insight-contrasts",
+      "check": "이어지는 추세 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이어지는 추세",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ],
+        "expected": [
+          [
+            "이어지는 추세",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:insight-contrasts",
+      "check": "표시 기간 전에 회복한 변화 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "표시 기간 전에 회복한 변화",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ],
+        "expected": [
+          [
+            "표시 기간 전에 회복한 변화",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "remaining undetected contrasts are explicit",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop:historical-insights",
+      "check": "이상을 찾아낸 비율(재현율) matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "33/35 (94.3%)"
+          ]
+        ],
+        "expected": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "33/35 (94.3%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:insight-evaluation",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop:insight-evaluation",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 1280,
+        "viewport": 1280
+      }
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "no browser page exception",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "no model provider request",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "browser supports the deployed stlite JSPI runtime",
+      "ok": true,
+      "detail": {
+        "Suspending": "function",
+        "promising": "function"
+      }
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "page build matches expected deployment",
+      "ok": true,
+      "detail": "7f50da2"
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "operations has all three tabs in order",
+      "ok": true,
+      "detail": [
+        "검수 대기열",
+        "운영 지표·모니터",
+        "공동 검수"
+      ]
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "correct shared review availability message",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "no access key input before server setup",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "no secret or unnecessary internal control names",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "accounts do not claim independent people",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "server link is correct",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "browser mode is identified",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile:shared-review",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile:shared-review",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "evaluation limits are displayed",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "stored calls are not advertised as new calls",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "latest stored report is expanded",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile:live-summary",
+      "check": "이미지 속 글자·검사 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이미지 속 글자·검사",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ],
+        "expected": [
+          [
+            "이미지 속 글자·검사",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:live-summary",
+      "check": "여러 턴 캠페인 설정 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "여러 턴 캠페인 설정",
+            "20/20",
+            "19/20",
+            "17/20"
+          ]
+        ],
+        "expected": [
+          [
+            "여러 턴 캠페인 설정",
+            "20/20",
+            "19/20",
+            "17/20"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:live-summary",
+      "check": "성과 보고서 문장화 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "성과 보고서 문장화",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ],
+        "expected": [
+          [
+            "성과 보고서 문장화",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:live-summary",
+      "check": "광고 문구 비교 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "광고 문구 비교",
+            "28/28",
+            "28/28",
+            "아래 채택·보류 표 확인"
+          ]
+        ],
+        "expected": [
+          [
+            "광고 문구 비교",
+            "28/28",
+            "28/28",
+            "아래 채택·보류 표 확인"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:live-summary",
+      "check": "캠페인 구성·문구 생성·검사 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "캠페인 구성·문구 생성·검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ],
+        "expected": [
+          [
+            "캠페인 구성·문구 생성·검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:quality-audit",
+      "check": "근거 검사 후 채택한 비교 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "근거 검사 후 채택한 비교",
+            "16/28",
+            "두 순서와 중요한 근거가 같은 비교"
+          ]
+        ],
+        "expected": [
+          [
+            "근거 검사 후 채택한 비교",
+            "16/28",
+            "두 순서와 중요한 근거가 같은 비교"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:quality-audit",
+      "check": "판단 보류 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "판단 보류",
+            "12/28",
+            "불일치·인용 문제·응답 실패는 무승부로 세지 않음"
+          ]
+        ],
+        "expected": [
+          [
+            "판단 보류",
+            "12/28",
+            "불일치·인용 문제·응답 실패는 무승부로 세지 않음"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:quality-audit",
+      "check": "채택했고 작성자 선호와도 일치 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "채택했고 작성자 선호와도 일치",
+            "13/28",
+            "전체 시도 쌍을 분모로 사용"
+          ]
+        ],
+        "expected": [
+          [
+            "채택했고 작성자 선호와도 일치",
+            "13/28",
+            "전체 시도 쌍을 분모로 사용"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:quality-audit",
+      "check": "기존 비교 지표 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "기존 비교 지표",
+            "18/28",
+            "원래 두 선택이 같고 작성자 선호와 일치; 근거 검사 전 수치"
+          ]
+        ],
+        "expected": [
+          [
+            "기존 비교 지표",
+            "18/28",
+            "원래 두 선택이 같고 작성자 선호와 일치; 근거 검사 전 수치"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "quality status counts match the stored summary",
+      "ok": true,
+      "detail": "결과별 수: 채택 16쌍, 순서에 따라 선택이 달라짐 2쌍, 인용·근거 검사 실패 7쌍, 중요한 근거가 달라짐 3쌍"
+    },
+    {
+      "scope": "public-pages-mobile:conversation_followup",
+      "check": "최소 연령 답변 → 미리보기 → 광고 작업 전달 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "최소 연령 답변 → 미리보기 → 광고 작업 전달",
+            "1/1",
+            "1/1",
+            "1/1"
+          ]
+        ],
+        "expected": [
+          [
+            "최소 연령 답변 → 미리보기 → 광고 작업 전달",
+            "1/1",
+            "1/1",
+            "1/1"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "one age follow-up is separate from the original twenty",
+      "ok": true,
+      "detail": {
+        "followup_planned": 1,
+        "followup_attempted": 1,
+        "original_attempted": 20
+      }
+    },
+    {
+      "scope": "public-pages-mobile:rewrite",
+      "check": "원문 → 모델 수정안 → 동일 정책 재검사 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "원문 → 모델 수정안 → 동일 정책 재검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ],
+        "expected": [
+          [
+            "원문 → 모델 수정안 → 동일 정책 재검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "saved call count and usage cost match",
+      "ok": true,
+      "detail": "호출 159회 · 응답 토큰으로 계산한 비용 $0.5304 · 사용량 미확인 0회"
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "evaluation source revision is shown",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile:evaluations",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile:evaluations",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "versioned conversation report is available",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile:conversation-evaluation",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile:conversation-evaluation",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "scope": "public-pages-mobile:current-insights",
+      "check": "이상을 찾아낸 비율(재현율) matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "34/35 (97.1%)"
+          ]
+        ],
+        "expected": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "34/35 (97.1%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:current-insights",
+      "check": "찾은 것 중 실제 이상인 비율(정밀도) matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "찾은 것 중 실제 이상인 비율(정밀도)",
+            "—",
+            "35/35 (100.0%)"
+          ]
+        ],
+        "expected": [
+          [
+            "찾은 것 중 실제 이상인 비율(정밀도)",
+            "—",
+            "35/35 (100.0%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:current-insights",
+      "check": "이상이 없는데 이상이라고 한 시나리오 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이상이 없는데 이상이라고 한 시나리오",
+            "—",
+            "0/40 (0.0%)"
+          ]
+        ],
+        "expected": [
+          [
+            "이상이 없는데 이상이라고 한 시나리오",
+            "—",
+            "0/40 (0.0%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:current-insights",
+      "check": "원인 가설 1순위가 합성 정답과 맞은 비율 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "원인 가설 1순위가 합성 정답과 맞은 비율",
+            "—",
+            "30/32 (93.8%)"
+          ]
+        ],
+        "expected": [
+          [
+            "원인 가설 1순위가 합성 정답과 맞은 비율",
+            "—",
+            "30/32 (93.8%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:insight-contrasts",
+      "check": "한 광고세트의 작은 하락 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "한 광고세트의 작은 하락",
+            "5/12 (41.7%)",
+            "작은 하락을 찾은 수"
+          ]
+        ],
+        "expected": [
+          [
+            "한 광고세트의 작은 하락",
+            "5/12 (41.7%)",
+            "작은 하락을 찾은 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:insight-contrasts",
+      "check": "변화 없는 구간 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "변화 없는 구간",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ],
+        "expected": [
+          [
+            "변화 없는 구간",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:insight-contrasts",
+      "check": "이어지는 추세 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이어지는 추세",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ],
+        "expected": [
+          [
+            "이어지는 추세",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:insight-contrasts",
+      "check": "표시 기간 전에 회복한 변화 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "표시 기간 전에 회복한 변화",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ],
+        "expected": [
+          [
+            "표시 기간 전에 회복한 변화",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "remaining undetected contrasts are explicit",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile:historical-insights",
+      "check": "이상을 찾아낸 비율(재현율) matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "33/35 (94.3%)"
+          ]
+        ],
+        "expected": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "33/35 (94.3%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:insight-evaluation",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile:insight-evaluation",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "no browser page exception",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "no model provider request",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "provenance",
+      "check": "pre-existing live reports unchanged",
+      "ok": true,
+      "detail": null
+    }
+  ],
+  "observations": [
+    {
+      "scope": "public-native-desktop",
+      "started_at": "2026-10-21T09:41:07.934328+00:00",
+      "page_errors": [],
+      "console_errors": [],
+      "network_errors": [
+        {
+          "url": "https://preflight-toss-ads.onrender.com/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fpreflight-toss-ads.onrender.com%2F",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "blocked_model_requests": [],
+      "webassembly": {
+        "Suspending": "function",
+        "promising": "function"
+      },
+      "url": "https://preflight-toss-ads.onrender.com/",
+      "latest_saved_report": "features-20261021-run1",
+      "quality_audit_available_in_saved_report": true,
+      "rewrite_supplement_available_in_saved_report": true,
+      "conversation_followup_available_in_saved_report": true,
+      "status": "completed",
+      "finished_at": "2026-10-21T09:41:30.983711+00:00"
+    },
+    {
+      "scope": "public-native-mobile",
+      "started_at": "2026-10-21T09:41:30.989429+00:00",
+      "page_errors": [],
+      "console_errors": [],
+      "network_errors": [],
+      "blocked_model_requests": [],
+      "webassembly": {
+        "Suspending": "function",
+        "promising": "function"
+      },
+      "url": "https://preflight-toss-ads.onrender.com/",
+      "latest_saved_report": "features-20261021-run1",
+      "quality_audit_available_in_saved_report": true,
+      "rewrite_supplement_available_in_saved_report": true,
+      "conversation_followup_available_in_saved_report": true,
+      "status": "completed",
+      "finished_at": "2026-10-21T09:41:46.445361+00:00"
+    },
+    {
+      "scope": "public-pages-desktop",
+      "started_at": "2026-10-21T09:41:46.451072+00:00",
+      "page_errors": [],
+      "console_errors": [
+        "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+        "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch"
+      ],
+      "network_errors": [
+        {
+          "url": "https://stlite.invalid/toss-ads-ai-project/app/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fsokldjs554.github.io%2Ftoss-ads-ai-project%2Fapp%2F",
+          "failure": "net::ERR_NAME_NOT_RESOLVED"
+        },
+        {
+          "url": "https://stlite.invalid/toss-ads-ai-project/app/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fsokldjs554.github.io%2Ftoss-ads-ai-project%2Fapp%2F",
+          "failure": "net::ERR_NAME_NOT_RESOLVED"
+        }
+      ],
+      "blocked_model_requests": [],
+      "webassembly": {
+        "Suspending": "function",
+        "promising": "function"
+      },
+      "url": "https://sokldjs554.github.io/toss-ads-ai-project/app/",
+      "latest_saved_report": "features-20261021-run1",
+      "quality_audit_available_in_saved_report": true,
+      "rewrite_supplement_available_in_saved_report": true,
+      "conversation_followup_available_in_saved_report": true,
+      "status": "completed",
+      "finished_at": "2026-10-21T09:42:08.587960+00:00"
+    },
+    {
+      "scope": "public-pages-mobile",
+      "started_at": "2026-10-21T09:42:08.598558+00:00",
+      "page_errors": [],
+      "console_errors": [
+        "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+        "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch"
+      ],
+      "network_errors": [
+        {
+          "url": "https://stlite.invalid/toss-ads-ai-project/app/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fsokldjs554.github.io%2Ftoss-ads-ai-project%2Fapp%2F",
+          "failure": "net::ERR_NAME_NOT_RESOLVED"
+        },
+        {
+          "url": "https://stlite.invalid/toss-ads-ai-project/app/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fsokldjs554.github.io%2Ftoss-ads-ai-project%2Fapp%2F",
+          "failure": "net::ERR_NAME_NOT_RESOLVED"
+        }
+      ],
+      "blocked_model_requests": [],
+      "webassembly": {
+        "Suspending": "function",
+        "promising": "function"
+      },
+      "url": "https://sokldjs554.github.io/toss-ads-ai-project/app/",
+      "latest_saved_report": "features-20261021-run1",
+      "quality_audit_available_in_saved_report": true,
+      "rewrite_supplement_available_in_saved_report": true,
+      "conversation_followup_available_in_saved_report": true,
+      "status": "completed",
+      "finished_at": "2026-10-21T09:42:29.563328+00:00"
+    }
+  ],
+  "screenshots": [
+    "public-native-desktop-team-database-unconfigured.png",
+    "public-native-desktop-quality-accepted-and-abstained.png",
+    "public-native-desktop-age-followup-separate-denominator.png",
+    "public-native-desktop-rewrite-supplement.png",
+    "public-native-desktop-saved-live-evaluations.png",
+    "public-native-desktop-conversation-regression-and-original.png",
+    "public-native-desktop-current-insight-evaluation.png",
+    "public-native-desktop-insight-contrasts-and-previous-result.png",
+    "public-native-mobile-team-database-unconfigured.png",
+    "public-native-mobile-quality-accepted-and-abstained.png",
+    "public-native-mobile-age-followup-separate-denominator.png",
+    "public-native-mobile-rewrite-supplement.png",
+    "public-native-mobile-saved-live-evaluations.png",
+    "public-native-mobile-conversation-regression-and-original.png",
+    "public-native-mobile-current-insight-evaluation.png",
+    "public-native-mobile-insight-contrasts-and-previous-result.png",
+    "public-pages-desktop-team-server-link.png",
+    "public-pages-desktop-quality-accepted-and-abstained.png",
+    "public-pages-desktop-age-followup-separate-denominator.png",
+    "public-pages-desktop-rewrite-supplement.png",
+    "public-pages-desktop-saved-live-evaluations.png",
+    "public-pages-desktop-conversation-regression-and-original.png",
+    "public-pages-desktop-current-insight-evaluation.png",
+    "public-pages-desktop-insight-contrasts-and-previous-result.png",
+    "public-pages-mobile-team-server-link.png",
+    "public-pages-mobile-quality-accepted-and-abstained.png",
+    "public-pages-mobile-age-followup-separate-denominator.png",
+    "public-pages-mobile-rewrite-supplement.png",
+    "public-pages-mobile-saved-live-evaluations.png",
+    "public-pages-mobile-conversation-regression-and-original.png",
+    "public-pages-mobile-current-insight-evaluation.png",
+    "public-pages-mobile-insight-contrasts-and-previous-result.png"
+  ],
+  "source_hashes": {
+    "ui/team_review_view.py": "64185d6f2b9125976f7cba2a0cafa4c445a1da7fae3e37890d1fa2c9a41ad082",
+    "ui/ops_hub.py": "6bbb4d6dbe332cf952626fe4baab28c7db5cc038fc7fc9cae7899a0ca1eee34b",
+    "ui/new_evals.py": "9509c752cc26fff24e54c00cc7e676b9ccbb434773085fd73c4e1babc3a51c29",
+    "ops/team_review.py": "22f0eaa68cbce659cd744e744ad280bf3b3b59968e86656b5f884cd4d2dc3ea7",
+    "ops/team_review_store.py": "8f6f21a4d69a3cee254bbb37ed7d8e028aa1a290b198ee80fbb436180bf97113",
+    "evals/reports/dialogs_regression_v2_20261021.json": "924189ff383434ae62eb48ba7df0c4914b21aead23aaf15621173d3d94ba2c49",
+    "evals/reports/dialogs_original_after_fix_20261021.json": "424d8750178732983d3a7dcbbacf72e0a9da287ac294670010b421cbb2bdb825",
+    "evals/reports/remaining-20261021/insights-after-original.json": "3bf05332f41d673e9fe2a35bcf20ecd9e29331d409e82fa82c8a7e2fca3580ca",
+    "evals/reports/remaining-20261021/insights-after-holdout.json": "cb698c57404ebcf917673f81b4d2340f9e79d529ca6153bf66bd20c92d3d03bf",
+    "evals/reports/remaining-20261021/insights-contrasts-after.json": "e9dde3f93646c8b4ebadd5e412bf93ffb52628bcc8b091cbcc623365258b4c4f",
+    "evals/reports/live_features/features-20261021-run1.json": "7c7c1947986ab168d09b4913b951a8c1529b25c7c26f6d454a461b1901b75c7f"
+  },
+  "frozen_report_hashes_before": {
+    "evals/reports/live_features/features-20261021-run1.json": "7c7c1947986ab168d09b4913b951a8c1529b25c7c26f6d454a461b1901b75c7f",
+    "evals/reports/live_features/features-20261020-run1.json": "b5c40bd30cc353730eb6da0d7104d08aefb91945949c6d519cca5a3c3d345247",
+    "evals/reports/live_features/features-20261020-run3.json": "3981f9ab9a82502f02a8e6086e4178289863c8a632317dbb5544710af828fd91",
+    "evals/reports/live_features/reservations.json": "576c98fb311448fce78456cdac89769c8ecda81a368046ed85763662bcaeb54a",
+    "evals/reports/live_features/features-20261020-run2.json": "429894549ee081e9789a24abf304c1f46f374c4afba042314720684c2ee70acd",
+    "evals/reports/live_features/reservations_remaining_20261021.json": "5b1f3eddd92bf6e755ed6a70200d62fad06766d71f8fe5de67614431a4dd055a"
+  },
+  "bundle": {
+    "sha256": "2e6732b6ac58fe8dff5c9555438344330e8bac21b18fd561e6371d279e64c958",
+    "files": 282,
+    "essential_hashes": {
+      "ui/team_review_view.py": "64185d6f2b9125976f7cba2a0cafa4c445a1da7fae3e37890d1fa2c9a41ad082",
+      "ui/ops_hub.py": "6bbb4d6dbe332cf952626fe4baab28c7db5cc038fc7fc9cae7899a0ca1eee34b",
+      "ui/new_evals.py": "9509c752cc26fff24e54c00cc7e676b9ccbb434773085fd73c4e1babc3a51c29",
+      "ops/team_review.py": "22f0eaa68cbce659cd744e744ad280bf3b3b59968e86656b5f884cd4d2dc3ea7",
+      "ops/team_review_store.py": "8f6f21a4d69a3cee254bbb37ed7d8e028aa1a290b198ee80fbb436180bf97113",
+      "evals/reports/dialogs_regression_v2_20261021.json": "924189ff383434ae62eb48ba7df0c4914b21aead23aaf15621173d3d94ba2c49",
+      "evals/reports/dialogs_original_after_fix_20261021.json": "424d8750178732983d3a7dcbbacf72e0a9da287ac294670010b421cbb2bdb825",
+      "evals/reports/remaining-20261021/insights-after-original.json": "3bf05332f41d673e9fe2a35bcf20ecd9e29331d409e82fa82c8a7e2fca3580ca",
+      "evals/reports/remaining-20261021/insights-after-holdout.json": "cb698c57404ebcf917673f81b4d2340f9e79d529ca6153bf66bd20c92d3d03bf",
+      "evals/reports/remaining-20261021/insights-contrasts-after.json": "e9dde3f93646c8b4ebadd5e412bf93ffb52628bcc8b091cbcc623365258b4c4f",
+      "evals/reports/live_features/features-20261021-run1.json": "7c7c1947986ab168d09b4913b951a8c1529b25c7c26f6d454a461b1901b75c7f"
+    },
+    "stlite_html_sha256": "9083776a80c5927a226c58eacbcb956f95ea250ecadf46efd56234c4f0a324c7"
+  },
+  "public_bundle": {
+    "url": "https://sokldjs554.github.io/toss-ads-ai-project/app/src.zip",
+    "sha256": "57fd967392c994826ff525913e51eae81ac21d630457beef8623140c19819280",
+    "files": 282,
+    "build": "7f50da2",
+    "essential_hashes": {
+      "ui/team_review_view.py": "64185d6f2b9125976f7cba2a0cafa4c445a1da7fae3e37890d1fa2c9a41ad082",
+      "ui/ops_hub.py": "6bbb4d6dbe332cf952626fe4baab28c7db5cc038fc7fc9cae7899a0ca1eee34b",
+      "ui/new_evals.py": "9509c752cc26fff24e54c00cc7e676b9ccbb434773085fd73c4e1babc3a51c29",
+      "ops/team_review.py": "22f0eaa68cbce659cd744e744ad280bf3b3b59968e86656b5f884cd4d2dc3ea7",
+      "ops/team_review_store.py": "8f6f21a4d69a3cee254bbb37ed7d8e028aa1a290b198ee80fbb436180bf97113",
+      "evals/reports/dialogs_regression_v2_20261021.json": "924189ff383434ae62eb48ba7df0c4914b21aead23aaf15621173d3d94ba2c49",
+      "evals/reports/dialogs_original_after_fix_20261021.json": "424d8750178732983d3a7dcbbacf72e0a9da287ac294670010b421cbb2bdb825",
+      "evals/reports/remaining-20261021/insights-after-original.json": "3bf05332f41d673e9fe2a35bcf20ecd9e29331d409e82fa82c8a7e2fca3580ca",
+      "evals/reports/remaining-20261021/insights-after-holdout.json": "cb698c57404ebcf917673f81b4d2340f9e79d529ca6153bf66bd20c92d3d03bf",
+      "evals/reports/remaining-20261021/insights-contrasts-after.json": "e9dde3f93646c8b4ebadd5e412bf93ffb52628bcc8b091cbcc623365258b4c4f",
+      "evals/reports/live_features/features-20261021-run1.json": "7c7c1947986ab168d09b4913b951a8c1529b25c7c26f6d454a461b1901b75c7f"
+    }
+  },
+  "browser": "141.0.7390.37",
+  "finished_at": "2026-10-21T09:42:29.689840+00:00",
+  "failed_checks": 0,
+  "status": "passed"
+}

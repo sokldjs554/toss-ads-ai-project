@@ -111,7 +111,7 @@ def test_empty_queue_shows_guidance_and_no_exception():
     ok(at)
     t = texts(at)
     assert "대기열이 비었습니다" in t and "아직 광고 작업의 결과가 없습니다" in t
-    assert "사람 라벨러가 한 명뿐입니다" in t and "독립 라벨러가 확보됐다는 뜻이 아닙니다" in t
+    assert "독립적인 사람 검수 결과가 아직 없습니다" in t and "합성 예시로 검증했습니다" in t
     assert not any(b.key == "rq_claim" for b in at.button) and "라벨러 사이 일치도" not in t
 
 

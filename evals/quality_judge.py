@@ -17,6 +17,7 @@ from llm.base import LLMRequest, Task
 from llm.errors import BudgetExceeded
 
 RUBRIC_VERSION = "communication-v2-20261021"
+WIRE_CONTRACT_VERSION = "communication-wire-v3-20261021"
 CRITERIA = ("information", "conditions", "action", "expression")
 Criterion = Literal["information", "conditions", "action", "expression"]
 Preference = Literal["A", "B", "TIE", "UNKNOWN"]
@@ -30,11 +31,11 @@ A/B 위치, 문구 길이, 숫자 개수, 제목에 정보를 놓았다는 사�
 - conditions: 언급한 혜택에 붙는 비용·기간·자동결제·제한을 이해할 수 있는가. 필수 조건 누락과 선택적 부가 기능 생략을 구분한다. 인용은 제목/본문/버튼 전체를 확인한다.
 - action: 버튼을 읽고 다음에 할 행동을 알 수 있는가. 구체적 행동과 일반적인 탐색 문구의 차이를 설명하되 CTR을 단정하지 않는다.
 - expression: 문장 이해, 중복, 군더더기, 과장, 말투 일관성이 전달에 미치는 영향. 작은 어미 차이/개인적인 문체 취향만으로 큰 우열을 만들지 않는다.
-각 기준의 preference는 A/B/TIE/UNKNOWN, impact는 material/minor/none/unknown이다.
-material은 독자의 내용·조건·다음 행동 이해를 명확히 바꾸는 차이, minor는 사소한 표현 선호다. A/B에는 material 또는 minor, TIE에는 none, UNKNOWN에는 unknown을 쓴다.
+각 기준은 judgment 하나로 판단한다. 허용 값은 A_material/A_minor/B_material/B_minor/TIE/UNKNOWN이다.
+material은 독자의 내용·조건·다음 행동 이해를 명확히 바꾸는 차이, minor는 사소한 표현 선호다. A_material/B_material은 중요한 우세, A_minor/B_minor는 사소한 우세, TIE는 우열 없음, UNKNOWN은 근거 부족이다. 별도의 preference나 impact 필드는 쓰지 않는다.
 evidence_a/b에는 각각 해당 광고의 headline/body/cta 필드와 정확히 존재하는 짧은 quote를 적는다. 빈 quote는 실제로 빈 필드에만 쓴다. 없는 문장을 만들거나 반대쪽 인용을 옮기지 않는다.
 사실과 비교한 기준은 관련 fact_ids를 적고, 모르는 사실을 추정하지 않는다. 사실이 없으면 조건 판단은 UNKNOWN이다.
-winner A/B는 그 쪽의 material 근거가 있을 때만 고른다. decisive_criteria에는 그 근거 기준만 넣는다. 양쪽에 서로 다른 material 장점이 있으면 왜 한쪽을 우선하는지 짧게 설명한다.
+winner A/B는 그 쪽의 A_material/B_material 근거가 있을 때만 고른다. minor 근거만으로 승자를 고르지 않는다. decisive_criteria에는 그 중요한 근거 기준만 넣는다. 양쪽에 서로 다른 material 장점이 있으면 왜 한쪽을 우선하는지 짧게 설명한다.
 정보가 동등하거나 차이가 사소한 문체/배치뿐이면 winner TIE, decisive_criteria는 빈 배열이다. 판단 근거가 부족하면 ABSTAIN이다. 상반된 장점을 억지로 숫자로 합산하지 않는다.
 reason은 기준마다 짧은 한 문장, 종합은 최대 두 문장이다. 인용과 비교가 서로 모순되지 않는지 확인한다."""
 
@@ -59,10 +60,41 @@ class DimensionJudgment(_Strict):
 
 
 class QualityJudgeOut(_Strict):
+    """정규화된 기존 의미 계약. 과거 응답 감사·재생에도 그대로 사용한다."""
     dimensions: list[DimensionJudgment]
     winner: Literal["A", "B", "TIE", "ABSTAIN"]
     decisive_criteria: list[Criterion]
     reason: str
+
+
+class WireDimensionJudgment(_Strict):
+    criterion: Criterion
+    judgment: Literal["A_material", "A_minor", "B_material", "B_minor", "TIE", "UNKNOWN"]
+    evidence_a: list[CopyQuote]
+    evidence_b: list[CopyQuote]
+    fact_ids: list[str]
+    reason: str
+
+
+class QualityJudgeWireOut(_Strict):
+    """제공자 출력 전용. 서로 모순되는 선호/중요도 조합을 표현하지 않는다."""
+    dimensions: list[WireDimensionJudgment]
+    winner: Literal["A", "B", "TIE", "ABSTAIN"]
+    decisive_criteria: list[Criterion]
+    reason: str
+
+
+def normalize_wire(out: QualityJudgeWireOut) -> QualityJudgeOut:
+    """합법 wire 상태를 기존 의미로 옮긴다. 승자·근거를 추측하거나 수리하지 않는다."""
+    states = {
+        "A_material": ("A", "material"), "A_minor": ("A", "minor"),
+        "B_material": ("B", "material"), "B_minor": ("B", "minor"),
+        "TIE": ("TIE", "none"), "UNKNOWN": ("UNKNOWN", "unknown"),
+    }
+    raw = out.model_dump(mode="json")
+    for dimension in raw["dimensions"]:
+        dimension["preference"], dimension["impact"] = states[dimension.pop("judgment")]
+    return QualityJudgeOut.model_validate(raw)
 
 
 def audit_evidence(out: QualityJudgeOut, a: AdCopy, b: AdCopy, facts: Sequence[Fact]) -> list[str]:
@@ -182,19 +214,21 @@ def compare(a: AdCopy, b: AdCopy, facts: Sequence[Fact], router, *, label: str =
             "B": second.model_dump(include={"headline", "body", "cta"}),
         }
         row = {"order": order, "winner": None, "displayed_winner": None, "response": None,
+               "wire_response": None, "wire_text": None, "wire_contract_version": WIRE_CONTRACT_VERSION,
                "provider": "", "model": "", "evidence_valid": False, "issues": [], "error_type": ""}
         try:
             response = router.complete(LLMRequest(
                 Task.JUDGE, SYSTEM, spotlight("광고 비교 입력", json.dumps(payload, ensure_ascii=False)),
-                schema=QualityJudgeOut, max_tokens=MAX_OUTPUT_TOKENS, temperature=0.0,
+                schema=QualityJudgeWireOut, max_tokens=MAX_OUTPUT_TOKENS, temperature=0.0,
                 context={"copies": {"A": payload["A"], "B": payload["B"]}, "facts": payload["facts"]},
                 label=f"{label}:{order}",
             ))
             row.update(provider=response.provider, model=response.model, repaired=response.repaired,
                        origin_provider=response.origin_provider, fallback_chain=list(response.fallback_chain))
             raw = response.parsed.model_dump(mode="json") if isinstance(response.parsed, BaseModel) else response.parsed
-            row["response"] = raw
-            verdict = QualityJudgeOut.model_validate(raw)
+            row.update(wire_response=copy.deepcopy(raw), wire_text=response.text)
+            verdict = normalize_wire(QualityJudgeWireOut.model_validate(raw))
+            row["response"] = verdict.model_dump(mode="json")
             issues = audit_evidence(verdict, first, second, facts)
             row.update(displayed_winner=verdict.winner, winner=_winner(verdict.winner, order),
                        reason=verdict.reason, evidence_valid=not issues, issues=issues)
@@ -210,4 +244,5 @@ def compare(a: AdCopy, b: AdCopy, facts: Sequence[Fact], router, *, label: str =
         orders.append(row)
     result = aggregate_orders(orders)
     result["rubric_version"] = RUBRIC_VERSION
+    result["wire_contract_version"] = WIRE_CONTRACT_VERSION
     return result
