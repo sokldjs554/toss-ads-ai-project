@@ -1,0 +1,11 @@
+{
+  "kind": "environment-preflight-failure",
+  "status": "blocked_before_ui_checks",
+  "script": "scripts/e2e_flow.py",
+  "attempted_output": "docs/evidence/remaining-20261021/native-existing-e2e",
+  "reason": "The sandbox rejected AF_INET socket creation, including localhost health checks.",
+  "observed_error": "PermissionError: [Errno 1] Operation not permitted; urllib.error.URLError: <urlopen error [Errno 1] Operation not permitted>",
+  "ui_checks_completed": 0,
+  "product_failure_claimed": false,
+  "next_step": "Run the same authorized local-browser check with network-enabled execution."
+}

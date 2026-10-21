@@ -349,7 +349,7 @@ def _sampling_sd(metric: str, mean_clk: float, mean_conv: float) -> float:
 
 def detect_metric(metric: str, total: dict, present: set, base_dates: list[dt.date], win_dates: list[dt.date], sample: "SampleStatus", *,
                   h_score: float = H_SCORE, h_single: float = H_SINGLE, min_effect: float = MIN_EFFECT, min_len: int = 1,
-                  comparisons: int = 1) -> MetricDetection:
+                  comparisons: int = 1, report_start: Optional[dt.date] = None, include_slope_uncertainty: bool = False) -> MetricDetection:
     """지표 하나의 변화 구간을 찾는다. total 은 날짜 → Counts (전체 또는 묶음 하나)."""
     # 한 보고서에서 더 많은 지표·묶음을 검사할수록 같은 신호에 더 엄격한 기준을 쓴다.
     # 정규 꼬리 상계의 union bound 형태다. 보정된 점수도 실서비스의 유의확률은 아니다.
@@ -434,7 +434,7 @@ def detect_metric(metric: str, total: dict, present: set, base_dates: list[dt.da
         variance = observed + BASELINE_ESTIMATION_FACTOR * sum(count ** 2 / len(by_wd[w]) for w, count in weekdays.items() if w in by_wd)
         # 짧고 오래된 기준선에서는 기울기가 유의하지 않다는 것이 기울기 0의 증거가 아니다.
         # 선택한 추세가 0이어도, 기간 사이에 간격이 있으면 가능한 기울기의 오차를 포함한다.
-        if (trend or forecast_gap) and slope_information:
+        if (trend or forecast_gap or include_slope_uncertainty) and slope_information:
             variance += BASELINE_ESTIMATION_FACTOR * horizon ** 2 / slope_information
         return abs(acc) / math.sqrt(max(variance, 1.0))
 
@@ -462,13 +462,16 @@ def detect_metric(metric: str, total: dict, present: set, base_dates: list[dt.da
             i -= 1
         while j < L - 1 and sign * work[j + 1] >= 2.0:
             j += 1
-        days = [win_dates[t] for t in range(i, j + 1) if win_dates[t] in y]
-        if not days:
-            break
-        pct = math.exp(sum(y[d] - dow.get(d.weekday(), 0.0) - drift(d) - mu for d in days) / len(days)) - 1
-        if abs(pct) >= min_effect:
-            det.spans.append(Span(start=win_dates[i], end=win_dates[j], direction="up" if sign > 0 else "down", pct=pct, score=score,
-                                  peak_z=max((abs(w) for w in work[i:j + 1]), default=0.0), days=j - i + 1))
+        days = [win_dates[t] for t in range(i, j + 1) if win_dates[t] in y and (report_start is None or win_dates[t] >= report_start)]
+        # 이전 기준 뒤의 관측으로 변화의 전이를 확인하더라도, 최근 기간에서 같은 방향의
+        # 신호가 이어져야 한다. 최소 관측 일수와 기존 이웃 확장 기준(2σ)을 그대로 쓴다.
+        # 과거에 끝난 사건이나 최근 한 번의 흔들림만으로 최근 사건을 만들지 않는다.
+        recent_support = report_start is None or (len(days) >= MIN_WINDOW_DAYS and median(sign * det.z[d] for d in days) >= 2.0)
+        if days and recent_support:
+            pct = math.exp(sum(y[d] - dow.get(d.weekday(), 0.0) - drift(d) - mu for d in days) / len(days)) - 1
+            if abs(pct) >= min_effect and sign * pct > 0:
+                det.spans.append(Span(start=days[0], end=days[-1], direction="up" if sign > 0 else "down", pct=pct, score=score,
+                                      peak_z=max(abs(det.z[d]) for d in days), days=(days[-1] - days[0]).days + 1))
         for t in range(i, j + 1):
             work[t] = 0.0
     return det
@@ -1477,12 +1480,15 @@ def _reference_candidates(table: Table, base_dates: list[dt.date]) -> list[list[
     return out + [base_dates]
 
 
-def _detect_against_reference(table: Table, base_dates: list[dt.date], win_dates: list[dt.date], comparisons: int) -> tuple:
+def _detect_against_reference(table: Table, base_dates: list[dt.date], win_dates: list[dt.date], comparisons: int, *,
+                              report_start: Optional[dt.date] = None, include_slope_uncertainty: bool = False) -> tuple:
     sample = sample_status(table, base_dates)
-    detections = {m: detect_metric(m, table.total, table.present, base_dates, win_dates, sample, comparisons=comparisons) for m in METRICS}
+    detections = {m: detect_metric(m, table.total, table.present, base_dates, win_dates, sample, comparisons=comparisons,
+                                  report_start=report_start, include_slope_uncertainty=include_slope_uncertainty) for m in METRICS}
     findings = [(m, s) for m, d in detections.items() if d.status == "ok" for s in d.spans]
     if sample.level != "insufficient":
-        findings += _segment_findings(table, base_dates, win_dates, comparisons=comparisons)
+        findings += _segment_findings(table, base_dates, win_dates, comparisons=comparisons,
+                                      report_start=report_start, include_slope_uncertainty=include_slope_uncertainty)
     return sample, detections, findings
 
 
@@ -1499,9 +1505,16 @@ def _select_reference(table: Table, base_dates: list[dt.date], win_dates: list[d
         return base_dates, *selected, len(candidates)
     best_score = 0.0
     selected_dates = base_dates
-    comparisons = series_count * 2 * earlier_count
+    recent_intervals = max(1, len(win_dates) * (len(win_dates) + 1) // 2)
     for dates in reversed(candidates[:-1]):
-        result = _detect_against_reference(table, dates, win_dates, comparisons)
+        # 이전 기준과 최근 기간 사이에도 실제 관측이 있다. 버리지 않고 함께 검사하되
+        # 표시 구간은 최근 기간으로 제한한다. 추가 구간 수만큼 비교 예산을 보수적으로
+        # 올리고, 추세가 0으로 추정돼도 기울기 불확실성은 제거하지 않는다.
+        scan_dates = [d for d in table.dates if dates[-1] < d <= win_dates[-1]]
+        scan_intervals = len(scan_dates) * (len(scan_dates) + 1) // 2
+        comparisons = series_count * 2 * earlier_count * max(1, math.ceil(scan_intervals / recent_intervals))
+        result = _detect_against_reference(table, dates, scan_dates, comparisons,
+                                            report_start=win_dates[0], include_slope_uncertainty=True)
         score = max((s.score / math.sqrt((SEG_H_SCORE if s.segment else H_SCORE) ** 2 + 2 * math.log(comparisons))
                      for _, s in result[2]), default=0.0)
         if score > best_score:
@@ -1558,7 +1571,8 @@ def analyze(rows: list[MetricRow], period: Optional[tuple] = None, *, recent_day
     if bwin[1] < original_base_end:
         a.reference_evidence = book.add(
             "reference", f"이전 기준 기간({fmt_date(bwin[0])}부터 {fmt_date(bwin[1])}까지 {n_base_days}일)과 최근 기간을 비교했습니다. "
-            f"가능한 기준 기간 {reference_windows}개를 함께 점검하므로 탐지 기준을 강화했습니다. 표시한 변화 구간은 최근 기간 안의 관측이며 실제 시작일을 확정한 것은 아닙니다.",
+            f"가능한 기준 기간 {reference_windows}개와 그 뒤부터 최근 기간까지의 관측값을 함께 점검하므로 탐지 기준을 강화했습니다. "
+            "표시한 변화 구간은 최근 기간 안의 관측이며 실제 시작일을 확정한 것은 아닙니다.",
             [date_num("base_start", bwin[0]), date_num("base_end", bwin[1]), Num("base_days", n_base_days, "일"),
              Num("reference_windows", reference_windows, "개")], key="reference")
     if sample.level != "ok":
@@ -1602,7 +1616,8 @@ SEGMENT_METRICS = {"creative": ("ctr",), "ad_set": ("ctr", "cvr"), "device": ("c
 DIM_NAME = {"creative": "소재", "ad_set": "광고세트", "device": "기기"}
 
 
-def _segment_findings(table: Table, base_dates: list[dt.date], win_dates: list[dt.date], *, comparisons: int = 1) -> list:
+def _segment_findings(table: Table, base_dates: list[dt.date], win_dates: list[dt.date], *, comparisons: int = 1,
+                       report_start: Optional[dt.date] = None, include_slope_uncertainty: bool = False) -> list:
     """전체에 묻힌 소재 반응·기기 전환율·기기별 클릭 배분 변화를 본다. 늘어난 비교 수는 탐지 기준에 반영한다."""
     out = []
     for dim, metrics in SEGMENT_METRICS.items():
@@ -1614,7 +1629,7 @@ def _segment_findings(table: Table, base_dates: list[dt.date], win_dates: list[d
             ss = sample_status(table, base_dates, series, min_clicks=GROUP_MIN_CLICKS, min_conv=GROUP_MIN_CONV, per_day_clicks=5, per_day_conv=1)
             for m in metrics:
                 det = detect_metric(m, series, table.present, base_dates, win_dates, ss, h_score=SEG_H_SCORE, h_single=99.0, min_effect=SEG_MIN_EFFECT, min_len=SEG_MIN_LEN,
-                                    comparisons=comparisons)
+                                    comparisons=comparisons, report_start=report_start, include_slope_uncertainty=include_slope_uncertainty)
                 if det.status != "ok":
                     continue
                 for sp in det.spans:

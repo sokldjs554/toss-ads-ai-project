@@ -273,7 +273,7 @@ def _render_review(rv: ImageReview, text_decision: Optional[Decision], k: str) -
     if rv.cross_check == "mismatch":
         st.warning("이미지에는 직접 적어 주신 글에 없는 문구가 더 있습니다. 심사를 피하려고 이미지에만 넣은 문구일 수 있어 확인이 필요합니다.")
     elif rv.cross_check == "consistent":
-        st.success("모델이 읽은 글과 직접 적어 주신 글이 서로 맞습니다.")
+        st.success("모델이 읽은 글과 직접 적어 주신 글이 일치합니다.")
     elif rv.cross_check == "weak":
         st.info("직접 적어 주신 글 중 일부가 이미지에서 읽히지 않아 대조가 충분하지 않습니다.")
     if rv.tags:

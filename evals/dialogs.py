@@ -1,6 +1,6 @@
 """대화형 캠페인 셋업 평가 — 스크립트 대화를 `agents.conversation.step` 으로 돌리고 코드가 지표를 계산한다.
 
-    python -m evals.dialogs [--split dev|holdout|all] [--gate] [--dataset PATH] [--out evals/reports/dialogs_regression_v2.json]
+    python -m evals.dialogs [--split dev|holdout|all] [--gate] [--dataset PATH] [--out evals/reports/dialogs_regression_v2_20261021.json]
 
 이 숫자가 의미하지 않는 것 (리포트의 `extractor: "rules"` 가 뜻하는 것)
 - 지표는 **규칙 기반 추출기(와 그것을 되풀이하는 대역 제공자)** 의 값이다. 실제 언어 모델의 이해력·되묻기 품질이 아니다. 실제 모델을 부르지 않았다.
@@ -36,9 +36,9 @@ DATASET = Path(__file__).with_name("datasets") / "dialogs_regression_v2.jsonl"
 PROVENANCE = Path(__file__).with_name("datasets") / "dialogs_regression_v2.provenance.json"
 REPORTS = Path(__file__).with_name("reports")
 HISTORICAL_REPORT = REPORTS / "dialogs_controlled.json"
-ORIGINAL_CURRENT_REPORT = REPORTS / "dialogs_original_after_fix_20261020.json"
-DEFAULT_REPORT = REPORTS / "dialogs_regression_v2.json"
-REPRO = "python -m evals.dialogs --split all --out evals/reports/dialogs_regression_v2.json"
+ORIGINAL_CURRENT_REPORT = REPORTS / "dialogs_original_after_fix_20261021.json"
+DEFAULT_REPORT = REPORTS / "dialogs_regression_v2_20261021.json"
+REPRO = "python -m evals.dialogs --split all --out evals/reports/dialogs_regression_v2_20261021.json"
 
 EVAL_SLOTS = ["product_name", "category", "objective", "monthly_budget_krw", "audience", "period", "landing_url", "key_conditions", "tone", "ad_set_count", "bid_strategy"]
 CAVEATS = [
@@ -349,7 +349,7 @@ def build_report(split: str = "all", path: Path = DATASET, settings: Optional[Se
     except ValueError:
         dataset_path = str(path)
     repro = REPRO if path.resolve() == DATASET.resolve() else (
-        f"python -m evals.dialogs --split {split} --dataset {dataset_path} --out evals/reports/dialogs_original_after_fix_20261020.json")
+        f"python -m evals.dialogs --split {split} --dataset {dataset_path} --out {ORIGINAL_CURRENT_REPORT.relative_to(ROOT).as_posix()}")
     report = {
         "name": "dialogs_regression",
         "extractor": "rules",

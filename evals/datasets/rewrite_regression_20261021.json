@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "kind": "public_synthetic_rewrite_regression",
+  "authorship": "AI 작성 공개 합성 자료. 독립 사람의 라벨이나 실제 광고주 데이터가 아니다.",
+  "frozen_before_live_call": true,
+  "cases": [
+    {
+      "id": "RW01",
+      "focus": "unfounded_comparison",
+      "product": {"name": "가상 소담 머그", "category": "ecommerce", "facts": [{"id": "F1", "text": "300ml 도자기 머그컵"}, {"id": "F2", "text": "판매가 18,000원"}, {"id": "F3", "text": "5만원 이상 구매 시 무료 배송"}]},
+      "categories": ["ecommerce"],
+      "original": {"variant_id": "rewrite-RW01-original", "headline": "타사보다 좋은 머그컵", "body": "300ml 도자기 머그컵 18,000원. 5만원 이상 구매 시 무료 배송해요.", "cta": "머그컵 보기", "claims": [{"text": "5만원 이상 구매 시 무료 배송", "fact_id": "F3"}], "disclosures": []},
+      "expected_original_rules": ["TA-COMPARE-01"]
+    },
+    {
+      "id": "RW02",
+      "focus": "unsupported_urgency",
+      "product": {"name": "가상 두빛 영어", "category": "education", "facts": [{"id": "F1", "text": "총 8주 온라인 영어 수업"}, {"id": "F2", "text": "주 2회, 회당 30분"}, {"id": "F3", "text": "샘플 강의 무료 공개"}]},
+      "categories": ["education"],
+      "original": {"variant_id": "rewrite-RW02-original", "headline": "오늘만 8주 영어 수업 신청", "body": "주 2회, 회당 30분 온라인 수업이에요.", "cta": "강의 확인하기", "claims": [], "disclosures": []},
+      "expected_original_rules": ["TA-URGENCY-01"]
+    },
+    {
+      "id": "RW03",
+      "focus": "missing_qualifying_conditions",
+      "product": {"name": "가상 소담 쿠폰", "category": "ecommerce", "facts": [{"id": "F1", "text": "전 상품 10% 할인 쿠폰 (5만원 이상 구매 시, 10월 31일까지, 1인 1회)"}]},
+      "categories": ["ecommerce"],
+      "original": {"variant_id": "rewrite-RW03-original", "headline": "전 상품 10% 할인", "body": "할인 쿠폰을 받아보세요.", "cta": "쿠폰 받기", "claims": [{"text": "전 상품 10% 할인", "fact_id": "F1"}], "disclosures": []},
+      "expected_original_rules": ["GRND-COND-01"]
+    },
+    {
+      "id": "RW04",
+      "focus": "unsupported_price",
+      "product": {"name": "가상 맑은 청소", "category": "other", "facts": [{"id": "F1", "text": "입주 청소 24평 기준 18만원부터"}, {"id": "F2", "text": "작업 후 하자 발생 시 7일 이내 재청소"}]},
+      "categories": ["other"],
+      "original": {"variant_id": "rewrite-RW04-original", "headline": "입주 청소 24평 9만원부터", "body": "하자가 생기면 7일 이내 다시 청소해 드려요.", "cta": "견적 확인하기", "claims": [{"text": "입주 청소 24평 9만원부터", "fact_id": "F1"}], "disclosures": []},
+      "expected_original_rules": ["GRND-NUM-01"]
+    }
+  ]
+}

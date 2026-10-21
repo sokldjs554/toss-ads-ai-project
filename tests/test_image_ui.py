@@ -260,7 +260,7 @@ def test_live_run_needs_consent_and_a_click_and_never_calls_the_model_before():
     assert at.button(key="img_check_run").disabled is False and "_t_calls" not in at.session_state.keys()
     at.button(key="img_check_run").click().run()
     assert not at.exception and at.session_state["_t_calls"] == 1
-    assert badges(at) == ["점검 통과"] and "서로 맞습니다" in everything(at) and "모델이 이미지에서 읽은 글입니다" in everything(at)
+    assert badges(at) == ["점검 통과"] and "모델이 읽은 글과 직접 적어 주신 글이 일치합니다." in everything(at) and "모델이 이미지에서 읽은 글입니다" in everything(at)
     at.run()
     assert at.session_state["_t_calls"] == 1                                                      # 다시 그려도 모델을 또 부르지 않는다 (결과를 기억한다)
 

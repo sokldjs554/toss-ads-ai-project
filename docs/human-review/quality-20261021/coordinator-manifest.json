@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "packet_id": "quality-20261021",
+  "dataset_sha256": "dc0cdf674f106c48832f1dddb4e3a874460897e07e7e542221ae8dd6632acb9e",
+  "packet_sha256": "e81019fe1cb6f8ee1725f3c9d4e314ae7989a07350468732eefa10e997a4f836",
+  "split": "holdout",
+  "randomization_seed": "f258f7c8ae8987ef1be6762780f1e501ef5a5c4c84d6d4bc60b7b1a5bb0a435a",
+  "mapping": [
+    {
+      "case_id": "case-87167f86fa193c76721e",
+      "pair_id": "QP-H08",
+      "left_source": "a",
+      "right_source": "b"
+    },
+    {
+      "case_id": "case-7eed77c389b42e169de1",
+      "pair_id": "QP-H01",
+      "left_source": "a",
+      "right_source": "b"
+    },
+    {
+      "case_id": "case-8c9a22f5431f0f54ecb3",
+      "pair_id": "QP-H18",
+      "left_source": "a",
+      "right_source": "b"
+    },
+    {
+      "case_id": "case-12caeab98974e7546dca",
+      "pair_id": "QP-H05",
+      "left_source": "a",
+      "right_source": "b"
+    },
+    {
+      "case_id": "case-6bdc819e3c384f10667f",
+      "pair_id": "QP-H25",
+      "left_source": "b",
+      "right_source": "a"
+    },
+    {
+      "case_id": "case-86032de533212566e19b",
+      "pair_id": "QP-H19",
+      "left_source": "b",
+      "right_source": "a"
+    },
+    {
+      "case_id": "case-c29d4b077b029f6e371a",
+      "pair_id": "QP-H06",
+      "left_source": "b",
+      "right_source": "a"
+    },
+    {
+      "case_id": "case-542b72a8a70c7f2da4a3",
+      "pair_id": "QP-H15",
+      "left_source": "a",
+      "right_source": "b"
+    },
+    {
+      "case_id": "case-327ffe9af51f98b84944",
+      "pair_id": "QP-H13",
+      "left_source": "a",
+      "right_source": "b"
+    },
+    {
+      "case_id": "case-11e906bd2447eb517841",
+      "pair_id": "QP-H07",
+      "left_source": "b",
+      "right_source": "a"
+    },
+    {
+      "case_id": "case-6c41f9e156d8fa18c6e0",
+      "pair_id": "QP-H16",
+      "left_source": "a",
+      "right_source": "b"
+    },
+    {
+      "case_id": "case-2eda2387cdfe9c5cfd70",
+      "pair_id": "QP-H09",
+      "left_source": "a",
+      "right_source": "b"
+    },
+    {
+      "case_id": "case-d943acc045d5d8296d2e",
+      "pair_id": "QP-H20",
+      "left_source": "b",
+      "right_source": "a"
+    },
+    {
+      "case_id": "case-6130c102f6864691c0c5",
+      "pair_id": "QP-H04",
+      "left_source": "b",
+      "right_source": "a"
+    },
+    {
+      "case_id": "case-556fc73491c9c176f89e",
+      "pair_id": "QP-H02",
+      "left_source": "a",
+      "right_source": "b"
+    },
+    {
+      "case_id": "case-397423ca3e8143520862",
+      "pair_id": "QP-H21",
+      "left_source": "b",
+      "right_source": "a"
+    },
+    {
+      "case_id": "case-180dddaf14ce7d1fec07",
+      "pair_id": "QP-H22",
+      "left_source": "a",
+      "right_source": "b"
+    },
+    {
+      "case_id": "case-920f8b39d326e49f74ea",
+      "pair_id": "QP-H17",
+      "left_source": "b",
+      "right_source": "a"
+    },
+    {
+      "case_id": "case-c731a5b63222d030c095",
+      "pair_id": "QP-H11",
+      "left_source": "b",
+      "right_source": "a"
+    },
+    {
+      "case_id": "case-bdf3977719722be5e605",
+      "pair_id": "QP-H03",
+      "left_source": "a",
+      "right_source": "b"
+    },
+    {
+      "case_id": "case-be216f48191db86f8291",
+      "pair_id": "QP-H10",
+      "left_source": "b",
+      "right_source": "a"
+    },
+    {
+      "case_id": "case-a5876dfc52b80a7dd42b",
+      "pair_id": "QP-H14",
+      "left_source": "a",
+      "right_source": "b"
+    },
+    {
+      "case_id": "case-16efd34598bbca8084dd",
+      "pair_id": "QP-H26",
+      "left_source": "a",
+      "right_source": "b"
+    },
+    {
+      "case_id": "case-157ead666928304e197a",
+      "pair_id": "QP-H24",
+      "left_source": "b",
+      "right_source": "a"
+    },
+    {
+      "case_id": "case-e1e543d31712ddcb77e3",
+      "pair_id": "QP-H12",
+      "left_source": "b",
+      "right_source": "a"
+    },
+    {
+      "case_id": "case-b71308ecdda785ab0b12",
+      "pair_id": "QP-H23",
+      "left_source": "b",
+      "right_source": "a"
+    },
+    {
+      "case_id": "case-e39e25e4bce4543e86a2",
+      "pair_id": "QP-H27",
+      "left_source": "b",
+      "right_source": "a"
+    },
+    {
+      "case_id": "case-08b2a5b285608ce3348f",
+      "pair_id": "QP-H28",
+      "left_source": "b",
+      "right_source": "a"
+    }
+  ],
+  "note": "조정자용. 검토자에게 공유하지 않는다. 원래 라벨이나 모델 답은 포함하지 않는다.",
+  "review_material_sha256": {
+    "pairs.md": "d7bd2b826c25c47f8e9eff9618b042d20cc3217f5caf3723c11a43e8af161763",
+    "instructions.md": "763932f6a8eff77c53a567ba7c7348f42e8b7726749d1d88ec22170337affdf4"
+  }
+}
