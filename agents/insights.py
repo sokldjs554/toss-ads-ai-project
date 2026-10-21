@@ -31,7 +31,7 @@ from guardrails.grounding import extract_quantities
 from guardrails.injection import spotlight
 from llm.base import LLMRequest, Task
 
-INSIGHT_PROMPT_VERSION = "2026.10.20.5"
+INSIGHT_PROMPT_VERSION = "2026.10.21.1"
 MAX_SENTENCE_CHARS = 260
 MAX_FINDINGS = 20
 MAX_ACTIONS = 4
@@ -207,6 +207,20 @@ _NEGATED = re.compile(r"가능성(?:은|이)\s*(?:낮|적|없)|아닌\s*것|아�
 _UNDETERMINED = re.compile(r"정하기\s*어렵|알\s*수\s*없|확정할\s*수(?:는)?\s*없|가르지\s*못")
 _ASSERT = re.compile(r"원인은|원인이었|원인입니다|원인이에요|때문입니다|때문이에요|때문이다|탓입니다|확실|틀림없|분명|명백|단정")
 _DEFINITE_CAUSE = re.compile(r"원인은[^.!?()]{0,100}(?:입니다|이에요)|원인(?:입니다|이에요)|(?:확실|분명|명백)(?:합니다|하다|해요)|틀림없(?:습니다|다)|때문(?:입니다|이에요|이다)")
+# 절 전체가 판단 유보인 경우만 허용한다. '단정할 수 없다'가 포함됐다는
+# 이유로 뒤따르는 별도의 원인 주장을 건너뛰거나 이중 부정을 허용하지 않는다.
+_CAUSAL_RESERVATION = re.compile(
+    r"(?:(?:다만|그러나|하지만|아직|현재|지금|이는|이것(?:만)?으로|"
+    r"(?:관측|자료|데이터|결과)(?:만)?으로)\s*)*"
+    r"(?:(?:원인(?:을|은|이)?|정상(?:이라고|이라|이라는\s*것을|으로)?)\s*"
+    r"단정(?:할\s*수(?:는|도)?\s*없(?:습니다|어요|다|고|지만|으며|으나)|"
+    r"하기\s*어렵(?:습니다|다|고|지만))|"
+    r"원인\s*단정이\s*아니라\s*확인(?:이)?\s*필요한\s*가설(?:입니다|이에요))"
+)
+_REVERSED_RESERVATION = re.compile(
+    r"단정(?:할\s*수(?:는|도)?\s*없|하기\s*어렵)(?:지\s*않|다는\s*"
+    r"(?:(?:뜻|말|의미)(?:은|는|이)?|것(?:은|이)?|건)\s*(?:사실이\s*)?아(?:니|닙))"
+)
 _CHECK_FORM = re.compile(r"(?:점검|확인|비교|대조)(?:하세요|해\s*보세요|해\s*주세요|합니다|하는|해야|을\s*권)")
 _CHANGE_CHECK = re.compile(r"(?:확인|점검|대조|검증).*(?:경우|뒤|후|때|다음|먼저)|(?:먼저|사전).*(?:확인|점검|대조|검증)")
 _ALL_CLEAR = re.compile(r"이상(?:은|이)?\s*없|문제(?:는|가)?\s*없|정상(?:입니다|이에요|범위)|걱정(?:할\s*필요)?\s*없")
@@ -280,6 +294,10 @@ def causal_issue(text: str, cited_causes: set[str], cause_conf: dict) -> str:
         # 단정 뒤에 괄호로 단서나 점수를 붙여도 원인 단정이 없어지는 것은 아니다.
         if _DEFINITE_CAUSE.search(clause):
             return "cause_overclaim:" + next(iter(sorted(mentioned or cited_causes)), "unknown") + ":관측으로 원인 단정"
+        if _REVERSED_RESERVATION.search(clause):
+            return "cause_overclaim:" + next(iter(sorted(mentioned or cited_causes)), "unknown") + ":판단 유보의 의미를 뒤집음"
+        if _CAUSAL_RESERVATION.fullmatch(clause.strip()):
+            continue
         if _UNDETERMINED.search(clause):
             continue
         asserting = bool(_ASSERT.search(clause))

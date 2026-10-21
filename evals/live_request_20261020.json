@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "run_id": "features-20261020-run2",
-  "created_at": "2026-10-20T15:41:48.051865+00:00",
-  "authorization": "User explicitly authorized using existing GitHub Secrets and paid API calls on 2026-10-20. Session cumulative reservation cap is USD10; this run reserves USD4.",
-  "cost_cap_usd": 4,
+  "run_id": "features-20261020-run3",
+  "created_at": "2026-10-21T01:36:16.431641+00:00",
+  "authorization": "User explicitly authorized existing GitHub Secrets and paid API calls. Session cumulative reservation cap stays USD10; this final run reserves the remaining USD2.",
+  "cost_cap_usd": 2,
   "max_calls": 300,
   "groups": [
     "vision",
@@ -43,7 +43,7 @@
     "agents/copywriter.py": "4d7c512c31514dfc126279353b32cff24ccb3efd6086715cab7ee8a8bbb9c9cc",
     "agents/creative_review.py": "215e2a796471d9735b02254f0c6d121375c00043ac0cb807794bfbb4ce19ef09",
     "agents/crosscheck.py": "1d365900dd059fd28260d14660f67305186f03f4176076177d185e822982efb3",
-    "agents/insights.py": "df0723ea1a4b31975cf970a69a1d038a9bd53430ebe825b4b1d4cb6f6d473213",
+    "agents/insights.py": "364e6dcd1db3c05d551907d47b93dbc99cd00e1e38cb60e64f5b968266b64cb0",
     "agents/personas.py": "9a8bb68a305eb2360a072e2a7eb800c4d5c1fc6b672a2e4305f9548c78d9a70c",
     "agents/pipeline.py": "7b0e2ee4d5299329fed6e79f269a2d93960a48bcba3e634aaddbd0bbc8ae8b9d",
     "agents/planner.py": "a1534545c4d6deacb03ec5c8442af129b0d38ef54b1818dac5b242510049b1ff",
@@ -142,18 +142,16 @@
     "pipeline": 4
   },
   "sample_selection": "Before any paid call: all frozen vision12 and dialog20, all existing quality holdout28 with both orders, 12 performance scenarios covering normal, each incident, low-volume and ambiguous inputs, four fictional end-to-end briefs.",
-  "evaluation_role": "Same-input actual-provider regression after reviewing run1. All inputs, labels, model selection and planned case counts are unchanged. This is not an unseen holdout or independent human validation.",
+  "evaluation_role": "Same-input actual-provider regression after reviewing run2. All inputs, labels, model selection and planned case counts remain unchanged. This is not an unseen holdout or independent human validation.",
   "annotation_caveats": {
     "h26-d04": "Original author ready label omits missing adult lower bound for an investment target; keep original label.",
     "h26-d05": "Original label omits project BUDGET_LOW warning; keep original label.",
     "h26-d12": "Original label omits project BUDGET_LOW warning; keep original label."
   },
-  "follows_run_id": "features-20261020-run1",
+  "follows_run_id": "features-20261020-run2",
   "changes_since_previous_run": [
-    "Reject ungrounded generic product names; fix explicit name particle boundaries with positive counterexamples.",
-    "Interpret adult lower and upper bounds only within the same target condition; keep actual minor groups and ambiguous unions blocked.",
-    "Preserve validated engine evidence through final insight report assembly and audit the assembled result.",
-    "Record each conversation turn plan, repair notes, accepted slot evidence and rejected proposal details for diagnosis.",
-    "URL parser repairs are included in the source snapshot but external URL ingestion is outside these five paid groups."
+    "Keep complete clauses that explicitly reserve causal or normality judgment instead of dropping them for the word assertion. Do not allow the phrase to hide a separate causal claim or double negation.",
+    "Replay the two preserved second-run summaries without inventing unrecorded model text or citations; retain both earlier reports unchanged.",
+    "No changes to conversation, vision, quality preference labels, or pipeline evaluation inputs. All five frozen groups are rerun under the original evaluation contract."
   ]
 }

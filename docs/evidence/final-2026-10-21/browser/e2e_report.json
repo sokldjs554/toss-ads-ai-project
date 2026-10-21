@@ -1,0 +1,630 @@
+{
+ "commit": "3e3f830",
+ "run_at_utc": "2026-10-21T01:25:49.394575+00:00",
+ "browser": "134.0.6998.35",
+ "playwright": "1.51.0",
+ "streamlit": "1.66.0",
+ "python": "3.11.17",
+ "viewports": [
+  "desktop",
+  "mobile"
+ ],
+ "checks": 122,
+ "failed": 0,
+ "per_viewport": {
+  "desktop": 61,
+  "mobile": 61
+ },
+ "results": [
+  {
+   "viewport": "desktop",
+   "check": "첫 화면: 시작하기·예시 선택·바로 실행이 위에 있다",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "첫 화면: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "첫 화면: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "스타일 적용: 본문 최대 너비 1120px",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "예시 실행 표시(실제 AI 호출 없음)",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "광고안 1: 수정할 문구 → 수정 내역 → 다음 작업 순서",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "판정 이름이 읽히는 말이다",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "전문 용어 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "예시 실행 뒤: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "예시 실행 뒤: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "재검사: 편집한 문구가 검사 대상으로 표시됨",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "재검사: 이 문구 검사 1번 시도 표시",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "재검사 뒤: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "재검사 뒤: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "성공한 같은 문구는 다시 부르지 않고 재사용 (시도 횟수가 늘지 않음)",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "실패: 통과로 보지 않는다고 알린다",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "실패: 버튼이 ‘같은 문구로 다시 시도’ 로 바뀜",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "확인 요청문 생성(수정본 재검사)",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "호출 실패 뒤: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "호출 실패 뒤: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "요청문에 지금 편집한 문구와 이 재검사의 처리 기록이 들어 있다",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "재시도 성공 뒤에도 첫 실패가 기록에 남는다",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "재시도 뒤: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "재시도 뒤: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "문구를 바꾸면 이전 결과가 현재 결과로 보이지 않는다",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "문구 변경 뒤: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "문구 변경 뒤: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "브라우저 오류 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "시작 방법 세 가지가 보인다",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "대화: 말한 값이 ‘지금까지 이해한 내용’ 에 나온다 (업종·예산)",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "대화: 예시 실행(규칙 기반) 표시",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "대화 한 번 뒤: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "대화 한 번 뒤: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "대화: 월 예산이 입력 칸에 3,000,000원으로 들어갔다",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "대화: 시작 방법이 다시 ‘예시로 시작’ 이다",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "입력 칸 채운 뒤: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "입력 칸 채운 뒤: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "상품 페이지: 사실 후보가 보이고 기본은 아무것도 고르지 않았다",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "예시 페이지 읽은 뒤: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "예시 페이지 읽은 뒤: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "상품 페이지: 고른 사실이 ‘반드시 포함해야 할 조건’ 칸에 들어갔다",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "상품 페이지 내용을 채운 뒤: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "상품 페이지 내용을 채운 뒤: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "광고안마다 ‘소재 퀄리티 (참고)’ 가 붙는다",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "배너: 시안이 3개 보인다",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "배너 시안을 연 뒤: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "배너 시안을 연 뒤: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "이미지 검사: 이미지 속 ‘원금 보장’ 이 문구 규칙으로 걸린다",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "이미지 검사 뒤: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "이미지 검사 뒤: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "성과 리포트: 이상·원인 후보·다음 액션이 나온다",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "성과 리포트: 합성 데이터와 ‘원인을 확정하지 않는다’ 가 표시된다",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "성과 리포트 분석 뒤: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "성과 리포트 분석 뒤: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "운영: 효과 계산기에 ‘실제 운영 효과가 아닙니다’ 가 붙는다",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "운영 화면: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "운영 화면: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "새 기능 평가: 합성 데이터 경고와 한계가 보인다",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "새 기능 평가: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "새 기능 평가: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "desktop",
+   "check": "브라우저 오류 없음 (새 기능)",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "첫 화면: 시작하기·예시 선택·바로 실행이 위에 있다",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "첫 화면: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "첫 화면: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "스타일 적용: 모바일 좌우 여백 16px",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "예시 실행 표시(실제 AI 호출 없음)",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "광고안 1: 수정할 문구 → 수정 내역 → 다음 작업 순서",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "판정 이름이 읽히는 말이다",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "전문 용어 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "예시 실행 뒤: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "예시 실행 뒤: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "재검사: 편집한 문구가 검사 대상으로 표시됨",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "재검사: 이 문구 검사 1번 시도 표시",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "재검사 뒤: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "재검사 뒤: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "성공한 같은 문구는 다시 부르지 않고 재사용 (시도 횟수가 늘지 않음)",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "실패: 통과로 보지 않는다고 알린다",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "실패: 버튼이 ‘같은 문구로 다시 시도’ 로 바뀜",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "확인 요청문 생성(수정본 재검사)",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "호출 실패 뒤: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "호출 실패 뒤: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "요청문에 지금 편집한 문구와 이 재검사의 처리 기록이 들어 있다",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "재시도 성공 뒤에도 첫 실패가 기록에 남는다",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "재시도 뒤: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "재시도 뒤: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "문구를 바꾸면 이전 결과가 현재 결과로 보이지 않는다",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "문구 변경 뒤: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "문구 변경 뒤: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "브라우저 오류 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "시작 방법 세 가지가 보인다",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "대화: 말한 값이 ‘지금까지 이해한 내용’ 에 나온다 (업종·예산)",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "대화: 예시 실행(규칙 기반) 표시",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "대화 한 번 뒤: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "대화 한 번 뒤: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "대화: 월 예산이 입력 칸에 3,000,000원으로 들어갔다",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "대화: 시작 방법이 다시 ‘예시로 시작’ 이다",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "입력 칸 채운 뒤: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "입력 칸 채운 뒤: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "상품 페이지: 사실 후보가 보이고 기본은 아무것도 고르지 않았다",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "예시 페이지 읽은 뒤: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "예시 페이지 읽은 뒤: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "상품 페이지: 고른 사실이 ‘반드시 포함해야 할 조건’ 칸에 들어갔다",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "상품 페이지 내용을 채운 뒤: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "상품 페이지 내용을 채운 뒤: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "광고안마다 ‘소재 퀄리티 (참고)’ 가 붙는다",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "배너: 시안이 3개 보인다",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "배너 시안을 연 뒤: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "배너 시안을 연 뒤: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "이미지 검사: 이미지 속 ‘원금 보장’ 이 문구 규칙으로 걸린다",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "이미지 검사 뒤: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "이미지 검사 뒤: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "성과 리포트: 이상·원인 후보·다음 액션이 나온다",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "성과 리포트: 합성 데이터와 ‘원인을 확정하지 않는다’ 가 표시된다",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "성과 리포트 분석 뒤: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "성과 리포트 분석 뒤: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "운영: 효과 계산기에 ‘실제 운영 효과가 아닙니다’ 가 붙는다",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "운영 화면: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "운영 화면: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "새 기능 평가: 합성 데이터 경고와 한계가 보인다",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "새 기능 평가: 예외 표시 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "새 기능 평가: 가로 넘침 없음",
+   "ok": true
+  },
+  {
+   "viewport": "mobile",
+   "check": "브라우저 오류 없음 (새 기능)",
+   "ok": true
+  }
+ ]
+}
