@@ -887,7 +887,7 @@ def period_text(value: Any) -> str:
 # ---------------------------------------------------------------------------
 _NAME_QUOTED = re.compile(r"[“\"'‘「『](?P<n>[^“”\"'‘’「」『』\n]{2,30})[”\"'’」』]\s*(?:이?라는|이?란|을|를|은|는|이|가|\s*(?:상품|앱|서비스|브랜드|제품|쇼핑몰))")
 _NAME_LABEL = re.compile(r"(?:상품명|제품명|서비스명|브랜드명|앱\s*이름|브랜드\s*이름|상품\s*이름|이름)\s*(?:은|는|이|:|：)\s*(?P<n>[^\s,.!?]{1,20}(?:\s[^\s,.!?]{1,12}){0,2})")
-_NAME_CALLED = re.compile(r"(?P<n>[가-힣A-Za-z0-9]+(?:\s[가-힣A-Za-z0-9]+){0,2}?)\s*(?:이?라는|이?라고\s*하는)\s*(?:상품|앱|서비스|브랜드|제품|쇼핑몰|회사)")
+_NAME_CALLED = re.compile(r"(?P<n>[가-힣A-Za-z0-9]+?(?:\s[가-힣A-Za-z0-9]+?){0,2}?)\s*(?P<called>이?라는|이?라고\s*하는)\s*(?:상품|앱|서비스|브랜드|제품|쇼핑몰|회사)")
 _NAME_ORG = re.compile(r"(?P<n>[가-힣A-Za-z0-9]{2,12}(?:은행|증권|뱅크|캐피탈|저축은행|카드|생명|화재|손해보험|페이)\s+[가-힣A-Za-z0-9]{2,12}(?:대출|카드|보험|펀드|적금|예금|통장|론))")
 _NAME_MALL = re.compile(r"(?<![가-힣A-Za-z0-9])(?P<n>[가-힣A-Za-z0-9]{1,12}(?:몰|스토어|마켓|클럽))(?![가-힣A-Za-z0-9])")
 _NAME_STRIP = re.compile(r"(?:이에요|예요|입니다|이고|이며|이라서|으로|에서|에게|하고|을|를|은|는|이|가|의|로|도|만|요)$")
@@ -900,6 +900,12 @@ def _extract_name(text: str, consumed: list[tuple[int, int]]) -> list[Candidate]
             name = m.group("n").strip()
             if pat is _NAME_LABEL:
                 name = _NAME_STRIP.sub("", name).strip()
+            elif (pat is _NAME_CALLED and m.group("called").startswith("이")
+                  and m.start("called") == m.end("n") and "가" <= name[-1] <= "힣"
+                  and (ord(name[-1]) - ord("가")) % 28 == 0):
+                # 받침 없는 이름 뒤에는 '라는'이 붙는다. '파이라는'의 이는
+                # 이름 일부이며, '차곡차곡이라는'의 이는 받침 뒤 조사다.
+                name += "이"
             if not (1 < len(name) <= 30) or name in ("상품", "서비스", "앱", "브랜드", "제품", "쇼핑몰", "온라인몰", "스토어", "마켓", "클럽", "이커머스"):
                 continue
             s = text.find(name, m.start())

@@ -95,6 +95,12 @@ class TurnRecord:
     slot_status: dict[str, str]
     dropped: int
     failures: list[str]
+    # 판정 코드만으로 실제 잘못된 설정과 검사 오류를 구분할 수 없다.
+    # 매 턴의 복사본을 저장해 이후 수정으로 앞선 판단 근거가 사라지지 않게 한다.
+    plan_snapshot: Optional[dict[str, Any]] = None
+    plan_notes: list[str] = field(default_factory=list)
+    slot_evidence: dict[str, dict[str, Any]] = field(default_factory=dict)
+    dropped_updates: list[dict[str, Any]] = field(default_factory=list)
 
 
 @dataclass
@@ -123,7 +129,11 @@ def run_dialog(d: dict, settings: Optional[Settings] = None, *, router: Optional
             run.turns.append(TurnRecord(
                 index=i, message=msg, asked=[q.slot for q in res.questions], status=st.status, ready=res.ready, user_turns=st.user_turns,
                 issue_codes=[x.code for x in st.issues], slot_status={k: v.status for k, v in st.slots.items()}, dropped=len(res.dropped_updates),
-                failures=[f.code for f in res.failures]))
+                failures=[f.code for f in res.failures],
+                plan_snapshot=st.plan_preview.model_dump(mode="json") if st.plan_preview else None,
+                plan_notes=list(st.plan_notes),
+                slot_evidence={key: slot.model_dump(mode="json") for key, slot in st.slots.items()},
+                dropped_updates=[update.model_dump(mode="json") for update in res.dropped_updates]))
     except Exception as e:  # noqa: BLE001 — 한 대화가 예외로 끝나면 그 사실이 곧 실패다 (평가 전체를 멈추지 않는다)
         run.error = f"{type(e).__name__}: {e}"
     run.final = st

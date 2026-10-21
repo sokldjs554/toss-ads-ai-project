@@ -31,7 +31,7 @@ from guardrails.grounding import extract_quantities
 from guardrails.injection import spotlight
 from llm.base import LLMRequest, Task
 
-INSIGHT_PROMPT_VERSION = "2026.10.20.4"
+INSIGHT_PROMPT_VERSION = "2026.10.20.5"
 MAX_SENTENCE_CHARS = 260
 MAX_FINDINGS = 20
 MAX_ACTIONS = 4
@@ -521,6 +521,30 @@ def count_unsupported_numbers(rep: InsightReport) -> int:
     return n
 
 
+def _restore_report_evidence(rep: InsightReport, template_findings: list[ReportSentence]) -> None:
+    """제목·요약의 근거를 최종 findings에도 남긴다. 모델 문장으로 새 근거를 만들지 않는다."""
+    ctx = _ctx_from(rep.analysis)
+    cited = {eid for finding in rep.findings for eid in finding.evidence_ids}
+    action_ids = dict.fromkeys(eid for action in rep.actions for eid in action.evidence_ids)
+    candidates = [ReportSentence(ctx.evidence[eid]["text"], [eid]) for eid in action_ids if eid in ctx.evidence]
+    candidates += template_findings
+    for extra in candidates:
+        numbers = [number for eid in cited if eid in ctx.evidence for number in ctx.evidence[eid]["numbers"]]
+        missing = [quantity for text in (rep.headline, rep.summary) for quantity in sentence_quantities(text, ctx.names)
+                   if not _num_matches(quantity, numbers)]
+        if not missing:
+            break
+        extra_numbers = [number for eid in extra.evidence_ids if eid in ctx.evidence for number in ctx.evidence[eid]["numbers"]]
+        if not any(_num_matches(quantity, extra_numbers) for quantity in missing):
+            continue
+        if check_sentence(extra.text, extra.evidence_ids, ctx)[0]:
+            continue
+        rep.findings.append(extra)
+        cited.update(extra.evidence_ids)
+        if "evidence" not in rep.filled_from_template:
+            rep.filled_from_template.append("evidence")
+
+
 def build_report(rows: list[MetricRow], *, router: Any, settings: Optional[Settings] = None, period: Optional[tuple] = None, data_origin: str = "user",
                  analysis: Optional[Analysis] = None) -> InsightReport:
     """성과 행 → 보고서. router 가 없거나 모델 호출이 실패하면 템플릿으로 만든다. `data_origin` 은 "synthetic" 또는 "user"."""
@@ -575,23 +599,25 @@ def build_report(rows: list[MetricRow], *, router: Any, settings: Optional[Setti
             if extra is not None:
                 findings.insert(0, extra)
                 filled.append("incident")
-    # 제목·요약을 교체했다면 그 문장에 필요한 수치 근거도 보고서에 남긴다.
-    # 모델이 구간 id만 인용했을 때 템플릿 제목의 변화율이 근거 없이 보이는 것을 막는다.
-    fallback_texts = [text for where, text in (("headline", headline), ("summary", summary)) if where in filled]
-    if fallback_texts:
-        ctx = _ctx_from(analysis)
-        cited_ids = {i for f in findings for i in f.evidence_ids}
-        for extra in f_t:
-            if not any(check_sentence(text, [], ctx, require_ids=False, pool_ids=list(cited_ids))[0] for text in fallback_texts):
-                break
-            if not set(extra.evidence_ids).issubset(cited_ids):
-                findings.append(extra)
-                cited_ids.update(extra.evidence_ids)
-                if "fallback_evidence" not in filled:
-                    filled.append("fallback_evidence")
     if not actions:
         actions, filled = a_t, filled + ["actions"]
     rep = InsightReport(headline=headline, summary=summary, findings=findings, actions=actions, narrative_source="template" if mock else "model",
                         dropped_sentences=dropped, provider=resp.provider, model=resp.model, mock_used=mock, filled_from_template=filled, **base)
+    # 초기 검사는 action 인용도 사용한다. 조립 후에는 실제로 표시할 findings의 인용으로 다시 확인한다.
+    _restore_report_evidence(rep, f_t if {"headline", "summary"} & set(filled) else [])
+    problems = audit_report(rep)
+    for problem in problems:
+        if problem["where"] in ("headline", "summary"):
+            rep.dropped_sentences.append(DroppedSentence(**problem))
+            setattr(rep, problem["where"], h_t if problem["where"] == "headline" else s_t)
+            if problem["where"] not in rep.filled_from_template:
+                rep.filled_from_template.append(problem["where"])
+    if problems:
+        _restore_report_evidence(rep, f_t)
+    remaining = audit_report(rep)
+    if remaining:
+        rep.dropped_sentences.extend(DroppedSentence(**problem) for problem in remaining)
+        return template_report("final_report_invalid", rep.dropped_sentences, provider=resp.provider, model=resp.model,
+                               mock_used=mock, filled_from_template=["all"])
     rep.unsupported_numbers = count_unsupported_numbers(rep)
     return rep

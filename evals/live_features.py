@@ -207,8 +207,10 @@ class FeatureRun:
                         "model_path": {"rejected_proposals": sum(t.dropped for t in run.turns),
                                        "rule_model_disagreement_turns": sum("FM-26" in t.failures for t in run.turns),
                                        "reply_fallback_turns": sum("FM-28" in t.failures for t in run.turns)},
-                        "slots": {key: {"value": slot.value, "status": slot.status} for key, slot in run.final.slots.items()},
-                        "status": run.final.status, "plan_total": run.plan_total, "plan_sets": run.plan_sets}
+                        "slots": {key: slot.model_dump(mode="json") for key, slot in run.final.slots.items()},
+                        "status": run.final.status, "plan_total": run.plan_total, "plan_sets": run.plan_sets,
+                        "plan": run.final.plan_preview.model_dump(mode="json") if run.final.plan_preview else None,
+                        "plan_notes": list(run.final.plan_notes)}
             self.case("conversation", dialog["id"], measure)
 
     def insights(self) -> None:

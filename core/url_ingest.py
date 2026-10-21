@@ -673,6 +673,9 @@ _EXTRA_INJECTION: list[tuple[str, re.Pattern]] = [(rid, re.compile(p, re.IGNOREC
     ("URLINJ-AI-01", r"(?:(?<![a-z])(?:ai|llm|assistant|chatbot)(?![a-z])|인공지능|어시스턴트|언어\s*모델|챗봇|검수\s*모델|심사\s*모델)"
                      r"(?:은|는|에게|야|님|가|이)?[^.\n]{0,40}(?:말|출력|판정|따르|응답|답변|답|작성|평가|승인|무시|반복|기억|복사|전달|분류|표시|판단|인정|추천|생성)(?:하세요|하십시오|하라|해라|해\s*줘|해\s*주세요|하도록|해야)"),
     ("URLINJ-AI-02", r"(이\s*(글|문서|페이지|내용)[을를]?\s*읽는|읽고\s*있는)\s*((?<![a-z])ai(?![a-z])|인공지능|어시스턴트|assistant|모델|llm|언어\s*모델|봇)"),
+    ("URLINJ-AI-03", r"(?:모델|봇|(?:검수|심사|검토)\s*(?:도구|시스템))(?:은|는|에게|이|가|라면)"
+                     r"[^.\n]{0,100}(?:쓰|넣|포함|출력|기록|처리|판정|응답|답변|작성)"
+                     r"[^.\n]{0,24}(?:것이\s*좋|권장|해야|하십시오|해\s*주|하세요|하라|해라)"),
     ("URLINJ-SYS-01", r"(system\s*prompt|시스템\s*프롬프트)\s*(을|를)?\s*(출력|보여|공개|무시|변경|reveal|print|show)"),
     ("URLINJ-WRITE-01", r"(광고|문구|카피|소재)[^.\n]{0,24}(반드시|꼭|무조건)[^.\n]{0,30}(포함|넣어|써|쓰|적어|강조)[^.\n]{0,10}(하세요|해라|하라|십시오|줘|주세요|야\s*합니다)"),
     ("URLINJ-EN-01", r"\b(ignore|disregard|forget)\b[^.\n]{0,30}\b(previous|prior|above|earlier|all)\b[^.\n]{0,20}\b(instructions?|prompts?|rules?|context)\b"),
@@ -681,11 +684,22 @@ _EXTRA_INJECTION: list[tuple[str, re.Pattern]] = [(rid, re.compile(p, re.IGNOREC
     ("URLINJ-TOKEN-01", r"(<\|im_start\|>|<\|im_end\|>|\[/?inst\]|<<sys>>|###\s*(instruction|system|assistant))"),
 )]
 
+_REVIEW_PROCESS = re.compile(r"(?:심사|검토)(?:를|을)?\s*(?:거쳐|후|마친|통과한|결과에\s*따라)")
+_MACHINE_OR_OVERRIDE = re.compile(r"모델|봇|시스템|도구|(?<![a-z])(?:ai|llm|assistant)(?![a-z])|무조건|확인\s*없이|상관없이", re.I)
+
+
+def _review_process_description(text: str, start: int, end: int) -> bool:
+    """명령형과 구분되는 조건부 심사 절차 설명만 공유 승인 패턴에서 제외한다."""
+    before = re.split(r"[.!?\n]", text[max(0, start - 100):start])[-1]
+    return bool(_REVIEW_PROCESS.search(before) and not _MACHINE_OR_OVERRIDE.search(before)
+                and re.match(r"됩니다(?:\s*[.!?\n]|$)", text[end:]))
+
 
 def _injection_spans(text: str) -> tuple[list[tuple[int, int, str]], int]:
     """(탐지 구간 [(시작, 끝, 규칙 id)] — 원문 위치, 보이지 않는 문자 수). 공유 인젝션 규칙 + 페이지용 보강 패턴."""
     res = injection.scan_text(text)
-    spans = [(f.start, f.end, f.rule_id) for f in res.findings if f.start >= 0 and f.end > f.start]
+    spans = [(f.start, f.end, f.rule_id) for f in res.findings if f.start >= 0 and f.end > f.start
+             and not (f.rule_id == "INJ-APPROVE-01" and _review_process_description(text, f.start, f.end))]
     norm = normalize(text)
     for surface in norm.surfaces():
         for rid, pat in _EXTRA_INJECTION:
@@ -1048,6 +1062,7 @@ _BLOCK_START = _BLOCK | {"dt"}          # <dt> 는 시작할 때만 줄을 끊�
 _BLOCK_END = _BLOCK | {"dd"}            # <dd> 는 끝날 때만 줄을 끊는다
 _CELL_SEP = {"th": ": ", "dt": ": ", "td": " / "}     # 표의 머리칸·정의 목록의 항목은 값과 한 줄로 이어 붙인다 ('소재: 면 100%')
 _EXCLUDE_TAGS = frozenset({"nav", "footer", "aside"})                 # 본문 요약·사실 후보에서 뺀다 (메뉴·바닥글·추천 영역)
+_RELATED_REGION = re.compile(r"^(?:related(?:[-_](?:products?|items?|goods))?|recommended[-_](?:products?|items?|goods)|cross[-_]sell|up[-_]sell)$", re.I)
 _STOP_FOR = {"li": {"ul", "ol", "menu"}, "dt": {"dl"}, "dd": {"dl"}, "tr": {"table", "tbody", "thead", "tfoot"}, "td": {"tr", "table"}, "th": {"tr", "table"},
              "option": {"select", "datalist"}}
 _CLOSES = {"li": {"li"}, "dt": {"dt", "dd"}, "dd": {"dt", "dd"}, "tr": {"tr", "td", "th"}, "td": {"td", "th"}, "th": {"td", "th"}, "option": {"option"}}
@@ -1065,6 +1080,7 @@ _LIST_LABEL = re.compile(r"(정가|소비자가|정상가|원가|시중가|권�
 _COND_LABEL = re.compile(r"(쿠폰|카드|회원|첫\s*구매|앱\s*전용|신규|웰컴|결제\s*할인|추가\s*할인|적용)")
 _OTHER_BEFORE = re.compile(r"(배송비|배송|적립|포인트|캐시백|사은품|최소|최대|보증금|연회비|수수료|설치비|할부|상품권)")
 _OTHER_AFTER = re.compile(r"^\s*(이상|이하|미만|초과|할인\s*쿠폰|쿠폰|적립|포인트|캐시백|추가|별도)")
+_FINANCIAL_AMOUNTS = re.compile(r"상환|원리금|대출\s*(?:원금|금액|한도)|(?:예금|적금)[^.\n]{0,20}납입")
 _SALE_LABEL = re.compile(r"(할인가|특가|세일가|혜택가|최종|판매가|오늘만|지금|회원가|구매가|결제\s*금액|가격|price)", re.IGNORECASE)
 _BEFORE_LABELS = ((_LIST_LABEL, "list"), (_OTHER_BEFORE, "other"), (_COND_LABEL, "conditional"), (_SALE_LABEL, "sale"))
 _PURCHASE = re.compile(r"(구매하기|바로\s*구매|장바구니|주문하기|결제하기|담기|add\s+to\s+cart|buy\s+now|구매\s*하기|옵션\s*선택|신청하기|가입하기|가입\s*신청|상담\s*신청|한도\s*조회|발급\s*신청|예약하기|무료\s*체험|다운로드|설치하기)", re.IGNORECASE)
@@ -1159,6 +1175,7 @@ class _PageParser(HTMLParser):
         self._chrome: list[str] = []
         self._line_card: Optional[_El] = None
         self.body_prices: list[PriceInfo] = []
+        self.price_lines: list[tuple[str, list[PriceInfo]]] = []
         self.hidden: list[HiddenText] = []
         self._hidden_chars = 0
         self._hidden_root = -1
@@ -1265,6 +1282,8 @@ class _PageParser(HTMLParser):
         if found and card is not None:
             card.has_price = True
         self.body_prices.extend(found)
+        if found:
+            self.price_lines.append((line, found))
 
     def _scan_prices(self, line: str, strikes: list[tuple[int, int]]) -> list[PriceInfo]:
         found: list[tuple[int, int, int]] = []
@@ -1290,7 +1309,9 @@ class _PageParser(HTMLParser):
             before = line[max(prev_end, start - 12):start]
             after = line[end:end + 10]
             kind = "unknown"
-            if any(a < end and b > start for a, b in strikes):
+            if _FINANCIAL_AMOUNTS.search(line):
+                kind = "other"       # 상환 예시의 원금·월 납입금은 상품 판매가가 아니다. 원문 사실은 보존한다.
+            elif any(a < end and b > start for a, b in strikes):
                 kind = "list"
             else:
                 nearest = -1
@@ -1349,7 +1370,7 @@ class _PageParser(HTMLParser):
         el.hidden = reason
         if tag in ("del", "s", "strike") or props.get("text-decoration", "").find("line-through") >= 0 or props.get("text-decoration-line", "") == "line-through":
             el.strike = True
-        if tag in _EXCLUDE_TAGS:
+        if tag in _EXCLUDE_TAGS or any(_RELATED_REGION.fullmatch(value) for value in (*classes, ident)):
             el.exclude = True
         if tag in ("button", "select", "option", "datalist"):
             el.ui = True            # 버튼·선택 상자의 글자는 본문이 아니다 (구매 단서로만 본다)
@@ -1452,7 +1473,7 @@ class _PageParser(HTMLParser):
         return None
 
     def _image(self, a: dict[str, str], hidden_ctx: bool) -> None:
-        if hidden_ctx or self._in(_EXCLUDE_TAGS) or len(self.images) >= MAX_IMAGES * 3:
+        if hidden_ctx or any(el.exclude for el in self.stack) or len(self.images) >= MAX_IMAGES * 3:
             return
         src = a.get("src") or a.get("data-src") or a.get("data-original") or a.get("data-lazy-src") or ""
         if not src and a.get("srcset"):
@@ -1861,7 +1882,10 @@ def _parse_into(ext: PageExtract, source: str | bytes, url: str, charset: Option
             ext.sentences.append(Sentence(text=s, evidence=clean_text(line, EVIDENCE_MAX)))
     ext.injection_hits = hits
     ext.visible_chars = parser.visible_chars
-    ext.body_prices = parser.body_prices
+    # 가격도 그 문장과 같은 신뢰 경계를 통과해야 한다. 지시문에서 숫자만
+    # 따로 떼어 가격으로 보존하면 본문 격리가 무의미해진다.
+    price_flags = _flag_texts([line for line, _ in parser.price_lines])
+    ext.body_prices = [price for (_line, prices), flag in zip(parser.price_lines, price_flags) if not flag for price in prices]
 
     # 이미지: og:image 먼저, 그다음 JSON-LD, 본문
     imgs: list[str] = []
@@ -2010,12 +2034,12 @@ def guess_category(ext: PageExtract, name: str = "") -> tuple[ProductCategory, b
 def _strip_site(title: str, site_name: str, h1: str) -> str:
     t = title
     if site_name:
-        stripped = re.sub(r"\s*[|｜\-–—:·]\s*" + re.escape(site_name) + r"\s*$", "", t)
+        stripped = re.sub(r"\s*(?:[|｜\-–—·]|:{1,2})\s*" + re.escape(site_name) + r"\s*$", "", t)
         if stripped != t:
             return stripped          # 사이트 이름을 알고 떼어 냈다면 나머지는 상품 이름이다 — 이름 안의 '-' 는 건드리지 않는다
     if h1 and h1 != t and h1 in t and (t.startswith(h1) or t.endswith(h1)):
         return h1
-    parts = re.split(r"\s+[|｜–—·]\s+|\s+-\s+", t)
+    parts = re.split(r"\s+[|｜–—·]\s+|\s+(?:-|::)\s+", t)
     return parts[0] if len(parts) > 1 and len(parts[0]) >= 2 else t
 
 
@@ -2258,6 +2282,10 @@ def _judge(ext: PageExtract) -> tuple[ReadStatus, str, list[str]]:
     score += 2 if (js or og_p is not None) else 0
     score += 1 if body_price else 0
     score += 1 if sig.purchase_words else 0
+    # 가격만 동적으로 그려지거나 가격 문장을 격리한 경우에도 제목·구매 동작과 사양/충분한 본문은 읽는다.
+    # 가격을 스크립트에서 추측하지 않으며 기사 단서는 아래에서 계속 감점한다.
+    if ext.h1 and sig.purchase_words and (ext.visible_chars >= LOW_CONTENT_CHARS or sum(_is_fact_like(s.text) for s in ext.sentences) >= 2):
+        score += 1
     score -= 3 if sig.article_hint else 0
     if score < 2:         # 가격·구매 버튼이 없는 금융·서비스 상품 소개: 규제 업종 단서가 뚜렷하면 상품 페이지로 본다
         _cat, _ask, cat_scores = guess_category(ext, _pick_name(ext))

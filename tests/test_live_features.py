@@ -191,3 +191,30 @@ def test_all_feature_adapters_execute_without_losing_results_in_controlled_harne
     expected = {"vision": 12, "conversation": 1, "insights": 2, "quality": 1, "pipeline": 4}
     assert {group: summary["completed_cases"] for group, summary in result["summaries"].items()} == expected
     assert result["ledger"]["attempts"] == 0  # 실제 제공자 호출은 전혀 없었다.
+    conversation = result["results"]["conversation"][0]
+    assert conversation["plan"]["total_budget_krw"] == conversation["plan_total"]
+    assert all(ad_set["audience"] for ad_set in conversation["plan"]["ad_sets"])
+    assert conversation["slots"]["monthly_budget_krw"]["evidence"]
+    assert conversation["turns"][0]["plan_snapshot"] == conversation["plan"]
+
+
+def test_dialog_records_do_not_lose_the_plan_that_was_warned_about():
+    """최종 숫자만으로 실제 타겟과 검사 오류를 구분할 수 없던 관측 누락을 막는다."""
+    from evals.dialogs import run_dialog
+
+    run = run_dialog({"id": "local-observation", "turns": [
+        "상품명은 소담 커피, 카페 방문이 목표예요. 월 예산은 120만원, 타겟은 20대 직장인이에요.",
+        "월 예산을 200만원으로 바꿔주세요.",
+    ]})
+    assert not run.error
+    first, second = run.turns
+    assert first.plan_snapshot["total_budget_krw"] == 1_200_000
+    assert second.plan_snapshot["total_budget_krw"] == 2_000_000
+    assert first.slot_evidence["monthly_budget_krw"]["value"] == 1_200_000
+    assert second.slot_evidence["monthly_budget_krw"]["value"] == 2_000_000
+    assert first.slot_evidence["monthly_budget_krw"]["evidence"][0]["quote"]
+    # 저장 뒤 상태를 바꿔도 앞선 턴의 판단 근거를 덮어쓰지 않는다.
+    run.final.plan_preview.total_budget_krw = 9_000_000
+    run.final.slots["monthly_budget_krw"].value = 9_000_000
+    assert second.plan_snapshot["total_budget_krw"] == 2_000_000
+    assert second.slot_evidence["monthly_budget_krw"]["value"] == 2_000_000

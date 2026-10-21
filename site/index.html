@@ -19,6 +19,7 @@
   @media (max-width: 680px) { .grid { grid-template-columns: 1fr; } h1 { font-size: 24px; } }
   .card { display: block; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 22px; color: inherit; text-decoration: none; transition: transform .12s ease, box-shadow .12s ease; }
   .card:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,.08); }
+  .card.wide { grid-column: 1 / -1; }
   .tag { display: inline-block; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; margin-bottom: 12px; }
   .tag.blue { background: var(--blue-weak); color: var(--blue); }
   .tag.green { background: var(--green-weak); color: var(--green); }
@@ -44,7 +45,13 @@
       <p>서버 없이 브라우저(WebAssembly) 안에서 전체 앱이 돕니다. 예시를 골라 광고안 생성 → 검사 결과 → 수정 제안 → 직접 고쳐서 다시 검사까지 해 보세요. 예시 실행이라 실제 AI 호출은 없습니다. 처음 로딩 20~60초.</p>
       <span class="go">열기 →</span>
     </a>
-    <a class="card" href="./replay/">
+    <a class="card" href="./app/?view=%ED%92%88%EC%A7%88%20%ED%99%95%EC%9D%B8">
+      <span class="tag green">새 기능 · 실제 API 실행 기록</span>
+      <h2>수정 전후의 실행 결과</h2>
+      <p>캠페인 대화, 이미지 검사, 성과 보고서, 광고 문구 비교와 생성 흐름을 실제 모델로 실행한 기록입니다. 첫 실행의 실패와 수정 후 같은 입력의 결과, 호출 수와 비용을 함께 확인하세요. 기록을 보는 동안 새 비용은 발생하지 않습니다.</p>
+      <span class="go">품질 확인에서 보기 →</span>
+    </a>
+    <a class="card wide" href="./replay/">
       <span class="tag green">실제 모델 결과 · GPT-4o 실행 기록 재생</span>
       <h2>실제 실행 기록</h2>
       <p>GitHub Actions 에서 실제 GPT-4o 로 돌린 5개 사례의 처리 기록(단계·비용·판정 근거)과 1차→5차 평가 결과(문제 있는 광고 통과 다섯 번 모두 0건, 문제없는 광고에 수정 요청 14건 중 5→1건(1~4차)과 5차 13건 중 0건(라벨 1건 수정으로 분모 변경), 확신 보정 오차 0.14→0.06, 처음 보는 holdout 12건 포함)를 그대로 보여 줍니다.</p>

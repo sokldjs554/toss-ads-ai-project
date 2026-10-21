@@ -64,10 +64,12 @@ def _two(split: dict[str, Optional[dict]], fn: Callable[[dict], str]) -> tuple[s
     return one(split.get("dev")), one(split.get("holdout"))
 
 
-def _table(rows: list[tuple[str, str, str]], first: str = "개발용", second: str = "최종 확인용") -> None:
-    body = "".join(f"<tr><td>{html.escape(a)}</td><td>{html.escape(b)}</td><td>{html.escape(c)}</td></tr>" for a, b, c in rows)
+def _table(rows: list[tuple[str, ...]], first: str = "개발용", second: str = "최종 확인용", third: Optional[str] = None) -> None:
+    headers = ["지표", first, second] + ([third] if third is not None else [])
+    head = "".join(f"<th style='text-align:left'>{html.escape(label)}</th>" for label in headers)
+    body = "".join("<tr>" + "".join(f"<td>{html.escape(value)}</td>" for value in row) + "</tr>" for row in rows)
     st.markdown("<div style='overflow-x:auto'><table class='pf-tbl' style='width:100%;border-collapse:collapse;font-size:.92rem'>"
-                f"<thead><tr><th style='text-align:left'>지표</th><th style='text-align:left'>{html.escape(first)}</th><th style='text-align:left'>{html.escape(second)}</th></tr></thead>"
+                f"<thead><tr>{head}</tr></thead>"
                 f"<tbody>{body}</tbody></table></div>", unsafe_allow_html=True)
 
 
@@ -136,12 +138,22 @@ def rows_urls(rep: dict) -> list[tuple[str, str, str]]:
 
 
 def _urls() -> None:
-    rep = _load("url_ingest_eval.json")
-    if not rep:
+    current = _load("url_ingest_followup_20261020.json")
+    historical = _load("url_ingest_eval.json")
+    if not current and not historical:
         return _missing("url_ingest_eval.json")
-    _table(rows_urls(rep))
+    if current:
+        st.markdown("**수정 후 같은 페이지 재검사**")
+        _table(rows_urls(current), first="기존 개발 페이지", second="기존 최종 확인 페이지 재검사")
+        st.caption("이미 확인한 페이지와 기대값으로 수정 후 다시 실행한 회귀 검사입니다. 새 독립 평가가 아닙니다.")
+        if historical:
+            with st.expander("처음 저장한 페이지 평가 기록"):
+                _table(rows_urls(historical))
+    elif historical:
+        _table(rows_urls(historical))
+    rep = current or historical
     _notes(["합성 페이지 위의 값이며 실제 쇼핑몰 페이지의 정확도가 아닙니다. 페이지와 기대값을 같은 사람이 만들었습니다.",
-            "읽어 온 내용은 사용자가 직접 골라 확인하기 전에는 광고 사실이 되지 않습니다. 자바스크립트로 그려지는 페이지는 읽지 못합니다."],
+            "읽어 온 내용은 사용자가 직접 골라 확인하기 전에는 광고 사실이 되지 않습니다. 스크립트로만 생성되는 내용은 읽지 못합니다."],
            str(rep.get("reproduce") or "python -m evals.url_ingest_eval"))
 
 
@@ -267,28 +279,47 @@ def _live() -> None:
             report = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, ValueError):
             continue
-        if report.get("schema_version") == 1 and isinstance(report.get("results"), dict):
+        if isinstance(report, dict) and report.get("schema_version") == 1 and isinstance(report.get("results"), dict):
             reports.append(report)
     if not reports:
         return
+    reports.sort(key=lambda report: (str(report.get("finished_at") or report.get("started_at") or ""),
+                                     str(report.get("run_id", ""))), reverse=True)
     st.markdown("### 실제 모델 실행 기록")
     st.caption("GitHub Actions에서 API를 호출해 저장한 결과입니다. 여기서 열람하는 동안 새 호출이나 비용은 발생하지 않습니다.")
     names = {"vision": "이미지 속 글자·검사", "conversation": "여러 턴 캠페인 설정", "insights": "성과 보고서 문장화",
-             "quality": "광고 문구 비교", "pipeline": "광고 생성부터 재검사까지"}
+             "quality": "광고 문구 비교", "pipeline": "캠페인 구성·문구 생성·검사"}
+    status_labels = {"completed": "완료", "incomplete_budget_or_provider_failure": "일부만 실행",
+                     "interrupted": "실행 중단", "running": "실행 중"}
     for rep in reports:
-        with st.expander(f"{rep.get('run_id', '실행')} · {rep.get('status', '상태 없음')}"):
-            if rep.get("status") != "completed":
-                st.warning("완료되지 않은 실행입니다. 시도하지 못한 사례를 성공으로 세지 않습니다.")
+        planned = _get(rep, "manifest", "planned_cases") or {}
+        summaries = rep.get("summaries", {})
+        unattempted = any(isinstance(total, int) and total > summaries.get(key, {}).get("attempted_cases", 0)
+                          for key, total in planned.items())
+        status = rep.get("status")
+        status_label = status_labels.get(status, "상태 확인 필요")
+        if status == "completed" and unattempted:
+            status_label = "일부만 실행"
+        with st.expander(f"{rep.get('run_id', '실행')} · {status_label}", expanded=rep is reports[0]):
+            if _get(rep, "manifest", "follows_run_id"):
+                st.caption("이전 실행에서 확인한 같은 입력을 수정 후 다시 실행한 결과입니다. 처음 보는 입력의 성능과 구분합니다.")
+            if status != "completed" or unattempted:
+                st.warning("모든 계획 사례의 실행이 끝난 기록이 아닙니다. 시도하지 않은 사례를 성공으로 세지 않습니다.")
             rows = []
             for key, name in names.items():
-                s = rep.get("summaries", {}).get(key, {})
-                rows.append((name, f"{s.get('cases_with_real_calls', 0)}/{s.get('attempted_cases', 0)}",
-                             f"{s.get('all_checks_passed', 0)}/{s.get('attempted_cases', 0)}"))
-            _table(rows, first="실제 응답이 있는 사례 / 시도", second="모든 사전 조건 통과 / 시도")
+                s = summaries.get(key, {})
+                attempted = s.get("attempted_cases", 0)
+                rows.append((name, f"{attempted}/{planned.get(key, '—')}", f"{s.get('cases_with_real_calls', 0)}/{attempted}",
+                             f"{s.get('all_checks_passed', 0)}/{attempted}"))
+            _table(rows, first="시도 / 계획", second="실제 응답이 있는 사례 / 시도", third="모든 검사 통과 / 시도")
             ledger = rep.get("ledger", {})
             usage = ledger.get("usage_cost_usd")
             cost = f"${usage:.4f}" if isinstance(usage, (float, int)) else "확인되지 않음"
             st.markdown(f"호출 **{ledger.get('attempts', 0)}회** · 응답 토큰으로 계산한 비용 **{cost}** · 사용량 미확인 **{ledger.get('unknown_cost_calls', 0)}회**")
+            if ledger.get("unknown_cost_calls", 0):
+                accounted = ledger.get("accounted_usd")
+                amount = f"${accounted:.4f}" if isinstance(accounted, (float, int)) else "확인되지 않음"
+                st.markdown(f"사용량 미확인 호출의 예약액을 포함한 예산 반영액 **{amount}**")
             st.caption("공개 단가로 계산한 값이며 실제 청구서 금액은 아닙니다. 실패 요청은 예약 금액을 유지하며, 같은 실행을 다시 돌려 예산을 재사용하지 않습니다.")
             measured_models = sorted({c.get("returned_model") for c in ledger.get("calls", []) if c.get("status") == "success" and c.get("returned_model")})
             st.caption(f"실제 응답에서 확인한 모델: {', '.join(measured_models) or '없음'} · 실행 소스 {str(rep.get('source_sha', ''))[:12]}")
