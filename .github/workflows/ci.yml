@@ -5,6 +5,21 @@ on:
 jobs:
   test-and-gate:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: preflight_test
+          POSTGRES_PASSWORD: preflight_test_only
+          POSTGRES_DB: preflight_test
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U preflight_test -d preflight_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PREFLIGHT_TEAM_TEST_DATABASE_URL: postgresql://preflight_test:preflight_test_only@127.0.0.1:5432/preflight_test
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -13,7 +28,7 @@ jobs:
       - run: pip install -r requirements-dev.txt
       - name: Install browser for persistent-queue transaction tests
         run: python -m playwright install --with-deps chromium
-      - name: unit tests (no network)
+      - name: unit and isolated PostgreSQL transaction tests (no provider calls)
         run: python -m pytest -o addopts='' -q -ra
       - name: regression gate — deterministic layer vs committed baseline
         env:
