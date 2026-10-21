@@ -1,0 +1,75 @@
+name: quality-wire-smoke
+
+# User-authorized bounded API smoke: no manual, PR, main, or scheduled paid entrypoint.
+on:
+  push:
+    branches: [codex/resume-ads-20261021]
+    paths: [evals/quality_wire_smoke_20261021.json]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: preflight-paid-feature-evaluation
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    if: github.event_name == 'push' && github.ref_name == 'codex/resume-ads-20261021' && github.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - name: Verify frozen contract without provider secrets
+        run: |
+          python -m pytest -q tests/test_quality_wire_smoke.py tests/test_quality_wire_contract.py tests/test_remaining_reservation.py
+          python -m evals.quality_wire_smoke --validate-only
+      - name: Persist one-time reservation before key injection
+        id: reservation
+        env:
+          EVALUATED_BRANCH: ${{ github.ref_name }}
+        run: |
+          python -m evals.quality_wire_smoke --reserve
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add evals/reports/live_features/reservations_remaining_20261021.json evals/reports/quality_wire_smoke/quality-wire-20261021-smoke1.json
+          git commit -m 'eval: reserve one-time bounded quality wire smoke'
+          git push --force-with-lease="refs/heads/$EVALUATED_BRANCH:$GITHUB_SHA" origin "HEAD:refs/heads/$EVALUATED_BRANCH"
+          reservation_commit=$(git rev-parse HEAD)
+          remote_commit=$(git ls-remote origin "refs/heads/$EVALUATED_BRANCH" | cut -f1)
+          test "$reservation_commit" = "$remote_commit"
+          echo "commit=$reservation_commit" >> "$GITHUB_OUTPUT"
+      - name: Eight requests maximum under durable USD0.50 reservation
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || secrets.OPEN_API_KEY }}
+          RESERVATION_COMMIT: ${{ steps.reservation.outputs.commit }}
+        run: python -m evals.quality_wire_smoke --run --reservation-commit "$RESERVATION_COMMIT"
+      - name: Mark interrupted or failed runs without reclaiming budget
+        if: always()
+        run: python -m evals.quality_wire_smoke --finalize
+      - name: Retain complete or incomplete evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-wire-smoke-${{ github.run_id }}
+          path: |
+            evals/reports/quality_wire_smoke/quality-wire-20261021-smoke1.json
+            evals/reports/live_features/reservations_remaining_20261021.json
+            evals/quality_wire_smoke_20261021.json
+          if-no-files-found: warn
+      - name: Commit results including failure or interruption
+        if: always() && steps.reservation.outputs.commit != ''
+        env:
+          EVALUATED_BRANCH: ${{ github.ref_name }}
+          RESERVATION_COMMIT: ${{ steps.reservation.outputs.commit }}
+        run: |
+          git add evals/reports/quality_wire_smoke/quality-wire-20261021-smoke1.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "eval: retain quality wire smoke evidence (run $GITHUB_RUN_ID)"
+          git push --force-with-lease="refs/heads/$EVALUATED_BRANCH:$RESERVATION_COMMIT" origin "HEAD:refs/heads/$EVALUATED_BRANCH"
