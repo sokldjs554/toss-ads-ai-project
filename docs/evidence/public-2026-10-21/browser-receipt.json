@@ -1,0 +1,91 @@
+{
+  "kind": "public-deployment-manual-browser-smoke",
+  "deployment_commit": "3bf54e0eeae0f53fc18cf773e82aaa2d96928ba0",
+  "observed_utc": {
+    "landing": "2026-10-21T02:21:35Z",
+    "latest_report": "2026-10-21T02:24:55Z",
+    "sample": "2026-10-21T02:25:35Z",
+    "settings_after_reload": "2026-10-21T02:26:50Z"
+  },
+  "environment": {
+    "browser": "Chrome, cloud browser",
+    "viewport": [
+      1363,
+      936
+    ],
+    "runtime": "stlite 1.12.0, independently verified via public HTTP"
+  },
+  "urls": {
+    "landing": "https://sokldjs554.github.io/toss-ads-ai-project/",
+    "quality_observed": "https://sokldjs554.github.io/toss-ads-ai-project/app/?view=%ED%92%88%EC%A7%88%20%ED%99%95%EC%9D%B8#13b99140"
+  },
+  "checks": {
+    "public_app_build_3bf54e0": true,
+    "latest_report_run3": true,
+    "latest_calls_and_cost": true,
+    "model_and_evaluated_source": true,
+    "latest_group_counts": true,
+    "sample_three_ads_two_approve_one_block": true,
+    "sample_rewrite_checked": true,
+    "sample_demo_no_live_call": true,
+    "required_labels_restored_after_reload": true,
+    "browser_save_confirmation_after_reload": true
+  },
+  "sample": {
+    "preset": "정상 요청 — 신용대출 (가상 상품)",
+    "trace_id": "tr_7f48f7609bc7",
+    "variants": 3,
+    "approve": 2,
+    "reject": 1,
+    "live_model_calls": 0,
+    "displayed_cost_usd": 0
+  },
+  "storage": {
+    "initial_required_labels": 2,
+    "test_required_labels": 1,
+    "restored_required_labels": 1,
+    "full_page_reload": true,
+    "initial_queue_empty": true,
+    "queue_items_added": 0,
+    "cleanup_required_labels_restored_to": 2,
+    "scope": "Only the required-label setting was changed, saved, and restored in this public smoke. Queue/ad/annotator restoration has separate predeployment browser evidence."
+  },
+  "files": {
+    "landing.jpg": {
+      "bytes": 124001,
+      "sha256": "42558489b485c6004b17fc126f7e5fc33a4aa58d9d8806219c00b003bd134088"
+    },
+    "live-records.jpg": {
+      "bytes": 106706,
+      "sha256": "0ee900c1f76859aac27938801325c515dd18e4ee6fe08e4d90cf21d4f9ef5032"
+    },
+    "quality-dom.txt": {
+      "bytes": 28303,
+      "sha256": "67a3b075e60e6c5ae55e3412b8e31b6dec8c52a4a262e3e1489e2dc10887c83c"
+    },
+    "sample-dom.txt": {
+      "bytes": 17750,
+      "sha256": "bbd6cee143af24059da525826b74303eb256c6fb7a8f4698cfca1f243a88946b"
+    },
+    "sample-result.jpg": {
+      "bytes": 80662,
+      "sha256": "982c50cef0cf66cc6d0df1e5f326d30e1d7ea200d71b34c6a1ec8e129a9ba26a"
+    },
+    "settings-restored-dom.txt": {
+      "bytes": 5408,
+      "sha256": "740c1d0052eff6aaf6b44a6bdca00def00c1bc3ed20cef3ca4af7e0390875c3c"
+    },
+    "settings-restored.jpg": {
+      "bytes": 93836,
+      "sha256": "f9d2dcff83683572baa9555e518dc36961bf2c4ff5a8bdc4928606660bf0d86e"
+    }
+  },
+  "status": "passed",
+  "scope": [
+    "Direct public UI observation; not a full automated end-to-end suite.",
+    "The report source is 000bc89; deployment source is 3bf54e0. Stored model results are unchanged.",
+    "Navigation between app views does not rewrite the entry query URL. Sample and operations states were reached by visible navigation from the quality URL.",
+    "No paid calls were requested in this public verification. Demo mode executes deterministic substitute responses.",
+    "This evidence does not establish Render deployment, all browsers, long-term availability, production performance, or independent human review."
+  ]
+}

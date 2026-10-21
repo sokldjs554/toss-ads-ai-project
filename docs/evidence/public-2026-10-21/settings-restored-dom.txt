@@ -1,0 +1,85 @@
+- banner
+- generic: ✅ Preflight광고가 올라가기 전에 확인이 필요한 구절을 먼저 찾습니다
+- generic: 개인 프로젝트 · 토스·토스애즈와 무관 · 빌드 3bf54e0
+- radiogroup "화면":
+  - radio "광고 작업":
+    - paragraph: 광고 작업
+  - radio "성과 리포트":
+    - paragraph: 성과 리포트
+  - radio "검사 사례":
+    - paragraph: 검사 사례
+  - radio "품질 확인":
+    - paragraph: 품질 확인
+  - radio "운영" [checked] [active]:
+    - paragraph: 운영
+- paragraph: 광고를 사람이 확인하는 흐름(검수 대기열·라벨링)과, 서비스를 운영할 때 보는 지표·모니터·효과 계산을 모았습니다. 실제 운영 데이터는 없어서 합성 데이터와 저장된 평가 결과로 동작을 보여 줍니다.
+- tablist:
+  - tab "검수 대기열" [selected]:
+    - paragraph: 검수 대기열
+  - tab "운영 지표·모니터":
+    - paragraph: 운영 지표·모니터
+- tabpanel "검수 대기열":
+  - heading "검수 대기열" [level=2]:
+    - text: 검수 대기열
+    - link "Link to heading":
+      - /url: "#284bd1b0"
+  - paragraph:
+    - text: 자동 검사가 확정하지 못한 광고를 사람이 직접 보고
+    - strong: 판정(라벨)
+    - text: 을 남기는 곳입니다. 남긴 라벨은 코드가 검증하고, 라벨러가 여럿이면 서로 얼마나 같게 판단했는지 재고, 확정된 라벨은 평가셋 후보로 내려받을 수 있습니다.
+  - status:
+    - generic: ℹ️
+    - paragraph: 이 프로젝트에는 사람 라벨러가 한 명뿐입니다. 여러 명이 라벨하는 기능은 만들었지만 합성 예시로만 검증했고, 독립 라벨러가 확보됐다는 뜻이 아닙니다.
+  - radiogroup "보기":
+    - radio "내 대기열" [checked]
+    - paragraph: 내 대기열
+    - radio "합성 예시"
+    - paragraph: 합성 예시
+  - iframe
+  - paragraph: 대기열은 현재 브라우저 프로필에 자동 저장합니다. 다른 기기와 공유되지 않습니다. 공용 기기에서는 같은 프로필을 쓰는 사람도 볼 수 있습니다. 사이트 데이터를 지우거나 시크릿 창을 닫으면 저장본이 사라질 수 있습니다.
+  - paragraph: 이 브라우저에 저장됨 · 새로고침하거나 서버가 다시 시작돼도 같은 브라우저에서 이어서 작업할 수 있습니다.
+  - paragraph: 광고 하나를 확정하는 데 필요한 라벨 수
+  - button "Help for 광고 하나를 확정하는 데 필요한 라벨 수":
+  - radiogroup "광고 하나를 확정하는 데 필요한 라벨 수":
+    - radio "1" [checked]
+    - paragraph: "1"
+    - radio "2"
+    - paragraph: "2"
+  - paragraph: "한 사람 모드: 한 명의 라벨로 확정되며 일치도를 잴 수 없고, 내보낼 때도 ‘독립 확인 없음’ 으로 표시됩니다."
+  - heading "대기열" [level=2]:
+    - text: 대기열
+    - link "Link to heading":
+      - /url: "#c109b913"
+  - status:
+    - paragraph: 아직 광고 작업의 결과가 없습니다. ‘광고 작업’ 에서 광고를 검사하면 담당자 확인이 필요한 광고를 여기로 보낼 수 있습니다.
+  - status:
+    - paragraph: 대기열이 비었습니다. 담당자 확인이 필요한 광고가 생기면 위 버튼으로 보내 주세요. 합성 예시로 화면을 먼저 살펴볼 수도 있습니다 (위에서 ‘합성 예시’ 선택).
+  - heading "라벨하기" [level=2]:
+    - text: 라벨하기
+    - link "Link to heading":
+      - /url: "#cb3b2b07"
+  - paragraph: 라벨러 이름
+  - button "Help for 라벨러 이름":
+  - textbox "라벨러 이름":
+    - /placeholder: "예: 홍길동"
+  - switch "자동 제안 숨기기" [checked]
+  - generic "자동 제안 숨기기":
+    - paragraph: 자동 제안 숨기기
+  - button "Help for 자동 제안 숨기기":
+  - status:
+    - paragraph: 라벨러 이름을 입력하면 광고를 받을 수 있습니다.
+  - heading "평가셋 후보 내보내기" [level=2]:
+    - text: 평가셋 후보 내보내기
+    - link "Link to heading":
+      - /url: "#73f22b43"
+  - paragraph: 라벨이 확정된 광고(라벨러가 일치했거나 조정자가 정한 광고)만 평가셋 행으로 만듭니다. 기존 평가셋 파일은 건드리지 않고, 내려받는 것은 새 파일입니다. 개발용/최종 확인용 분할은 문구로 정해져 같은 문구는 항상 같은 쪽에 들어갑니다.
+  - checkbox "한 명이 라벨한 광고도 포함 (일치도를 확인할 수 없고 독립 확인이 아닙니다)"
+  - paragraph: 한 명이 라벨한 광고도 포함 (일치도를 확인할 수 없고 독립 확인이 아닙니다)
+  - button "평가셋 후보 만들기":
+    - paragraph: 평가셋 후보 만들기
+  - 'generic "keyboard_arrow_right 고급: 라벨러 품질 점검용 문제 섞기 · 대기열 저장/불러오기"':
+    - generic: keyboard_arrow_right
+    - paragraph: "고급: 라벨러 품질 점검용 문제 섞기 · 대기열 저장/불러오기"
+- separator
+- generic: 개인 프로젝트입니다. 이 화면의 '점검 통과'·'게재 불가' 는 이 프로젝트가 공개 자료로 재구성한 검사 기준에 따른 결과이며, 실제 광고 플랫폼의 심사나 집행 승인이 아닙니다. 모든 상품·수치는 가상입니다. · 브라우저 실행판 (서버 없음, 예시 실행만)
+- region "Notifications Alt+T"

@@ -239,6 +239,14 @@
 
 6분 대기 비교는 `80e8807`과 run1 보고서가 든 동일 묶음, 60회 전환은 `000bc89`와 run1·run2가 든 묶음, 두 버전 저장 비교는 run3가 추가된 `d9633d6` 묶음이다. 서로 다른 세션·소스의 확인 개수를 하나의 연속 검사로 합치지 않는다. 최종 정적 빌드에 run1·run2·run3 보고서와 런타임 고정값이 들어간 확인도 새로운 브라우저 실행 검사로 세지 않는다. 모든 브라우저나 장시간 운영 안정성을 보장하는 결과가 아니다.
 
+### main 병합과 실제 공개 배포
+
+최종 기능·문서·런타임 커밋 `3f13e67`은 [push CI 39531576672](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39531576672)에서 **3,995개 통과·295.09초**, [PR CI 39531666377](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39531666377)에서 **3,995개 통과·338.29초**와 나머지 게이트가 성공했다. 두 검사의 성공과 PR의 정확한 head를 확인한 뒤 [PR #2](https://github.com/sokldjs554/toss-ads-ai-project/pull/2)를 병합했다.
+
+병합 커밋 `3bf54e0`의 [main CI 39532409833](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39532409833)도 **3,995개 통과·282.84초**, 회귀 게이트·앱 실행 검사까지 성공했다. [Pages 39532409843](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39532409843)는 **2026-10-21 02:20:37 UTC**에 배포를 마쳤다.
+
+이후 실제 공개 주소에서 빌드 `3bf54e0`, 최신 run3 숫자·비용·소스 표시, 가상 신용대출 예시 실행, 검수 설정 저장 후 전체 새로고침 복원을 직접 확인했다. 정상 TLS로 받은 공개 ZIP의 run3 보고서는 원본과 바이트 단위로 같으며, 포함된 고정 소스 77개도 해시가 일치했다. [공개 화면·관측 영수증·HTTP 대조](evidence/public-2026-10-21/README.md)에 보존한다. 공개 확인은 로컬 전체 흐름 검사나 실제 모델 평가와 별도이며, Render 서버 배포는 이 확인의 범위가 아니다.
+
 재실행은 보존한 첫 보고서를 덮어쓰지 않는 경로에 저장한다.
 
 ```bash
