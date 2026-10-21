@@ -32,6 +32,8 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 ESSENTIAL = (
     "ui/team_review_view.py", "ui/ops_hub.py", "ui/new_evals.py",
+    "ui/review_queue_view.py", "ui/review_queue_storage.py",
+    "ops/review_persistence.py", "ui/review_storage_frontend/storage.js",
     "ops/team_review.py", "ops/team_review_store.py",
     "evals/reports/dialogs_regression_v2_20261021.json",
     "evals/reports/dialogs_original_after_fix_20261021.json",
@@ -120,6 +122,13 @@ def main() -> int:
         "scope": "read-only public deployment screens; no access-key entry or shared-review commands" if public_urls else "native database unconfigured; Pages browser mode; saved evaluation records only",
         "public_urls": public_urls, "expected_build": expected_build,
         "native_shared_state": args.native_shared_state,
+        "storage_bridge_scope": "pristine context load acknowledgement and reload acknowledgement only; no queue additions, claims, labels or queue snapshot save commands by the probe; opening an empty IndexedDB may initialize its database and object store",
+        "framework_diagnostic_reference": {
+            "path": "docs/evidence/final-2026-10-21/stlite-runtime/component-paths.json",
+            "sha256": sha((ROOT / "docs/evidence/final-2026-10-21/stlite-runtime/component-paths.json").read_bytes()),
+            "note": "Known stlite checkSourceUrlResponse failures remain in raw console/network logs; acknowledgement is checked independently, not inferred from the log type.",
+        },
+        "storage_frontend_source_sha256": sha((ROOT / "ui/review_storage_frontend/index.html").read_bytes()),
         "probe_sha256": sha(Path(__file__).read_bytes()),
         "checks": [], "observations": [], "screenshots": [],
         "source_hashes": {name: sha((ROOT / name).read_bytes()) for name in essential},
@@ -156,6 +165,36 @@ def main() -> int:
         numerator, denominator = (int(part) for part in value.split("/"))
         return f"{numerator}/{denominator} ({numerator / denominator:.1%})"
 
+    def inspect_storage_bridge(page, scope, mode, phase, observed):
+        page.get_by_role("tab", name="검수 대기열", exact=True).click()
+        real_scope = page.get_by_role("radio", name="내 대기열", exact=True)
+        real_scope.wait_for(timeout=60000)
+        check(scope, f"{phase}: visitor queue is selected without changing it", real_scope.is_checked())
+        # This input is emitted by _real_section -> _labeling_section only after
+        # review_queue_storage.ready() has accepted the component's load reply.
+        # Merely finding a tab or an iframe does not establish that handshake.
+        labeler = page.get_by_label("라벨러 이름", exact=True)
+        labeler.wait_for(timeout=min(args.timeout_ms, 60000))
+        check(scope, f"{phase}: browser storage load acknowledged before editing", labeler.is_visible() and labeler.input_value() == "")
+        frames = page.locator('iframe[title="ui.review_queue_storage.review_queue_storage"]').evaluate_all("""elements => elements.map(frame => {
+            const inline = frame.getAttribute('srcdoc') || '';
+            return {src: frame.getAttribute('src'), srcdoc: inline,
+                    has_storage_code: inline.includes('preflight.review_queue'),
+                    has_inline_execute: inline.includes('async function execute')};
+        })""")
+        for frame in frames:
+            inline = frame.pop("srcdoc")
+            frame["srcdoc_length"] = len(inline)
+            frame["srcdoc_sha256"] = sha(inline.encode()) if inline else None
+        observed.setdefault("storage_bridge", []).append({"phase": phase, "load_acknowledged": True, "frames": frames})
+        check(scope, f"{phase}: storage component frame exists", bool(frames), frames)
+        if mode == "pages":
+            check(scope, f"{phase}: stlite storage executes through the inlined component", any(
+                not frame["src"] and frame["srcdoc_length"] > 0 and frame["has_storage_code"] and frame["has_inline_execute"]
+                for frame in frames), frames)
+        inspect_page(page, scope + ":storage-" + phase)
+        picture(page, scope + "-storage-" + phase + ".png", labeler)
+
     def observe(browser, mode, url):
         for viewport, width, height in VIEWS:
             scope = ("public-" if mode in public_urls else "") + mode + "-" + viewport
@@ -184,6 +223,14 @@ def main() -> int:
                     check(scope, "page build matches expected deployment", f"빌드 {expected_build}" in page.inner_text("body"), expected_build)
                 page.get_by_role("radio", name="운영", exact=True).click()
                 page.get_by_role("tab", name="공동 검수", exact=True).wait_for(timeout=60000)
+                if mode in public_urls:
+                    inspect_storage_bridge(page, scope, mode, "initial-load", observed)
+                    page.reload(wait_until="domcontentloaded", timeout=60000)
+                    page.get_by_role("radio", name="운영", exact=True).wait_for(timeout=args.timeout_ms)
+                    check(scope, "reloaded page build matches expected deployment", f"빌드 {expected_build}" in page.inner_text("body"), expected_build)
+                    page.get_by_role("radio", name="운영", exact=True).click()
+                    page.get_by_role("tab", name="공동 검수", exact=True).wait_for(timeout=60000)
+                    inspect_storage_bridge(page, scope, mode, "reload", observed)
                 tabs = page.get_by_role("tablist").first.get_by_role("tab").all_text_contents()
                 check(scope, "operations has all three tabs in order", tabs == ["검수 대기열", "운영 지표·모니터", "공동 검수"], tabs)
                 page.get_by_role("tab", name="공동 검수", exact=True).click()
