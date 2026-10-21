@@ -1,0 +1,7 @@
+wrote /tmp/preflight-remaining-site-to890wmd/site/replay/index.html 267525 bytes
+loan_ok spans 35 variants 3 final ['REJECT', 'REVISE', 'REVISE'] intercept None | raw finding statuses [['kept', 'kept'], ['kept'], ['kept']]
+malicious spans 32 variants 3 final ['APPROVE', 'APPROVE', 'REVISE'] intercept policy_intent | raw finding statuses [[], [], ['kept']]
+injection spans 35 variants 3 final ['REVISE', 'REVISE', 'REVISE'] intercept injection | raw finding statuses [['kept'], ['duplicate'], ['kept']]
+prohibited spans 2 variants 0 final [] intercept prohibited_category | raw finding statuses []
+commerce_landing spans 36 variants 3 final ['HUMAN_REVIEW', 'REVISE', 'REVISE'] intercept None | raw finding statuses [['kept', 'unverified', 'kept'], ['kept', 'kept'], ['kept']]
+site -> /tmp/preflight-remaining-site-to890wmd/site  (src.zip: 282 files, 1567 KB)

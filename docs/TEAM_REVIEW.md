@@ -115,6 +115,8 @@ installer는 모든 API 함수의 PUBLIC EXECUTE를 회수하고 내부 검증 h
 
 원문 키·명령·상태는 psycopg의 bound parameters로 전달한다. 드라이버 오류를 사용자 출력에 그대로 포함하지 않는다. `verify-api` 결과에는 **검사한 관리자 세션**의 `log_statement`, `log_parameter_max_length`, `log_parameter_max_length_on_error`와 `logging_review_required`가 들어간다. 이는 runtime 로그인에 적용된 별도 역할 설정이나 외부 프록시·추적 시스템까지 인증하지 않는다. 실제 runtime 세션의 설정도 운영자가 확인하고, 오류·statement·duration·audit 로그에 파라미터가 남지 않도록 검토한다. bound parameters 자체가 서버 로그에서 비밀을 숨겨준다는 뜻은 아니다. [PostgreSQL 로그 설정](https://www.postgresql.org/docs/16/runtime-config-logging.html).
 
+계정 발급의 `payload.name`은 `ops.labeling.validate_annotator_name()`으로 정규화한 이름을 전달하는 계약이다. 공개 UI와 관리자 CLI는 요청을 만들기 전에 이 처리를 한다. 저장 어댑터나 SQL 함수를 직접 호출한다면 호출자가 같은 처리를 해야 한다. 예를 들어 앞뒤 공백이나 전각 영문자가 남은 원문을 직접 넘기면 Python의 표시명 정규화 결과와 DB의 명령 일치 검사가 달라 저장을 거절한다. 원문 요청·영수증 지문을 저장 중에 암묵적으로 바꾸거나 DB에서 Unicode 정규화를 별도로 구현하지 않는다.
+
 ### 이 경계의 명확한 한계
 
 **runtime DSN만으로는 앱 키 인증 없이 workspace를 읽거나 계정·키를 조작할 수 없게 하는 경계다.** 유효한 앱 키와 runtime DSN이 함께 유출되면 `lock_workspace`가 반환하는 전체 queue, 계정 메타데이터와 기존 영수증을 볼 수 있다. 또한 해당 역할의 action을 사용해 Python의 전체 대기열 의미 검증을 우회한 queue 제안을 제출할 수 있다. SQL은 독립 검수, 본인 배정, 라벨의 의미, reviewer 간 블라인드 조회를 전부 재구현하지 않았다. 브라우저의 정상 앱 경로에서는 Python 검사가 계속 적용되지만, 이 DB API를 전체 블라인드 워크플로의 독립 보안 계층이라고 설명하면 안 된다.

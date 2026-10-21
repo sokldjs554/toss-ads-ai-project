@@ -292,7 +292,7 @@ BEGIN
        OR receipt->>'fingerprint' IS DISTINCT FROM fingerprint OR receipt->>'action' IS DISTINCT FROM action
        OR jsonb_typeof(receipt->'result') IS DISTINCT FROM 'object'
        OR receipt#>'{result,revision}' IS DISTINCT FROM to_jsonb(old_revision + 1)
-       OR (updated_document->'receipts' - receipt_id) IS DISTINCT FROM old_doc->'receipts' THEN
+       OR ((updated_document->'receipts') - receipt_id) IS DISTINCT FROM old_doc->'receipts' THEN
       RAISE EXCEPTION USING ERRCODE = 'PT422', MESSAGE = 'receipt delta denied';
     END IF;
     stamp := @S@._api_stamp(receipt->>'at');

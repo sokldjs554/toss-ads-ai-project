@@ -176,6 +176,31 @@ def test_owner_issues_reviewer_and_rotation_retains_request_contract(api_space):
         store.execute(owner, "overview", request_id=str(uuid4()))
 
 
+def test_successive_mutations_append_one_receipt_and_preserve_previous_receipts(api_space):
+    """Exercise JSON extraction before subtraction in the actual save function."""
+    from psycopg import sql
+
+    store, owner = api_space["store"], api_space["owner"]
+    previous_receipts = {}
+    for revision in (1, 2):
+        rid = str(uuid4())
+        payload = {"account_id": "acct_" + uuid4().hex, "name": "영수증 보존",
+                   "role": "reviewer", "key_digest": team.key_digest(team.new_access_key())}
+        store.execute(owner, "create_account", payload, request_id=rid)
+        with api_space["admin_store"]._connect() as conn:
+            stored_revision, document = conn.execute(
+                sql.SQL("SELECT revision, document FROM {}.workspace WHERE singleton = true")
+                .format(sql.Identifier(api_space["schema"]))
+            ).fetchone()
+        assert stored_revision == revision
+        receipts = document["receipts"]
+        receipt_id = team.OWNER_ID + ":" + rid
+        assert set(receipts) == set(previous_receipts) | {receipt_id}
+        assert {key: value for key, value in receipts.items() if key != receipt_id} == previous_receipts
+        assert receipts[receipt_id]["result"]["revision"] == revision
+        previous_receipts = receipts
+
+
 def test_installed_api_permissions_and_logging_are_reviewable(api_space):
     with api_space["admin_store"]._connect() as conn:
         result = api.verify_api(conn, schema=api_space["schema"], runtime_role=api_space["runtime_role"])

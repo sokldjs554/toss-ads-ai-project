@@ -1,0 +1,709 @@
+{
+  "kind": "remaining-shared-review-and-evaluation-ui",
+  "started_at": "2026-10-21T06:24:09.412668+00:00",
+  "head": "ba27f6da561810399c2e887e95a86018ad2510a4",
+  "modes": [
+    "native",
+    "pages"
+  ],
+  "viewports": [
+    [
+      "desktop",
+      1280,
+      900
+    ],
+    [
+      "mobile",
+      390,
+      844
+    ]
+  ],
+  "playwright": "1.51.0",
+  "ignore_https_errors": true,
+  "scope": "native database unconfigured; Pages browser mode; saved evaluation records only",
+  "checks": [
+    {
+      "scope": "pages-build",
+      "check": "all new UI and reports bundled unchanged",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages-build",
+      "check": "no secret configuration files bundled",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "native-desktop",
+      "check": "operations has all three tabs in order",
+      "ok": true,
+      "detail": [
+        "검수 대기열",
+        "운영 지표·모니터",
+        "공동 검수"
+      ]
+    },
+    {
+      "scope": "native-desktop",
+      "check": "correct shared review availability message",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "native-desktop",
+      "check": "no access key input before server setup",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "native-desktop",
+      "check": "no secret or unnecessary internal control names",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "native-desktop",
+      "check": "accounts do not claim independent people",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "native-desktop:shared-review",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "native-desktop:shared-review",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 1280,
+        "viewport": 1280
+      }
+    },
+    {
+      "scope": "native-desktop",
+      "check": "evaluation limits are displayed",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "native-desktop",
+      "check": "stored calls are not advertised as new calls",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "native-desktop",
+      "check": "latest stored report is expanded",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "native-desktop",
+      "check": "conversation score matches frozen stored report",
+      "ok": true,
+      "detail": {
+        "actual": [
+          "여러 턴 캠페인 설정",
+          "20/20",
+          "19/20",
+          "17/20"
+        ],
+        "expected": [
+          "여러 턴 캠페인 설정",
+          "20/20",
+          "19/20",
+          "17/20"
+        ]
+      }
+    },
+    {
+      "scope": "native-desktop:evaluations",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "native-desktop:evaluations",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 1280,
+        "viewport": 1280
+      }
+    },
+    {
+      "scope": "native-desktop",
+      "check": "requested screens complete",
+      "ok": false,
+      "detail": "Error"
+    },
+    {
+      "scope": "native-desktop",
+      "check": "no browser page exception",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "native-desktop",
+      "check": "no model provider request",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "native-mobile",
+      "check": "operations has all three tabs in order",
+      "ok": true,
+      "detail": [
+        "검수 대기열",
+        "운영 지표·모니터",
+        "공동 검수"
+      ]
+    },
+    {
+      "scope": "native-mobile",
+      "check": "correct shared review availability message",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "native-mobile",
+      "check": "no access key input before server setup",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "native-mobile",
+      "check": "no secret or unnecessary internal control names",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "native-mobile",
+      "check": "accounts do not claim independent people",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "native-mobile:shared-review",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "native-mobile:shared-review",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "scope": "native-mobile",
+      "check": "evaluation limits are displayed",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "native-mobile",
+      "check": "stored calls are not advertised as new calls",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "native-mobile",
+      "check": "latest stored report is expanded",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "native-mobile",
+      "check": "conversation score matches frozen stored report",
+      "ok": true,
+      "detail": {
+        "actual": [
+          "여러 턴 캠페인 설정",
+          "20/20",
+          "19/20",
+          "17/20"
+        ],
+        "expected": [
+          "여러 턴 캠페인 설정",
+          "20/20",
+          "19/20",
+          "17/20"
+        ]
+      }
+    },
+    {
+      "scope": "native-mobile:evaluations",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "native-mobile:evaluations",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "scope": "native-mobile",
+      "check": "requested screens complete",
+      "ok": false,
+      "detail": "Error"
+    },
+    {
+      "scope": "native-mobile",
+      "check": "no browser page exception",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "native-mobile",
+      "check": "no model provider request",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "pages-desktop",
+      "check": "operations has all three tabs in order",
+      "ok": true,
+      "detail": [
+        "검수 대기열",
+        "운영 지표·모니터",
+        "공동 검수"
+      ]
+    },
+    {
+      "scope": "pages-desktop",
+      "check": "correct shared review availability message",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages-desktop",
+      "check": "no access key input before server setup",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages-desktop",
+      "check": "no secret or unnecessary internal control names",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "pages-desktop",
+      "check": "accounts do not claim independent people",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages-desktop",
+      "check": "server link is correct",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages-desktop",
+      "check": "browser mode is identified",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages-desktop:shared-review",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages-desktop:shared-review",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 1280,
+        "viewport": 1280
+      }
+    },
+    {
+      "scope": "pages-desktop",
+      "check": "evaluation limits are displayed",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages-desktop",
+      "check": "stored calls are not advertised as new calls",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages-desktop",
+      "check": "latest stored report is expanded",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages-desktop",
+      "check": "conversation score matches frozen stored report",
+      "ok": true,
+      "detail": {
+        "actual": [
+          "여러 턴 캠페인 설정",
+          "20/20",
+          "19/20",
+          "17/20"
+        ],
+        "expected": [
+          "여러 턴 캠페인 설정",
+          "20/20",
+          "19/20",
+          "17/20"
+        ]
+      }
+    },
+    {
+      "scope": "pages-desktop:evaluations",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages-desktop:evaluations",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 1280,
+        "viewport": 1280
+      }
+    },
+    {
+      "scope": "pages-desktop",
+      "check": "requested screens complete",
+      "ok": false,
+      "detail": "Error"
+    },
+    {
+      "scope": "pages-desktop",
+      "check": "no browser page exception",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "pages-desktop",
+      "check": "no model provider request",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "pages-mobile",
+      "check": "operations has all three tabs in order",
+      "ok": true,
+      "detail": [
+        "검수 대기열",
+        "운영 지표·모니터",
+        "공동 검수"
+      ]
+    },
+    {
+      "scope": "pages-mobile",
+      "check": "correct shared review availability message",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages-mobile",
+      "check": "no access key input before server setup",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages-mobile",
+      "check": "no secret or unnecessary internal control names",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "pages-mobile",
+      "check": "accounts do not claim independent people",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages-mobile",
+      "check": "server link is correct",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages-mobile",
+      "check": "browser mode is identified",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages-mobile:shared-review",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages-mobile:shared-review",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "scope": "pages-mobile",
+      "check": "evaluation limits are displayed",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages-mobile",
+      "check": "stored calls are not advertised as new calls",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages-mobile",
+      "check": "latest stored report is expanded",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages-mobile",
+      "check": "conversation score matches frozen stored report",
+      "ok": true,
+      "detail": {
+        "actual": [
+          "여러 턴 캠페인 설정",
+          "20/20",
+          "19/20",
+          "17/20"
+        ],
+        "expected": [
+          "여러 턴 캠페인 설정",
+          "20/20",
+          "19/20",
+          "17/20"
+        ]
+      }
+    },
+    {
+      "scope": "pages-mobile:evaluations",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages-mobile:evaluations",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "scope": "pages-mobile",
+      "check": "requested screens complete",
+      "ok": false,
+      "detail": "Error"
+    },
+    {
+      "scope": "pages-mobile",
+      "check": "no browser page exception",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "pages-mobile",
+      "check": "no model provider request",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "provenance",
+      "check": "pre-existing live reports unchanged",
+      "ok": true,
+      "detail": null
+    }
+  ],
+  "observations": [
+    {
+      "scope": "native-desktop",
+      "started_at": "2026-10-21T06:24:11.272863+00:00",
+      "page_errors": [],
+      "console_errors": [],
+      "network_errors": [],
+      "blocked_model_requests": [],
+      "webassembly": {
+        "Suspending": "undefined",
+        "promising": "undefined"
+      },
+      "latest_saved_report": "features-20261020-run3",
+      "quality_audit_available_in_saved_report": false,
+      "rewrite_supplement_available_in_saved_report": false,
+      "status": "interrupted",
+      "error": {
+        "type": "Error",
+        "message": "Locator.click: Error: strict mode violation: locator(\"details\").filter(has=locator(\"summary\").filter(has_text=\"대화형 캠페인 설정\")).last.locator(\"summary\") resolved to 2 elements:\n    1) <summary class=\"st-emotion-cache-a9sf3q e1u8u9eb10\">…</summary> aka locator(\"summary\").filter(has_text=\"keyboard_arrow_right대화형 캠페인 설정\")\n    2) <summary class=\"st-emotion-cache-a9sf3q e1u8u9eb10\">…</summary> aka locator(\"summary\").filter(has_text=\"keyboard_arrow_right수정 전 대화 평가 기록\")\n\nCall log:\n  - waiting for locator(\"details\").filter(has=locator(\"summary\").filter(has_text=\"대화형 캠페인 설정\")).last.locator(\"summary\")\n"
+      },
+      "finished_at": "2026-10-21T06:24:18.143764+00:00"
+    },
+    {
+      "scope": "native-mobile",
+      "started_at": "2026-10-21T06:24:18.155011+00:00",
+      "page_errors": [],
+      "console_errors": [],
+      "network_errors": [],
+      "blocked_model_requests": [],
+      "webassembly": {
+        "Suspending": "undefined",
+        "promising": "undefined"
+      },
+      "latest_saved_report": "features-20261020-run3",
+      "quality_audit_available_in_saved_report": false,
+      "rewrite_supplement_available_in_saved_report": false,
+      "status": "interrupted",
+      "error": {
+        "type": "Error",
+        "message": "Locator.click: Error: strict mode violation: locator(\"details\").filter(has=locator(\"summary\").filter(has_text=\"대화형 캠페인 설정\")).last.locator(\"summary\") resolved to 2 elements:\n    1) <summary class=\"st-emotion-cache-a9sf3q e1u8u9eb10\">…</summary> aka locator(\"summary\").filter(has_text=\"keyboard_arrow_right대화형 캠페인 설정\")\n    2) <summary class=\"st-emotion-cache-a9sf3q e1u8u9eb10\">…</summary> aka locator(\"summary\").filter(has_text=\"keyboard_arrow_right수정 전 대화 평가 기록\")\n\nCall log:\n  - waiting for locator(\"details\").filter(has=locator(\"summary\").filter(has_text=\"대화형 캠페인 설정\")).last.locator(\"summary\")\n"
+      },
+      "finished_at": "2026-10-21T06:24:23.672985+00:00"
+    },
+    {
+      "scope": "pages-desktop",
+      "started_at": "2026-10-21T06:24:23.679986+00:00",
+      "page_errors": [],
+      "console_errors": [
+        "Access to fetch at 'https://stlite.invalid/app/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A45105%2Fapp%2F' from origin 'http://127.0.0.1:45105' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. If an opaque response serves your needs, set the request's mode to 'no-cors' to fetch the resource with CORS disabled.",
+        "Failed to load resource: net::ERR_FAILED",
+        "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+        "Access to fetch at 'https://stlite.invalid/app/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A45105%2Fapp%2F' from origin 'http://127.0.0.1:45105' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. If an opaque response serves your needs, set the request's mode to 'no-cors' to fetch the resource with CORS disabled.",
+        "Failed to load resource: net::ERR_FAILED",
+        "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch"
+      ],
+      "network_errors": [
+        {
+          "url": "https://stlite.invalid/app/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A45105%2Fapp%2F",
+          "failure": "net::ERR_FAILED"
+        },
+        {
+          "url": "https://stlite.invalid/app/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A45105%2Fapp%2F",
+          "failure": "net::ERR_FAILED"
+        }
+      ],
+      "blocked_model_requests": [],
+      "webassembly": {
+        "Suspending": "undefined",
+        "promising": "undefined"
+      },
+      "latest_saved_report": "features-20261020-run3",
+      "quality_audit_available_in_saved_report": false,
+      "rewrite_supplement_available_in_saved_report": false,
+      "status": "interrupted",
+      "error": {
+        "type": "Error",
+        "message": "Locator.click: Error: strict mode violation: locator(\"details\").filter(has=locator(\"summary\").filter(has_text=\"대화형 캠페인 설정\")).last.locator(\"summary\") resolved to 2 elements:\n    1) <summary class=\"st-aipettfw-a9sf3q eqpbllx1\">…</summary> aka locator(\"summary\").filter(has_text=\"keyboard_arrow_right대화형 캠페인 설정\")\n    2) <summary class=\"st-aipettfw-a9sf3q eqpbllx1\">…</summary> aka locator(\"summary\").filter(has_text=\"keyboard_arrow_right수정 전 대화 평가 기록\")\n\nCall log:\n  - waiting for locator(\"details\").filter(has=locator(\"summary\").filter(has_text=\"대화형 캠페인 설정\")).last.locator(\"summary\")\n"
+      },
+      "finished_at": "2026-10-21T06:24:46.405174+00:00"
+    },
+    {
+      "scope": "pages-mobile",
+      "started_at": "2026-10-21T06:24:46.411243+00:00",
+      "page_errors": [],
+      "console_errors": [
+        "Access to fetch at 'https://stlite.invalid/app/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A45105%2Fapp%2F' from origin 'http://127.0.0.1:45105' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. If an opaque response serves your needs, set the request's mode to 'no-cors' to fetch the resource with CORS disabled.",
+        "Failed to load resource: net::ERR_FAILED",
+        "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+        "Access to fetch at 'https://stlite.invalid/app/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A45105%2Fapp%2F' from origin 'http://127.0.0.1:45105' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. If an opaque response serves your needs, set the request's mode to 'no-cors' to fetch the resource with CORS disabled.",
+        "Failed to load resource: net::ERR_FAILED",
+        "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch"
+      ],
+      "network_errors": [
+        {
+          "url": "https://stlite.invalid/app/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A45105%2Fapp%2F",
+          "failure": "net::ERR_FAILED"
+        },
+        {
+          "url": "https://stlite.invalid/app/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A45105%2Fapp%2F",
+          "failure": "net::ERR_FAILED"
+        }
+      ],
+      "blocked_model_requests": [],
+      "webassembly": {
+        "Suspending": "undefined",
+        "promising": "undefined"
+      },
+      "latest_saved_report": "features-20261020-run3",
+      "quality_audit_available_in_saved_report": false,
+      "rewrite_supplement_available_in_saved_report": false,
+      "status": "interrupted",
+      "error": {
+        "type": "Error",
+        "message": "Locator.click: Error: strict mode violation: locator(\"details\").filter(has=locator(\"summary\").filter(has_text=\"대화형 캠페인 설정\")).last.locator(\"summary\") resolved to 2 elements:\n    1) <summary class=\"st-aipetthd-a9sf3q eqpbllx1\">…</summary> aka locator(\"summary\").filter(has_text=\"keyboard_arrow_right대화형 캠페인 설정\")\n    2) <summary class=\"st-aipetthd-a9sf3q eqpbllx1\">…</summary> aka locator(\"summary\").filter(has_text=\"keyboard_arrow_right수정 전 대화 평가 기록\")\n\nCall log:\n  - waiting for locator(\"details\").filter(has=locator(\"summary\").filter(has_text=\"대화형 캠페인 설정\")).last.locator(\"summary\")\n"
+      },
+      "finished_at": "2026-10-21T06:25:09.742368+00:00"
+    }
+  ],
+  "screenshots": [
+    "native-desktop-team-database-unconfigured.png",
+    "native-desktop-saved-live-evaluations.png",
+    "native-desktop-interrupted.png",
+    "native-mobile-team-database-unconfigured.png",
+    "native-mobile-saved-live-evaluations.png",
+    "native-mobile-interrupted.png",
+    "pages-desktop-team-server-link.png",
+    "pages-desktop-saved-live-evaluations.png",
+    "pages-desktop-interrupted.png",
+    "pages-mobile-team-server-link.png",
+    "pages-mobile-saved-live-evaluations.png",
+    "pages-mobile-interrupted.png"
+  ],
+  "source_hashes": {
+    "ui/team_review_view.py": "64185d6f2b9125976f7cba2a0cafa4c445a1da7fae3e37890d1fa2c9a41ad082",
+    "ui/ops_hub.py": "6bbb4d6dbe332cf952626fe4baab28c7db5cc038fc7fc9cae7899a0ca1eee34b",
+    "ui/new_evals.py": "b0d94785ab61d598d071bd19a19e2bc305e16b10a2799d68e33510604dab7d4f",
+    "ops/team_review.py": "22f0eaa68cbce659cd744e744ad280bf3b3b59968e86656b5f884cd4d2dc3ea7",
+    "ops/team_review_store.py": "fab4bb15705871c24dc86ab0419453838a605eb773c91fbefdce555f4deb4371",
+    "evals/reports/dialogs_regression_v2_20261021.json": "924189ff383434ae62eb48ba7df0c4914b21aead23aaf15621173d3d94ba2c49",
+    "evals/reports/dialogs_original_after_fix_20261021.json": "424d8750178732983d3a7dcbbacf72e0a9da287ac294670010b421cbb2bdb825"
+  },
+  "frozen_report_hashes_before": {
+    "evals/reports/live_features/features-20261020-run2.json": "429894549ee081e9789a24abf304c1f46f374c4afba042314720684c2ee70acd",
+    "evals/reports/live_features/reservations.json": "576c98fb311448fce78456cdac89769c8ecda81a368046ed85763662bcaeb54a",
+    "evals/reports/live_features/features-20261020-run3.json": "3981f9ab9a82502f02a8e6086e4178289863c8a632317dbb5544710af828fd91",
+    "evals/reports/live_features/features-20261020-run1.json": "b5c40bd30cc353730eb6da0d7104d08aefb91945949c6d519cca5a3c3d345247"
+  },
+  "bundle": {
+    "sha256": "05efc8a975f0e07786d28892c44f17af70b6969546f19ffda2a02821102cb408",
+    "files": 279,
+    "essential_hashes": {
+      "ui/team_review_view.py": "64185d6f2b9125976f7cba2a0cafa4c445a1da7fae3e37890d1fa2c9a41ad082",
+      "ui/ops_hub.py": "6bbb4d6dbe332cf952626fe4baab28c7db5cc038fc7fc9cae7899a0ca1eee34b",
+      "ui/new_evals.py": "b0d94785ab61d598d071bd19a19e2bc305e16b10a2799d68e33510604dab7d4f",
+      "ops/team_review.py": "22f0eaa68cbce659cd744e744ad280bf3b3b59968e86656b5f884cd4d2dc3ea7",
+      "ops/team_review_store.py": "fab4bb15705871c24dc86ab0419453838a605eb773c91fbefdce555f4deb4371",
+      "evals/reports/dialogs_regression_v2_20261021.json": "924189ff383434ae62eb48ba7df0c4914b21aead23aaf15621173d3d94ba2c49",
+      "evals/reports/dialogs_original_after_fix_20261021.json": "424d8750178732983d3a7dcbbacf72e0a9da287ac294670010b421cbb2bdb825"
+    },
+    "stlite_html_sha256": "9083776a80c5927a226c58eacbcb956f95ea250ecadf46efd56234c4f0a324c7"
+  },
+  "browser": "134.0.6998.35",
+  "finished_at": "2026-10-21T06:25:10.633585+00:00",
+  "failed_checks": 4,
+  "status": "failed"
+}
