@@ -181,6 +181,18 @@ def test_all_feature_adapters_execute_without_losing_results_in_controlled_harne
     run.settings = Settings.from_env(force_demo=True, openai_api_key="", anthropic_api_key="")
     run.providers = {"mock": MockProvider()}
     monkeypatch.setattr(run, "router", lambda **kwargs: Router(run.settings, tracer=Tracer()))
+    # 새 품질 계약을 연결하는 통제된 응답이다. 대역 점수로 선호를 만들어
+    # 실제 모델 성공처럼 세지 않고, 출처가 있는 명시적 ABSTAIN을 보낸다.
+    def abstaining_judge(self, req):
+        return {"dimensions": [
+            {"criterion": criterion, "preference": "UNKNOWN", "impact": "unknown",
+             "evidence_a": [{"field": field, "quote": req.context["copies"]["A"][field]}],
+             "evidence_b": [{"field": field, "quote": req.context["copies"]["B"][field]}],
+             "fact_ids": [], "reason": "통제된 연결 검사이며 문구 선호를 평가하지 않음"}
+            for criterion, field in (("information", "body"), ("conditions", "body"), ("action", "cta"), ("expression", "body"))
+        ], "winner": "ABSTAIN", "decisive_criteria": [], "reason": "통제된 연결 검사"}
+
+    monkeypatch.setattr(MockProvider, "_judge", abstaining_judge)
     # 대화·품질 adapter의 모든 조합을 반복하기보다 한 입력이 결과까지 연결되는지 확인한다.
     from evals import dialogs, quality_signals
     load_dialogs, load_pairs = dialogs.load_dialogs, quality_signals.load_pairs
@@ -191,6 +203,7 @@ def test_all_feature_adapters_execute_without_losing_results_in_controlled_harne
     expected = {"vision": 12, "conversation": 1, "insights": 2, "quality": 1, "pipeline": 4}
     assert {group: summary["completed_cases"] for group, summary in result["summaries"].items()} == expected
     assert result["ledger"]["attempts"] == 0  # 실제 제공자 호출은 전혀 없었다.
+    assert result["quality_audit_summary"]["accepted_cases"] == 0
     conversation = result["results"]["conversation"][0]
     assert conversation["plan"]["total_budget_krw"] == conversation["plan_total"]
     assert all(ad_set["audience"] for ad_set in conversation["plan"]["ad_sets"])

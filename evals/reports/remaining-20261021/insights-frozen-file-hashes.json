@@ -1,0 +1,37 @@
+{
+  "before": {
+    "evals/datasets/perf_holdout_20261020.jsonl": "329d0bb086d3abba60e2bdf50c6dd32a0daa196747b48155d54ee8fff800c16f",
+    "evals/datasets/perf_holdout_20261020.provenance.json": "7f0f5740eef9d124c099d3e9f38c3701d5449cefe40cbdcde1d770dd66b6d38c",
+    "evals/datasets/perf_scenarios.jsonl": "add5a3a6fcbb612704119220740dc2355b8be26452d47df1abfcc7e925ef201e",
+    "evals/reports/insights_controlled.json": "fa19fc89a2d831246eca9115b4f6e8a8291e093caff2569009df3e80e6447ed6",
+    "evals/reports/insights_followup_regression.json": "9082fb5d914d1e873f94cfaeea652377777eb019bb60ea4dd32591e907051479",
+    "evals/reports/insights_followup_regression_v2_20261020.json": "5def1a4621a72b2bae99eb97352fa84d279aa21600defd46f064998206ad2d31",
+    "evals/reports/insights_holdout_20261020.json": "526c18901b15f58b59d6a39cc73191a89e9a707d75f21b06c306b96462f6d5bb",
+    "evals/reports/insights_holdout_regression_20261020.json": "316452b787ac2e38ee25c6622f8cea633f8a2d4bf4cadff1f14d2bcc3872269a",
+    "evals/reports/insights_regression.json": "ee965cc306758dcad5d720bda2c490af2960654a5ac0168fbac6e00186c28409"
+  },
+  "after": {
+    "evals/datasets/perf_holdout_20261020.jsonl": "329d0bb086d3abba60e2bdf50c6dd32a0daa196747b48155d54ee8fff800c16f",
+    "evals/datasets/perf_holdout_20261020.provenance.json": "7f0f5740eef9d124c099d3e9f38c3701d5449cefe40cbdcde1d770dd66b6d38c",
+    "evals/datasets/perf_scenarios.jsonl": "add5a3a6fcbb612704119220740dc2355b8be26452d47df1abfcc7e925ef201e",
+    "evals/reports/insights_controlled.json": "fa19fc89a2d831246eca9115b4f6e8a8291e093caff2569009df3e80e6447ed6",
+    "evals/reports/insights_followup_regression.json": "9082fb5d914d1e873f94cfaeea652377777eb019bb60ea4dd32591e907051479",
+    "evals/reports/insights_followup_regression_v2_20261020.json": "5def1a4621a72b2bae99eb97352fa84d279aa21600defd46f064998206ad2d31",
+    "evals/reports/insights_holdout_20261020.json": "526c18901b15f58b59d6a39cc73191a89e9a707d75f21b06c306b96462f6d5bb",
+    "evals/reports/insights_holdout_regression_20261020.json": "316452b787ac2e38ee25c6622f8cea633f8a2d4bf4cadff1f14d2bcc3872269a",
+    "evals/reports/insights_regression.json": "ee965cc306758dcad5d720bda2c490af2960654a5ac0168fbac6e00186c28409"
+  },
+  "all_identical": true,
+  "verified_against_revision": "4dce790",
+  "matches_revision": {
+    "evals/datasets/perf_holdout_20261020.jsonl": true,
+    "evals/datasets/perf_holdout_20261020.provenance.json": true,
+    "evals/datasets/perf_scenarios.jsonl": true,
+    "evals/reports/insights_controlled.json": true,
+    "evals/reports/insights_followup_regression.json": true,
+    "evals/reports/insights_followup_regression_v2_20261020.json": true,
+    "evals/reports/insights_holdout_20261020.json": true,
+    "evals/reports/insights_holdout_regression_20261020.json": true,
+    "evals/reports/insights_regression.json": true
+  }
+}

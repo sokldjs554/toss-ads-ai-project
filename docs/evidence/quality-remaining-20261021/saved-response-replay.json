@@ -1,0 +1,811 @@
+{
+  "kind": "offline_saved_response_replay_not_new_model_measurement",
+  "rubric_version": "communication-v2-20261021",
+  "input_reports_immutable": true,
+  "human_labels_created": 0,
+  "runs": [
+    {
+      "source": "evals/reports/live_features/features-20261020-run1.json",
+      "source_sha256": "b5c40bd30cc353730eb6da0d7104d08aefb91945949c6d519cca5a3c3d345247",
+      "attempted_pairs": 28,
+      "historical_stable_author_agreement": 22,
+      "consensus": 23,
+      "order_abstentions": 5,
+      "consensus_ties": 1,
+      "rows": [
+        {
+          "id": "QP-H01",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H02",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H03",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H04",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H05",
+          "historical_winner": "unstable",
+          "replayed_winner": "abstain",
+          "status": "order_disagreement",
+          "position_consistent": false,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H06",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H07",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H08",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H09",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H10",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H11",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H12",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H13",
+          "historical_winner": "tie",
+          "replayed_winner": "tie",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H14",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H15",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H16",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H17",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H18",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H19",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H20",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H21",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H22",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H23",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H24",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H25",
+          "historical_winner": "unstable",
+          "replayed_winner": "abstain",
+          "status": "order_disagreement",
+          "position_consistent": false,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H26",
+          "historical_winner": "unstable",
+          "replayed_winner": "abstain",
+          "status": "order_disagreement",
+          "position_consistent": false,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H27",
+          "historical_winner": "unstable",
+          "replayed_winner": "abstain",
+          "status": "order_disagreement",
+          "position_consistent": false,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H28",
+          "historical_winner": "unstable",
+          "replayed_winner": "abstain",
+          "status": "order_disagreement",
+          "position_consistent": false,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        }
+      ]
+    },
+    {
+      "source": "evals/reports/live_features/features-20261020-run2.json",
+      "source_sha256": "429894549ee081e9789a24abf304c1f46f374c4afba042314720684c2ee70acd",
+      "attempted_pairs": 28,
+      "historical_stable_author_agreement": 21,
+      "consensus": 22,
+      "order_abstentions": 6,
+      "consensus_ties": 1,
+      "rows": [
+        {
+          "id": "QP-H01",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H02",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H03",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H04",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H05",
+          "historical_winner": "unstable",
+          "replayed_winner": "abstain",
+          "status": "order_disagreement",
+          "position_consistent": false,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H06",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H07",
+          "historical_winner": "unstable",
+          "replayed_winner": "abstain",
+          "status": "order_disagreement",
+          "position_consistent": false,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H08",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H09",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H10",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H11",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H12",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H13",
+          "historical_winner": "tie",
+          "replayed_winner": "tie",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H14",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H15",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H16",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H17",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H18",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H19",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H20",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H21",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H22",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H23",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H24",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H25",
+          "historical_winner": "unstable",
+          "replayed_winner": "abstain",
+          "status": "order_disagreement",
+          "position_consistent": false,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H26",
+          "historical_winner": "unstable",
+          "replayed_winner": "abstain",
+          "status": "order_disagreement",
+          "position_consistent": false,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H27",
+          "historical_winner": "unstable",
+          "replayed_winner": "abstain",
+          "status": "order_disagreement",
+          "position_consistent": false,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H28",
+          "historical_winner": "unstable",
+          "replayed_winner": "abstain",
+          "status": "order_disagreement",
+          "position_consistent": false,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        }
+      ]
+    },
+    {
+      "source": "evals/reports/live_features/features-20261020-run3.json",
+      "source_sha256": "3981f9ab9a82502f02a8e6086e4178289863c8a632317dbb5544710af828fd91",
+      "attempted_pairs": 28,
+      "historical_stable_author_agreement": 21,
+      "consensus": 22,
+      "order_abstentions": 6,
+      "consensus_ties": 1,
+      "rows": [
+        {
+          "id": "QP-H01",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H02",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H03",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H04",
+          "historical_winner": "unstable",
+          "replayed_winner": "abstain",
+          "status": "order_disagreement",
+          "position_consistent": false,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H05",
+          "historical_winner": "unstable",
+          "replayed_winner": "abstain",
+          "status": "order_disagreement",
+          "position_consistent": false,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H06",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H07",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H08",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H09",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H10",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H11",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H12",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H13",
+          "historical_winner": "tie",
+          "replayed_winner": "tie",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H14",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H15",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H16",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H17",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H18",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H19",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H20",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H21",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H22",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H23",
+          "historical_winner": "b",
+          "replayed_winner": "b",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H24",
+          "historical_winner": "a",
+          "replayed_winner": "a",
+          "status": "consensus",
+          "position_consistent": true,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H25",
+          "historical_winner": "unstable",
+          "replayed_winner": "abstain",
+          "status": "order_disagreement",
+          "position_consistent": false,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H26",
+          "historical_winner": "unstable",
+          "replayed_winner": "abstain",
+          "status": "order_disagreement",
+          "position_consistent": false,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H27",
+          "historical_winner": "unstable",
+          "replayed_winner": "abstain",
+          "status": "order_disagreement",
+          "position_consistent": false,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        },
+        {
+          "id": "QP-H28",
+          "historical_winner": "unstable",
+          "replayed_winner": "abstain",
+          "status": "order_disagreement",
+          "position_consistent": false,
+          "evidence_basis": "legacy_unchecked",
+          "evidence_valid": null
+        }
+      ]
+    }
+  ],
+  "frozen_files": {
+    "core/creative_quality.py": "308df411f3adaa4c5810f58d4a8db4c46494aa0ccec2b5c2106b746006564e26",
+    "evals/datasets/quality_pairs.jsonl": "dc0cdf674f106c48832f1dddb4e3a874460897e07e7e542221ae8dd6632acb9e",
+    "evals/reports/quality_signals.json": "019fd8e36c04c29c89b09b8691411d6d39436a187fd131559d2b3a70ada185b9"
+  },
+  "implementation_sha256": {
+    "evals/quality_judge.py": "ac6d03d29c9e9a9614e4cf00139a00dac819d95228a86707368c0609e5cd5e81",
+    "evals/quality_human_review.py": "5e0210e8aabc8baaec528ae414e6efb4693e40a0ca51a8cb06ac4ca89b95c55f"
+  },
+  "limitations": [
+    "No provider call was made; this replays previously saved winners only.",
+    "Legacy free-text reasons have no new quote evidence and are explicitly unchecked.",
+    "No historical disagreement, label, or denominator was repaired or removed."
+  ]
+}

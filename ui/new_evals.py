@@ -99,12 +99,12 @@ def rows_dialogs(rep: dict) -> list[tuple[str, str, str]]:
 
 
 def _dialogs() -> None:
-    regression = _load("dialogs_regression_v2.json")
+    regression = _load("dialogs_regression_v2_20261021.json")
     held = _load("dialogs_holdout_20261020.json")
     followup = _load("dialogs_holdout_regression_20261020.json")
     historical = _load("dialogs_controlled.json")
     if not any((regression, held, historical)):
-        return _missing("dialogs_regression_v2.json")
+        return _missing("dialogs_regression_v2_20261021.json")
     if regression:
         st.markdown("**알려진 실패를 수정한 뒤 다시 실행한 66개 대화**")
         _table(rows_dialogs(regression), first="기존 개발 사례", second="기존 최종 확인 사례 재검사")
@@ -247,7 +247,7 @@ def _insights() -> None:
 
 
 ROWS = {   # 문서 생성기(scripts/gen_feature_docs.py)가 같은 표를 쓴다
-    "dialogs": ("dialogs_regression_v2.json", rows_dialogs),
+    "dialogs": ("dialogs_regression_v2_20261021.json", rows_dialogs),
     "urls": ("url_ingest_eval.json", rows_urls),
     "images": ("image_eval.json", rows_images),
     "quality": ("quality_signals.json", rows_quality),
@@ -271,6 +271,22 @@ SECTIONS = [
 ]
 
 
+def _live_quality_summary(summary: dict) -> None:
+    n = summary.get("attempted_cases", 0)
+    st.markdown("**문구 비교 · 채택과 보류**")
+    _table([
+        ("근거 검사 후 채택한 비교", f"{summary.get('accepted_cases', 0)}/{n}", "두 순서와 중요한 근거가 같은 비교"),
+        ("판단 보류", f"{summary.get('abstained_cases', 0)}/{n}", "불일치·인용 문제·응답 실패는 무승부로 세지 않음"),
+        ("채택했고 작성자 선호와도 일치", f"{summary.get('accepted_author_matches', 0)}/{n}", "전체 시도 쌍을 분모로 사용"),
+        ("기존 비교 지표", f"{summary.get('raw_stable_author_matches', 0)}/{n}", "원래 두 선택이 같고 작성자 선호와 일치; 근거 검사 전 수치"),
+    ], first="쌍 / 시도", second="뜻")
+    labels = {"consensus": "채택", "order_disagreement": "순서에 따라 선택이 달라짐",
+              "rubric_disagreement": "중요한 근거가 달라짐", "invalid_evidence": "인용·근거 검사 실패",
+              "judge_abstained": "모델이 판단 보류", "incomplete": "응답을 모두 얻지 못함"}
+    st.caption("결과별 수: " + ", ".join(f"{labels.get(key, key)} {value}쌍" for key, value in summary.get("by_status", {}).items()))
+    st.caption("기존 비교 지표가 높아도 근거가 모순되면 채택하지 않습니다. 채택은 사람의 선호나 실제 광고 성과를 검증했다는 뜻이 아닙니다.")
+
+
 def _live() -> None:
     """저장된 실호출 기록만 읽는다. 화면을 보는 동안 API를 호출하지 않는다."""
     reports = []
@@ -290,12 +306,17 @@ def _live() -> None:
     names = {"vision": "이미지 속 글자·검사", "conversation": "여러 턴 캠페인 설정", "insights": "성과 보고서 문장화",
              "quality": "광고 문구 비교", "pipeline": "캠페인 구성·문구 생성·검사"}
     status_labels = {"completed": "완료", "incomplete_budget_or_provider_failure": "일부만 실행",
+                     "incomplete_case_count": "일부만 실행",
                      "interrupted": "실행 중단", "running": "실행 중"}
     for rep in reports:
         planned = _get(rep, "manifest", "planned_cases") or {}
         summaries = rep.get("summaries", {})
         unattempted = any(isinstance(total, int) and total > summaries.get(key, {}).get("attempted_cases", 0)
                           for key, total in planned.items())
+        supplemental_planned = _get(rep, "manifest", "planned_supplemental_cases") or {}
+        supplemental_summaries = rep.get("supplemental_summaries", {})
+        unattempted = unattempted or any(isinstance(total, int) and total > supplemental_summaries.get(key, {}).get("attempted_cases", 0)
+                                        for key, total in supplemental_planned.items())
         status = rep.get("status")
         status_label = status_labels.get(status, "상태 확인 필요")
         if status == "completed" and unattempted:
@@ -309,9 +330,32 @@ def _live() -> None:
             for key, name in names.items():
                 s = summaries.get(key, {})
                 attempted = s.get("attempted_cases", 0)
+                pass_cell = ("아래 채택·보류 표 확인" if key == "quality" and rep.get("quality_audit_summary")
+                             else f"{s.get('all_checks_passed', 0)}/{attempted}")
                 rows.append((name, f"{attempted}/{planned.get(key, '—')}", f"{s.get('cases_with_real_calls', 0)}/{attempted}",
-                             f"{s.get('all_checks_passed', 0)}/{attempted}"))
+                             pass_cell))
             _table(rows, first="시도 / 계획", second="실제 응답이 있는 사례 / 시도", third="모든 검사 통과 / 시도")
+            if rep.get("quality_audit_summary"):
+                _live_quality_summary(rep["quality_audit_summary"])
+            followup_plan = _get(rep, "manifest", "planned_supplemental_cases", "conversation_followup")
+            if followup_plan:
+                followup = rep.get("supplemental_summaries", {}).get("conversation_followup", {})
+                count = followup.get("attempted_cases", 0)
+                st.markdown("**추가 검사 · 연령 확인 뒤 캠페인 완성**")
+                _table([("최소 연령 답변 → 미리보기 → 광고 작업 전달", f"{count}/{followup_plan}",
+                         f"{followup.get('cases_with_real_calls', 0)}/{count}", f"{followup.get('all_checks_passed', 0)}/{count}")],
+                       first="시도 / 계획", second="실제 응답이 있는 사례 / 시도", third="전 단계 확인 / 시도")
+                st.caption("최초 대화 20개의 점수와 별도입니다. 확인되지 않은 최소 연령을 물은 뒤 사용자가 명시적으로 답한 경우를 검사합니다.")
+            supplemental = rep.get("supplemental_summaries", {}).get("rewrite")
+            supplemental_plan = _get(rep, "manifest", "planned_supplemental_cases", "rewrite")
+            if supplemental is not None or supplemental_plan:
+                supplemental = supplemental or {}
+                count = supplemental.get("attempted_cases", 0)
+                st.markdown("**추가 검사 · 위반 원문의 수정과 재검사**")
+                _table([("원문 → 모델 수정안 → 동일 정책 재검사", f"{count}/{supplemental_plan or '—'}",
+                         f"{supplemental.get('cases_with_real_calls', 0)}/{count}", f"{supplemental.get('all_checks_passed', 0)}/{count}")],
+                       first="시도 / 계획", second="실제 응답이 있는 사례 / 시도", third="전 단계 확인 / 시도")
+                st.caption("기존 다섯 기능의 점수와 별도입니다. 원문의 위반, 모델 수정 제안, 수정안의 실제 의미 검사 호출, 같은 정책 재검사 통과를 모두 확인해야 성공입니다. 원문만 승인하거나 수정안을 검사하지 않은 경우는 성공으로 세지 않습니다.")
             ledger = rep.get("ledger", {})
             usage = ledger.get("usage_cost_usd")
             cost = f"${usage:.4f}" if isinstance(usage, (float, int)) else "확인되지 않음"

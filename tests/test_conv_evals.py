@@ -240,7 +240,7 @@ def test_saved_report_is_exactly_what_the_current_code_and_data_produce():
 
 def test_report_states_what_the_numbers_are_and_are_not():
     saved = json.loads(REPORT.read_text(encoding="utf-8"))
-    assert saved["extractor"] == "rules" and saved["repro"] == E.REPRO == "python -m evals.dialogs --split all --out evals/reports/dialogs_regression_v2.json"
+    assert saved["extractor"] == "rules" and saved["repro"] == E.REPRO == "python -m evals.dialogs --split all --out evals/reports/dialogs_regression_v2_20261021.json"
     assert "모델" in " ".join(saved["caveats"]) and "라벨" in " ".join(saved["caveats"]) and "holdout" in " ".join(saved["caveats"])
     assert saved["dataset"]["counts"]["dev"] == 40 and saved["dataset"]["counts"]["holdout"] >= 20
     assert set(saved["splits"]) == {"dev", "holdout", "all"}

@@ -9,7 +9,7 @@
 - 모델 호출이 실패해도 대화는 규칙 경로로 이어진다.
 - 읽지 못하거나 확신이 없으면 통과가 아니라 되묻는다: 확인되지 않은 조건은 사실이 되지 않고, 모델이 의미로 옮긴 업종·목표는 사용자가 맞다고 해야 확정된다.
 - 정책 위반 의도·광고 불가 업종은 새로 만들지 않고 `guardrails.input_guard.intercept` 의 판정을 그대로 쓴다. 인젝션은 슬롯을 읽기 전에 격리한다.
-- 플랜은 `agents.planner.plan_campaign` 이 만든 것을 코드가 사용자가 말한 목표·예산·세트 수에 맞는지 다시 확인하고 맞춘다 (새 플래너를 만들지 않는다).
+- 플랜은 `agents.planner.plan_campaign` 이 만든 것을 코드가 사용자가 말한 목표·예산·세트 수·확인된 연령 범위에 맞는지 다시 확인하고 맞춘다 (새 플래너를 만들지 않는다).
 
 이 모듈이 내는 정확도·지표가 의미하지 않는 것
 - 평가(`evals/dialogs.py`)의 숫자는 **규칙 기반 추출기(또는 그것을 되풀이하는 대역)의 값**이다. 실제 언어 모델의 이해력이 아니다.
@@ -211,6 +211,10 @@ class NotReady(ValueError):
     """대화가 아직 준비되지 않았는데 브리프·요청문을 만들려 했다."""
 
 
+class PlanAudienceConflict(ValueError):
+    """모델이 제안한 별도 집단을 확인된 연령 조건으로 안전하게 좁힐 수 없다."""
+
+
 def new_state() -> ConversationState:
     return ConversationState()
 
@@ -382,6 +386,42 @@ def _set_slot(st: ConversationState, slot: str, c: R.Candidate, n: int, source: 
               note=c.note, needs_confirmation=c.needs_confirm, weak=c.weak)
     st.slots[slot] = sl
     return sl
+
+
+def _missing_age_min(sl: Optional[Slot]) -> Optional[int]:
+    """성인일 수 있는 상한만 말한 경우. 실제 미성년 집단·충돌과 구분한다."""
+    if sl is None or sl.status == "conflict" or not isinstance(sl.value, dict):
+        return None
+    value = sl.value
+    hi = value.get("age_max")
+    if value.get("age_min") is None and isinstance(hi, int) and hi >= MIN_AGE and not (value.get("minor") or value.get("everyone")):
+        return hi
+    return None
+
+
+def _complete_age_min_answer(st: ConversationState, ex: R.Extraction, model_candidates: list[R.Candidate], text: str) -> None:
+    """바로 앞에서 물은 최소 연령에 대한 명시적 답만 기존 상한과 합친다.
+
+    '네'나 여러 집단은 하한 근거가 아니다. 전체 타겟 교체 요청은 기존
+    교체 경로가 처리한다. 새 범위의 근거는 이전 상한 구절과 이번 답이다.
+    """
+    hi = _missing_age_min(st.slots.get("audience"))
+    if hi is None or not any(q.slot == "audience" and q.kind == "fix" for q in st.last_questions):
+        return
+    age_keys = {"age_min", "age_max", "minor", "everyone"}
+    ages = [c for c in ex.candidates + model_candidates if c.slot == "audience" and age_keys.intersection(c.value)]
+    if len(ages) != 1 or ages[0] not in ex.candidates:
+        return
+    c = ages[0]
+    lo = c.value.get("age_min")
+    if not isinstance(lo, int) or not MIN_AGE <= lo <= hi or c.value.get("age_max") is not None:
+        return
+    if c.explicit_update or R.is_update_at(text, c.start, c.end) or R._negated(text, c.end):
+        return
+    if re.search(r"또는|아니면|혹은|\bor\b|[/|]|미정|모르|불확실|미확정|제외|배제", text, re.I):
+        return
+    c.value = {**c.value, "age_max": hi, "age_text": f"만 {lo}~{hi}세"}
+    c.explicit_update = True
 
 
 def _apply(st: ConversationState, c: R.Candidate, n: int, source: str, log: _Log) -> None:
@@ -589,8 +629,12 @@ def _platform_issues(st: ConversationState) -> list[Issue]:
     aud = st.slots.get("audience")
     if aud is not None and R.is_minor_audience(aud.value):
         said = aud.evidence[-1].quote if aud.evidence else "미성년"
+        hi = _missing_age_min(aud)
+        message = (f"‘{hi}세 이하’의 최소 연령이 아직 확인되지 않았어요. 이 프로젝트는 만 {MIN_AGE}세 이상을 대상으로 구성해요. "
+                   "상한은 유지하고 최소 연령을 알려 주세요." if hi is not None else
+                   f"만 {MIN_AGE}세 미만은 타겟으로 광고할 수 없어요 (‘{said}’). 타겟을 만 {MIN_AGE}세 이상으로 바꿔 주세요.")
         out.append(Issue(code="MINOR_TARGET", severity="block", slot="audience",
-                         message=f"만 {MIN_AGE}세 미만은 타겟으로 광고할 수 없어요 (‘{said}’). 타겟을 만 {MIN_AGE}세 이상으로 바꿔 주세요.",
+                         message=message,
                          detail=f"core.platform_spec.MIN_AGE={MIN_AGE}"))
     bud = st.slots.get("monthly_budget_krw")
     if bud is not None and isinstance(bud.value, int):
@@ -1024,8 +1068,14 @@ def _build_questions(st: ConversationState, ex: R.Extraction, issues: list[Issue
             quote = sl.evidence[-1].quote if sl.evidence else ""
             cands.append((2, Question(slot=slot, kind="confirm", text=f"‘{quote}’ 라는 말을 {SLOT_LABEL[slot]} ‘{value_text(slot, sl.value)}’(으)로 이해했어요. 맞나요?", choices=["네", "아니요"])))
     if any(i.code == "MINOR_TARGET" for i in issues):
-        cands.append((2, Question(slot="audience", kind="fix", text=f"만 {MIN_AGE}세 이상으로만 광고할 수 있어요. 타겟 연령을 만 {MIN_AGE}세 이상으로 다시 알려 주시겠어요?",
-                                  choices=["20대", "30대", f"만 {MIN_AGE}세 이상"])))
+        hi = _missing_age_min(st.slots.get("audience"))
+        if hi is not None:
+            cands.append((2, Question(slot="audience", kind="fix",
+                                      text=f"‘{hi}세 이하’는 유지할게요. 최소 연령을 ‘만 {MIN_AGE}세 이상’처럼 구체적으로 알려 주시겠어요?",
+                                      choices=[f"타겟을 만 {MIN_AGE}~{hi}세로 바꿔 주세요"])))
+        else:
+            cands.append((2, Question(slot="audience", kind="fix", text=f"만 {MIN_AGE}세 이상으로만 광고할 수 있어요. 타겟 연령을 만 {MIN_AGE}세 이상으로 다시 알려 주시겠어요?",
+                                      choices=["20대", "30대", f"만 {MIN_AGE}세 이상"])))
     prio = {"category": 3, "objective": 4, "monthly_budget_krw": 5, "audience": 6, "period": 7, "key_conditions": 8}
     asked_vague = {q.slot for _, q in cands}
     for slot in ("category", "objective", "monthly_budget_krw"):
@@ -1073,8 +1123,60 @@ def _scale_budgets(ad_sets: list[dict], total: int) -> None:
         a["rationale"] = re.sub(r"예산\s*\d+\s*%", f"예산 {pct}%", a.get("rationale", ""))
 
 
+_AGE_CONJUNCTION = re.compile(r"(?:\s|[,·()]|이고|이며|이면서|및|그리고|중|성인)*")
+
+
+def _constrain_plan_age(text: str, confirmed: dict) -> str:
+    """사용자가 확인한 연령으로만 세트를 좁힌다. 별도 집단을 덮어쓰지 않는다.
+
+    더 좁은 하위 집단과 연령 이외의 문구는 보존한다. 연령이 없는 세트에도
+    확인된 제한을 명시한다. 겹치지 않는 집단·미성년 집단은 조용히 바꾸지
+    않고 미리보기 생성을 중단한다.
+    """
+    lower, upper = confirmed["age_min"], confirmed.get("age_max")
+    bound = R.audience_text({"age_min": lower, "age_max": upper})
+    ages = [c for c in R._extract_audience(text, [])
+            if {"age_min", "age_max", "minor", "everyone"}.intersection(c.value) and not _excluded_target(text, c)]
+    if not ages:
+        return f"{bound} · {text}"
+    # 같은 구절의 '19세 이상 40세 이하'만 한 범위로 묶는다. '또는' 등으로
+    # 나눈 집단은 따로 검사하므로 한 집단의 성인 하한이 다른 집단을 덮지 않는다.
+    grouped: list[R.Candidate] = []
+    used: set[int] = set()
+    for i, high in enumerate(ages):
+        if high.value.get("age_min") is not None or high.value.get("age_max") is None:
+            continue
+        for j, low in enumerate(ages):
+            lo = low.value.get("age_min")
+            if i in used or j in used or lo is None or low.value.get("age_max") is not None:
+                continue
+            first, last = sorted((low, high), key=lambda c: c.start)
+            if MIN_AGE <= lo <= high.value["age_max"] and _AGE_CONJUNCTION.fullmatch(text[first.end:last.start]):
+                grouped.append(R.Candidate("audience", {"age_min": lo, "age_max": high.value["age_max"]},
+                                           text[first.start:last.end], start=first.start, end=last.end))
+                used.update((i, j))
+                break
+    grouped += [c for i, c in enumerate(ages) if i not in used]
+    replacements: list[tuple[int, int, str]] = []
+    for c in grouped:
+        lo, hi = c.value.get("age_min"), c.value.get("age_max")
+        if c.value.get("minor") or (lo is not None and lo < MIN_AGE):
+            raise PlanAudienceConflict("미성년 집단은 성인 범위로 덮어쓰지 않는다")
+        clipped_lo = max(lower, lo) if lo is not None else lower
+        clipped_hi = min(upper, hi) if upper is not None and hi is not None else (upper if hi is None else hi)
+        if clipped_hi is not None and clipped_lo > clipped_hi:
+            raise PlanAudienceConflict("확인된 연령과 겹치지 않는 별도 집단")
+        if lo == clipped_lo and hi == clipped_hi and not c.value.get("everyone"):
+            continue
+        replacement = R.audience_text({"age_min": clipped_lo, "age_max": clipped_hi})
+        replacements.append((c.start, c.end, replacement))
+    for start, end, replacement in sorted(replacements, reverse=True):
+        text = text[:start] + replacement + text[end:]
+    return text
+
+
 def conform_plan(plan: CampaignPlan, st: ConversationState, categories: set[str]) -> tuple[CampaignPlan, list[str], list]:
-    """플래너가 낸 플랜이 사용자가 말한 목표·월 예산·세트 수·입찰 방식과 맞는지 코드가 확인하고 맞춘다. (플랜, 고친 내용, 플래너 수리 이슈)."""
+    """플랜의 목표·월 예산·세트 수·입찰·확인된 연령을 맞춘다. (플랜, 고친 내용, 플래너 수리 이슈)."""
     obj = Objective(st.slots["objective"].value)
     budget = int(st.slots["monthly_budget_krw"].value)
     d = plan.model_dump(mode="json")
@@ -1098,6 +1200,18 @@ def conform_plan(plan: CampaignPlan, st: ConversationState, categories: set[str]
     if bid is not None and bid.value in allowed_bids(obj):
         for a in sets:
             a["bid_strategy"] = bid.value
+    audience = st.slots.get("audience")
+    if audience is not None and audience.status == "confirmed" and not audience.needs_confirmation:
+        value = audience.value
+        if isinstance(value, dict) and value.get("age_min") is not None and not R.is_minor_audience(value):
+            changed = 0
+            for a in sets:
+                constrained = _constrain_plan_age(a["audience"], value)
+                changed += constrained != a["audience"]
+                a["audience"] = constrained
+            if changed:
+                bounds = R.audience_text({"age_min": value["age_min"], "age_max": value.get("age_max")})
+                notes.append(f"말씀하신 연령 조건({bounds})을 벗어나지 않도록 {changed}개 세트의 타겟을 맞췄어요")
     if notes:
         d["assumptions"] = list(d.get("assumptions") or []) + notes
     fixed, issues = validate_and_repair(d, categories)
@@ -1124,7 +1238,7 @@ def _adult_lower_bound(text: str, upper: R.Candidate, candidates: list[R.Candida
         if lo is None or lower.value.get("age_max") is not None or lo < MIN_AGE or lo > upper.value["age_max"]:
             continue
         first, second = sorted((lower, upper), key=lambda c: c.start)
-        if re.fullmatch(r"(?:\s|[,·()]|이고|이며|이면서|및|그리고|중|성인)*", text[first.end:second.start]):
+        if _AGE_CONJUNCTION.fullmatch(text[first.end:second.start]):
             return lo
     return None
 
@@ -1187,11 +1301,14 @@ def _maybe_plan(st: ConversationState, router: Router, catalog: PolicyCatalog, r
         pr = plan_campaign(brief, brief.advertiser_input, cats, "", router)
         plan, notes, plan_issues = conform_plan(pr.plan, st, cats)
     except Exception as e:  # noqa: BLE001 — 플랜을 못 만들어도 대화·슬롯은 그대로 둔다
-        code = classify_exception(e)
+        code = classify_exception(e, {PlanAudienceConflict: "FM-02"})
         result.failures.append(FailureEvent(code=code, stage="conversation_plan", message=f"플랜 미리보기 실패 ({type(e).__name__})", fallback="미리보기 없이 계속"))
         if st.plan_preview is not None:
             st.plan_stale = True
-        iss = Issue(code="PLAN_UNAVAILABLE", severity="warn", message="캠페인 구성 미리보기를 만들지 못했어요. 잠시 뒤 다시 말씀해 주시거나, 이 내용으로 광고 작업 화면을 채울 수 있어요.", origin="turn", turn=st.user_turns)
+        message = ("캠페인 구성에 확인한 연령 범위와 겹치지 않거나 미성년자를 포함하는 별도 집단이 있어 미리보기를 만들지 못했어요. "
+                   "확인한 설정으로 광고 작업 화면을 채울 수 있어요." if isinstance(e, PlanAudienceConflict) else
+                   "캠페인 구성 미리보기를 만들지 못했어요. 잠시 뒤 다시 말씀해 주시거나, 이 내용으로 광고 작업 화면을 채울 수 있어요.")
+        iss = Issue(code="PLAN_UNAVAILABLE", severity="warn", message=message, origin="turn", turn=st.user_turns)
         st.issues.append(iss)
         _log_issue(st, iss)
         return
@@ -1352,6 +1469,7 @@ def _run_turn(st: ConversationState, raw: str, router: Router, settings: Setting
             _confirm_pending(st, True, log)
         elif ex.negative and st.pending_confirm:
             _confirm_pending(st, False, log)
+        _complete_age_min_answer(st, ex, accepted, use)
         touched: set[str] = set()
         for c in sorted(ex.candidates, key=lambda c: c.start):
             _apply(st, c, n, "rule", log)

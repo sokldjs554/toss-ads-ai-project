@@ -1,0 +1,29 @@
+{
+  "generated_at": "2026-10-21T05:57:06.455096+00:00",
+  "python": "3.11.17",
+  "engine_fingerprint": "d5f751e9070f40f1",
+  "checks": [
+    {
+      "stage": "red",
+      "command": ".venv311/bin/python -m pytest tests/test_insights_transition_evidence.py -o addopts='' -q",
+      "result": "1 failed, 9 passed in 1.52s",
+      "exit_code": 1,
+      "failure": "test_observed_transition_recovers_a_local_change_hidden_in_the_regular_baseline: expected incident, got [] before code change"
+    },
+    {
+      "stage": "targeted",
+      "command": ".venv311/bin/python -m pytest tests/test_insights_transition_evidence.py tests/test_insights_followup.py tests/test_insights_trend_report.py tests/test_insights_reference_guard.py -o addopts='' -q",
+      "result": "69 passed in 51.61s",
+      "exit_code": 0
+    },
+    {
+      "stage": "related_suite",
+      "command": ".venv311/bin/python -m pytest tests/test_insights*.py -o addopts='' -q",
+      "result": "364 passed in 90.31s",
+      "exit_code": 0
+    }
+  ],
+  "scope": "All insight test modules including CSV, generator, engine, reports, live-call fake path, UI, and new transition guards; repository-wide suite delegated to integration owner. No actual provider calls were made.",
+  "frozen_original_files": 9,
+  "frozen_files_unchanged": true
+}

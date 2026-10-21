@@ -1,0 +1,320 @@
+{
+  "purpose": "Diagnosis only. Reference ending at the known event onset is never supplied to production analyze. Unthresholded scans describe score limits and are not product detections.",
+  "python": "3.11.17",
+  "before_revision": "4dce790",
+  "before_engine_source_sha256": "273219384f3bcb64dd8d5d1296459767d1515eb62733ba73a7e855e175c3518d",
+  "after_engine_fingerprint": "d5f751e9070f40f1",
+  "cases": [
+    {
+      "id": "h26-p059",
+      "metric": "cvr",
+      "segment": "세트B_30대",
+      "reference_for_diagnostic": [
+        "2026-07-13",
+        "2026-08-01"
+      ],
+      "truth_onset_used_only_for_diagnostic": "2026-08-02",
+      "regular_baseline": {
+        "sigma": 0.4364419397396018,
+        "trend_per_day": -0.027541920500446276,
+        "maximum_unthresholded_score": 0.5829944573704378,
+        "required_score": 6.613803899558542,
+        "comparisons": 48,
+        "scan_days": 14,
+        "base_days": 28,
+        "unthresholded_spans": [
+          {
+            "start": "2026-08-16",
+            "end": "2026-08-18",
+            "pct": 0.27544268601007493,
+            "score": 0.5829944573704378
+          },
+          {
+            "start": "2026-08-10",
+            "end": "2026-08-15",
+            "pct": -0.16167889145475178,
+            "score": 0.5643687849369025
+          }
+        ]
+      },
+      "clean_reference_recent_only": {
+        "sigma": 0.11052173915492267,
+        "trend_per_day": 0.0,
+        "maximum_unthresholded_score": 5.712060347089662,
+        "required_score": 7.001465323848023,
+        "comparisons": 672,
+        "scan_days": 14,
+        "base_days": 20,
+        "unthresholded_spans": [
+          {
+            "start": "2026-08-10",
+            "end": "2026-08-23",
+            "pct": -0.504436553853637,
+            "score": 5.712060347089662
+          },
+          {
+            "start": "2026-08-10",
+            "end": "2026-08-11",
+            "pct": -0.4964126448761169,
+            "score": 0.0
+          }
+        ]
+      },
+      "clean_reference_transition_scan": {
+        "sigma": 0.11052173915492267,
+        "trend_per_day": 0.0,
+        "maximum_unthresholded_score": 7.884771632254765,
+        "required_score": 7.156657128742617,
+        "comparisons": 2016,
+        "scan_days": 22,
+        "base_days": 20,
+        "unthresholded_spans": [
+          {
+            "start": "2026-08-02",
+            "end": "2026-08-23",
+            "pct": -0.5057003899522947,
+            "score": 7.884771632254765
+          },
+          {
+            "start": "2026-08-02",
+            "end": "2026-08-03",
+            "pct": -0.4981267499976224,
+            "score": 0.0
+          }
+        ]
+      },
+      "before_incidents": 0,
+      "after_incidents": 1,
+      "selected_reference": [
+        "2026-07-13",
+        "2026-08-01"
+      ],
+      "reported_window": [
+        "2026-08-10",
+        "2026-08-23"
+      ],
+      "recent_stats": {
+        "impressions": {
+          "actual": 9360539.0,
+          "expected": 8927601.434716685,
+          "pct": 0.048494275696465916
+        },
+        "clicks": {
+          "actual": 206642.0,
+          "expected": 197954.95674834866,
+          "pct": 0.043883939025052054
+        },
+        "ctr": {
+          "actual": 0.022075865503044214,
+          "expected": 0.022173364054824733,
+          "pct": -0.00439710237650226
+        },
+        "cpc": {
+          "actual": 345.8574152398835,
+          "expected": 345.77644778787743,
+          "pct": 0.00023416126958353267
+        },
+        "cvr": {
+          "actual": 0.038080351525827276,
+          "expected": 0.04486067787456779,
+          "pct": -0.15114186120188755
+        },
+        "cpa": {
+          "actual": 9082.306265090863,
+          "expected": 7707.784727521995,
+          "pct": 0.17832899933763047
+        },
+        "cost": {
+          "actual": 71468668.0,
+          "expected": 68448161.76644692,
+          "pct": 0.044128376213511844
+        },
+        "conversions": {
+          "actual": 7869.0,
+          "expected": 8880.393548361668,
+          "pct": -0.113890622397952
+        }
+      },
+      "actions": [
+        "check_landing",
+        "pause"
+      ],
+      "ranked_causes": [
+        [
+          "landing_issue",
+          1.0
+        ],
+        [
+          "budget_cap",
+          0.2
+        ],
+        [
+          "creative_fatigue",
+          0.2
+        ],
+        [
+          "bid_competition",
+          0.2
+        ],
+        [
+          "audience_saturation",
+          0.1818
+        ],
+        [
+          "mix_shift",
+          0.0889
+        ],
+        [
+          "tracking_break",
+          0.0875
+        ]
+      ],
+      "selected_findings": [
+        {
+          "metric": "cvr",
+          "segment": "광고세트 세트B_30대",
+          "pct": -0.504436553853637,
+          "score": 7.884771632254765,
+          "start": "2026-08-10",
+          "end": "2026-08-23"
+        }
+      ]
+    },
+    {
+      "id": "h26-p077",
+      "metric": "cvr",
+      "segment": "aggregate",
+      "reference_for_diagnostic": [
+        "2026-08-12",
+        "2026-09-01"
+      ],
+      "truth_onset_used_only_for_diagnostic": "2026-09-02",
+      "regular_baseline": {
+        "sigma": 0.14470094183462628,
+        "trend_per_day": 0.0,
+        "maximum_unthresholded_score": 3.412192492752112,
+        "required_score": 5.650793909319243,
+        "comparisons": 32,
+        "scan_days": 14,
+        "base_days": 28,
+        "unthresholded_spans": [
+          {
+            "start": "2026-09-13",
+            "end": "2026-09-22",
+            "pct": -0.18064603476031216,
+            "score": 3.412192492752112
+          },
+          {
+            "start": "2026-09-10",
+            "end": "2026-09-12",
+            "pct": -0.10856404513897033,
+            "score": 1.1656350721068356
+          }
+        ]
+      },
+      "clean_reference_recent_only": {
+        "sigma": 0.13915594389534602,
+        "trend_per_day": 0.0,
+        "maximum_unthresholded_score": 1.8141044091712444,
+        "required_score": 6.09996610358041,
+        "comparisons": 448,
+        "scan_days": 14,
+        "base_days": 21,
+        "unthresholded_spans": [
+          {
+            "start": "2026-09-13",
+            "end": "2026-09-15",
+            "pct": -0.26728163948919004,
+            "score": 1.8141044091712444
+          },
+          {
+            "start": "2026-09-20",
+            "end": "2026-09-22",
+            "pct": -0.24293229559798257,
+            "score": 1.3178399496151214
+          }
+        ]
+      },
+      "clean_reference_transition_scan": {
+        "sigma": 0.13915594389534602,
+        "trend_per_day": 0.0,
+        "maximum_unthresholded_score": 1.8724045766591346,
+        "required_score": 6.277484451766184,
+        "comparisons": 1344,
+        "scan_days": 21,
+        "base_days": 21,
+        "unthresholded_spans": [
+          {
+            "start": "2026-09-06",
+            "end": "2026-09-08",
+            "pct": -0.2249658039922101,
+            "score": 1.8724045766591346
+          },
+          {
+            "start": "2026-09-13",
+            "end": "2026-09-15",
+            "pct": -0.26728163948919004,
+            "score": 1.8141044091712444
+          }
+        ]
+      },
+      "before_incidents": 0,
+      "after_incidents": 0,
+      "selected_reference": [
+        "2026-08-12",
+        "2026-09-08"
+      ],
+      "reported_window": [
+        "2026-09-09",
+        "2026-09-22"
+      ],
+      "recent_stats": {
+        "impressions": {
+          "actual": 1607506.0,
+          "expected": 1653432.692566441,
+          "pct": -0.027776572202134253
+        },
+        "clicks": {
+          "actual": 34148.0,
+          "expected": 35844.91418595325,
+          "pct": -0.0473404449275604
+        },
+        "ctr": {
+          "actual": 0.021242844505712576,
+          "expected": 0.021679088811480524,
+          "pct": -0.020122815564874053
+        },
+        "cpc": {
+          "actual": 333.45797704111516,
+          "expected": 333.09953488378824,
+          "pct": 0.001076081230350523
+        },
+        "cvr": {
+          "actual": 0.04401429073445004,
+          "expected": 0.051322731358001646,
+          "pct": -0.14240163043099918
+        },
+        "cpa": {
+          "actual": 7576.129740518962,
+          "expected": 6490.292431247528,
+          "pct": 0.16730175423894122
+        },
+        "cost": {
+          "actual": 11386923.0,
+          "expected": 11939924.24329033,
+          "pct": -0.04631530586143284
+        },
+        "conversions": {
+          "actual": 1503.0,
+          "expected": 1839.6589013163007,
+          "pct": -0.18300071881554603
+        }
+      },
+      "actions": [
+        "keep_watching"
+      ],
+      "ranked_causes": [],
+      "selected_findings": []
+    }
+  ]
+}

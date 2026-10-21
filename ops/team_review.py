@@ -143,9 +143,14 @@ def _dispatch(state: dict, q: ReviewQueue, actor: dict, action: str, p: dict, no
     aid = actor["id"]
     if action == "overview":
         _fields(p, set())
-        return {"account": actor, "stats": q.stats().to_dict(),
-                "held_items": q.held_by(aid) if actor["role"] == "reviewer" else [],
-                "required_labels": q.required_labels}
+        result = {"account": actor,
+                  "held_items": q.held_by(aid) if actor["role"] == "reviewer" else [],
+                  "required_labels": q.required_labels}
+        # Even aggregate agreement counts can reveal a previous label when a
+        # workspace contains one item. Only owners need this operational view.
+        if actor["role"] == "owner":
+            result["stats"] = q.stats().to_dict()
+        return result
     if action == "accounts":
         _allow(actor, "owner")
         _fields(p, set())
