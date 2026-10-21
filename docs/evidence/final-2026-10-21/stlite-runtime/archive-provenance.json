@@ -1,0 +1,76 @@
+{
+  "method": "Read exact zip archives used by the saved observations; original per-run records are unchanged. ZIP hashes identify observed bytes, not byte-reproducible rebuilds because ZIP member timestamps may change.",
+  "archives": [
+    {
+      "observation": "initial_idle_and_runtime_comparison",
+      "app_archive_sha256": "9990d0fe90bfe52c0214d48b756699d072bbc9aa41fdba8d6208dcffb2bb857d",
+      "build_info": "80e8807",
+      "archive_entry_count": 257,
+      "selected_entries": [
+        {
+          "path": "build_info.txt",
+          "sha256": "edb57109bfc03304ed9ab054349d7ca4c62ba8452d691bf00f5cf862868a8247",
+          "bytes": 8
+        },
+        {
+          "path": "evals/live_features.py",
+          "sha256": "07a62c0dad5838890e4d46dbbc80b04d37aca56ca07ad040aa2fe5e95b67696f",
+          "bytes": 22867
+        },
+        {
+          "path": "evals/live_request_20261020.json",
+          "sha256": "949971893ff79e6654e88e762579a1d8a48313100a86b37a73871a0773556bb4",
+          "bytes": 12451
+        },
+        {
+          "path": "evals/reports/live_features/features-20261020-run1.json",
+          "sha256": "b5c40bd30cc353730eb6da0d7104d08aefb91945949c6d519cca5a3c3d345247",
+          "bytes": 542525
+        },
+        {
+          "path": "evals/reports/live_features/reservations.json",
+          "sha256": "53e64741a8b6d05884c8219ce6b409577f8d2905387526bc8daf907e70bb720f",
+          "bytes": 473
+        }
+      ]
+    },
+    {
+      "observation": "navigation_restart",
+      "app_archive_sha256": "27a310c3ce36252f87e639f2f77e7f0d26d084a2233c37f8660338c8b7a6b7a5",
+      "build_info": "000bc89",
+      "archive_entry_count": 258,
+      "selected_entries": [
+        {
+          "path": "build_info.txt",
+          "sha256": "35402b1a9f1b8b6f349c16b3f7dcc90a14ed197e83b350454cb56814ad31308a",
+          "bytes": 8
+        },
+        {
+          "path": "evals/live_features.py",
+          "sha256": "07a62c0dad5838890e4d46dbbc80b04d37aca56ca07ad040aa2fe5e95b67696f",
+          "bytes": 22867
+        },
+        {
+          "path": "evals/live_request_20261020.json",
+          "sha256": "841e11b1128ed531bcd2634605f687103a4cfccaf2f394f1bfa14e2e11d95d42",
+          "bytes": 12366
+        },
+        {
+          "path": "evals/reports/live_features/features-20261020-run1.json",
+          "sha256": "b5c40bd30cc353730eb6da0d7104d08aefb91945949c6d519cca5a3c3d345247",
+          "bytes": 542525
+        },
+        {
+          "path": "evals/reports/live_features/features-20261020-run2.json",
+          "sha256": "429894549ee081e9789a24abf304c1f46f374c4afba042314720684c2ee70acd",
+          "bytes": 783735
+        },
+        {
+          "path": "evals/reports/live_features/reservations.json",
+          "sha256": "eee87f8745980c09e979fe289a69e8e68b46dddee609b6d4ef27de3e44ca2785",
+          "bytes": 748
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+The first compatibility attempt stopped because the test read selectbox inner_text. The stlite 1.12 selectbox rendered the selected category in an input value; the screenshot already shows 커머스. No application error occurred. The verifier was corrected to read the combobox input value and rerun without changing application source.

@@ -1,0 +1,417 @@
+{
+  "status": "failed",
+  "run_at_utc": "2026-10-21T01:39:02.759811+00:00",
+  "source_commit": "3e3f830eeac0743dfbbdcae449cf3660f347add9",
+  "stlite": "1.12.0",
+  "requested_pyodide": "314.0.3",
+  "runtime_text": "Python 3.14.2 · Streamlit 1.65.0 · pydantic 2.12.5",
+  "browser": "141.0.7390.37",
+  "playwright": "1.56.0",
+  "full_app_entrypoint": "app.py",
+  "storage_fixture": "persistence_check.py",
+  "storage_namespace": "preflight-studio-review-v1",
+  "fixture_description": "One synthetic test ad written through the unchanged production review queue and storage component; the unmodified full app then restores it.",
+  "bundle_files": 258,
+  "bundle_sha256": "9bb9d51316651459907eba9308e06005c38b6bed95e5fbc9b11f75b95dc5d507",
+  "original_html_sha256": "9a8900a0b0c052e5d97a805478356add7ba8625b90fe89a0994cb936b997c789",
+  "tested_html_sha256": "8b8ad312ccfcf5f43a710f8380c6cd1e3fdcfcbba0c3bca386f856af96804476",
+  "checks": 35,
+  "failed_checks": 0,
+  "results": [
+    {
+      "check": "full app boots",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "check": "full app boot: no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "check": "full app boot: no Python worker fatal error",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "check": "category changes to commerce",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "check": "category can change back",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "check": "example pipeline completes without API call",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "check": "example pipeline: no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "check": "example pipeline: no Python worker fatal error",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "check": "성과 리포트: no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "check": "성과 리포트: no Python worker fatal error",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "check": "performance report renders findings and actions",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "check": "performance report: no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "check": "performance report: no Python worker fatal error",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "check": "검사 사례: no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "check": "검사 사례: no Python worker fatal error",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "check": "stored cases view renders",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "check": "품질 확인: no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "check": "품질 확인: no Python worker fatal error",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "check": "latest actual API report is expanded",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "check": "run2 이미지 속 글자·검사 matches stored count",
+      "ok": true,
+      "detail": [
+        "이미지 속 글자·검사",
+        "12/12",
+        "12/12",
+        "12/12"
+      ]
+    },
+    {
+      "check": "run2 여러 턴 캠페인 설정 matches stored count",
+      "ok": true,
+      "detail": [
+        "여러 턴 캠페인 설정",
+        "20/20",
+        "19/20",
+        "17/20"
+      ]
+    },
+    {
+      "check": "run2 성과 보고서 문장화 matches stored count",
+      "ok": true,
+      "detail": [
+        "성과 보고서 문장화",
+        "12/12",
+        "12/12",
+        "12/12"
+      ]
+    },
+    {
+      "check": "run2 광고 문구 비교 matches stored count",
+      "ok": true,
+      "detail": [
+        "광고 문구 비교",
+        "28/28",
+        "28/28",
+        "21/28"
+      ]
+    },
+    {
+      "check": "run2 캠페인 구성·문구 생성·검사 matches stored count",
+      "ok": true,
+      "detail": [
+        "캠페인 구성·문구 생성·검사",
+        "4/4",
+        "4/4",
+        "4/4"
+      ]
+    },
+    {
+      "check": "run2 cost and source match",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "check": "운영: no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "check": "운영: no Python worker fatal error",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "check": "operations tab changes",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "check": "operations navigation: no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "check": "operations navigation: no Python worker fatal error",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "check": "Pyodide Python3.14 runtime is active",
+      "ok": true,
+      "detail": "Python 3.14.2 · Streamlit 1.65.0 · pydantic 2.12.5"
+    },
+    {
+      "check": "production storage component confirms save",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "check": "IndexedDB restores after fixture reload",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "check": "storage fixture reload: no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "check": "storage fixture reload: no Python worker fatal error",
+      "ok": true,
+      "detail": []
+    }
+  ],
+  "failure": {
+    "phase": "full app reads saved queue",
+    "type": "TimeoutError",
+    "message": "Locator.wait_for: Timeout 60000ms exceeded.\nCall log:\n  - waiting for get_by_text(\"런타임 호환성 확인 광고\").first to be visible\n    119 × locator resolved to hidden <td tabindex=\"-1\" role=\"gridcell\" aria-colindex=\"6\" id=\"glide-cell-5-0\" aria-readonly=\"true\" aria-selected=\"false\" data-testid=\"glide-cell-5-0\">런타임 호환성 확인 광고</td>\n"
+  },
+  "screenshots": [
+    "full-app-start.png",
+    "full-app-example.png",
+    "full-app-performance.png",
+    "full-app-live-run2.png",
+    "storage-saved.png",
+    "storage-restored.png"
+  ],
+  "page_errors": [],
+  "console_errors": [
+    "Access to fetch at 'https://stlite.invalid/full/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8632%2Ffull%2F' from origin 'http://127.0.0.1:8632' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+    "Access to fetch at 'https://stlite.invalid/full/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8632%2Ffull%2F' from origin 'http://127.0.0.1:8632' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+    "Access to fetch at 'https://stlite.invalid/persistence/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8632%2Fpersistence%2F' from origin 'http://127.0.0.1:8632' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+    "Access to fetch at 'https://stlite.invalid/persistence/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8632%2Fpersistence%2F' from origin 'http://127.0.0.1:8632' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+    "Access to fetch at 'https://stlite.invalid/full/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8632%2Ffull%2F' from origin 'http://127.0.0.1:8632' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+    "Access to fetch at 'https://stlite.invalid/full/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8632%2Ffull%2F' from origin 'http://127.0.0.1:8632' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch"
+  ],
+  "network_errors": [
+    {
+      "url": "https://stlite.invalid/full/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8632%2Ffull%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "url": "https://stlite.invalid/full/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8632%2Ffull%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "url": "https://stlite.invalid/persistence/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8632%2Fpersistence%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "url": "https://stlite.invalid/persistence/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8632%2Fpersistence%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "url": "https://stlite.invalid/full/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8632%2Ffull%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "url": "https://stlite.invalid/full/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8632%2Ffull%2F",
+      "failure": "net::ERR_FAILED"
+    }
+  ],
+  "runtime_urls": [
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/Autocomplete-yBl0QZl8-BEE9EvYw.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/Button-DhJyQroy-B0Cv_LtY.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/ButtonGroup-D_brxMJk-BOjSceyZ.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/Cancel.esm-CtMNidjq-CXB-pKHk.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/Checkbox-DiR2_V_8-CXHk70Gn.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/ComponentInstance-B2dNydsJ-BUC1BWfn.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/DataFrame-DRF8lFxD-CzB3xmp7.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/Delete.esm-C6XWoANM-vurQtJtA.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/ErrorOutline.esm-BTDiocCk-BcENiBMZ.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/FileDownload.esm-CRjxpEeO-BaCWUjYd.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/FileUploader-owv7Gz8c-BhqJc8-M.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/IFrameUtil-BYTcNZ4E-B8B2FnkH.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/Input-B1waFcLc-Ckq09rqm.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/InputInstructions-CbZRC43y-BKqlI7Nl.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/Json-Bv8cZ4Ae-BsDPgm3k.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/Metric-B4Y_nDFF-BZYvb_ri.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/Multiselect-DBXDK3cr-3J8OBdHw.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/NumberInput-C7YGxq-_-YqHWBRvg.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/PlotlyChart-n2IQBr5J-DAwhduC0.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/Radio-BhjCl1ye-Dl8N1b4y.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/Selectbox-nIDushPA-D6d1TubB.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/Slider-Cbc6kPhU-fxTBcD91.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/StreamlitSyntaxHighlighter-DPaTnFbq-BfmJJNMr.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/TableChart.esm-pzrJ7Hep-BMvXRoA-.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/TextArea-TFma7YiN-MGdc36aS.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/TextField-Co5gRJYP-Dyt18gzB.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/TextInput-B7gtKsp2--zO9t9WA.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/UploadFileInfo-DdcsXhjv-C0F82PE-.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/WidgetLabel--oJQrsAd-IbrOPlTn.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/WidgetLabelHelpIcon-CWnOrY3T-BtbNCfjY.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/WidgetLabelHelpIconInline-CmMO3-ig-CNt0dgU_.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/_baseAssignValue-h4lglAau-CHZc32PX.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/assets/512f7db3dabc21be.woff2",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/assets/a804e71d97445f8d.woff2",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/assets/c3a85cb444e9bde7.woff2",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/checkboxIndicatorStyles-5aHp9rTE-wuG81IsF.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/colors-BD7LS4qt-BehGd4Ls.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/createDownloadLinkElement-DiNIFj9z-DoAwXp-8.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/cubic-Dir1Ko---Ccey17jF.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/defaultLocale-2bEbhetO-QGFVckfi.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/formatMoment-CSglijqE-wHP8MmD-.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/formatNumber-Q1A8AyDZ-C1p6HSP6.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/fuzzyFilterSelectOptions-KB6RlC97-DFGqimxU.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-B1FrxEMd-BsPMjC5n.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-B5zsQkH1-CuJj9n5q.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-CMxjGYGc-Cq-UqsLs.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-CVld_lKx-DBjTNNj_.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-CtOUUcfI-DNqIEPU5.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-Df-1Z3LJ-BbKzDPIK.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-IT10OjuA-BaaIUfwF.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-fsFmsChH-Dni1dpUL.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/init-5BClRdiB-LyILMlTE.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/inputUtils-DCYiajnz-DpM8zsby.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/linear-CJvvCWKw-rrRTERsA.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/numbro-CDdPhOTG-vF1UvoJy.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/ordinal-DkyryJlW-DURmPlUH.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/pandasStylerUtils-CW7C-2r_-shYCGj7z.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/range-CdxqIeI4-DXvN35R3.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/range-DdOGybNB-Ba7Spj1J.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/reactJsonViewCompat-PzF5iqZ4-oi2jTtgM.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/resolveDefaultExport-Cy5TTESD-CcwO08HL.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/serialization-BSMBF8e2-CqZaT18J.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/sprintfjs-CjmCzARP-HuCjLGam.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/stlite.css",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/stlite.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/string-BvOnLx8K-BsWpS-s0.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/styled-components-DOYIt51e-DLCP0S-5.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/styled-components-QCR0zGl1-gqUrmVXI.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/threshold-je-9V4hw-qdwK0deF.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/time-p2i1Qn9v-RYMFf5JC.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/toConsumableArray-B4DpFEAW-6YGARpRB.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/unzip-B41UTbNh-D5sjV7cq.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/urls-hxAPaE-_-CaxBV_RZ.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/useBasicWidgetState-DVivDFu--yiQ4kKRs.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/useCollator-DP4BnoIq-QM8AOSx3.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/useDebouncedCallback-BCfvDBFe-DLr1Sw-B.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/useField-BVpgvwQT-C8iZdscS.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/useFilter-DrWea0bI-BL4UsXQg.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/useFormReset-BZ7HXuA_-BoM-dbzr.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/useFormValidation-Cnit8K9v-CsmEyeH7.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/useLoadMoreSentinel-7ezKn0I6-CVdwtTzs.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/useMenuTrigger-BjNvpiW8-jg9Gu40v.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/useSlot-DKJSZCIj-BYcKzeSG.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/useTextField-Dnr0FC1--M69xt9uz.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/useTextInputAutoExpand-DMMYfD-T-DIVuO6XL.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/useUpdateUiValue-Ctu5Rqeq-DXh24rKr.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/utils-KJzGoNUG-DTAUhUPK.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/value-Fb9HFOxE-BHCNJ526.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/wheels/stlite_lib-0.1.0-py3-none-any.whl",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/wheels/streamlit-1.65.0-cp314-none-any.whl",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/withCalculatedWidth-Ddrgk5vM-CtHlZhi_.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/withFullScreenWrapper-C8-Fpvyp-DxnGM32Q.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/zip-DFW5sP7Z-DCXENPDG.js",
+    "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/zoom-C9yGXsgU-cg-4X7cE.js",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/altair-6.0.0-py3-none-any.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/annotated_types-0.7.0-py3-none-any.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/anyio-4.13.0-py3-none-any.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/attrs-26.1.0-py3-none-any.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/jinja2-3.1.6-py3-none-any.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/jsonschema-4.26.0-py3-none-any.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/jsonschema_specifications-2025.9.1-py3-none-any.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/markupsafe-3.0.3-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/micropip-0.11.1-py3-none-any.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/narwhals-2.18.1-py3-none-any.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/numpy-2.4.3-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/packaging-26.1-py3-none-any.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/pandas-3.0.2-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/pillow-12.2.0-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/protobuf-7.34.1-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/pyarrow-22.0.0-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/pydantic-2.12.5-py3-none-any.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/pydantic_core-2.41.5-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/pyodide-lock.json",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/pyodide.asm.mjs",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/pyodide.asm.wasm",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/pyodide.mjs",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/pyodide_http-0.2.2-py3-none-any.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/pyodide_unix_timezones-1.0.0-py3-none-any.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/pyrsistent-0.20.0-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/python_dateutil-2.9.0.post0-py2.py3-none-any.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/python_stdlib.zip",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/pytz-2026.1.post1-py2.py3-none-any.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/pyyaml-6.0.3-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/referencing-0.37.0-py3-none-any.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/rpds_py-0.30.0-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/six-1.17.0-py2.py3-none-any.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/sniffio-1.3.1-py3-none-any.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/starlette-1.0.0-py3-none-any.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/typing_extensions-4.15.0-py3-none-any.whl",
+    "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/typing_inspection-0.4.2-py3-none-any.whl"
+  ],
+  "blocked_provider_requests": [],
+  "public_deployment_check": false,
+  "paid_api_calls": 0
+}

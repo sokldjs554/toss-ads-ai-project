@@ -1,0 +1,118 @@
+{
+  "kind": "same-app-runtime-comparison",
+  "started_at": "2026-10-21T01:31:52.767927+00:00",
+  "stlite": "1.11.0",
+  "pyodide_expected": "0.29.3",
+  "app_archive_sha256": "9990d0fe90bfe52c0214d48b756699d072bbc9aa41fdba8d6208dcffb2bb857d",
+  "headless": true,
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "ignore_https_errors": true,
+  "idle_seconds_planned": 360,
+  "switches_planned": 60,
+  "switch_interval_seconds": 7,
+  "paid_model_calls": 0,
+  "page_errors": [
+    {
+      "at": "2026-10-21T01:34:30.619668+00:00",
+      "elapsed_seconds": 157.85,
+      "message": "page crash"
+    }
+  ],
+  "console_errors": [
+    {
+      "at": "2026-10-21T01:34:30.595250+00:00",
+      "elapsed_seconds": 157.83,
+      "message": "Pyodide has suffered a fatal error. Please report this to the Pyodide maintainers.",
+      "location": {
+        "url": "https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.asm.js",
+        "lineNumber": 7,
+        "columnNumber": 618371
+      }
+    },
+    {
+      "at": "2026-10-21T01:34:30.596101+00:00",
+      "elapsed_seconds": 157.83,
+      "message": "The cause of the fatal error was:",
+      "location": {
+        "url": "https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.asm.js",
+        "lineNumber": 7,
+        "columnNumber": 618471
+      }
+    },
+    {
+      "at": "2026-10-21T01:34:30.596413+00:00",
+      "elapsed_seconds": 157.83,
+      "message": "RuntimeError: table index is out of bounds\n    at https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.asm.wasm:wasm-function[3533]:0x26303b\n    at https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.asm.wasm:wasm-function[3534]:0x26e454\n    at https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.asm.wasm:wasm-function[1138]:0x168d34\n    at https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.asm.wasm:wasm-function[1148]:0x1696bb\n    at https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.asm.wasm:wasm-function[5217]:0x31110f\n    at https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.asm.wasm:wasm-function[5216]:0x31075e\n    at https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.asm.wasm:wasm-function[5214]:0x310317\n    at https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.asm.wasm:wasm-function[5222]:0x311ae5\n    at https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.asm.wasm:wasm-function[4807]:0x2f1ee1\n    at https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.asm.wasm:wasm-function[2194]:0x1b3d1e",
+      "location": {
+        "url": "https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.asm.js",
+        "lineNumber": 7,
+        "columnNumber": 618591
+      }
+    }
+  ],
+  "network_errors": [],
+  "loaded_pyodide_resources": [
+    {
+      "url": "https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.mjs",
+      "status": 200
+    },
+    {
+      "url": "https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.asm.wasm",
+      "status": 200
+    }
+  ],
+  "events": [
+    {
+      "event": "idle_started",
+      "at": "2026-10-21T01:32:06.155540+00:00",
+      "elapsed_seconds": 13.39
+    },
+    {
+      "event": "idle_minute_1",
+      "at": "2026-10-21T01:33:06.182439+00:00",
+      "elapsed_seconds": 73.41
+    },
+    {
+      "event": "idle_minute_2",
+      "at": "2026-10-21T01:34:06.208974+00:00",
+      "elapsed_seconds": 133.44
+    },
+    {
+      "event": "fatal_runtime_error",
+      "at": "2026-10-21T01:34:30.595288+00:00",
+      "elapsed_seconds": 157.83
+    },
+    {
+      "event": "fatal_runtime_error",
+      "at": "2026-10-21T01:34:30.596113+00:00",
+      "elapsed_seconds": 157.83
+    },
+    {
+      "event": "fatal_runtime_error",
+      "at": "2026-10-21T01:34:30.596423+00:00",
+      "elapsed_seconds": 157.83
+    },
+    {
+      "event": "failed",
+      "at": "2026-10-21T01:34:31.225614+00:00",
+      "elapsed_seconds": 158.46
+    }
+  ],
+  "checks": {
+    "initial_app_ready": true
+  },
+  "switches": [],
+  "browser_version": "141.0.7390.37",
+  "jspi": {
+    "Suspending": "function",
+    "promising": "function"
+  },
+  "status": "failed",
+  "error_type": "RuntimeError",
+  "error": "fatal runtime error observed during idle",
+  "capture_error": "Page.screenshot: Target crashed \nCall log:\n  - taking page screenshot\n  - waiting for fonts to load...\n  - fonts loaded\n",
+  "finished_at": "2026-10-21T01:34:31.226045+00:00"
+}
