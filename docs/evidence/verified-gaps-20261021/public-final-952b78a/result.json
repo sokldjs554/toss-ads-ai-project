@@ -1,0 +1,3490 @@
+{
+  "kind": "remaining-shared-review-and-evaluation-ui",
+  "started_at": "2026-10-21T10:10:08.670351+00:00",
+  "head": "952b78a27ddec6dab39c76498b9c61aadfd559a6",
+  "modes": [
+    "native",
+    "pages"
+  ],
+  "viewports": [
+    [
+      "desktop",
+      1280,
+      900
+    ],
+    [
+      "mobile",
+      390,
+      844
+    ]
+  ],
+  "playwright": "1.56.0",
+  "ignore_https_errors": false,
+  "expected_run_id": "features-20261021-run1",
+  "require_remaining_evaluation": true,
+  "saved_report": {
+    "run_id": "features-20261021-run1",
+    "path": "evals/reports/live_features/features-20261021-run1.json",
+    "sha256": "7c7c1947986ab168d09b4913b951a8c1529b25c7c26f6d454a461b1901b75c7f",
+    "status": "completed",
+    "source_sha": "3887041588690f7fb3259d66b60f25f92373a126"
+  },
+  "scope": "read-only public deployment screens; no access-key entry or shared-review commands",
+  "public_urls": {
+    "native": "https://preflight-toss-ads.onrender.com/",
+    "pages": "https://sokldjs554.github.io/toss-ads-ai-project/app/"
+  },
+  "expected_build": "952b78a",
+  "native_shared_state": "unconfigured",
+  "storage_bridge_scope": "pristine context load acknowledgement and reload acknowledgement only; no queue additions, claims, labels or queue snapshot save commands by the probe; opening an empty IndexedDB may initialize its database and object store",
+  "framework_diagnostic_reference": {
+    "path": "docs/evidence/final-2026-10-21/stlite-runtime/component-paths.json",
+    "sha256": "3397f407b2bb8fec7956607642fea2a9516929840aec1784d1757e214954a71e",
+    "note": "Known stlite checkSourceUrlResponse failures remain in raw console/network logs; acknowledgement is checked independently, not inferred from the log type."
+  },
+  "storage_frontend_source_sha256": "fbfffab54cc6c85d391e2918bb668aa63d83245c61b35b59b2f34dbea2876835",
+  "probe_sha256": "aac14c57a3833ccb1eb226344afeb5fb5bb87e1483d64d3ebe58705a82cf0fe6",
+  "checks": [
+    {
+      "scope": "saved-report",
+      "check": "newest report is the requested run",
+      "ok": true,
+      "detail": "features-20261021-run1"
+    },
+    {
+      "scope": "saved-report",
+      "check": "remaining evaluation has quality audit and separate supplemental records",
+      "ok": true,
+      "detail": {
+        "supplemental_planned": {
+          "rewrite": 4,
+          "conversation_followup": 1
+        },
+        "quality_audit": {
+          "attempted_cases": 28,
+          "accepted_cases": 16,
+          "abstained_cases": 12,
+          "accepted_author_matches": 13,
+          "raw_stable_author_matches": 18,
+          "by_status": {
+            "consensus": 16,
+            "order_disagreement": 2,
+            "invalid_evidence": 7,
+            "rubric_disagreement": 3
+          }
+        }
+      }
+    },
+    {
+      "scope": "pages-build",
+      "check": "all new UI and reports bundled unchanged",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages-build",
+      "check": "no secret configuration files bundled",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "public-pages-bundle",
+      "check": "archive build matches expected deployment",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-bundle",
+      "check": "public UI and saved reports match the checked local files",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-bundle",
+      "check": "no secret configuration files bundled",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "page build matches expected deployment",
+      "ok": true,
+      "detail": "952b78a"
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "initial-load: visitor queue is selected without changing it",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "initial-load: browser storage load acknowledged before editing",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "initial-load: storage component frame exists",
+      "ok": true,
+      "detail": [
+        {
+          "src": "https://preflight-toss-ads.onrender.com/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fpreflight-toss-ads.onrender.com%2F",
+          "has_storage_code": false,
+          "has_inline_execute": false,
+          "srcdoc_length": 0,
+          "srcdoc_sha256": null
+        },
+        {
+          "src": "https://preflight-toss-ads.onrender.com/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fpreflight-toss-ads.onrender.com%2F",
+          "has_storage_code": false,
+          "has_inline_execute": false,
+          "srcdoc_length": 0,
+          "srcdoc_sha256": null
+        }
+      ]
+    },
+    {
+      "scope": "public-native-desktop:storage-initial-load",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop:storage-initial-load",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 1280,
+        "viewport": 1280
+      }
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "reloaded page build matches expected deployment",
+      "ok": true,
+      "detail": "952b78a"
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "reload: visitor queue is selected without changing it",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "reload: browser storage load acknowledged before editing",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "reload: storage component frame exists",
+      "ok": true,
+      "detail": [
+        {
+          "src": "https://preflight-toss-ads.onrender.com/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fpreflight-toss-ads.onrender.com%2F",
+          "has_storage_code": false,
+          "has_inline_execute": false,
+          "srcdoc_length": 0,
+          "srcdoc_sha256": null
+        },
+        {
+          "src": "https://preflight-toss-ads.onrender.com/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fpreflight-toss-ads.onrender.com%2F",
+          "has_storage_code": false,
+          "has_inline_execute": false,
+          "srcdoc_length": 0,
+          "srcdoc_sha256": null
+        }
+      ]
+    },
+    {
+      "scope": "public-native-desktop:storage-reload",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop:storage-reload",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 1280,
+        "viewport": 1280
+      }
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "operations has all three tabs in order",
+      "ok": true,
+      "detail": [
+        "검수 대기열",
+        "운영 지표·모니터",
+        "공동 검수"
+      ]
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "correct shared review availability message",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "no access key input before server setup",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "no secret or unnecessary internal control names",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "accounts do not claim independent people",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop:shared-review",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop:shared-review",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 1280,
+        "viewport": 1280
+      }
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "evaluation limits are displayed",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "stored calls are not advertised as new calls",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "latest stored report is expanded",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop:live-summary",
+      "check": "이미지 속 글자·검사 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이미지 속 글자·검사",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ],
+        "expected": [
+          [
+            "이미지 속 글자·검사",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:live-summary",
+      "check": "여러 턴 캠페인 설정 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "여러 턴 캠페인 설정",
+            "20/20",
+            "19/20",
+            "17/20"
+          ]
+        ],
+        "expected": [
+          [
+            "여러 턴 캠페인 설정",
+            "20/20",
+            "19/20",
+            "17/20"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:live-summary",
+      "check": "성과 보고서 문장화 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "성과 보고서 문장화",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ],
+        "expected": [
+          [
+            "성과 보고서 문장화",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:live-summary",
+      "check": "광고 문구 비교 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "광고 문구 비교",
+            "28/28",
+            "28/28",
+            "아래 채택·보류 표 확인"
+          ]
+        ],
+        "expected": [
+          [
+            "광고 문구 비교",
+            "28/28",
+            "28/28",
+            "아래 채택·보류 표 확인"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:live-summary",
+      "check": "캠페인 구성·문구 생성·검사 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "캠페인 구성·문구 생성·검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ],
+        "expected": [
+          [
+            "캠페인 구성·문구 생성·검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:quality-audit",
+      "check": "근거 검사 후 채택한 비교 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "근거 검사 후 채택한 비교",
+            "16/28",
+            "두 순서와 중요한 근거가 같은 비교"
+          ]
+        ],
+        "expected": [
+          [
+            "근거 검사 후 채택한 비교",
+            "16/28",
+            "두 순서와 중요한 근거가 같은 비교"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:quality-audit",
+      "check": "판단 보류 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "판단 보류",
+            "12/28",
+            "불일치·인용 문제·응답 실패는 무승부로 세지 않음"
+          ]
+        ],
+        "expected": [
+          [
+            "판단 보류",
+            "12/28",
+            "불일치·인용 문제·응답 실패는 무승부로 세지 않음"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:quality-audit",
+      "check": "채택했고 작성자 선호와도 일치 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "채택했고 작성자 선호와도 일치",
+            "13/28",
+            "전체 시도 쌍을 분모로 사용"
+          ]
+        ],
+        "expected": [
+          [
+            "채택했고 작성자 선호와도 일치",
+            "13/28",
+            "전체 시도 쌍을 분모로 사용"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:quality-audit",
+      "check": "기존 비교 지표 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "기존 비교 지표",
+            "18/28",
+            "원래 두 선택이 같고 작성자 선호와 일치; 근거 검사 전 수치"
+          ]
+        ],
+        "expected": [
+          [
+            "기존 비교 지표",
+            "18/28",
+            "원래 두 선택이 같고 작성자 선호와 일치; 근거 검사 전 수치"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "quality status counts match the stored summary",
+      "ok": true,
+      "detail": "결과별 수: 채택 16쌍, 순서에 따라 선택이 달라짐 2쌍, 인용·근거 검사 실패 7쌍, 중요한 근거가 달라짐 3쌍"
+    },
+    {
+      "scope": "public-native-desktop:conversation_followup",
+      "check": "최소 연령 답변 → 미리보기 → 광고 작업 전달 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "최소 연령 답변 → 미리보기 → 광고 작업 전달",
+            "1/1",
+            "1/1",
+            "1/1"
+          ]
+        ],
+        "expected": [
+          [
+            "최소 연령 답변 → 미리보기 → 광고 작업 전달",
+            "1/1",
+            "1/1",
+            "1/1"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "one age follow-up is separate from the original twenty",
+      "ok": true,
+      "detail": {
+        "followup_planned": 1,
+        "followup_attempted": 1,
+        "original_attempted": 20
+      }
+    },
+    {
+      "scope": "public-native-desktop:rewrite",
+      "check": "원문 → 모델 수정안 → 동일 정책 재검사 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "원문 → 모델 수정안 → 동일 정책 재검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ],
+        "expected": [
+          [
+            "원문 → 모델 수정안 → 동일 정책 재검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "saved call count and usage cost match",
+      "ok": true,
+      "detail": "호출 159회 · 응답 토큰으로 계산한 비용 $0.5304 · 사용량 미확인 0회"
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "evaluation source revision is shown",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop:evaluations",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop:evaluations",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 1280,
+        "viewport": 1280
+      }
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "versioned conversation report is available",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop:conversation-evaluation",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop:conversation-evaluation",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 1280,
+        "viewport": 1280
+      }
+    },
+    {
+      "scope": "public-native-desktop:current-insights",
+      "check": "이상을 찾아낸 비율(재현율) matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "34/35 (97.1%)"
+          ]
+        ],
+        "expected": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "34/35 (97.1%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:current-insights",
+      "check": "찾은 것 중 실제 이상인 비율(정밀도) matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "찾은 것 중 실제 이상인 비율(정밀도)",
+            "—",
+            "35/35 (100.0%)"
+          ]
+        ],
+        "expected": [
+          [
+            "찾은 것 중 실제 이상인 비율(정밀도)",
+            "—",
+            "35/35 (100.0%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:current-insights",
+      "check": "이상이 없는데 이상이라고 한 시나리오 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이상이 없는데 이상이라고 한 시나리오",
+            "—",
+            "0/40 (0.0%)"
+          ]
+        ],
+        "expected": [
+          [
+            "이상이 없는데 이상이라고 한 시나리오",
+            "—",
+            "0/40 (0.0%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:current-insights",
+      "check": "원인 가설 1순위가 합성 정답과 맞은 비율 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "원인 가설 1순위가 합성 정답과 맞은 비율",
+            "—",
+            "30/32 (93.8%)"
+          ]
+        ],
+        "expected": [
+          [
+            "원인 가설 1순위가 합성 정답과 맞은 비율",
+            "—",
+            "30/32 (93.8%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:insight-contrasts",
+      "check": "한 광고세트의 작은 하락 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "한 광고세트의 작은 하락",
+            "5/12 (41.7%)",
+            "작은 하락을 찾은 수"
+          ]
+        ],
+        "expected": [
+          [
+            "한 광고세트의 작은 하락",
+            "5/12 (41.7%)",
+            "작은 하락을 찾은 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:insight-contrasts",
+      "check": "변화 없는 구간 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "변화 없는 구간",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ],
+        "expected": [
+          [
+            "변화 없는 구간",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:insight-contrasts",
+      "check": "이어지는 추세 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이어지는 추세",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ],
+        "expected": [
+          [
+            "이어지는 추세",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:insight-contrasts",
+      "check": "표시 기간 전에 회복한 변화 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "표시 기간 전에 회복한 변화",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ],
+        "expected": [
+          [
+            "표시 기간 전에 회복한 변화",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "remaining undetected contrasts are explicit",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop:historical-insights",
+      "check": "이상을 찾아낸 비율(재현율) matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "33/35 (94.3%)"
+          ]
+        ],
+        "expected": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "33/35 (94.3%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-desktop:insight-evaluation",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-desktop:insight-evaluation",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 1280,
+        "viewport": 1280
+      }
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "no browser page exception",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "public-native-desktop",
+      "check": "no model provider request",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "page build matches expected deployment",
+      "ok": true,
+      "detail": "952b78a"
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "initial-load: visitor queue is selected without changing it",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "initial-load: browser storage load acknowledged before editing",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "initial-load: storage component frame exists",
+      "ok": true,
+      "detail": [
+        {
+          "src": "https://preflight-toss-ads.onrender.com/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fpreflight-toss-ads.onrender.com%2F",
+          "has_storage_code": false,
+          "has_inline_execute": false,
+          "srcdoc_length": 0,
+          "srcdoc_sha256": null
+        },
+        {
+          "src": "https://preflight-toss-ads.onrender.com/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fpreflight-toss-ads.onrender.com%2F",
+          "has_storage_code": false,
+          "has_inline_execute": false,
+          "srcdoc_length": 0,
+          "srcdoc_sha256": null
+        }
+      ]
+    },
+    {
+      "scope": "public-native-mobile:storage-initial-load",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile:storage-initial-load",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "reloaded page build matches expected deployment",
+      "ok": true,
+      "detail": "952b78a"
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "reload: visitor queue is selected without changing it",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "reload: browser storage load acknowledged before editing",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "reload: storage component frame exists",
+      "ok": true,
+      "detail": [
+        {
+          "src": "https://preflight-toss-ads.onrender.com/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fpreflight-toss-ads.onrender.com%2F",
+          "has_storage_code": false,
+          "has_inline_execute": false,
+          "srcdoc_length": 0,
+          "srcdoc_sha256": null
+        },
+        {
+          "src": "https://preflight-toss-ads.onrender.com/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fpreflight-toss-ads.onrender.com%2F",
+          "has_storage_code": false,
+          "has_inline_execute": false,
+          "srcdoc_length": 0,
+          "srcdoc_sha256": null
+        }
+      ]
+    },
+    {
+      "scope": "public-native-mobile:storage-reload",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile:storage-reload",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "operations has all three tabs in order",
+      "ok": true,
+      "detail": [
+        "검수 대기열",
+        "운영 지표·모니터",
+        "공동 검수"
+      ]
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "correct shared review availability message",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "no access key input before server setup",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "no secret or unnecessary internal control names",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "accounts do not claim independent people",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile:shared-review",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile:shared-review",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "evaluation limits are displayed",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "stored calls are not advertised as new calls",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "latest stored report is expanded",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile:live-summary",
+      "check": "이미지 속 글자·검사 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이미지 속 글자·검사",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ],
+        "expected": [
+          [
+            "이미지 속 글자·검사",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:live-summary",
+      "check": "여러 턴 캠페인 설정 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "여러 턴 캠페인 설정",
+            "20/20",
+            "19/20",
+            "17/20"
+          ]
+        ],
+        "expected": [
+          [
+            "여러 턴 캠페인 설정",
+            "20/20",
+            "19/20",
+            "17/20"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:live-summary",
+      "check": "성과 보고서 문장화 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "성과 보고서 문장화",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ],
+        "expected": [
+          [
+            "성과 보고서 문장화",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:live-summary",
+      "check": "광고 문구 비교 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "광고 문구 비교",
+            "28/28",
+            "28/28",
+            "아래 채택·보류 표 확인"
+          ]
+        ],
+        "expected": [
+          [
+            "광고 문구 비교",
+            "28/28",
+            "28/28",
+            "아래 채택·보류 표 확인"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:live-summary",
+      "check": "캠페인 구성·문구 생성·검사 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "캠페인 구성·문구 생성·검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ],
+        "expected": [
+          [
+            "캠페인 구성·문구 생성·검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:quality-audit",
+      "check": "근거 검사 후 채택한 비교 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "근거 검사 후 채택한 비교",
+            "16/28",
+            "두 순서와 중요한 근거가 같은 비교"
+          ]
+        ],
+        "expected": [
+          [
+            "근거 검사 후 채택한 비교",
+            "16/28",
+            "두 순서와 중요한 근거가 같은 비교"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:quality-audit",
+      "check": "판단 보류 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "판단 보류",
+            "12/28",
+            "불일치·인용 문제·응답 실패는 무승부로 세지 않음"
+          ]
+        ],
+        "expected": [
+          [
+            "판단 보류",
+            "12/28",
+            "불일치·인용 문제·응답 실패는 무승부로 세지 않음"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:quality-audit",
+      "check": "채택했고 작성자 선호와도 일치 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "채택했고 작성자 선호와도 일치",
+            "13/28",
+            "전체 시도 쌍을 분모로 사용"
+          ]
+        ],
+        "expected": [
+          [
+            "채택했고 작성자 선호와도 일치",
+            "13/28",
+            "전체 시도 쌍을 분모로 사용"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:quality-audit",
+      "check": "기존 비교 지표 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "기존 비교 지표",
+            "18/28",
+            "원래 두 선택이 같고 작성자 선호와 일치; 근거 검사 전 수치"
+          ]
+        ],
+        "expected": [
+          [
+            "기존 비교 지표",
+            "18/28",
+            "원래 두 선택이 같고 작성자 선호와 일치; 근거 검사 전 수치"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "quality status counts match the stored summary",
+      "ok": true,
+      "detail": "결과별 수: 채택 16쌍, 순서에 따라 선택이 달라짐 2쌍, 인용·근거 검사 실패 7쌍, 중요한 근거가 달라짐 3쌍"
+    },
+    {
+      "scope": "public-native-mobile:conversation_followup",
+      "check": "최소 연령 답변 → 미리보기 → 광고 작업 전달 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "최소 연령 답변 → 미리보기 → 광고 작업 전달",
+            "1/1",
+            "1/1",
+            "1/1"
+          ]
+        ],
+        "expected": [
+          [
+            "최소 연령 답변 → 미리보기 → 광고 작업 전달",
+            "1/1",
+            "1/1",
+            "1/1"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "one age follow-up is separate from the original twenty",
+      "ok": true,
+      "detail": {
+        "followup_planned": 1,
+        "followup_attempted": 1,
+        "original_attempted": 20
+      }
+    },
+    {
+      "scope": "public-native-mobile:rewrite",
+      "check": "원문 → 모델 수정안 → 동일 정책 재검사 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "원문 → 모델 수정안 → 동일 정책 재검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ],
+        "expected": [
+          [
+            "원문 → 모델 수정안 → 동일 정책 재검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "saved call count and usage cost match",
+      "ok": true,
+      "detail": "호출 159회 · 응답 토큰으로 계산한 비용 $0.5304 · 사용량 미확인 0회"
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "evaluation source revision is shown",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile:evaluations",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile:evaluations",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "versioned conversation report is available",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile:conversation-evaluation",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile:conversation-evaluation",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "scope": "public-native-mobile:current-insights",
+      "check": "이상을 찾아낸 비율(재현율) matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "34/35 (97.1%)"
+          ]
+        ],
+        "expected": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "34/35 (97.1%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:current-insights",
+      "check": "찾은 것 중 실제 이상인 비율(정밀도) matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "찾은 것 중 실제 이상인 비율(정밀도)",
+            "—",
+            "35/35 (100.0%)"
+          ]
+        ],
+        "expected": [
+          [
+            "찾은 것 중 실제 이상인 비율(정밀도)",
+            "—",
+            "35/35 (100.0%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:current-insights",
+      "check": "이상이 없는데 이상이라고 한 시나리오 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이상이 없는데 이상이라고 한 시나리오",
+            "—",
+            "0/40 (0.0%)"
+          ]
+        ],
+        "expected": [
+          [
+            "이상이 없는데 이상이라고 한 시나리오",
+            "—",
+            "0/40 (0.0%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:current-insights",
+      "check": "원인 가설 1순위가 합성 정답과 맞은 비율 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "원인 가설 1순위가 합성 정답과 맞은 비율",
+            "—",
+            "30/32 (93.8%)"
+          ]
+        ],
+        "expected": [
+          [
+            "원인 가설 1순위가 합성 정답과 맞은 비율",
+            "—",
+            "30/32 (93.8%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:insight-contrasts",
+      "check": "한 광고세트의 작은 하락 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "한 광고세트의 작은 하락",
+            "5/12 (41.7%)",
+            "작은 하락을 찾은 수"
+          ]
+        ],
+        "expected": [
+          [
+            "한 광고세트의 작은 하락",
+            "5/12 (41.7%)",
+            "작은 하락을 찾은 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:insight-contrasts",
+      "check": "변화 없는 구간 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "변화 없는 구간",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ],
+        "expected": [
+          [
+            "변화 없는 구간",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:insight-contrasts",
+      "check": "이어지는 추세 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이어지는 추세",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ],
+        "expected": [
+          [
+            "이어지는 추세",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:insight-contrasts",
+      "check": "표시 기간 전에 회복한 변화 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "표시 기간 전에 회복한 변화",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ],
+        "expected": [
+          [
+            "표시 기간 전에 회복한 변화",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "remaining undetected contrasts are explicit",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile:historical-insights",
+      "check": "이상을 찾아낸 비율(재현율) matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "33/35 (94.3%)"
+          ]
+        ],
+        "expected": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "33/35 (94.3%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-native-mobile:insight-evaluation",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-native-mobile:insight-evaluation",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "no browser page exception",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "public-native-mobile",
+      "check": "no model provider request",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "browser supports the deployed stlite JSPI runtime",
+      "ok": true,
+      "detail": {
+        "Suspending": "function",
+        "promising": "function"
+      }
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "page build matches expected deployment",
+      "ok": true,
+      "detail": "952b78a"
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "initial-load: visitor queue is selected without changing it",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "initial-load: browser storage load acknowledged before editing",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "initial-load: storage component frame exists",
+      "ok": true,
+      "detail": [
+        {
+          "src": null,
+          "has_storage_code": true,
+          "has_inline_execute": true,
+          "srcdoc_length": 6715,
+          "srcdoc_sha256": "f13c26d8a701f16a99ea3dc324bc4ba2db9d4ec5939dbd63042b556e806357c4"
+        },
+        {
+          "src": null,
+          "has_storage_code": true,
+          "has_inline_execute": true,
+          "srcdoc_length": 6715,
+          "srcdoc_sha256": "f13c26d8a701f16a99ea3dc324bc4ba2db9d4ec5939dbd63042b556e806357c4"
+        }
+      ]
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "initial-load: stlite storage executes through the inlined component",
+      "ok": true,
+      "detail": [
+        {
+          "src": null,
+          "has_storage_code": true,
+          "has_inline_execute": true,
+          "srcdoc_length": 6715,
+          "srcdoc_sha256": "f13c26d8a701f16a99ea3dc324bc4ba2db9d4ec5939dbd63042b556e806357c4"
+        },
+        {
+          "src": null,
+          "has_storage_code": true,
+          "has_inline_execute": true,
+          "srcdoc_length": 6715,
+          "srcdoc_sha256": "f13c26d8a701f16a99ea3dc324bc4ba2db9d4ec5939dbd63042b556e806357c4"
+        }
+      ]
+    },
+    {
+      "scope": "public-pages-desktop:storage-initial-load",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop:storage-initial-load",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 1280,
+        "viewport": 1280
+      }
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "reloaded page build matches expected deployment",
+      "ok": true,
+      "detail": "952b78a"
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "reload: visitor queue is selected without changing it",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "reload: browser storage load acknowledged before editing",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "reload: storage component frame exists",
+      "ok": true,
+      "detail": [
+        {
+          "src": null,
+          "has_storage_code": true,
+          "has_inline_execute": true,
+          "srcdoc_length": 6715,
+          "srcdoc_sha256": "f13c26d8a701f16a99ea3dc324bc4ba2db9d4ec5939dbd63042b556e806357c4"
+        },
+        {
+          "src": null,
+          "has_storage_code": true,
+          "has_inline_execute": true,
+          "srcdoc_length": 6715,
+          "srcdoc_sha256": "f13c26d8a701f16a99ea3dc324bc4ba2db9d4ec5939dbd63042b556e806357c4"
+        }
+      ]
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "reload: stlite storage executes through the inlined component",
+      "ok": true,
+      "detail": [
+        {
+          "src": null,
+          "has_storage_code": true,
+          "has_inline_execute": true,
+          "srcdoc_length": 6715,
+          "srcdoc_sha256": "f13c26d8a701f16a99ea3dc324bc4ba2db9d4ec5939dbd63042b556e806357c4"
+        },
+        {
+          "src": null,
+          "has_storage_code": true,
+          "has_inline_execute": true,
+          "srcdoc_length": 6715,
+          "srcdoc_sha256": "f13c26d8a701f16a99ea3dc324bc4ba2db9d4ec5939dbd63042b556e806357c4"
+        }
+      ]
+    },
+    {
+      "scope": "public-pages-desktop:storage-reload",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop:storage-reload",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 1280,
+        "viewport": 1280
+      }
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "operations has all three tabs in order",
+      "ok": true,
+      "detail": [
+        "검수 대기열",
+        "운영 지표·모니터",
+        "공동 검수"
+      ]
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "correct shared review availability message",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "no access key input before server setup",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "no secret or unnecessary internal control names",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "accounts do not claim independent people",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "server link is correct",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "browser mode is identified",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop:shared-review",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop:shared-review",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 1280,
+        "viewport": 1280
+      }
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "evaluation limits are displayed",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "stored calls are not advertised as new calls",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "latest stored report is expanded",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop:live-summary",
+      "check": "이미지 속 글자·검사 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이미지 속 글자·검사",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ],
+        "expected": [
+          [
+            "이미지 속 글자·검사",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:live-summary",
+      "check": "여러 턴 캠페인 설정 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "여러 턴 캠페인 설정",
+            "20/20",
+            "19/20",
+            "17/20"
+          ]
+        ],
+        "expected": [
+          [
+            "여러 턴 캠페인 설정",
+            "20/20",
+            "19/20",
+            "17/20"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:live-summary",
+      "check": "성과 보고서 문장화 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "성과 보고서 문장화",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ],
+        "expected": [
+          [
+            "성과 보고서 문장화",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:live-summary",
+      "check": "광고 문구 비교 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "광고 문구 비교",
+            "28/28",
+            "28/28",
+            "아래 채택·보류 표 확인"
+          ]
+        ],
+        "expected": [
+          [
+            "광고 문구 비교",
+            "28/28",
+            "28/28",
+            "아래 채택·보류 표 확인"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:live-summary",
+      "check": "캠페인 구성·문구 생성·검사 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "캠페인 구성·문구 생성·검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ],
+        "expected": [
+          [
+            "캠페인 구성·문구 생성·검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:quality-audit",
+      "check": "근거 검사 후 채택한 비교 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "근거 검사 후 채택한 비교",
+            "16/28",
+            "두 순서와 중요한 근거가 같은 비교"
+          ]
+        ],
+        "expected": [
+          [
+            "근거 검사 후 채택한 비교",
+            "16/28",
+            "두 순서와 중요한 근거가 같은 비교"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:quality-audit",
+      "check": "판단 보류 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "판단 보류",
+            "12/28",
+            "불일치·인용 문제·응답 실패는 무승부로 세지 않음"
+          ]
+        ],
+        "expected": [
+          [
+            "판단 보류",
+            "12/28",
+            "불일치·인용 문제·응답 실패는 무승부로 세지 않음"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:quality-audit",
+      "check": "채택했고 작성자 선호와도 일치 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "채택했고 작성자 선호와도 일치",
+            "13/28",
+            "전체 시도 쌍을 분모로 사용"
+          ]
+        ],
+        "expected": [
+          [
+            "채택했고 작성자 선호와도 일치",
+            "13/28",
+            "전체 시도 쌍을 분모로 사용"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:quality-audit",
+      "check": "기존 비교 지표 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "기존 비교 지표",
+            "18/28",
+            "원래 두 선택이 같고 작성자 선호와 일치; 근거 검사 전 수치"
+          ]
+        ],
+        "expected": [
+          [
+            "기존 비교 지표",
+            "18/28",
+            "원래 두 선택이 같고 작성자 선호와 일치; 근거 검사 전 수치"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "quality status counts match the stored summary",
+      "ok": true,
+      "detail": "결과별 수: 채택 16쌍, 순서에 따라 선택이 달라짐 2쌍, 인용·근거 검사 실패 7쌍, 중요한 근거가 달라짐 3쌍"
+    },
+    {
+      "scope": "public-pages-desktop:conversation_followup",
+      "check": "최소 연령 답변 → 미리보기 → 광고 작업 전달 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "최소 연령 답변 → 미리보기 → 광고 작업 전달",
+            "1/1",
+            "1/1",
+            "1/1"
+          ]
+        ],
+        "expected": [
+          [
+            "최소 연령 답변 → 미리보기 → 광고 작업 전달",
+            "1/1",
+            "1/1",
+            "1/1"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "one age follow-up is separate from the original twenty",
+      "ok": true,
+      "detail": {
+        "followup_planned": 1,
+        "followup_attempted": 1,
+        "original_attempted": 20
+      }
+    },
+    {
+      "scope": "public-pages-desktop:rewrite",
+      "check": "원문 → 모델 수정안 → 동일 정책 재검사 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "원문 → 모델 수정안 → 동일 정책 재검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ],
+        "expected": [
+          [
+            "원문 → 모델 수정안 → 동일 정책 재검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "saved call count and usage cost match",
+      "ok": true,
+      "detail": "호출 159회 · 응답 토큰으로 계산한 비용 $0.5304 · 사용량 미확인 0회"
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "evaluation source revision is shown",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop:evaluations",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop:evaluations",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 1280,
+        "viewport": 1280
+      }
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "versioned conversation report is available",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop:conversation-evaluation",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop:conversation-evaluation",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 1280,
+        "viewport": 1280
+      }
+    },
+    {
+      "scope": "public-pages-desktop:current-insights",
+      "check": "이상을 찾아낸 비율(재현율) matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "34/35 (97.1%)"
+          ]
+        ],
+        "expected": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "34/35 (97.1%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:current-insights",
+      "check": "찾은 것 중 실제 이상인 비율(정밀도) matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "찾은 것 중 실제 이상인 비율(정밀도)",
+            "—",
+            "35/35 (100.0%)"
+          ]
+        ],
+        "expected": [
+          [
+            "찾은 것 중 실제 이상인 비율(정밀도)",
+            "—",
+            "35/35 (100.0%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:current-insights",
+      "check": "이상이 없는데 이상이라고 한 시나리오 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이상이 없는데 이상이라고 한 시나리오",
+            "—",
+            "0/40 (0.0%)"
+          ]
+        ],
+        "expected": [
+          [
+            "이상이 없는데 이상이라고 한 시나리오",
+            "—",
+            "0/40 (0.0%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:current-insights",
+      "check": "원인 가설 1순위가 합성 정답과 맞은 비율 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "원인 가설 1순위가 합성 정답과 맞은 비율",
+            "—",
+            "30/32 (93.8%)"
+          ]
+        ],
+        "expected": [
+          [
+            "원인 가설 1순위가 합성 정답과 맞은 비율",
+            "—",
+            "30/32 (93.8%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:insight-contrasts",
+      "check": "한 광고세트의 작은 하락 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "한 광고세트의 작은 하락",
+            "5/12 (41.7%)",
+            "작은 하락을 찾은 수"
+          ]
+        ],
+        "expected": [
+          [
+            "한 광고세트의 작은 하락",
+            "5/12 (41.7%)",
+            "작은 하락을 찾은 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:insight-contrasts",
+      "check": "변화 없는 구간 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "변화 없는 구간",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ],
+        "expected": [
+          [
+            "변화 없는 구간",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:insight-contrasts",
+      "check": "이어지는 추세 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이어지는 추세",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ],
+        "expected": [
+          [
+            "이어지는 추세",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:insight-contrasts",
+      "check": "표시 기간 전에 회복한 변화 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "표시 기간 전에 회복한 변화",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ],
+        "expected": [
+          [
+            "표시 기간 전에 회복한 변화",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "remaining undetected contrasts are explicit",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop:historical-insights",
+      "check": "이상을 찾아낸 비율(재현율) matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "33/35 (94.3%)"
+          ]
+        ],
+        "expected": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "33/35 (94.3%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-desktop:insight-evaluation",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-desktop:insight-evaluation",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 1280,
+        "viewport": 1280
+      }
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "no browser page exception",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "public-pages-desktop",
+      "check": "no model provider request",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "browser supports the deployed stlite JSPI runtime",
+      "ok": true,
+      "detail": {
+        "Suspending": "function",
+        "promising": "function"
+      }
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "page build matches expected deployment",
+      "ok": true,
+      "detail": "952b78a"
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "initial-load: visitor queue is selected without changing it",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "initial-load: browser storage load acknowledged before editing",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "initial-load: storage component frame exists",
+      "ok": true,
+      "detail": [
+        {
+          "src": null,
+          "has_storage_code": true,
+          "has_inline_execute": true,
+          "srcdoc_length": 6715,
+          "srcdoc_sha256": "f13c26d8a701f16a99ea3dc324bc4ba2db9d4ec5939dbd63042b556e806357c4"
+        },
+        {
+          "src": null,
+          "has_storage_code": true,
+          "has_inline_execute": true,
+          "srcdoc_length": 6715,
+          "srcdoc_sha256": "f13c26d8a701f16a99ea3dc324bc4ba2db9d4ec5939dbd63042b556e806357c4"
+        }
+      ]
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "initial-load: stlite storage executes through the inlined component",
+      "ok": true,
+      "detail": [
+        {
+          "src": null,
+          "has_storage_code": true,
+          "has_inline_execute": true,
+          "srcdoc_length": 6715,
+          "srcdoc_sha256": "f13c26d8a701f16a99ea3dc324bc4ba2db9d4ec5939dbd63042b556e806357c4"
+        },
+        {
+          "src": null,
+          "has_storage_code": true,
+          "has_inline_execute": true,
+          "srcdoc_length": 6715,
+          "srcdoc_sha256": "f13c26d8a701f16a99ea3dc324bc4ba2db9d4ec5939dbd63042b556e806357c4"
+        }
+      ]
+    },
+    {
+      "scope": "public-pages-mobile:storage-initial-load",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile:storage-initial-load",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "reloaded page build matches expected deployment",
+      "ok": true,
+      "detail": "952b78a"
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "reload: visitor queue is selected without changing it",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "reload: browser storage load acknowledged before editing",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "reload: storage component frame exists",
+      "ok": true,
+      "detail": [
+        {
+          "src": null,
+          "has_storage_code": true,
+          "has_inline_execute": true,
+          "srcdoc_length": 6715,
+          "srcdoc_sha256": "f13c26d8a701f16a99ea3dc324bc4ba2db9d4ec5939dbd63042b556e806357c4"
+        },
+        {
+          "src": null,
+          "has_storage_code": true,
+          "has_inline_execute": true,
+          "srcdoc_length": 6715,
+          "srcdoc_sha256": "f13c26d8a701f16a99ea3dc324bc4ba2db9d4ec5939dbd63042b556e806357c4"
+        }
+      ]
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "reload: stlite storage executes through the inlined component",
+      "ok": true,
+      "detail": [
+        {
+          "src": null,
+          "has_storage_code": true,
+          "has_inline_execute": true,
+          "srcdoc_length": 6715,
+          "srcdoc_sha256": "f13c26d8a701f16a99ea3dc324bc4ba2db9d4ec5939dbd63042b556e806357c4"
+        },
+        {
+          "src": null,
+          "has_storage_code": true,
+          "has_inline_execute": true,
+          "srcdoc_length": 6715,
+          "srcdoc_sha256": "f13c26d8a701f16a99ea3dc324bc4ba2db9d4ec5939dbd63042b556e806357c4"
+        }
+      ]
+    },
+    {
+      "scope": "public-pages-mobile:storage-reload",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile:storage-reload",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "operations has all three tabs in order",
+      "ok": true,
+      "detail": [
+        "검수 대기열",
+        "운영 지표·모니터",
+        "공동 검수"
+      ]
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "correct shared review availability message",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "no access key input before server setup",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "no secret or unnecessary internal control names",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "accounts do not claim independent people",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "server link is correct",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "browser mode is identified",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile:shared-review",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile:shared-review",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "evaluation limits are displayed",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "stored calls are not advertised as new calls",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "latest stored report is expanded",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile:live-summary",
+      "check": "이미지 속 글자·검사 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이미지 속 글자·검사",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ],
+        "expected": [
+          [
+            "이미지 속 글자·검사",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:live-summary",
+      "check": "여러 턴 캠페인 설정 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "여러 턴 캠페인 설정",
+            "20/20",
+            "19/20",
+            "17/20"
+          ]
+        ],
+        "expected": [
+          [
+            "여러 턴 캠페인 설정",
+            "20/20",
+            "19/20",
+            "17/20"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:live-summary",
+      "check": "성과 보고서 문장화 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "성과 보고서 문장화",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ],
+        "expected": [
+          [
+            "성과 보고서 문장화",
+            "12/12",
+            "12/12",
+            "12/12"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:live-summary",
+      "check": "광고 문구 비교 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "광고 문구 비교",
+            "28/28",
+            "28/28",
+            "아래 채택·보류 표 확인"
+          ]
+        ],
+        "expected": [
+          [
+            "광고 문구 비교",
+            "28/28",
+            "28/28",
+            "아래 채택·보류 표 확인"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:live-summary",
+      "check": "캠페인 구성·문구 생성·검사 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "캠페인 구성·문구 생성·검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ],
+        "expected": [
+          [
+            "캠페인 구성·문구 생성·검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:quality-audit",
+      "check": "근거 검사 후 채택한 비교 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "근거 검사 후 채택한 비교",
+            "16/28",
+            "두 순서와 중요한 근거가 같은 비교"
+          ]
+        ],
+        "expected": [
+          [
+            "근거 검사 후 채택한 비교",
+            "16/28",
+            "두 순서와 중요한 근거가 같은 비교"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:quality-audit",
+      "check": "판단 보류 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "판단 보류",
+            "12/28",
+            "불일치·인용 문제·응답 실패는 무승부로 세지 않음"
+          ]
+        ],
+        "expected": [
+          [
+            "판단 보류",
+            "12/28",
+            "불일치·인용 문제·응답 실패는 무승부로 세지 않음"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:quality-audit",
+      "check": "채택했고 작성자 선호와도 일치 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "채택했고 작성자 선호와도 일치",
+            "13/28",
+            "전체 시도 쌍을 분모로 사용"
+          ]
+        ],
+        "expected": [
+          [
+            "채택했고 작성자 선호와도 일치",
+            "13/28",
+            "전체 시도 쌍을 분모로 사용"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:quality-audit",
+      "check": "기존 비교 지표 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "기존 비교 지표",
+            "18/28",
+            "원래 두 선택이 같고 작성자 선호와 일치; 근거 검사 전 수치"
+          ]
+        ],
+        "expected": [
+          [
+            "기존 비교 지표",
+            "18/28",
+            "원래 두 선택이 같고 작성자 선호와 일치; 근거 검사 전 수치"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "quality status counts match the stored summary",
+      "ok": true,
+      "detail": "결과별 수: 채택 16쌍, 순서에 따라 선택이 달라짐 2쌍, 인용·근거 검사 실패 7쌍, 중요한 근거가 달라짐 3쌍"
+    },
+    {
+      "scope": "public-pages-mobile:conversation_followup",
+      "check": "최소 연령 답변 → 미리보기 → 광고 작업 전달 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "최소 연령 답변 → 미리보기 → 광고 작업 전달",
+            "1/1",
+            "1/1",
+            "1/1"
+          ]
+        ],
+        "expected": [
+          [
+            "최소 연령 답변 → 미리보기 → 광고 작업 전달",
+            "1/1",
+            "1/1",
+            "1/1"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "one age follow-up is separate from the original twenty",
+      "ok": true,
+      "detail": {
+        "followup_planned": 1,
+        "followup_attempted": 1,
+        "original_attempted": 20
+      }
+    },
+    {
+      "scope": "public-pages-mobile:rewrite",
+      "check": "원문 → 모델 수정안 → 동일 정책 재검사 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "원문 → 모델 수정안 → 동일 정책 재검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ],
+        "expected": [
+          [
+            "원문 → 모델 수정안 → 동일 정책 재검사",
+            "4/4",
+            "4/4",
+            "4/4"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "saved call count and usage cost match",
+      "ok": true,
+      "detail": "호출 159회 · 응답 토큰으로 계산한 비용 $0.5304 · 사용량 미확인 0회"
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "evaluation source revision is shown",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile:evaluations",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile:evaluations",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "versioned conversation report is available",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile:conversation-evaluation",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile:conversation-evaluation",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "scope": "public-pages-mobile:current-insights",
+      "check": "이상을 찾아낸 비율(재현율) matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "34/35 (97.1%)"
+          ]
+        ],
+        "expected": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "34/35 (97.1%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:current-insights",
+      "check": "찾은 것 중 실제 이상인 비율(정밀도) matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "찾은 것 중 실제 이상인 비율(정밀도)",
+            "—",
+            "35/35 (100.0%)"
+          ]
+        ],
+        "expected": [
+          [
+            "찾은 것 중 실제 이상인 비율(정밀도)",
+            "—",
+            "35/35 (100.0%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:current-insights",
+      "check": "이상이 없는데 이상이라고 한 시나리오 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이상이 없는데 이상이라고 한 시나리오",
+            "—",
+            "0/40 (0.0%)"
+          ]
+        ],
+        "expected": [
+          [
+            "이상이 없는데 이상이라고 한 시나리오",
+            "—",
+            "0/40 (0.0%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:current-insights",
+      "check": "원인 가설 1순위가 합성 정답과 맞은 비율 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "원인 가설 1순위가 합성 정답과 맞은 비율",
+            "—",
+            "30/32 (93.8%)"
+          ]
+        ],
+        "expected": [
+          [
+            "원인 가설 1순위가 합성 정답과 맞은 비율",
+            "—",
+            "30/32 (93.8%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:insight-contrasts",
+      "check": "한 광고세트의 작은 하락 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "한 광고세트의 작은 하락",
+            "5/12 (41.7%)",
+            "작은 하락을 찾은 수"
+          ]
+        ],
+        "expected": [
+          [
+            "한 광고세트의 작은 하락",
+            "5/12 (41.7%)",
+            "작은 하락을 찾은 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:insight-contrasts",
+      "check": "변화 없는 구간 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "변화 없는 구간",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ],
+        "expected": [
+          [
+            "변화 없는 구간",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:insight-contrasts",
+      "check": "이어지는 추세 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이어지는 추세",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ],
+        "expected": [
+          [
+            "이어지는 추세",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:insight-contrasts",
+      "check": "표시 기간 전에 회복한 변화 matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "표시 기간 전에 회복한 변화",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ],
+        "expected": [
+          [
+            "표시 기간 전에 회복한 변화",
+            "0/12 (0.0%)",
+            "점검 알림을 낸 수"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "remaining undetected contrasts are explicit",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile:historical-insights",
+      "check": "이상을 찾아낸 비율(재현율) matches saved values",
+      "ok": true,
+      "detail": {
+        "actual": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "33/35 (94.3%)"
+          ]
+        ],
+        "expected": [
+          [
+            "이상을 찾아낸 비율(재현율)",
+            "—",
+            "33/35 (94.3%)"
+          ]
+        ]
+      }
+    },
+    {
+      "scope": "public-pages-mobile:insight-evaluation",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "public-pages-mobile:insight-evaluation",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "no browser page exception",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "public-pages-mobile",
+      "check": "no model provider request",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "scope": "provenance",
+      "check": "pre-existing live reports unchanged",
+      "ok": true,
+      "detail": null
+    }
+  ],
+  "observations": [
+    {
+      "scope": "public-native-desktop",
+      "started_at": "2026-10-21T10:10:11.622641+00:00",
+      "page_errors": [],
+      "console_errors": [],
+      "network_errors": [],
+      "blocked_model_requests": [],
+      "webassembly": {
+        "Suspending": "function",
+        "promising": "function"
+      },
+      "url": "https://preflight-toss-ads.onrender.com/",
+      "storage_bridge": [
+        {
+          "phase": "initial-load",
+          "load_acknowledged": true,
+          "frames": [
+            {
+              "src": "https://preflight-toss-ads.onrender.com/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fpreflight-toss-ads.onrender.com%2F",
+              "has_storage_code": false,
+              "has_inline_execute": false,
+              "srcdoc_length": 0,
+              "srcdoc_sha256": null
+            },
+            {
+              "src": "https://preflight-toss-ads.onrender.com/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fpreflight-toss-ads.onrender.com%2F",
+              "has_storage_code": false,
+              "has_inline_execute": false,
+              "srcdoc_length": 0,
+              "srcdoc_sha256": null
+            }
+          ]
+        },
+        {
+          "phase": "reload",
+          "load_acknowledged": true,
+          "frames": [
+            {
+              "src": "https://preflight-toss-ads.onrender.com/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fpreflight-toss-ads.onrender.com%2F",
+              "has_storage_code": false,
+              "has_inline_execute": false,
+              "srcdoc_length": 0,
+              "srcdoc_sha256": null
+            },
+            {
+              "src": "https://preflight-toss-ads.onrender.com/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fpreflight-toss-ads.onrender.com%2F",
+              "has_storage_code": false,
+              "has_inline_execute": false,
+              "srcdoc_length": 0,
+              "srcdoc_sha256": null
+            }
+          ]
+        }
+      ],
+      "latest_saved_report": "features-20261021-run1",
+      "quality_audit_available_in_saved_report": true,
+      "rewrite_supplement_available_in_saved_report": true,
+      "conversation_followup_available_in_saved_report": true,
+      "status": "completed",
+      "finished_at": "2026-10-21T10:10:51.781690+00:00"
+    },
+    {
+      "scope": "public-native-mobile",
+      "started_at": "2026-10-21T10:10:51.790803+00:00",
+      "page_errors": [],
+      "console_errors": [
+        "Client Error: Download Button fetch error - Failed to fetch"
+      ],
+      "network_errors": [
+        {
+          "url": "https://preflight-toss-ads.onrender.com/component/ui.review_queue_storage.review_queue_storage/storage.js",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://preflight-toss-ads.onrender.com/media/cbe737cd42ea954b40f214b4ffe6dc28.json",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "blocked_model_requests": [],
+      "webassembly": {
+        "Suspending": "function",
+        "promising": "function"
+      },
+      "url": "https://preflight-toss-ads.onrender.com/",
+      "storage_bridge": [
+        {
+          "phase": "initial-load",
+          "load_acknowledged": true,
+          "frames": [
+            {
+              "src": "https://preflight-toss-ads.onrender.com/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fpreflight-toss-ads.onrender.com%2F",
+              "has_storage_code": false,
+              "has_inline_execute": false,
+              "srcdoc_length": 0,
+              "srcdoc_sha256": null
+            },
+            {
+              "src": "https://preflight-toss-ads.onrender.com/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fpreflight-toss-ads.onrender.com%2F",
+              "has_storage_code": false,
+              "has_inline_execute": false,
+              "srcdoc_length": 0,
+              "srcdoc_sha256": null
+            }
+          ]
+        },
+        {
+          "phase": "reload",
+          "load_acknowledged": true,
+          "frames": [
+            {
+              "src": "https://preflight-toss-ads.onrender.com/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fpreflight-toss-ads.onrender.com%2F",
+              "has_storage_code": false,
+              "has_inline_execute": false,
+              "srcdoc_length": 0,
+              "srcdoc_sha256": null
+            },
+            {
+              "src": "https://preflight-toss-ads.onrender.com/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fpreflight-toss-ads.onrender.com%2F",
+              "has_storage_code": false,
+              "has_inline_execute": false,
+              "srcdoc_length": 0,
+              "srcdoc_sha256": null
+            }
+          ]
+        }
+      ],
+      "latest_saved_report": "features-20261021-run1",
+      "quality_audit_available_in_saved_report": true,
+      "rewrite_supplement_available_in_saved_report": true,
+      "conversation_followup_available_in_saved_report": true,
+      "status": "completed",
+      "finished_at": "2026-10-21T10:11:18.795077+00:00"
+    },
+    {
+      "scope": "public-pages-desktop",
+      "started_at": "2026-10-21T10:11:18.803519+00:00",
+      "page_errors": [],
+      "console_errors": [
+        "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+        "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+        "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+        "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch"
+      ],
+      "network_errors": [
+        {
+          "url": "https://stlite.invalid/toss-ads-ai-project/app/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fsokldjs554.github.io%2Ftoss-ads-ai-project%2Fapp%2F",
+          "failure": "net::ERR_NAME_NOT_RESOLVED"
+        },
+        {
+          "url": "https://stlite.invalid/toss-ads-ai-project/app/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fsokldjs554.github.io%2Ftoss-ads-ai-project%2Fapp%2F",
+          "failure": "net::ERR_NAME_NOT_RESOLVED"
+        },
+        {
+          "url": "https://stlite.invalid/toss-ads-ai-project/app/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fsokldjs554.github.io%2Ftoss-ads-ai-project%2Fapp%2F",
+          "failure": "net::ERR_NAME_NOT_RESOLVED"
+        },
+        {
+          "url": "https://stlite.invalid/toss-ads-ai-project/app/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fsokldjs554.github.io%2Ftoss-ads-ai-project%2Fapp%2F",
+          "failure": "net::ERR_NAME_NOT_RESOLVED"
+        }
+      ],
+      "blocked_model_requests": [],
+      "webassembly": {
+        "Suspending": "function",
+        "promising": "function"
+      },
+      "url": "https://sokldjs554.github.io/toss-ads-ai-project/app/",
+      "storage_bridge": [
+        {
+          "phase": "initial-load",
+          "load_acknowledged": true,
+          "frames": [
+            {
+              "src": null,
+              "has_storage_code": true,
+              "has_inline_execute": true,
+              "srcdoc_length": 6715,
+              "srcdoc_sha256": "f13c26d8a701f16a99ea3dc324bc4ba2db9d4ec5939dbd63042b556e806357c4"
+            },
+            {
+              "src": null,
+              "has_storage_code": true,
+              "has_inline_execute": true,
+              "srcdoc_length": 6715,
+              "srcdoc_sha256": "f13c26d8a701f16a99ea3dc324bc4ba2db9d4ec5939dbd63042b556e806357c4"
+            }
+          ]
+        },
+        {
+          "phase": "reload",
+          "load_acknowledged": true,
+          "frames": [
+            {
+              "src": null,
+              "has_storage_code": true,
+              "has_inline_execute": true,
+              "srcdoc_length": 6715,
+              "srcdoc_sha256": "f13c26d8a701f16a99ea3dc324bc4ba2db9d4ec5939dbd63042b556e806357c4"
+            },
+            {
+              "src": null,
+              "has_storage_code": true,
+              "has_inline_execute": true,
+              "srcdoc_length": 6715,
+              "srcdoc_sha256": "f13c26d8a701f16a99ea3dc324bc4ba2db9d4ec5939dbd63042b556e806357c4"
+            }
+          ]
+        }
+      ],
+      "latest_saved_report": "features-20261021-run1",
+      "quality_audit_available_in_saved_report": true,
+      "rewrite_supplement_available_in_saved_report": true,
+      "conversation_followup_available_in_saved_report": true,
+      "status": "completed",
+      "finished_at": "2026-10-21T10:12:03.195930+00:00"
+    },
+    {
+      "scope": "public-pages-mobile",
+      "started_at": "2026-10-21T10:12:03.210014+00:00",
+      "page_errors": [],
+      "console_errors": [
+        "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+        "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+        "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+        "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch"
+      ],
+      "network_errors": [
+        {
+          "url": "https://stlite.invalid/toss-ads-ai-project/app/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fsokldjs554.github.io%2Ftoss-ads-ai-project%2Fapp%2F",
+          "failure": "net::ERR_NAME_NOT_RESOLVED"
+        },
+        {
+          "url": "https://stlite.invalid/toss-ads-ai-project/app/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fsokldjs554.github.io%2Ftoss-ads-ai-project%2Fapp%2F",
+          "failure": "net::ERR_NAME_NOT_RESOLVED"
+        },
+        {
+          "url": "https://stlite.invalid/toss-ads-ai-project/app/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fsokldjs554.github.io%2Ftoss-ads-ai-project%2Fapp%2F",
+          "failure": "net::ERR_NAME_NOT_RESOLVED"
+        },
+        {
+          "url": "https://stlite.invalid/toss-ads-ai-project/app/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=https%3A%2F%2Fsokldjs554.github.io%2Ftoss-ads-ai-project%2Fapp%2F",
+          "failure": "net::ERR_NAME_NOT_RESOLVED"
+        }
+      ],
+      "blocked_model_requests": [],
+      "webassembly": {
+        "Suspending": "function",
+        "promising": "function"
+      },
+      "url": "https://sokldjs554.github.io/toss-ads-ai-project/app/",
+      "storage_bridge": [
+        {
+          "phase": "initial-load",
+          "load_acknowledged": true,
+          "frames": [
+            {
+              "src": null,
+              "has_storage_code": true,
+              "has_inline_execute": true,
+              "srcdoc_length": 6715,
+              "srcdoc_sha256": "f13c26d8a701f16a99ea3dc324bc4ba2db9d4ec5939dbd63042b556e806357c4"
+            },
+            {
+              "src": null,
+              "has_storage_code": true,
+              "has_inline_execute": true,
+              "srcdoc_length": 6715,
+              "srcdoc_sha256": "f13c26d8a701f16a99ea3dc324bc4ba2db9d4ec5939dbd63042b556e806357c4"
+            }
+          ]
+        },
+        {
+          "phase": "reload",
+          "load_acknowledged": true,
+          "frames": [
+            {
+              "src": null,
+              "has_storage_code": true,
+              "has_inline_execute": true,
+              "srcdoc_length": 6715,
+              "srcdoc_sha256": "f13c26d8a701f16a99ea3dc324bc4ba2db9d4ec5939dbd63042b556e806357c4"
+            },
+            {
+              "src": null,
+              "has_storage_code": true,
+              "has_inline_execute": true,
+              "srcdoc_length": 6715,
+              "srcdoc_sha256": "f13c26d8a701f16a99ea3dc324bc4ba2db9d4ec5939dbd63042b556e806357c4"
+            }
+          ]
+        }
+      ],
+      "latest_saved_report": "features-20261021-run1",
+      "quality_audit_available_in_saved_report": true,
+      "rewrite_supplement_available_in_saved_report": true,
+      "conversation_followup_available_in_saved_report": true,
+      "status": "completed",
+      "finished_at": "2026-10-21T10:12:46.993649+00:00"
+    }
+  ],
+  "screenshots": [
+    "public-native-desktop-storage-initial-load.png",
+    "public-native-desktop-storage-reload.png",
+    "public-native-desktop-team-database-unconfigured.png",
+    "public-native-desktop-quality-accepted-and-abstained.png",
+    "public-native-desktop-age-followup-separate-denominator.png",
+    "public-native-desktop-rewrite-supplement.png",
+    "public-native-desktop-saved-live-evaluations.png",
+    "public-native-desktop-conversation-regression-and-original.png",
+    "public-native-desktop-current-insight-evaluation.png",
+    "public-native-desktop-insight-contrasts-and-previous-result.png",
+    "public-native-mobile-storage-initial-load.png",
+    "public-native-mobile-storage-reload.png",
+    "public-native-mobile-team-database-unconfigured.png",
+    "public-native-mobile-quality-accepted-and-abstained.png",
+    "public-native-mobile-age-followup-separate-denominator.png",
+    "public-native-mobile-rewrite-supplement.png",
+    "public-native-mobile-saved-live-evaluations.png",
+    "public-native-mobile-conversation-regression-and-original.png",
+    "public-native-mobile-current-insight-evaluation.png",
+    "public-native-mobile-insight-contrasts-and-previous-result.png",
+    "public-pages-desktop-storage-initial-load.png",
+    "public-pages-desktop-storage-reload.png",
+    "public-pages-desktop-team-server-link.png",
+    "public-pages-desktop-quality-accepted-and-abstained.png",
+    "public-pages-desktop-age-followup-separate-denominator.png",
+    "public-pages-desktop-rewrite-supplement.png",
+    "public-pages-desktop-saved-live-evaluations.png",
+    "public-pages-desktop-conversation-regression-and-original.png",
+    "public-pages-desktop-current-insight-evaluation.png",
+    "public-pages-desktop-insight-contrasts-and-previous-result.png",
+    "public-pages-mobile-storage-initial-load.png",
+    "public-pages-mobile-storage-reload.png",
+    "public-pages-mobile-team-server-link.png",
+    "public-pages-mobile-quality-accepted-and-abstained.png",
+    "public-pages-mobile-age-followup-separate-denominator.png",
+    "public-pages-mobile-rewrite-supplement.png",
+    "public-pages-mobile-saved-live-evaluations.png",
+    "public-pages-mobile-conversation-regression-and-original.png",
+    "public-pages-mobile-current-insight-evaluation.png",
+    "public-pages-mobile-insight-contrasts-and-previous-result.png"
+  ],
+  "source_hashes": {
+    "ui/team_review_view.py": "64185d6f2b9125976f7cba2a0cafa4c445a1da7fae3e37890d1fa2c9a41ad082",
+    "ui/ops_hub.py": "6bbb4d6dbe332cf952626fe4baab28c7db5cc038fc7fc9cae7899a0ca1eee34b",
+    "ui/new_evals.py": "9509c752cc26fff24e54c00cc7e676b9ccbb434773085fd73c4e1babc3a51c29",
+    "ui/review_queue_view.py": "54e66f27f0f2e74ef1b181b26ef29ea0eea13235483bde3be98ca0e91bf4aa7b",
+    "ui/review_queue_storage.py": "1988873cc0a8190c0f0e1bdbb4a6b789953e08ac2400b899de0e7ad009a22dbd",
+    "ops/review_persistence.py": "31a619377419056bd63b2221cd9d57eb019a77757a6b928b4dc5348816d3c186",
+    "ui/review_storage_frontend/storage.js": "179b1dd31a5f9f009d21891a01a7d6c7eecb1c76648ad7a3aea4a0a1324a111f",
+    "ops/team_review.py": "22f0eaa68cbce659cd744e744ad280bf3b3b59968e86656b5f884cd4d2dc3ea7",
+    "ops/team_review_store.py": "8f6f21a4d69a3cee254bbb37ed7d8e028aa1a290b198ee80fbb436180bf97113",
+    "evals/reports/dialogs_regression_v2_20261021.json": "924189ff383434ae62eb48ba7df0c4914b21aead23aaf15621173d3d94ba2c49",
+    "evals/reports/dialogs_original_after_fix_20261021.json": "424d8750178732983d3a7dcbbacf72e0a9da287ac294670010b421cbb2bdb825",
+    "evals/reports/remaining-20261021/insights-after-original.json": "3bf05332f41d673e9fe2a35bcf20ecd9e29331d409e82fa82c8a7e2fca3580ca",
+    "evals/reports/remaining-20261021/insights-after-holdout.json": "cb698c57404ebcf917673f81b4d2340f9e79d529ca6153bf66bd20c92d3d03bf",
+    "evals/reports/remaining-20261021/insights-contrasts-after.json": "e9dde3f93646c8b4ebadd5e412bf93ffb52628bcc8b091cbcc623365258b4c4f",
+    "evals/reports/live_features/features-20261021-run1.json": "7c7c1947986ab168d09b4913b951a8c1529b25c7c26f6d454a461b1901b75c7f"
+  },
+  "frozen_report_hashes_before": {
+    "evals/reports/live_features/features-20261021-run1.json": "7c7c1947986ab168d09b4913b951a8c1529b25c7c26f6d454a461b1901b75c7f",
+    "evals/reports/live_features/features-20261020-run1.json": "b5c40bd30cc353730eb6da0d7104d08aefb91945949c6d519cca5a3c3d345247",
+    "evals/reports/live_features/features-20261020-run3.json": "3981f9ab9a82502f02a8e6086e4178289863c8a632317dbb5544710af828fd91",
+    "evals/reports/live_features/reservations.json": "576c98fb311448fce78456cdac89769c8ecda81a368046ed85763662bcaeb54a",
+    "evals/reports/live_features/features-20261020-run2.json": "429894549ee081e9789a24abf304c1f46f374c4afba042314720684c2ee70acd",
+    "evals/reports/live_features/reservations_remaining_20261021.json": "bbe307f599fad3add843b540331e75f63bf6af4090fda620ce63b3ad161fe0e1"
+  },
+  "bundle": {
+    "sha256": "6fc99e8fe2c414ac48221a4cf9bccdbc2b14955627bba7ed83fefe674b50da30",
+    "files": 286,
+    "essential_hashes": {
+      "ui/team_review_view.py": "64185d6f2b9125976f7cba2a0cafa4c445a1da7fae3e37890d1fa2c9a41ad082",
+      "ui/ops_hub.py": "6bbb4d6dbe332cf952626fe4baab28c7db5cc038fc7fc9cae7899a0ca1eee34b",
+      "ui/new_evals.py": "9509c752cc26fff24e54c00cc7e676b9ccbb434773085fd73c4e1babc3a51c29",
+      "ui/review_queue_view.py": "54e66f27f0f2e74ef1b181b26ef29ea0eea13235483bde3be98ca0e91bf4aa7b",
+      "ui/review_queue_storage.py": "1988873cc0a8190c0f0e1bdbb4a6b789953e08ac2400b899de0e7ad009a22dbd",
+      "ops/review_persistence.py": "31a619377419056bd63b2221cd9d57eb019a77757a6b928b4dc5348816d3c186",
+      "ui/review_storage_frontend/storage.js": "179b1dd31a5f9f009d21891a01a7d6c7eecb1c76648ad7a3aea4a0a1324a111f",
+      "ops/team_review.py": "22f0eaa68cbce659cd744e744ad280bf3b3b59968e86656b5f884cd4d2dc3ea7",
+      "ops/team_review_store.py": "8f6f21a4d69a3cee254bbb37ed7d8e028aa1a290b198ee80fbb436180bf97113",
+      "evals/reports/dialogs_regression_v2_20261021.json": "924189ff383434ae62eb48ba7df0c4914b21aead23aaf15621173d3d94ba2c49",
+      "evals/reports/dialogs_original_after_fix_20261021.json": "424d8750178732983d3a7dcbbacf72e0a9da287ac294670010b421cbb2bdb825",
+      "evals/reports/remaining-20261021/insights-after-original.json": "3bf05332f41d673e9fe2a35bcf20ecd9e29331d409e82fa82c8a7e2fca3580ca",
+      "evals/reports/remaining-20261021/insights-after-holdout.json": "cb698c57404ebcf917673f81b4d2340f9e79d529ca6153bf66bd20c92d3d03bf",
+      "evals/reports/remaining-20261021/insights-contrasts-after.json": "e9dde3f93646c8b4ebadd5e412bf93ffb52628bcc8b091cbcc623365258b4c4f",
+      "evals/reports/live_features/features-20261021-run1.json": "7c7c1947986ab168d09b4913b951a8c1529b25c7c26f6d454a461b1901b75c7f"
+    },
+    "stlite_html_sha256": "9083776a80c5927a226c58eacbcb956f95ea250ecadf46efd56234c4f0a324c7"
+  },
+  "public_bundle": {
+    "url": "https://sokldjs554.github.io/toss-ads-ai-project/app/src.zip",
+    "sha256": "cd9e2662604aef4fedd7ae2842c226a39345557387d550ffe2cb0d13c3bf96da",
+    "files": 286,
+    "build": "952b78a",
+    "essential_hashes": {
+      "ui/team_review_view.py": "64185d6f2b9125976f7cba2a0cafa4c445a1da7fae3e37890d1fa2c9a41ad082",
+      "ui/ops_hub.py": "6bbb4d6dbe332cf952626fe4baab28c7db5cc038fc7fc9cae7899a0ca1eee34b",
+      "ui/new_evals.py": "9509c752cc26fff24e54c00cc7e676b9ccbb434773085fd73c4e1babc3a51c29",
+      "ui/review_queue_view.py": "54e66f27f0f2e74ef1b181b26ef29ea0eea13235483bde3be98ca0e91bf4aa7b",
+      "ui/review_queue_storage.py": "1988873cc0a8190c0f0e1bdbb4a6b789953e08ac2400b899de0e7ad009a22dbd",
+      "ops/review_persistence.py": "31a619377419056bd63b2221cd9d57eb019a77757a6b928b4dc5348816d3c186",
+      "ui/review_storage_frontend/storage.js": "179b1dd31a5f9f009d21891a01a7d6c7eecb1c76648ad7a3aea4a0a1324a111f",
+      "ops/team_review.py": "22f0eaa68cbce659cd744e744ad280bf3b3b59968e86656b5f884cd4d2dc3ea7",
+      "ops/team_review_store.py": "8f6f21a4d69a3cee254bbb37ed7d8e028aa1a290b198ee80fbb436180bf97113",
+      "evals/reports/dialogs_regression_v2_20261021.json": "924189ff383434ae62eb48ba7df0c4914b21aead23aaf15621173d3d94ba2c49",
+      "evals/reports/dialogs_original_after_fix_20261021.json": "424d8750178732983d3a7dcbbacf72e0a9da287ac294670010b421cbb2bdb825",
+      "evals/reports/remaining-20261021/insights-after-original.json": "3bf05332f41d673e9fe2a35bcf20ecd9e29331d409e82fa82c8a7e2fca3580ca",
+      "evals/reports/remaining-20261021/insights-after-holdout.json": "cb698c57404ebcf917673f81b4d2340f9e79d529ca6153bf66bd20c92d3d03bf",
+      "evals/reports/remaining-20261021/insights-contrasts-after.json": "e9dde3f93646c8b4ebadd5e412bf93ffb52628bcc8b091cbcc623365258b4c4f",
+      "evals/reports/live_features/features-20261021-run1.json": "7c7c1947986ab168d09b4913b951a8c1529b25c7c26f6d454a461b1901b75c7f"
+    }
+  },
+  "browser": "141.0.7390.37",
+  "finished_at": "2026-10-21T10:12:47.143472+00:00",
+  "failed_checks": 0,
+  "status": "passed"
+}

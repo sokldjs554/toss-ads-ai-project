@@ -1,0 +1,29 @@
+{
+  "verified_app_commit": "952b78a27ddec6dab39c76498b9c61aadfd559a6",
+  "tree": "7893e4b3651be60275ce6e74de243a6ac7bfefc5",
+  "pull_request": "https://github.com/sokldjs554/toss-ads-ai-project/pull/4",
+  "verified_pr_head": "6e07cfb7356bdc749095e2eccc45052f2d61a656",
+  "pr_ci": {
+    "run_id": 39581067361,
+    "job_id": 119158515117,
+    "conclusion": "success",
+    "postgres_preflight_passed": 54,
+    "postgres_preflight_seconds": 6.35,
+    "full_suite_passed": 4352,
+    "full_suite_seconds": 416.25
+  },
+  "pages": {
+    "run_id": 39582288500,
+    "conclusion": "success",
+    "commit": "952b78a27ddec6dab39c76498b9c61aadfd559a6"
+  },
+  "render": {
+    "service_id": "srv-db9hb6lg1s2s738ndklg",
+    "deployment_id": "dep-dbc8tso473hc73a5g39g",
+    "status": "live",
+    "commit": "952b78a27ddec6dab39c76498b9c61aadfd559a6",
+    "finished_at": "2026-10-21T10:08:36.62597Z"
+  },
+  "production_database_modified": false,
+  "independent_human_reviews": 0
+}

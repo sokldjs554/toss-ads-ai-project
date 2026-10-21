@@ -118,9 +118,9 @@
 
 공동 DB 운영 검증에 UTC·함수 속성·소유자 권한·정확한 함수 집합 확인을 추가했습니다. 설치할 SQL 51문장과 함수 본문 7개는 그대로입니다. 문구 비교는 모순되는 선호/중요도 조합을 표현할 수 없는 단일 판단 형식으로 좁혔고, 원문과 기존 의미로 정규화한 응답을 함께 보존합니다. 과거 평가·작성자 라벨·보류 기준은 바꾸지 않았습니다. 화면의 근거 없는 사람 라벨러 1명 안내도 실제 상태인 **독립 사람 검수 결과 0건**에 맞췄습니다.
 
-- 소스 `f55cc89`의 [CI 39579660871](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39579660871): **전체 4,352개 통과**, 실제 격리 PostgreSQL 선행 검사 **54개 통과**, 회귀 게이트·앱 시작 검사 성공.
+- 최종 PR 소스 `6e07cfb`의 [CI 39581067361](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39581067361): **전체 4,352개 통과**, 실제 격리 PostgreSQL 선행 검사 **54개 통과**, 회귀 게이트·앱 시작 검사 성공. [PR #4](https://github.com/sokldjs554/toss-ads-ai-project/pull/4)를 같은 트리의 `952b78a`로 병합하고 Pages·Render에 배포했습니다.
 - [별도 wire/API 확인](evals/reports/quality_wire_smoke/README.md): 이미 본 4쌍을 두 순서로 **8회 호출**, 구조·근거 계약 **8/8**, 사용량 기준 **$0.0285105**. 전체 159회 평가를 반복하지 않았으며, 정확도나 사람 평가로 집계하지 않습니다.
-- [수정 전 공개 빌드 `7f50da2` 확인](docs/evidence/verified-gaps-20261021/public-baseline-7f50da2/README.md): 실제 Pages·Render의 desktop/mobile에서 기본 TLS로 **194개 검사 통과**. 알려진 stlite 사전 URL 검사 로그는 보존했으며, 빈 개인 대기열의 load/reload 완료는 후속 공개 검사에서 추가 확인합니다.
+- [병합 후 공개 빌드 `952b78a` 확인](docs/evidence/verified-gaps-20261021/public-final-952b78a/README.md): 실제 Pages·Render의 desktop/mobile에서 기본 TLS로 **242개 검사 통과**, 실패 **0개**. 네 조합 모두 빈 개인 대기열의 최초 load와 새로고침 후 load 응답을 확인했습니다. 원시 진단 로그와 검증 범위도 함께 보존했습니다. [이전 빌드 `7f50da2`의 194개 검사](docs/evidence/verified-gaps-20261021/public-baseline-7f50da2/README.md)는 별도 baseline입니다.
 
 변경과 근거, 배포 후 공개 확인은 [추가 보완 기록](docs/release-verified-gaps-2026-10-21.md)에 모읍니다. 실제 운영 DB 활성화는 기존의 구체적 사용자 승인 대기 상태이며 이번 검사에 포함하지 않습니다.
 

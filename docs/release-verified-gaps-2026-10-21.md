@@ -16,8 +16,11 @@
 | --- | --- |
 | `2fcd81c`, [CI 39578788780](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39578788780) | PostgreSQL 선행 검사 54개 / 6.31초, 전체 4,323개 / 403.88초 통과 |
 | `f55cc89`, [CI 39579660871](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39579660871) | PostgreSQL 선행 검사 54개 / 11.36초, 전체 4,352개 / 316.29초 통과 |
+| 최종 PR head `6e07cfb`, [CI 39581067361](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39581067361) | PostgreSQL 선행 검사 54개 / 6.35초, 전체 4,352개 / 416.25초 통과 |
 
-두 실행 모두 회귀 평가·실제 Chromium 저장 테스트·앱 시작 검사를 통과했다. PostgreSQL은 GitHub Actions의 격리된 테스트 서비스이며 운영 Neon DB가 아니다. 실제 예약 장부와 결과를 내려받은 뒤에도 wire smoke 관련 56개 로컬 회귀가 통과했다.
+세 실행 모두 회귀 평가·실제 Chromium 저장 테스트·앱 시작 검사를 통과했다. PostgreSQL은 GitHub Actions의 격리된 테스트 서비스이며 운영 Neon DB가 아니다. 실제 예약 장부와 결과를 내려받은 뒤에도 wire smoke 관련 56개 로컬 회귀가 통과했다.
+
+[PR #4](https://github.com/sokldjs554/toss-ads-ai-project/pull/4)는 최종 head CI 성공 후 `952b78a27ddec6dab39c76498b9c61aadfd559a6`으로 병합했다. 병합 전후 Git tree는 `7893e4b3651be60275ce6e74de243a6ac7bfefc5`로 같다. [Pages 실행 39582288500](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39582288500)이 성공했고, Render `dep-dbc8tso473hc73a5g39g`도 2026-10-21 10:08:36 UTC에 같은 SHA로 live 상태가 됐다.
 
 독립 검토에서 smoke 테스트가 예약 뒤의 장부를 잘못 재사용하는 문제와 SDK parse 실패 때 이미 받은 원문을 잃는 문제를 찾아 실행 전에 수정했다. 테스트 장부는 동결된 예약 전 baseline으로 독립 구성하고, smoke 전용 HTTP 응답 관측에서 허용된 completion 필드만 SDK parsing 전에 보존한다. 잘림·스키마 오류·거절은 계속 실패로 기록하며 재시도·추가 모델 호출을 하지 않는다. 원래 발견과 수정 확인을 구분해 검토했다.
 
@@ -33,7 +36,7 @@
 
 Pages의 `stlite.invalid` 요청 실패는 이전 저장 성공과 함께 관측된 `checkSourceUrlResponse` 사전 검사와 일치했다. 실제 컴포넌트는 별도 kernel/iframe srcdoc 경로로 로드된다. 이 로그를 숨기거나 성공으로 바꾸지 않았고 제품 코드도 바꾸지 않았다. 최종 공개 검사에는 빈 브라우저 context에서 저장 load 응답 수락 뒤에만 표시되는 입력과 iframe 경로를 확인하고, 새로고침 후 load 응답도 재확인하도록 추가했다. 큐 추가·배정·라벨 저장은 하지 않는다. 빈 IndexedDB를 열 때 DB/object store가 초기화될 수 있으며, 비어 있지 않은 큐의 저장 내구성 검사로 확대하지 않는다.
 
-배포 후 실행의 정확한 SHA·검사 수·실패 여부는 후속 결과를 확인한 뒤 이 문서에 추가한다.
+병합 후 [공개 검사 39582480518](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39582480518)은 main `952b78a`를 고정하고 **242개 assertion 통과, 실패 0개**를 기록했다. Pages·Render × desktop·mobile 네 조합 모두 최초 load와 새로고침 후 load 응답을 수락했고, Pages의 실제 인라인 srcdoc 경로도 확인했다. 기본 TLS를 유지했으며 page exception과 모델 요청은 0개다. Pages의 기존 사전 URL 진단 및 Render mobile의 별도 `ERR_ABORTED`/다운로드 fetch 진단은 원문에 남겼고, 다운로드 파일 내용 검증은 이번 실행의 범위가 아니다. [원본 JSON·8장 캡처·배포 SHA·진단 범위](evidence/verified-gaps-20261021/public-final-952b78a/README.md)를 보존했다.
 
 ## 그대로 남아 있는 외부 조건
 
