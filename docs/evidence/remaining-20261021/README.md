@@ -1,5 +1,7 @@
 # 공동 검수·새 평가 UI 브라우저 QA — 2026-10-21
 
+**공개 배포 후 추가 확인:** 병합 빌드 `3e52e58`을 실제 Pages·Render에서 확인한 [Cloud Browser 관측·캡처](public-cloud-3e52e58/README.md)를 추가했다. 기본 TLS 검증을 유지한 제한적 데스크톱 확인이며 아래 로컬 185개 검사와 분리한다. 실제 공동 DB 활성화는 승인 대기다. 별도로 [QA 계정 선택·정리의 로컬 10개 확인](cleanup-selector/README.md)을 기록했다.
+
 **새 실제 평가 기록 추가 검증:** `features-20261021-run1` 저장 후 native·Pages × 데스크톱·모바일에서 정확한 표 값과 보조평가의 별도 분모를 확인했다. **185개 검사, 실패 0개**와 새 캡처 32개는 [별도 최신 증거](live-run1-native-pages-recheck/README.md)에 있다. 아래 122개·79개 결과와 당시의 최신 기록 `features-20261020-run3`는 이전 검증 기록으로 그대로 보존한다.
 
 ## 결과

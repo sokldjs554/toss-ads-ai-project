@@ -142,7 +142,9 @@ def main() -> int:
                 ).wait_for()
                 return False
             previous = selector.input_value()
-            selector.click()
+            # Filling the already-selected name does not open Streamlit's
+            # combobox. Open its option list explicitly before searching.
+            selector.press("ArrowDown")
             selector.fill(name)
             option = page.get_by_role("option", name=name, exact=True)
             empty = page.get_by_text("No results", exact=True)

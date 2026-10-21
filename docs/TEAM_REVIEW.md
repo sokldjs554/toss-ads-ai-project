@@ -1,5 +1,15 @@
 # 서버 공동 검수와 접근키 운영
 
+## 현재 운영 상태 — 2026-10-21
+
+**실제로 생성된 운영 공동 검수 공간은 0건이며, 사용자 승인 전 운영 초기화는 미완료 상태다.** 제한 DB API의 PostgreSQL 회귀와 전체 CI가 통과한 사실은 아래에 따로 기록한다. 코드 검증과 실제 운영 공간 생성을 구분한다.
+
+운영 초기화의 첫 MCP 트랜잭션은 자동 승인 검토를 통과했지만, Neon이 미리 해시한 비밀번호를 받지 않아 400 오류(`Neon only supports being given plaintext passwords`)로 원자적으로 실패했다. 이후 읽기 전용 조회에서 대상 스키마가 없고 두 예정 역할도 0개임을 확인했다. 이 시도를 성공한 bootstrap이나 생성된 공동 검수 공간으로 집계하지 않는다.
+
+Neon 요구에 맞춰 원문 런타임 DB 비밀번호를 전달하는 별도 템플릿을 준비했지만, **자동 승인 검토가 새 비밀값의 Neon 전달과 운영 역할 생성을 위한 구체적인 승인이 추가로 필요하다는 이유로 실행을 거절했다.** 이전 해시 전달 방식의 승인이 원문 비밀번호 전달까지 포함하지 않으므로 이 변형의 DB 실행은 0건이다. 승인 전에는 다른 API나 간접 SQL로 재시도하지 않는다. 템플릿에는 실제 비밀번호나 앱 접근키를 넣지 않았으며, 준비된 템플릿을 운영 초기화 완료 증거로 취급하지 않는다.
+
+승인할 변경 대상과 비밀값 없는 SQL 템플릿은 [공동 검수 DB 활성화 검토안](deployment/team-review-neon-activation.md)에 정리했다.
+
 ## 현재 지원 범위
 
 서버의 공동 검수는 PostgreSQL의 `preflight_team.workspace` 한 행에 계정, 키의 해시, 대기열, 검토·조정 기록, 요청 영수증을 저장한다. `ops/team_review_store.py`는 기본적으로 두 개의 DB API 함수를 호출한다. DB가 행을 잠그고 원본 상태로 앱 키·역할·만료를 인증하며, Python이 대기열 전이를 계산한 뒤 DB가 허용된 인증 정보 변경과 영수증 계약을 재검사하고 저장한다. 브라우저가 전체 대기열을 업로드해 서버 상태를 덮어쓰는 경로는 없다. 브라우저 전용 로컬 대기열과 서버의 공동 검수는 별개다.
@@ -65,13 +75,17 @@ bootstrap은 기존 저장소 초기화와 같은 advisory lock을 사용한다.
 
 `workspace_exists`이면 새 결과 파일의 키를 운영 키로 전달하지 않는다. 기존 owner가 정상 키를 가지고 있으면 정상 관리 경로를 사용하고, 키가 만료·유실됐다면 아래 DB 관리자 복구 절차를 사용한다. 환경 변수에 다른 owner 키를 넣거나 초기화를 다시 호출해서 기존 공간을 덮어쓰지 않는다.
 
-DB 관리자 도구로 같은 작업을 수행할 때도 준비된 키 파일을 먼저 durable하게 보관한다. SQL에는 원문 키를 넣지 않고 `apply_admin(None, record)`가 만든 해시·상태·감사 영수증만 넣는다. `INSERT ... ON CONFLICT DO NOTHING`의 실행 성공만으로 초기화를 성공으로 판단하지 않는다. 조회한 스키마 버전, revision, 상태와 해당 UUID의 fingerprint가 준비한 결과와 일치하는지 확인한다. 다른 상태가 있으면 기존 데이터를 그대로 두고 실패로 기록한다. 같은 원칙은 MCP를 이용한 명시적 bootstrap에도 적용되며, 이를 CLI 실행 증거로 바꾸지 않는다.
+DB 관리자 도구로 같은 작업을 수행할 때도 준비된 키 파일을 먼저 durable하게 보관한다. workspace 상태에는 원문 앱 접근키를 넣지 않고 `apply_admin(None, record)`가 만든 해시·상태·감사 영수증만 넣는다. `INSERT ... ON CONFLICT DO NOTHING`의 실행 성공만으로 초기화를 성공으로 판단하지 않는다. 조회한 스키마 버전, revision, 상태와 해당 UUID의 fingerprint가 준비한 결과와 일치하는지 확인한다. 다른 상태가 있으면 기존 데이터를 그대로 두고 실패로 기록한다. 같은 원칙은 MCP를 이용한 명시적 bootstrap에도 적용되며, 이를 CLI 실행 증거로 바꾸지 않는다.
 
 ## 1.1 런타임 DB API 설치와 권한 검증
 
 `bootstrap`은 workspace와 최초 관리자 키를 준비하는 작업이다. 런타임용 제한 API는 별도로 설치한다. `ops/team_review_db_api.py`의 `install_api()`/`verify_api()`와 다음 CLI는 **명시적인 관리자 연결에서만** 실행한다. 앱 시작, 공개 UI, 일반 환경 변수에서 설치나 권한 복구를 자동 실행하지 않는다. 기존 테이블 권한으로 자동 되돌아가는 경로도 없다.
 
 운영자가 먼저 전용 runtime LOGIN 역할을 준비한다. installer는 그 비밀번호를 생성하거나 argv로 받지 않는다. 역할은 superuser/CREATEDB/CREATEROLE/REPLICATION/BYPASSRLS가 없어야 하며 **다른 역할의 멤버십도 하나도 없어야 한다.** `NOINHERIT`만으로는 `SET ROLE`을 막지 못하므로 충분하지 않다. 역할 이름은 아래 예시의 비밀이 아닌 식별자이며, 실제 승인된 역할로 바꾼다.
+
+Neon에서는 SQL 역할 생성 시 **원문 비밀번호를 공급자에게 전달해야 하며, Neon은 이를 저장할 때 암호화한다. 미리 해시한 비밀번호는 지원하지 않는다.** 함수 소유자의 `NOLOGIN` 역할은 지원한다. 또한 Neon Console·역할 관리 API·CLI로 생성한 역할에는 `neon_superuser` 멤버십이 부여되므로, 여기서 요구하는 멤버십 없는 runtime 역할은 SQL `CREATE ROLE`과 이후 실제 권한 검사를 기준으로 준비한다. [Neon의 SQL 역할 및 비밀번호 계약](https://neon.com/docs/manage/roles#manage-roles-with-sql).
+
+준비된 Neon 전용 변형은 기존 템플릿의 SCRAM 형식 검사 SELECT 한 개를 제거하고 runtime `CREATE ROLE ... PASSWORD`의 전체 SQL literal placeholder 한 개만 원문 비밀번호용으로 바꾼 것이다. 함수·본문 해시·ACL·권한 검사는 그대로이고 문장 수는 52개에서 51개가 된다. 이 변경은 공급자가 받는 비밀번호 형태를 맞추는 작업이며 실제 운영 실행 승인은 별도다. 승인된 운영자가 비밀 저장 경로의 값을 `psycopg.sql.Literal`로 인용해 공급자 요청에 삽입해야 한다. SQL 인용은 구문을 보호할 뿐 비밀번호를 해시하거나 로그에서 숨기지 않으므로, 비밀번호가 채워진 SQL·요청 payload는 파일이나 저장소에 저장하지 않고 로그에도 남기지 않는다. 앱 접근키는 계속 workspace에 해시만 저장한다.
 
 ```bash
 .venv311/bin/python -m scripts.team_review_admin install-api \
@@ -266,8 +280,15 @@ DB 관리자 복구는 기존 정상 작업 장부가 가득 차도 새 키와 �
   tests/test_team_review_db_boundary_review.py --tb=short
 ```
 
-새 DB 경계와 CLI를 포함한 위 명령의 로컬 검증은 **85개 통과, PostgreSQL 통합 43개 미실행**이다. 로컬 실행에는 `PREFLIGHT_TEAM_TEST_DATABASE_URL`이 없었다. 통제된 메모리 저장소로 실제 순수 상태 전이 함수를 호출했고, private 파일 권한·원자성·잠금·파일/디렉터리 fsync, 저장 전 실패, 커밋 후 응답 유실, 결과 파일 상태 갱신 실패, 동일 요청 재시도, 이전 키 회수, 기존 검토/배정/계정 보존, 다른 hash 거절, 용량 상한, 민감 예외 출력 방지를 검증했다.
+새 DB 경계와 CLI를 포함한 위 명령의 마지막 로컬 검증은 **86개 통과, PostgreSQL 통합 44개 미실행**이다. 로컬 실행에는 `PREFLIGHT_TEAM_TEST_DATABASE_URL`이 없었다. 통제된 메모리 저장소로 실제 순수 상태 전이 함수를 호출했고, private 파일 권한·원자성·잠금·파일/디렉터리 fsync, 저장 전 실패, 커밋 후 응답 유실, 결과 파일 상태 갱신 실패, 동일 요청 재시도, 이전 키 회수, 기존 검토/배정/계정 보존, 다른 hash 거절, 용량 상한, 민감 예외 출력 방지를 검증했다.
 
-PostgreSQL 검사는 별도의 무작위 테스트 스키마와 전용 runtime LOGIN으로 실행한다. 기존 bootstrap/replay·동시 복구·revision 불일치·커밋 장애 검사는 명시적 직접 관리자 경로로 유지했다. 새 API 검사는 실제 table 권한 거절, 올바른 앱 키 없는 조회 거절, 정상 계정/큐 전이, 키 회전과 동일 요청 재생, builtin SHA-256, 비 superuser CREATEROLE 설치 및 임시 멤버십 복구를 검사한다. 독립 공격 회귀는 SQL NULL, accounts/keys 변조, 잘못된 owner delta, 미래 시각/만료 동시 위조, 다른 actor 또는 기존 영수증 변조, load 후 키 만료, role membership과 열 권한 검증을 포함한다. CI의 격리된 `PREFLIGHT_TEAM_TEST_DATABASE_URL`로 실행해야 한다. 운영 DB를 테스트 대상으로 넣지 않는다. CI나 실제 운영에서 추가 검증한 결과는 실행 ID와 함께 별도로 기록하며 로컬에서 미실행한 검사를 성공으로 적지 않는다.
+고정 소스 `fc8724dcdaaca6a995c2416f6f0076806a773e56`의 [PR CI 39570494115](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39570494115)는 PostgreSQL 사전 검사와 전체 검사를 모두 통과했다. 회귀 검사와 smoke도 성공했다. 아래는 서로 다른 CI 단계의 결과이며 통과 수를 합산하지 않는다.
+
+| CI 단계 | 결과 | pytest 실행 시간 |
+|---|---:|---:|
+| PostgreSQL 사전 검사 | 38 passed | 4.10초 |
+| 전체 pytest | 4,281 passed | 252.09초 |
+
+PostgreSQL 검사는 별도의 무작위 테스트 스키마와 전용 runtime LOGIN으로 실행한다. 기존 bootstrap/replay·동시 복구·revision 불일치·커밋 장애 검사는 명시적 직접 관리자 경로로 유지했다. 새 API 검사는 실제 table 권한 거절, 올바른 앱 키 없는 조회 거절, 정상 계정/큐 전이, 연속된 정상 저장의 기존 영수증 보존, 키 회전과 동일 요청 재생, builtin SHA-256, 비 superuser CREATEROLE 설치 및 임시 멤버십 복구를 검사한다. 독립 공격 회귀는 SQL NULL, accounts/keys 변조, 잘못된 owner delta, 미래 시각/만료 동시 위조, 다른 actor 또는 기존 영수증 변조, load 후 키 만료, role membership과 열 권한 검증을 포함한다. CI의 격리된 `PREFLIGHT_TEAM_TEST_DATABASE_URL`로 실행해야 한다. 운영 DB를 테스트 대상으로 넣지 않는다. CI나 실제 운영에서 추가 검증한 결과는 실행 ID와 함께 별도로 기록하며 로컬에서 미실행한 검사를 성공으로 적지 않는다. 위 CI 성공은 운영 DB 초기화나 실제 사람의 검수 참여를 증명하지 않는다.
 
 이 도구는 OS 계정, DB 운영 권한, 비밀 파일의 보관·전달, 실제 참여자 확인을 대신하지 않는다. 키 결과 파일과 백업이 모두 유실되면 DB 관리자 복구가 필요하다. DB 자체의 손실·손상은 별도의 백업 복원 문제이며 owner 복구 명령으로 대기열을 재생성하지 않는다.

@@ -1,0 +1,52 @@
+{
+  "status": "completed",
+  "test_type": "local native browser, synthetic MemoryStore",
+  "qa_source_sha256": "cc5ad2af41ec5259e2ba8031937fba92263c01c8a257f271ff3e5a6da3e1b1f5",
+  "actual_human_reviews": 0,
+  "external_database_calls": 0,
+  "fixture_accounts": 2,
+  "checks": [
+    {
+      "name": "local memory server ready",
+      "passed": true
+    },
+    {
+      "name": "first active account starts selected",
+      "passed": true
+    },
+    {
+      "name": "helper selects account 1",
+      "passed": true
+    },
+    {
+      "name": "server and input agree for account 1",
+      "passed": true
+    },
+    {
+      "name": "account 1 disabled with correct selection",
+      "passed": true
+    },
+    {
+      "name": "helper selects account 2",
+      "passed": true
+    },
+    {
+      "name": "server and input agree for account 2",
+      "passed": true
+    },
+    {
+      "name": "account 2 disabled with correct selection",
+      "passed": true
+    },
+    {
+      "name": "already disabled selection is idempotent",
+      "passed": true
+    },
+    {
+      "name": "disabled account remains selected",
+      "passed": true
+    }
+  ],
+  "passed_checks": 10,
+  "total_checks": 10
+}
