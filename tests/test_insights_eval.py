@@ -117,13 +117,18 @@ def stored():
     return rep
 
 
-def test_reporting_fix_preserves_historical_decision_outcomes(fresh, stored):
-    assert stored["engine_fingerprint"] != fresh["engine_fingerprint"]
-    assert stored["dataset_fingerprint"] == fresh["dataset_fingerprint"]
+def test_historical_reports_remain_fixed_and_current_run_is_labeled_regression(fresh, stored):
+    prior = EV.load_report(EV.PRIOR_REGRESSION_PATH)
+    assert stored["engine_fingerprint"] == HISTORICAL_ENGINE_FINGERPRINT
+    assert prior["engine_fingerprint"] == "83a47efd048e8ad3"
+    assert stored["splits"] == prior["splits"] and stored["scenarios"] == prior["scenarios"]
+    assert stored["dataset_fingerprint"] == prior["dataset_fingerprint"] == fresh["dataset_fingerprint"] == "add5a3a6fcbb6127"
     assert fresh["engine_changed_after_holdout"] is True and fresh["holdout_role"] == "regression"
     assert fresh["holdout_provenance_issues"] == []
-    assert stored["splits"] == fresh["splits"]                                                    # 보고 수치는 고쳐도 탐지·진단·액션과 집계 결과는 바꾸지 않았다
-    assert stored["scenarios"] == json.loads(json.dumps(fresh["scenarios"]))
+    assert stored["splits"]["holdout"]["control_false_alarm_n"] == "2/4"
+    assert fresh["splits"]["holdout"]["control_false_alarm_n"] == "0/4"
+    assert EV.check_gates(fresh, stored, regression=True) == []
+    assert all("asserted" not in r["cause_states"] for r in fresh["scenarios"])
 
 
 def test_stored_report_carries_the_honesty_fields(stored):
@@ -147,7 +152,10 @@ def test_reported_numbers_are_not_better_than_the_data_say(stored):
     """저장된 숫자를 그대로 믿지 않고, 시나리오별 결과에서 다시 센다."""
     for split, agg in stored["splits"].items():
         rows = [r for r in stored["scenarios"] if r["split"] == split]
-        assert agg == EV.aggregate(rows)
+        recounted = EV.aggregate(rows)
+        # 새 평가에 추가한 지표는 과거 JSON에 없다. 과거에 실제로 기록한 모든 필드를 재계산한다.
+        assert {k: v for k, v in agg.items() if k != "calibration"} == {k: recounted[k] for k in agg if k != "calibration"}
+        assert [(b["n"], b["accuracy"]) for b in agg["calibration"]["bins"]] == [(b["n"], b["accuracy"]) for b in recounted["calibration"]["bins"]]
     hold = stored["splits"]["holdout"]
     assert hold["control_false_alarm_n"] == "2/4"                                                  # holdout 의 나쁜 결과가 숨겨지지 않았다
     assert any("대조" in o and "2개" in o for o in stored["holdout_observations"])
@@ -266,7 +274,7 @@ def test_calibration_bins_use_only_resolvable_scenarios():
             res(top1_correct=False, top3_correct=False, any_in_top3=False, abstained=False, ranked=[("creative_fatigue", 0.8), ("landing_issue", 0.5)]),
             res(ambiguous=True, main_causes=[], ranked=[("landing_issue", 0.9)])]
     bins = {b["bin"][:2]: b for b in EV.calibration(rows)["bins"]}
-    assert bins["단정"]["n"] == 2 and bins["단정"]["accuracy"] == 0.5 and bins["가능"]["n"] == 1 and bins["가능"]["accuracy"] == 1.0 and bins["후보"]["n"] == 1 and bins["후보"]["accuracy"] == 0.0
+    assert bins["근거"]["n"] == 2 and bins["근거"]["accuracy"] == 0.5 and bins["우선"]["n"] == 1 and bins["우선"]["accuracy"] == 1.0 and bins["후보"]["n"] == 1 and bins["후보"]["accuracy"] == 0.0
 
 
 # ───────────── 주입 시험 자체를 시험한다 (변이 확인용) ─────────────
@@ -308,3 +316,28 @@ def test_weakening_the_cause_assertion_limit_makes_the_injection_test_fail(monke
     a, rep = make(sc.spec)
     monkeypatch.setattr(ins, "causal_issue", lambda *args, **kw: "")
     assert "cause_overclaim" in EV.perturbation_test(a, rep)["escaped_kinds"]
+
+
+def test_previous_regression_snapshot_is_also_protected(monkeypatch, tmp_path, capsys):
+    prior = tmp_path / "prior.json"
+    prior.write_text("prior engine evidence", encoding="utf-8")
+    monkeypatch.setattr(EV, "PRIOR_REGRESSION_PATH", prior, raising=False)
+    with pytest.raises(SystemExit) as exc:
+        EV.main(["--regression", "--out", str(prior)])
+    assert exc.value.code == 2
+    assert "별도 경로" in capsys.readouterr().err
+    assert prior.read_text(encoding="utf-8") == "prior engine evidence"
+
+
+def test_explicit_dataset_is_hashed_and_evaluated_without_reusing_historical_observations(tmp_path):
+    original = [json.loads(line) for line in EV.DATASET_PATH.read_text(encoding="utf-8").splitlines() if line.strip()]
+    meta = dict(original[0]["_meta"], holdout_frozen_engine_fingerprint=EV.engine_fingerprint())
+    # API 검증용 복사본일 뿐 새 독립 평가로 보고하지 않는다.
+    scenario = dict(next(r for r in original[1:] if r["split"] == "holdout"), frozen_engine_fingerprint=EV.engine_fingerprint())
+    dataset = tmp_path / "api-fixture.jsonl"
+    dataset.write_text("\n".join(json.dumps(r, ensure_ascii=False) for r in [{"_meta": meta}, scenario]) + "\n", encoding="utf-8")
+    result = EV.evaluate("holdout", dataset_path=dataset)
+    assert result["dataset_fingerprint"] == EV.dataset_fingerprint(dataset)
+    assert result["dataset"] == "api-fixture" and len(result["scenarios"]) == 1
+    assert not result["engine_changed_after_holdout"]
+    assert result["holdout_observations"] == []

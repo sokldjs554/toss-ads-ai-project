@@ -145,8 +145,21 @@ def test_short_history_is_not_analyzed():
 # ───────────── 진단: 원인 불명은 억지로 고르지 않는다 (변이 확인) ─────────────
 def test_without_dimension_columns_the_cause_is_left_undetermined():
     spec = P.ScenarioSpec("amb", 30, collapse=("device", "creative", "ad_set"), events=(E("landing_issue", 31, None, {"depth": 0.3}),))
-    _, a = run(spec)
-    dg = a.diagnoses[0]
+    rows, a = run(spec)
+    assert not {p.action_id for p in a.actions} & set(ie.CHANGE_IDS)
+    # 이 경계 표본은 기준 기간 탐색의 추가 비교 보정 뒤 전체 탐지에서는 보류될 수 있다.
+    # 행/강도를 바꾸지 않고 미리 지정한 CVR 한 계열의 구간으로 진단기와 액션 보류를 따로 검증한다.
+    table = ie.build_table(rows, a.baseline[0], a.window[1])
+    base = [d for d in table.dates if a.baseline[0] <= d <= a.baseline[1]]
+    window = [d for d in table.dates if a.window[0] <= d <= a.window[1]]
+    signal = ie.detect_metric("cvr", table.total, table.present, base, window, a.sample)
+    assert signal.spans
+    incident = ie._cluster([("cvr", s) for s in signal.spans], a.window[1])[0]
+    dg = ie.Diagnoser(table, base, incident, a.detections, a.sample, a.book).diagnose()
+    a.incidents, a.diagnoses = [incident], [dg]
+    a.state.has_incident, a.state.undetermined, a.state.conf = True, True, a.cause_conf()
+    ie._fill_state_from_evidence(a)
+    ie._finalize_actions(a)
     assert dg.cause_state == "undetermined" and dg.top_cause == ""
     assert all(h.confidence < ie.LIKELY_CONFIDENCE for h in dg.hypotheses)
     land = dg.hyp("landing_issue")
@@ -202,7 +215,7 @@ def test_critical_checks_cap_the_confidence():
 
 def test_state_thresholds_are_ordered():
     assert 0 < ie.CANDIDATE_CONFIDENCE < ie.SUSPECT_CONFIDENCE < ie.LIKELY_CONFIDENCE < ie.ASSERT_CONFIDENCE <= 1
-    assert [ie.state_of(x) for x in (0.9, 0.75, 0.6, 0.45, 0.3, 0.1)] == ["asserted", "asserted", "likely", "likely", "candidate", "unlikely"]
+    assert [ie.state_of(x) for x in (0.9, 0.75, 0.6, 0.45, 0.3, 0.1)] == ["supported", "supported", "likely", "likely", "candidate", "unlikely"]
 
 
 def test_rival_hypotheses_that_explain_the_same_pattern_are_not_both_asserted():
@@ -338,7 +351,7 @@ def test_missing_days_and_odd_shapes_do_not_crash():
     dropped = {sorted({r.date for r in rows})[i] for i in (3, 10, 33)}
     a = ie.analyze([r for r in rows if r.date not in dropped])
     assert a.status in ("ok", "partial") and a.incidents
-    assert a.diagnoses[0].cause_state in ("asserted", "likely", "undetermined")
+    assert a.diagnoses[0].cause_state in ("supported", "likely", "undetermined")
 
 
 def test_period_argument_selects_the_window():

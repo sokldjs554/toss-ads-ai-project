@@ -10,7 +10,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install -r requirements.txt
+      - run: pip install -r requirements-dev.txt
+      - name: Install browser for persistent-queue transaction tests
+        run: python -m playwright install --with-deps chromium
       - name: unit tests (no network)
         run: python -m pytest -o addopts='' -q -ra
       - name: regression gate — deterministic layer vs committed baseline
@@ -41,15 +43,15 @@ jobs:
         env:
           PREFLIGHT_FORCE_DEMO: "1"
         run: |
-          python -m evals.dialogs --split dev --gate
+          python -m evals.dialogs --split all --gate
           python -m evals.url_ingest_eval --gate
           python -m evals.image_eval --gate
           python -m evals.insights_eval --gate --regression
           python -m evals.quality_signals --gate
-      - name: conversation holdout (report only — it contains one known injection contamination)
+      - name: original conversation evidence (historical contract, report only)
         env:
           PREFLIGHT_FORCE_DEMO: "1"
-        run: python -m evals.dialogs --split holdout || true
+        run: python -m evals.dialogs --dataset evals/datasets/dialogs.jsonl --split all
       - name: app smoke (import + headless start)
         env:
           PREFLIGHT_FORCE_DEMO: "1"

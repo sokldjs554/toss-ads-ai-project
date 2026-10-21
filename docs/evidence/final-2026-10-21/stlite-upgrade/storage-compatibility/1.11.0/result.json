@@ -1,0 +1,889 @@
+{
+  "stlite": "1.11.0",
+  "browser": "141.0.7390.37",
+  "playwright": "1.56.0",
+  "source_commit": "d9633d6efcf29ea99cdfb8a4eee2990400105244",
+  "bundle_sha256": "d89e45ce3ede57323243010183dcb9cc4e24eaa1d028162957294f0ff711ddb9",
+  "checks": [
+    {
+      "check": "initial save acknowledged and durable",
+      "ok": true,
+      "detail": {
+        "revision": 1,
+        "jsonl_sha256": "6025294d1be91d99e57aa57b1e34582344d1e93b3f58daf356ec7b34a10880f4",
+        "has_title": true,
+        "has_claiming_annotator": false
+      }
+    },
+    {
+      "check": "minimal app restores saved record",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "check": "full app visibly reports one waiting ad",
+      "ok": true,
+      "detail": "라벨을 기다리는 광고\n1건\n의견이 갈려 조정을 기다리는 광고 0건"
+    },
+    {
+      "check": "accessible grid contains the saved headline",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "check": "restored ad opens visibly in the real labeling form",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "check": "claim is committed to IndexedDB",
+      "ok": true,
+      "detail": {
+        "revision": 2,
+        "jsonl_sha256": "ced73cf4d90a9051e13652694b05279a39473aa1851b5ecefe6f363e7651607f",
+        "has_title": true,
+        "has_claiming_annotator": true
+      }
+    },
+    {
+      "check": "same annotator resumes the visible ad after reload",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "check": "existing claim resumes without claiming a different ad",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "check": "stored claim and headline remain after reload",
+      "ok": true,
+      "detail": {
+        "revision": 2,
+        "jsonl_sha256": "ced73cf4d90a9051e13652694b05279a39473aa1851b5ecefe6f363e7651607f",
+        "has_title": true,
+        "has_claiming_annotator": true
+      }
+    },
+    {
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "check": "no fatal worker error or browser page exception",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "check": "no provider calls attempted",
+      "ok": true,
+      "detail": []
+    }
+  ],
+  "page_errors": [],
+  "console_errors": [
+    "Access to fetch at 'https://stlite.invalid/1.11.0/storage/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8635%2F1.11.0%2Fstorage%2F' from origin 'http://127.0.0.1:8635' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+    "Access to fetch at 'https://stlite.invalid/1.11.0/storage/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8635%2F1.11.0%2Fstorage%2F' from origin 'http://127.0.0.1:8635' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+    "Access to fetch at 'https://stlite.invalid/1.11.0/full/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8635%2F1.11.0%2Ffull%2F' from origin 'http://127.0.0.1:8635' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+    "Access to fetch at 'https://stlite.invalid/1.11.0/full/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8635%2F1.11.0%2Ffull%2F' from origin 'http://127.0.0.1:8635' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+    "Access to fetch at 'https://stlite.invalid/1.11.0/full/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8635%2F1.11.0%2Ffull%2F' from origin 'http://127.0.0.1:8635' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+    "Access to fetch at 'https://stlite.invalid/1.11.0/full/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8635%2F1.11.0%2Ffull%2F' from origin 'http://127.0.0.1:8635' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+    "Access to fetch at 'https://stlite.invalid/1.11.0/full/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8635%2F1.11.0%2Ffull%2F' from origin 'http://127.0.0.1:8635' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+    "Access to fetch at 'https://stlite.invalid/1.11.0/full/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8635%2F1.11.0%2Ffull%2F' from origin 'http://127.0.0.1:8635' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch"
+  ],
+  "failed_requests": [
+    {
+      "url": "https://stlite.invalid/1.11.0/storage/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8635%2F1.11.0%2Fstorage%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "url": "https://stlite.invalid/1.11.0/storage/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8635%2F1.11.0%2Fstorage%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "url": "https://stlite.invalid/1.11.0/full/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8635%2F1.11.0%2Ffull%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "url": "https://stlite.invalid/1.11.0/full/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8635%2F1.11.0%2Ffull%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "url": "https://stlite.invalid/1.11.0/full/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8635%2F1.11.0%2Ffull%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "url": "https://stlite.invalid/1.11.0/full/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8635%2F1.11.0%2Ffull%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "url": "https://stlite.invalid/1.11.0/full/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8635%2F1.11.0%2Ffull%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "url": "https://stlite.invalid/1.11.0/full/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8635%2F1.11.0%2Ffull%2F",
+      "failure": "net::ERR_FAILED"
+    }
+  ],
+  "component_request_initiators": [
+    {
+      "url": "https://stlite.invalid/1.11.0/storage/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8635%2F1.11.0%2Fstorage%2F",
+      "initiator": {
+        "type": "script",
+        "stack": {
+          "callFrames": [
+            {
+              "functionName": "checkSourceUrlResponse",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 84385,
+              "columnNumber": 18
+            },
+            {
+              "functionName": "ComponentRegistry.checkSourceUrlResponse",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 57350,
+              "columnNumber": 61
+            },
+            {
+              "functionName": "",
+              "scriptId": "22",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/ComponentInstance-D9MVokVq-xwcKuS7z.js",
+              "lineNumber": 161,
+              "columnNumber": 4
+            },
+            {
+              "functionName": "zd",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 4326,
+              "columnNumber": 18
+            },
+            {
+              "functionName": "op",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 5312,
+              "columnNumber": 18
+            },
+            {
+              "functionName": "",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 5219,
+              "columnNumber": 10
+            },
+            {
+              "functionName": "St",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 338,
+              "columnNumber": 14
+            },
+            {
+              "functionName": "zt",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 363,
+              "columnNumber": 9
+            }
+          ]
+        }
+      }
+    },
+    {
+      "url": "https://stlite.invalid/1.11.0/storage/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8635%2F1.11.0%2Fstorage%2F",
+      "initiator": {
+        "type": "script",
+        "stack": {
+          "callFrames": [
+            {
+              "functionName": "checkSourceUrlResponse",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 84385,
+              "columnNumber": 18
+            },
+            {
+              "functionName": "ComponentRegistry.checkSourceUrlResponse",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 57350,
+              "columnNumber": 61
+            },
+            {
+              "functionName": "",
+              "scriptId": "22",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/ComponentInstance-D9MVokVq-xwcKuS7z.js",
+              "lineNumber": 161,
+              "columnNumber": 4
+            },
+            {
+              "functionName": "zd",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 4326,
+              "columnNumber": 18
+            },
+            {
+              "functionName": "op",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 5312,
+              "columnNumber": 18
+            },
+            {
+              "functionName": "",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 5219,
+              "columnNumber": 10
+            },
+            {
+              "functionName": "St",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 338,
+              "columnNumber": 14
+            },
+            {
+              "functionName": "zt",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 363,
+              "columnNumber": 9
+            }
+          ]
+        }
+      }
+    },
+    {
+      "url": "https://stlite.invalid/1.11.0/full/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8635%2F1.11.0%2Ffull%2F",
+      "initiator": {
+        "type": "script",
+        "stack": {
+          "callFrames": [
+            {
+              "functionName": "checkSourceUrlResponse",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 84385,
+              "columnNumber": 18
+            },
+            {
+              "functionName": "ComponentRegistry.checkSourceUrlResponse",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 57350,
+              "columnNumber": 61
+            },
+            {
+              "functionName": "",
+              "scriptId": "22",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/ComponentInstance-D9MVokVq-xwcKuS7z.js",
+              "lineNumber": 161,
+              "columnNumber": 4
+            },
+            {
+              "functionName": "zd",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 4326,
+              "columnNumber": 18
+            },
+            {
+              "functionName": "op",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 5312,
+              "columnNumber": 18
+            },
+            {
+              "functionName": "",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 5219,
+              "columnNumber": 10
+            },
+            {
+              "functionName": "St",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 338,
+              "columnNumber": 14
+            },
+            {
+              "functionName": "zt",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 363,
+              "columnNumber": 9
+            }
+          ]
+        }
+      }
+    },
+    {
+      "url": "https://stlite.invalid/1.11.0/full/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8635%2F1.11.0%2Ffull%2F",
+      "initiator": {
+        "type": "script",
+        "stack": {
+          "callFrames": [
+            {
+              "functionName": "checkSourceUrlResponse",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 84385,
+              "columnNumber": 18
+            },
+            {
+              "functionName": "ComponentRegistry.checkSourceUrlResponse",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 57350,
+              "columnNumber": 61
+            },
+            {
+              "functionName": "",
+              "scriptId": "22",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/ComponentInstance-D9MVokVq-xwcKuS7z.js",
+              "lineNumber": 161,
+              "columnNumber": 4
+            },
+            {
+              "functionName": "zd",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 4326,
+              "columnNumber": 18
+            },
+            {
+              "functionName": "op",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 5312,
+              "columnNumber": 18
+            },
+            {
+              "functionName": "Gf",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 4984,
+              "columnNumber": 2
+            },
+            {
+              "functionName": "Cc",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 2445,
+              "columnNumber": 11
+            },
+            {
+              "functionName": "ap",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 5232,
+              "columnNumber": 115
+            },
+            {
+              "functionName": "ip",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 5201,
+              "columnNumber": 33
+            },
+            {
+              "functionName": "Bf",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 4920,
+              "columnNumber": 6
+            },
+            {
+              "functionName": "St",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 338,
+              "columnNumber": 14
+            },
+            {
+              "functionName": "zt",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 363,
+              "columnNumber": 9
+            }
+          ]
+        }
+      }
+    },
+    {
+      "url": "https://stlite.invalid/1.11.0/full/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8635%2F1.11.0%2Ffull%2F",
+      "initiator": {
+        "type": "script",
+        "stack": {
+          "callFrames": [
+            {
+              "functionName": "checkSourceUrlResponse",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 84385,
+              "columnNumber": 18
+            },
+            {
+              "functionName": "ComponentRegistry.checkSourceUrlResponse",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 57350,
+              "columnNumber": 61
+            },
+            {
+              "functionName": "",
+              "scriptId": "22",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/ComponentInstance-D9MVokVq-xwcKuS7z.js",
+              "lineNumber": 161,
+              "columnNumber": 4
+            },
+            {
+              "functionName": "zd",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 4326,
+              "columnNumber": 18
+            },
+            {
+              "functionName": "op",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 5312,
+              "columnNumber": 18
+            },
+            {
+              "functionName": "Gf",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 4984,
+              "columnNumber": 2
+            },
+            {
+              "functionName": "Cc",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 2445,
+              "columnNumber": 11
+            },
+            {
+              "functionName": "ap",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 5232,
+              "columnNumber": 115
+            },
+            {
+              "functionName": "ip",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 5201,
+              "columnNumber": 33
+            },
+            {
+              "functionName": "Bf",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 4935,
+              "columnNumber": 6
+            },
+            {
+              "functionName": "St",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 338,
+              "columnNumber": 14
+            },
+            {
+              "functionName": "zt",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 363,
+              "columnNumber": 9
+            }
+          ]
+        }
+      }
+    },
+    {
+      "url": "https://stlite.invalid/1.11.0/full/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8635%2F1.11.0%2Ffull%2F",
+      "initiator": {
+        "type": "script",
+        "stack": {
+          "callFrames": [
+            {
+              "functionName": "checkSourceUrlResponse",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 84385,
+              "columnNumber": 18
+            },
+            {
+              "functionName": "ComponentRegistry.checkSourceUrlResponse",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 57350,
+              "columnNumber": 61
+            },
+            {
+              "functionName": "",
+              "scriptId": "22",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/ComponentInstance-D9MVokVq-xwcKuS7z.js",
+              "lineNumber": 161,
+              "columnNumber": 4
+            },
+            {
+              "functionName": "zd",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 4326,
+              "columnNumber": 18
+            },
+            {
+              "functionName": "op",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 5312,
+              "columnNumber": 18
+            },
+            {
+              "functionName": "",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 5219,
+              "columnNumber": 10
+            },
+            {
+              "functionName": "St",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 338,
+              "columnNumber": 14
+            },
+            {
+              "functionName": "zt",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 363,
+              "columnNumber": 9
+            }
+          ]
+        }
+      }
+    },
+    {
+      "url": "https://stlite.invalid/1.11.0/full/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8635%2F1.11.0%2Ffull%2F",
+      "initiator": {
+        "type": "script",
+        "stack": {
+          "callFrames": [
+            {
+              "functionName": "checkSourceUrlResponse",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 84385,
+              "columnNumber": 18
+            },
+            {
+              "functionName": "ComponentRegistry.checkSourceUrlResponse",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 57350,
+              "columnNumber": 61
+            },
+            {
+              "functionName": "",
+              "scriptId": "22",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/ComponentInstance-D9MVokVq-xwcKuS7z.js",
+              "lineNumber": 161,
+              "columnNumber": 4
+            },
+            {
+              "functionName": "zd",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 4326,
+              "columnNumber": 18
+            },
+            {
+              "functionName": "op",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 5312,
+              "columnNumber": 18
+            },
+            {
+              "functionName": "Gf",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 4984,
+              "columnNumber": 2
+            },
+            {
+              "functionName": "Cc",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 2445,
+              "columnNumber": 11
+            },
+            {
+              "functionName": "ap",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 5232,
+              "columnNumber": 115
+            },
+            {
+              "functionName": "ip",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 5201,
+              "columnNumber": 33
+            },
+            {
+              "functionName": "Bf",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 4920,
+              "columnNumber": 6
+            },
+            {
+              "functionName": "St",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 338,
+              "columnNumber": 14
+            },
+            {
+              "functionName": "zt",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 363,
+              "columnNumber": 9
+            }
+          ]
+        }
+      }
+    },
+    {
+      "url": "https://stlite.invalid/1.11.0/full/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A8635%2F1.11.0%2Ffull%2F",
+      "initiator": {
+        "type": "script",
+        "stack": {
+          "callFrames": [
+            {
+              "functionName": "checkSourceUrlResponse",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 84385,
+              "columnNumber": 18
+            },
+            {
+              "functionName": "ComponentRegistry.checkSourceUrlResponse",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 57350,
+              "columnNumber": 61
+            },
+            {
+              "functionName": "",
+              "scriptId": "22",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/ComponentInstance-D9MVokVq-xwcKuS7z.js",
+              "lineNumber": 161,
+              "columnNumber": 4
+            },
+            {
+              "functionName": "zd",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 4326,
+              "columnNumber": 18
+            },
+            {
+              "functionName": "op",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 5312,
+              "columnNumber": 18
+            },
+            {
+              "functionName": "Gf",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 4984,
+              "columnNumber": 2
+            },
+            {
+              "functionName": "Cc",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 2445,
+              "columnNumber": 11
+            },
+            {
+              "functionName": "ap",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 5232,
+              "columnNumber": 115
+            },
+            {
+              "functionName": "ip",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 5201,
+              "columnNumber": 33
+            },
+            {
+              "functionName": "Bf",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 4935,
+              "columnNumber": 6
+            },
+            {
+              "functionName": "St",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 338,
+              "columnNumber": 14
+            },
+            {
+              "functionName": "zt",
+              "scriptId": "6",
+              "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/index-DqqVGYCD-Dk2VCZX4.js",
+              "lineNumber": 363,
+              "columnNumber": 9
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "frames": [
+    {
+      "phase": "minimal save",
+      "frames": [
+        {
+          "title": "ui.review_queue_storage.review_queue_storage",
+          "src": null,
+          "srcdocLength": 6715,
+          "hasStorageCode": true,
+          "hasInlineExecute": true,
+          "sandbox": "allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-downloads"
+        }
+      ]
+    },
+    {
+      "phase": "minimal reload",
+      "frames": [
+        {
+          "title": "ui.review_queue_storage.review_queue_storage",
+          "src": null,
+          "srcdocLength": 6715,
+          "hasStorageCode": true,
+          "hasInlineExecute": true,
+          "sandbox": "allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-downloads"
+        }
+      ]
+    },
+    {
+      "phase": "full app restore",
+      "frames": [
+        {
+          "title": "ui.review_queue_storage.review_queue_storage",
+          "src": null,
+          "srcdocLength": 6715,
+          "hasStorageCode": true,
+          "hasInlineExecute": true,
+          "sandbox": "allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-downloads"
+        },
+        {
+          "title": "ui.review_queue_storage.review_queue_storage",
+          "src": null,
+          "srcdocLength": 6715,
+          "hasStorageCode": true,
+          "hasInlineExecute": true,
+          "sandbox": "allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-downloads"
+        }
+      ]
+    },
+    {
+      "phase": "full app reload claim",
+      "frames": [
+        {
+          "title": "ui.review_queue_storage.review_queue_storage",
+          "src": null,
+          "srcdocLength": 6715,
+          "hasStorageCode": true,
+          "hasInlineExecute": true,
+          "sandbox": "allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-downloads"
+        },
+        {
+          "title": "ui.review_queue_storage.review_queue_storage",
+          "src": null,
+          "srcdocLength": 6715,
+          "hasStorageCode": true,
+          "hasInlineExecute": true,
+          "sandbox": "allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-downloads"
+        }
+      ]
+    }
+  ],
+  "snapshots": [
+    {
+      "phase": "minimal save",
+      "revision": 1,
+      "jsonl_sha256": "6025294d1be91d99e57aa57b1e34582344d1e93b3f58daf356ec7b34a10880f4",
+      "has_title": true,
+      "has_claiming_annotator": false
+    },
+    {
+      "phase": "claim saved",
+      "revision": 2,
+      "jsonl_sha256": "ced73cf4d90a9051e13652694b05279a39473aa1851b5ecefe6f363e7651607f",
+      "has_title": true,
+      "has_claiming_annotator": true
+    },
+    {
+      "phase": "full app reload claim",
+      "revision": 2,
+      "jsonl_sha256": "ced73cf4d90a9051e13652694b05279a39473aa1851b5ecefe6f363e7651607f",
+      "has_title": true,
+      "has_claiming_annotator": true
+    }
+  ],
+  "phase": "full app reload claim",
+  "failure": null,
+  "runtime_text": "Python 3.13.2 · Streamlit 1.65.0 · pydantic 2.12.5",
+  "status": "passed",
+  "functional_checks": 12,
+  "failed_checks": 0,
+  "observed_component_fetch_failures": 8,
+  "console_error_count": 24,
+  "run_at_utc": "2026-10-21T01:59:05.431096+00:00"
+}

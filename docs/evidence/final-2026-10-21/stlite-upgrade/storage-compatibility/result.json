@@ -1,0 +1,26 @@
+{
+  "versions": {
+    "1.11.0": {
+      "status": "passed",
+      "functional_checks": 12,
+      "failed_checks": 0,
+      "observed_component_fetch_failures": 8,
+      "console_error_count": 24,
+      "runtime_text": "Python 3.13.2 · Streamlit 1.65.0 · pydantic 2.12.5",
+      "failure": null
+    },
+    "1.12.0": {
+      "status": "passed",
+      "functional_checks": 12,
+      "failed_checks": 0,
+      "observed_component_fetch_failures": 8,
+      "console_error_count": 24,
+      "runtime_text": "Python 3.14.2 · Streamlit 1.65.0 · pydantic 2.12.5",
+      "failure": null
+    }
+  },
+  "source_commit": "d9633d6efcf29ea99cdfb8a4eee2990400105244",
+  "bundle_sha256": "d89e45ce3ede57323243010183dcb9cc4e24eaa1d028162957294f0ff711ddb9",
+  "paid_api_calls": 0,
+  "public_deployment_check": false
+}

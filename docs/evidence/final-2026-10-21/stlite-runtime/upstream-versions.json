@@ -1,0 +1,37 @@
+{
+  "package_registry": "https://registry.npmjs.org/@stlite/browser",
+  "latest_stable_observed": "1.12.0",
+  "latest_published_at": "2026-10-18T04:07:50.537Z",
+  "upstream_issue": "https://github.com/whitphx/stlite/issues/1493",
+  "maintainer_verification": "https://github.com/whitphx/stlite/issues/1493#issuecomment-6262498320",
+  "upstream_fix": "https://github.com/pyodide/pyodide/pull/6260",
+  "method": "Download official CDN stlite.js, its imported index chunk, decode the embedded base64 worker, inspect fixed runtime URL; hashes refer to downloaded entry and chunk bytes. Runtime test separately records actual fetched resources.",
+  "versions": [
+    {
+      "stlite": "1.11.0",
+      "streamlit_wheel": [
+        "streamlit-1.65.0-cp313-none-any.whl"
+      ],
+      "pyodide_urls": [
+        "https://github.com/pyodide/pyodide/issues/4032",
+        "https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.mjs"
+      ],
+      "entry_sha256": "4f52c277d2abee083eb4bc5d889500c2ba9a86d13316b48ee255cbcb2b3d1d17",
+      "main_chunk_sha256": "122ba9ab4c95d9983f9f15d3a748b7b2befba860dac79eab32d671bc4dd62f38"
+    },
+    {
+      "stlite": "1.12.0",
+      "streamlit_wheel": [
+        "streamlit-1.65.0-cp314-none-any.whl"
+      ],
+      "pyodide_urls": [
+        "https://github.com/pyodide/pyodide/issues/4032",
+        "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/pyodide.mjs"
+      ],
+      "entry_sha256": "b9062c3935474647a04493f1174f6c5b39a5efdf1df9230c56f1a3923a7947a8",
+      "main_chunk_sha256": "b93fd8bae93fb4b4d864b27330bc954f3faf062aa0f2a4b98d359a5a4ddb2751"
+    }
+  ],
+  "comparison_note": "Same project archive under Chromium 141.0.7390.37 with JSPI enabled by default; no browser feature flags are disabled.",
+  "recorded_at": "2026-10-21T01:32:59.188732+00:00"
+}

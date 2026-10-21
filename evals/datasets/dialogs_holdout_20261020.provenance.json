@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "created_at_utc": "2026-10-20T14:39:23.944475+00:00",
+  "author": "Separate AI author agent /root/ads_blind_holdout",
+  "author_type": "AI; no independent human annotator",
+  "protocol": "Dataset content, annotations and SHA256 frozen before first evaluator execution. Preserve every outcome; no post-result tuning or case deletion.",
+  "pre_authoring_access": "Evaluator CLI --help; public ScenarioSpec/EventSpec fields and API docstrings; event parameter defaults and annotation contract provided by root. No engine implementation, tests, existing scenario bodies, or historical output bodies viewed.",
+  "real_user_validation": false,
+  "real_ad_account_validation": false,
+  "independent_synthetic_generator": false,
+  "limitations": [
+    "Separate AI author does not provide independent human annotation.",
+    "Performance truth comes from the same synthetic generator as development scenarios.",
+    "Rules/demo conversation evaluation does not measure model-only extraction or live API quality."
+  ],
+  "first_evaluation_at_utc": null,
+  "dataset": "dialogs_holdout_20261020.jsonl",
+  "dataset_sha256": "379b97b1de1277be13bfeae77606813a583b56040cd5c04c44121afbbc3da705",
+  "row_count": 20,
+  "turn_count": 30,
+  "annotation_contract": {
+    "core_ready": [
+      "category",
+      "objective",
+      "monthly_budget_krw"
+    ],
+    "optional_fields_required": false,
+    "unmentioned_expected_slots": "Absent; explicit null is omitted. No invented age bounds.",
+    "conflict": "Ordinary contradictory budget requires confirmation; conflicting budget excluded from value expectations.",
+    "injection": "First detected attack through the rest of the same turn is quarantined; preserve clean prefix; later clean turn may recover.",
+    "issue_code": "INJECTION",
+    "live_model_confirmation": "Model-only inferred category/objective may require user confirmation; frozen rules/demo labels are not automatically live-model assertions."
+  },
+  "frozen_code_sha256": {
+    "conversation_extractor": "3e1583fa7339604831164d8e0e9a2cf23caa48ef1b2003c137f35373222633b4",
+    "conversation": "142b36573df6f5c57f9a0b87da9a8725760babfe96720619529ab3f21c8bb8f9",
+    "injection": "96a7b4b9aab32cbcd627299adbc0ed315077b79d6e11c0d70eead3c2401c151c"
+  },
+  "coverage": [
+    "all 12 category values",
+    "all 5 objectives",
+    "ordinary budget wording",
+    "open-ended age",
+    "emoji",
+    "multiword tone",
+    "category negation",
+    "category correction",
+    "ordinary budget conflict",
+    "explicit budget change",
+    "Korean injection",
+    "English injection",
+    "same-turn quarantine",
+    "later-turn recovery"
+  ]
+}

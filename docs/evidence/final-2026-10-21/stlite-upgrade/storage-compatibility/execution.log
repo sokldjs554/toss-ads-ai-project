@@ -1,0 +1,25 @@
+1.11.0 PASS initial save acknowledged and durable
+1.11.0 PASS minimal app restores saved record
+1.11.0 PASS full app visibly reports one waiting ad
+1.11.0 PASS accessible grid contains the saved headline
+1.11.0 PASS restored ad opens visibly in the real labeling form
+1.11.0 PASS claim is committed to IndexedDB
+1.11.0 PASS same annotator resumes the visible ad after reload
+1.11.0 PASS existing claim resumes without claiming a different ad
+1.11.0 PASS stored claim and headline remain after reload
+1.11.0 PASS no Streamlit exception
+1.11.0 PASS no fatal worker error or browser page exception
+1.11.0 PASS no provider calls attempted
+1.12.0 PASS initial save acknowledged and durable
+1.12.0 PASS minimal app restores saved record
+1.12.0 PASS full app visibly reports one waiting ad
+1.12.0 PASS accessible grid contains the saved headline
+1.12.0 PASS restored ad opens visibly in the real labeling form
+1.12.0 PASS claim is committed to IndexedDB
+1.12.0 PASS same annotator resumes the visible ad after reload
+1.12.0 PASS existing claim resumes without claiming a different ad
+1.12.0 PASS stored claim and headline remain after reload
+1.12.0 PASS no Streamlit exception
+1.12.0 PASS no fatal worker error or browser page exception
+1.12.0 PASS no provider calls attempted
+{"versions": {"1.11.0": {"status": "passed", "functional_checks": 12, "failed_checks": 0, "observed_component_fetch_failures": 8, "console_error_count": 24, "runtime_text": "Python 3.13.2 · Streamlit 1.65.0 · pydantic 2.12.5", "failure": null}, "1.12.0": {"status": "passed", "functional_checks": 12, "failed_checks": 0, "observed_component_fetch_failures": 8, "console_error_count": 24, "runtime_text": "Python 3.14.2 · Streamlit 1.65.0 · pydantic 2.12.5", "failure": null}}, "source_commit": "d9633d6efcf29ea99cdfb8a4eee2990400105244", "bundle_sha256": "d89e45ce3ede57323243010183dcb9cc4e24eaa1d028162957294f0ff711ddb9", "paid_api_calls": 0, "public_deployment_check": false}

@@ -1,0 +1,9 @@
+{
+  "recorded_at": "2026-10-21T01:35:20.444453+00:00",
+  "browser_version": "134.0.6998.35",
+  "jspi": {
+    "Suspending": "undefined",
+    "promising": "undefined"
+  },
+  "scope": "Separate about:blank page using same installed Chromium and default launch as completed idle test; JSPI was not recorded during that first app session."
+}

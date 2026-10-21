@@ -316,14 +316,18 @@ def _split_sentences(text: str) -> list[str]:
 
 
 def quarantine(text: str, catalog: PolicyCatalog) -> tuple[str, list[str], int]:
-    """인젝션이 든 문장을 걷어낸다. (남은 글, 걷어낸 문장들, 보이지 않는 문자 수). 걷어낸 문장은 슬롯을 읽는 데도, 모델 프롬프트에도 쓰지 않는다."""
-    res = injection.scan_text(text, catalog)
+    """첫 지시문부터 같은 입력의 끝까지 격리한다. 앞의 정상 문장과 다음 턴은 읽는다.
+
+    지시문 뒤의 '예산은 …로 바꿔'도 공격의 일부일 수 있으므로 슬롯·모델 양쪽에 보내지 않는다.
+    반환값은 (남은 글, 걷어낸 문장들, 보이지 않는 제어 문자 수)다.
+    """
+    res = injection.scan_text(text, catalog, quarantine_tail=True)
     clean = res.sanitized
     removed = [x for x in res.removed if x]
     kept: list[str] = []
     extra = False
     for s in _split_sentences(clean):
-        if _EXTRA_INJ.search(s):
+        if extra or _EXTRA_INJ.search(s):
             removed.append(s.strip())
             extra = True
         else:
@@ -720,6 +724,7 @@ CONVERSE_SYSTEM = f"""너는 광고 플랫폼의 캠페인 셋업 도우미다. 
   - objective: {', '.join(o.value for o in Objective)} 중 하나 (conversion=구매·신청, app_install=앱 설치, traffic=방문, awareness=알리기·도달, lead=잠재고객).
   - monthly_budget_krw: 원 단위 숫자만(예: 3000000). evidence_quote 의 숫자와 같아야 한다. 하루·주 단위로 말했으면 말한 그대로의 금액이 든 구절을 인용한다.
   - audience / period / landing_url / key_conditions / product_name / tone: 구절에 있는 말 그대로.
+  - product_name 은 상품명·앱 이름 등의 명명 근거가 있을 때만 적는다. '적금 상품', '교육 과정'처럼 업종이나 종류만 말했으면 상품명을 만들지 않는다.
   - ad_set_count: 숫자만. bid_strategy: '직접 입찰 CPC' · '직접 입찰 CPM' · '자동 입찰 전환 최대화' · '자동 입찰 클릭 최대화' · '자동 입찰 tCPA' 중 하나.
 - confidence: 0~1. 확신이 없으면 낮게 쓴다.
 - reply: 광고주에게 보일 한두 문장. 질문은 넣지 않는다(무엇을 물을지는 코드가 정한다). 성과·승인·수익을 약속하거나 [이번 말]에 없는 숫자를 쓰지 않는다.
@@ -872,6 +877,10 @@ def validate_update(u: Any, text: str) -> tuple[Optional[R.Candidate], Optional[
         tokens = [t for t in re.split(r"[\s·,;/]+", value) if t]
         if not (_norm(value) in _norm(qlit) or (tokens and all(_norm(t) in _norm(qlit) for t in tokens))):
             return drop("value_not_in_quote", "값의 낱말(숫자 포함)이 근거 구절에 없다")
+        if slot == "product_name" and not any(_same(slot, parsed, c.value) for c in R._extract_name(text, [])):
+            # '적금 상품'이라는 낱말이 원문에 있는 것과 그것을 상품명으로
+            # 명명한 것은 다르다. 전체 문장에서 이름 표지·인용·고유 명칭을 확인한다.
+            return drop("unparseable", "상품 이름이라는 근거가 없어 업종·설명 구절을 이름으로 쓰지 않았다")
     pos = text.find(qlit)
     upd = R.is_update_at(text, pos, pos + len(qlit)) if pos >= 0 else False
     if slot == "key_conditions":
@@ -1095,12 +1104,47 @@ def conform_plan(plan: CampaignPlan, st: ConversationState, categories: set[str]
     return fixed, notes, issues
 
 
+def _excluded_target(text: str, candidate: R.Candidate) -> bool:
+    """바로 뒤에서 명시적으로 제외한 대상만 뺀다. 다른 절까지 제외를 전파하지 않는다."""
+    tail = text[candidate.end:]
+    return re.match(
+        r"^\s*(?:자들?|층)?\s*(?:은|는|을|를|이|가)?\s*"
+        r"(?:제외|배제)(?:함|합니다|해요|됨|됩니다)?\s*(?=$|[,.!?;)\]])", tail,
+    ) is not None
+
+
+def _adult_lower_bound(text: str, upper: R.Candidate, candidates: list[R.Candidate]) -> Optional[int]:
+    """같은 타겟 구절에 함께 적힌 성인 하한만 찾아 상한과 결합한다.
+
+    '19세 이상 40세 이하'는 한 범위지만 '19세 이상 또는 40세 이하'는
+    다른 집단을 포함한다. 접속 관계가 불명확하면 하한을 추정하지 않는다.
+    """
+    for lower in candidates:
+        lo = lower.value.get("age_min")
+        if lo is None or lower.value.get("age_max") is not None or lo < MIN_AGE or lo > upper.value["age_max"]:
+            continue
+        first, second = sorted((lower, upper), key=lambda c: c.start)
+        if re.fullmatch(r"(?:\s|[,·()]|이고|이며|이면서|및|그리고|중|성인)*", text[first.end:second.start]):
+            return lo
+    return None
+
+
 def plan_minor_sets(plan: CampaignPlan) -> list[str]:
-    """플랜의 세트 타겟 중 만 19세 미만을 겨냥한 것의 이름. 플래너 검사(agents.planner._YOUTH)의 '만 1' 접두 검사는 '만 19세 이상' 에도 걸려서, 같은 연령 해석기를 여기서 다시 쓴다."""
+    """타겟에 미성년자가 포함되거나 연령 상한만 있어 확인이 필요한 세트 이름.
+
+    제외 문구는 바로 앞 대상에만 적용하고, 명시된 성인 하한·상한은 같은
+    조건일 때만 결합한다. 실제 미성년 집단은 다른 성인 조건으로 덮지 않는다.
+    """
     out = []
     for a in plan.ad_sets:
-        for c in R._extract_audience(a.audience, []):
-            if R.is_minor_audience(c.value):
+        candidates = [c for c in R._extract_audience(a.audience, []) if not _excluded_target(a.audience, c)]
+        for c in candidates:
+            value = c.value
+            if value.get("age_min") is None and value.get("age_max") is not None:
+                lo = _adult_lower_bound(a.audience, c, candidates)
+                if lo is not None:
+                    value = {**value, "age_min": lo}
+            if R.is_minor_audience(value):
                 out.append(a.name)
                 break
     return out

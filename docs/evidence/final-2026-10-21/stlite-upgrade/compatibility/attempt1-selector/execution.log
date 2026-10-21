@@ -1,0 +1,6 @@
+PASS full app boots
+PASS full app boot: no Streamlit exception
+PASS full app boot: no Python worker fatal error
+FAIL category changes to commerce
+{"phase": "category selection", "type": "AssertionError", "message": "category changes to commerce"}
+{"status": "failed", "checks": 4, "failed_checks": 1, "failure": {"phase": "category selection", "type": "AssertionError", "message": "category changes to commerce"}, "runtime_text": "", "browser": "141.0.7390.37"}

@@ -342,7 +342,7 @@ def test_evidence_ids_in_sentences_are_not_treated_as_figures():
 
 # ───────────── 단정 표현 제한 ─────────────
 @pytest.mark.parametrize("text,conf,ok", [
-    ("원인은 랜딩 페이지 문제입니다.", 0.80, True), ("원인은 랜딩 페이지 문제입니다.", 0.74, False), ("랜딩 페이지 문제로 전환율이 떨어졌습니다.", 0.60, False),
+    ("원인은 랜딩 페이지 문제입니다.", 0.80, False), ("원인은 랜딩 페이지 문제입니다.", 0.74, False), ("랜딩 페이지 문제로 전환율이 떨어졌습니다.", 0.60, False),
     ("랜딩 페이지 문제일 가능성이 높습니다.", 0.60, True), ("랜딩 페이지 문제일 가능성이 높습니다.", 0.40, False),
     ("랜딩 페이지 문제일 수 있습니다.", 0.30, True), ("랜딩 페이지 문제일 수 있습니다.", 0.10, False),
     ("원인을 정하기 어렵습니다.", 0.0, True), ("원인은 정하기 어렵습니다.", 0.0, True), ("랜딩 페이지 문제일 가능성은 낮습니다.", 0.10, True),
@@ -357,12 +357,13 @@ def test_cause_assertion_tiers(text, conf, ok):
 
 def test_cited_cause_evidence_counts_for_a_bare_assertion():
     assert ins.causal_issue("원인은 이것입니다.", {"landing_issue"}, {"landing_issue": 0.5}).startswith("cause_overclaim")
-    assert ins.causal_issue("원인은 이것입니다.", {"landing_issue"}, {"landing_issue": 0.9}) == ""
+    assert ins.causal_issue("원인은 이것입니다.", {"landing_issue"}, {"landing_issue": 0.9}).startswith("cause_overclaim")
 
 
-def test_confident_diagnosis_may_use_assertion_in_the_template_but_uncertain_one_may_not(tracer):
+def test_high_support_and_uncertain_diagnoses_both_remain_hypotheses(tracer):
     rows, a, narr = setup(TRACKING)
-    assert "원인은 전환 추적 오류입니다." in [f["text"] for f in narr["findings"]]
+    assert any("전환 추적 오류 가설" in f["text"] for f in narr["findings"])
+    assert all("원인은 전환 추적 오류입니다." not in f["text"] for f in narr["findings"])
     rows2, a2, narr2 = setup(P.ScenarioSpec("amb", 26, collapse=("device", "creative", "ad_set"), events=(E("landing_issue", 31, None, {"depth": 0.3}),)))
     assert all("원인은 랜딩" not in f["text"] for f in narr2["findings"]) and any("정하기 어렵습니다" in f["text"] for f in narr2["findings"])
 

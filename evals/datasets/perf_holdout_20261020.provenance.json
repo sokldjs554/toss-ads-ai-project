@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "created_at_utc": "2026-10-20T14:39:23.944475+00:00",
+  "author": "Separate AI author agent /root/ads_blind_holdout",
+  "author_type": "AI; no independent human annotator",
+  "protocol": "Dataset content, annotations and SHA256 frozen before first evaluator execution. Preserve every outcome; no post-result tuning or case deletion.",
+  "pre_authoring_access": "Evaluator CLI --help; public ScenarioSpec/EventSpec fields and API docstrings; event parameter defaults and annotation contract provided by root. No engine implementation, tests, existing scenario bodies, or historical output bodies viewed.",
+  "real_user_validation": false,
+  "real_ad_account_validation": false,
+  "independent_synthetic_generator": false,
+  "limitations": [
+    "Separate AI author does not provide independent human annotation.",
+    "Performance truth comes from the same synthetic generator as development scenarios.",
+    "Rules/demo conversation evaluation does not measure model-only extraction or live API quality."
+  ],
+  "first_evaluation_at_utc": null,
+  "dataset": "perf_holdout_20261020.jsonl",
+  "dataset_sha256": "329d0bb086d3abba60e2bdf50c6dd32a0daa196747b48155d54ee8fff800c16f",
+  "scenario_count": 80,
+  "family_counts": {
+    "normal": 40,
+    "clear_incident": 32,
+    "ambiguous_or_low_volume": 8
+  },
+  "clear_incident_counts": {
+    "budget_cap": 5,
+    "creative_fatigue": 5,
+    "tracking_break": 5,
+    "landing_issue": 5,
+    "bid_competition": 4,
+    "audience_saturation": 4,
+    "mix_shift": 4
+  },
+  "seed_start": 730001,
+  "seed_end": 730080,
+  "seed_count": 80,
+  "holdout_frozen_engine_fingerprint": "f2081dac655aed25",
+  "frozen_code_sha256": {
+    "agents/insights.py": "9e6ec94ef24ce2053b48924da8da5156543aaed12727673d86c576687f03af99"
+  },
+  "truth_source": "core.performance.truth_for(spec), derived from author-fixed event inputs; never derived from detector output."
+}

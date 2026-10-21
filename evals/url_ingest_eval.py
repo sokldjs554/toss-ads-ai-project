@@ -9,8 +9,8 @@
 - 모두 **합성 페이지** 위의 값이다. 페이지도 기대값도 이 프로젝트를 만든 사람이 직접 썼고, 독립 검증자는 없다.
   실제 쇼핑몰 페이지(광고·추천·스크립트·템플릿이 뒤섞인 수천 가지 구조)에서의 정확도가 아니다.
 - dev 페이지는 추출 코드를 만들고 고치는 동안 본 것이라 점수가 높게 나오는 것이 당연하다 (회귀 감시용). 일반화 성능의 근거로 쓰면 안 된다.
-- holdout 페이지는 추출 코드를 고정한 뒤에 만들었고 결과를 보고 코드를 고치지 않았다. 그래도 같은 사람이 같은 생각으로 썼기 때문에 실제 페이지보다 쉽다.
-  `index.json` 의 holdout 해시와 지금 코드의 해시가 다르면, 그 뒤에 코드가 바뀌었다는 뜻이므로 holdout 도 더는 '고정 전에 만든 것' 이 아니다 (이 리포트가 알려 준다).
+- holdout 페이지의 첫 결과는 보존했다. 이후 실패를 보고 수정한 코드는 같은 페이지를 회귀 검사로 사용한다.
+  `index.json` 의 동결 해시와 현재 코드 해시가 다르면 `evaluation_role: regression`으로 표시한다. 두 분할 모두 독립적인 사람의 검증은 아니다.
 - '숨은 지시문 격리율 100%' 는 이 페이지들에서 사실로 새어 든 구절이 없다는 뜻이지, 모든 페이지에서 지시문이 걸러진다는 보장이 아니다.
   화면에 보이지 않는 글은 탐지 여부와 상관없이 쓰지 않지만, **보이는** 본문 속 바꿔 쓴 지시문은 패턴 탐지에 기대므로 놓칠 수 있다 (holdout 에 그런 사례를 일부러 넣었다).
 - 사실 재현율·정밀도는 문자열 포함 기준이다: 재현율 = 기대 구절이 사실 후보 어딘가에 들어 있는 비율, 정밀도 = 사실 후보 중 기대 구절 또는 허용 구절을 하나라도 포함한 비율.
@@ -22,6 +22,7 @@ import argparse
 import hashlib
 import json
 import re
+import shlex
 import sys
 import time
 import unicodedata
@@ -33,6 +34,7 @@ from core.schemas import ProductCategory
 
 PAGES = ui.PAGES_DIR
 CORE_FILE = Path(ui.__file__)
+HISTORICAL_REPORT = PAGES.parent.parent / "reports/url_ingest_eval.json"
 REPRODUCE = "python -m evals.url_ingest_eval --gate"
 
 # 개발용 페이지에서 지켜야 할 바닥값 — 회귀 감시용이다 (코드를 만들며 맞춘 페이지라 '성능' 이 아니다).
@@ -105,10 +107,10 @@ def _page_row(page: dict, ingest: Ingest) -> dict:
     row["forbidden_total"], row["leaked"] = len(forbidden), leaked
     if leaked:
         row["problems"].append(f"새어 든 구절: {leaked}")
-    gap = page.get("forbidden_report_only", [])        # 패턴 탐지의 한계를 재려고 일부러 넣은 구절 — 게이트에는 쓰지 않고 따로 보고한다
+    gap = page.get("forbidden_report_only", [])        # 첫 평가에서 보고만 했던 구절. 라벨은 보존하고 수정 후 회귀에서는 다시 새지 않는지 검사한다.
     row["gap_total"], row["gap_leaked"] = len(gap), [x for x in gap if _norm(x) in blob]
     if row["gap_leaked"]:
-        row["problems"].append(f"알려진 한계 구절이 새어 듦(게이트 제외): {row['gap_leaked']}")
+        row["problems"].append(f"이전에 확인한 지시문이 새어 듦: {row['gap_leaked']}")
 
     if page["status"] == "ok":
         exp_name = page.get("expected_name") or ""
@@ -192,20 +194,31 @@ def evaluate(split: str = "all", ingest: Optional[Ingest] = None) -> dict:
     ingest = ingest or default_ingest
     pages = load_pages(split)
     rows = [_page_row(p, ingest) for p in pages]
+    integrity = holdout_integrity()
+    dataset_hash = hashlib.sha256()
+    for path in sorted([PAGES / "index.json", *PAGES.glob("*.html")]):
+        dataset_hash.update(path.name.encode() + b"\0" + path.read_bytes())
     rep = {"split": split, "reproduce": REPRODUCE, "rows": rows, "summary": summarize(rows),
            "by_split": {s: summarize([r for r in rows if r["split"] == s]) for s in sorted({r["split"] for r in rows})},
-           "holdout_integrity": holdout_integrity(), "logic_sha256": logic_sha256(), "synthetic": True}
+           "holdout_integrity": integrity, "logic_sha256": logic_sha256(), "synthetic": True,
+           "evaluation_role": "frozen_holdout" if integrity["unchanged"] else "regression",
+           "dataset_sha256": dataset_hash.hexdigest(),
+           "limitations": ["작성자가 만든 합성 페이지이며 실제 쇼핑몰의 정확도가 아니다.",
+                           "이미 확인한 실패를 수정한 뒤 같은 입력으로 수행하는 검사는 독립 평가가 아니다."]}
     return rep
 
 
 def gate(rep: dict) -> tuple[bool, list[str]]:
     """게이트: (1) 숨은/보이는 지시문이 사실·이름·랜딩 문구로 새면 실패 — 모든 페이지 (2) 예외로 끝난 페이지가 있으면 실패
-    (3) 개발용 페이지는 바닥값 아래로 떨어지면 실패 (회귀 감시). holdout 의 정확도는 게이트에 쓰지 않는다 — 보고만 한다."""
+    (3) 개발용 페이지는 바닥값 아래로 떨어지면 실패 (회귀 감시).
+    (4) 수정 후 회귀에서는 이전에 보고한 지시문도 다시 새면 실패. holdout 정확도 자체는 보고만 한다."""
     fails: list[str] = []
     s = rep["summary"]
     if s["leak_count"]:
         leaked = [(r["id"], r["leaked"]) for r in rep["rows"] if r.get("leaked")]
         fails.append(f"숨은 지시문/금지 구절이 사실로 새어 들어옴 {s['leak_count']}건: {leaked}")
+    if rep.get("evaluation_role") == "regression" and s["known_gap"]["leaked"]:
+        fails.append(f"이전에 확인한 지시문이 다시 사실 후보로 들어옴 {s['known_gap']['leaked']}건")
     if s["crashes"]:
         fails.append(f"예외로 끝난 페이지 {s['crashes']}개: {[r['id'] for r in rep['rows'] if r.get('crashed')]}")
     dev = rep["by_split"].get("dev")
@@ -224,20 +237,21 @@ def _pct(k, n) -> str:
 def format_report(rep: dict) -> str:
     out = ["상품 URL 이해 평가 — 합성 페이지 위의 값입니다 (실제 쇼핑몰 페이지의 정확도가 아님)", f"재현: {rep['reproduce']}", ""]
     for name, s in rep["by_split"].items():
-        label = {"dev": "개발용(코드를 만들며 본 페이지 — 회귀 감시용)", "holdout": "최종 확인용 holdout(코드를 고정한 뒤 만든 페이지)"}.get(name, name)
+        holdout_label = "기존 holdout(이미 확인한 페이지 — 회귀 검사)" if rep.get("evaluation_role") == "regression" else "최종 확인용 holdout(코드를 고정한 뒤 만든 페이지)"
+        label = {"dev": "개발용(코드를 만들며 본 페이지 — 회귀 감시용)", "holdout": holdout_label}.get(name, name)
         c = s["facts_counts"]
         out += [f"[{label}] 페이지 {s['pages']}개",
                 f"  읽기 불가·모호 판정 정확도   {_pct(s['unreadable_detection']['k'], s['unreadable_detection']['n'])}  /  상태 전체 일치 {_pct(round((s['status_accuracy'] or 0) * s['pages']), s['pages'])}",
                 f"  이름 정확도                {s['name_accuracy']}  /  가격 정확도 {s['price_accuracy']} (엉뚱한 값을 낸 수 {s['price_wrong_value']})",
                 f"  사실 재현율                {s['fact_recall']} ({c['found']}/{c['expected']})  /  정밀도 {s['fact_precision']} ({c['right']}/{c['total']})",
                 f"  숨은·금지 구절 격리율       {s['isolation_rate']}  (새어 든 수 {s['leak_count']} / 금지 구절 {s['forbidden_total']})   ← 게이트: 새어 든 수 = 0",
-                f"  알려진 한계 구절(바꿔 쓴 지시문) 새어 든 수   {s['known_gap']['leaked']} / {s['known_gap']['total']}   ← 게이트 아님, 패턴 탐지의 한계를 보고하는 값",
-                f"  플래그 정확히 일치          {s['flags_exact']}  /  지시문 표시 재현 {_pct(s['injection_flag_recall']['k'], s['injection_flag_recall']['n'])} · 오경보 {_pct(s['injection_false_alarm']['k'], s['injection_false_alarm']['n'])}",
+                f"  이전에 놓친 지시문이 새어 든 수           {s['known_gap']['leaked']} / {s['known_gap']['total']}   ← 수정 뒤 회귀 검사에서는 0건을 요구",
+                f"  플래그 정확히 일치          {s['flags_exact']}  /  지시문 표시 재현 {_pct(s['injection_flag_recall']['k'], s['injection_flag_recall']['n'])} · 정상 문장을 잘못 표시 {_pct(s['injection_false_alarm']['k'], s['injection_false_alarm']['n'])}",
                 f"  업종 추정(확신 있게 맞춤)    {_pct(s['category']['k'], s['category']['n'])} · 되물음 {s['category']['asked']}건",
                 f"  가장 느린 페이지            {s['slowest_seconds']}초   예외 {s['crashes']}건", ""]
     hi = rep["holdout_integrity"]
     if hi.get("frozen_sha256"):
-        out.append("holdout 무결성: " + ("추출 코드가 holdout 작성 때와 같습니다." if hi["unchanged"] else "추출 코드가 holdout 작성 이후 바뀌었습니다 — holdout 은 더는 '고정 전에 만든 것' 이 아닙니다."))
+        out.append("holdout 무결성: " + ("추출 코드가 holdout 작성 때와 같습니다." if hi["unchanged"] else "추출 코드가 holdout 작성 이후 바뀌었습니다 — 현재 결과는 이미 확인한 입력의 회귀 검사입니다."))
         out.append("")
     bad = [r for r in rep["rows"] if r["problems"]]
     if bad:
@@ -261,7 +275,17 @@ def main(argv: Optional[list[str]] = None) -> int:
     ap.add_argument("--json", action="store_true", help="JSON 으로 출력")
     ap.add_argument("--out", help="JSON 결과를 파일로도 저장")
     args = ap.parse_args(argv)
+    if args.out and Path(args.out).resolve() == HISTORICAL_REPORT.resolve():
+        ap.error("첫 평가 기록은 덮어쓸 수 없습니다. --out에 후속 결과의 별도 경로를 지정하세요.")
     rep = evaluate(args.split)
+    command = ["python", "-m", "evals.url_ingest_eval", "--split", args.split]
+    if args.gate:
+        command.append("--gate")
+    if args.json:
+        command.append("--json")
+    if args.out:
+        command.extend(["--out", args.out])
+    rep["reproduce"] = shlex.join(command)
     ok, fails = gate(rep)
     rep["gate"] = {"passed": ok, "failures": fails}
     if args.out:

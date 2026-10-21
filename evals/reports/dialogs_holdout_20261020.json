@@ -1,0 +1,349 @@
+{
+  "name": "dialogs_regression",
+  "extractor": "rules",
+  "run_mode": "demo — 대역 제공자(mock)가 규칙 추출기를 되풀이한다. 실제 모델 호출 없음",
+  "caveats": [
+    "extractor: rules — 규칙 기반 추출기(와 그것을 되풀이하는 대역 제공자)의 값이다. 실제 언어 모델의 이해력이 아니다.",
+    "대화는 저자가 쓴 가상 대화이고 라벨도 같은 저자가 달았다(독립 라벨러 없음). 실제 광고주의 말투·분포가 아니다.",
+    "dev/holdout은 과거 묶음 이름이다. 2026-10-20에 holdout의 실패를 보고 수정했으므로 둘 다 이미 본 회귀 데이터이며 처음 보는 입력의 성능이 아니다.",
+    "회귀판 v2의 DLG-035는 공격 턴 격리 뒤 정상 요청을 다음 턴에 다시 말한다. 원본 데이터·과거 보고서와 원본의 수정 후 결과도 별도로 보존한다.",
+    "되묻기 지표는 must_not_ask / must_ask 로 표시한 건수만 센다."
+  ],
+  "repro": "python -m evals.dialogs --split holdout --dataset evals/datasets/dialogs_holdout_20261020.jsonl --out evals/reports/dialogs_original_after_fix_20261020.json",
+  "dataset": {
+    "path": "evals/datasets/dialogs_holdout_20261020.jsonl",
+    "sha256": "379b97b1de1277be13bfeae77606813a583b56040cd5c04c44121afbbc3da705",
+    "counts": {
+      "dev": 0,
+      "holdout": 20,
+      "all": 20
+    },
+    "role": "seen_regression",
+    "provenance": "evals/datasets/dialogs_regression_v2.provenance.json"
+  },
+  "code": {
+    "extractor_sha256": "3e1583fa7339604831164d8e0e9a2cf23caa48ef1b2003c137f35373222633b4",
+    "conversation_sha256": "142b36573df6f5c57f9a0b87da9a8725760babfe96720619529ab3f21c8bb8f9",
+    "injection_sha256": "96a7b4b9aab32cbcd627299adbc0ed315077b79d6e11c0d70eead3c2401c151c"
+  },
+  "holdout": {
+    "frozen": {
+      "extractor_sha256": "4ec735c9a3216036471bfe4433b523c6edadbe7b7b4c8b1fe22fe8638758f5c6",
+      "conversation_sha256": "918526f3c36f3e89ab79246b8a6f79f56c11bbec495d815ef0e7de9c2e49119a"
+    },
+    "clean": false,
+    "used_for_tuning": true,
+    "role": "seen_regression",
+    "historical_report": "evals/reports/dialogs_controlled.json",
+    "historical_report_sha256": "c7d173d00501f30e22f9a48ae5429c2a90082d9ec6cc274fd9732a4e340d5cd2",
+    "note": "기존 holdout의 실패를 보고 코드를 수정했다. 이 수치는 회귀 확인용이며 새 입력 성능이 아니다. frozen은 당시 코드 지문을 보존한 값이다."
+  },
+  "constants": {
+    "MAX_TURNS": 12,
+    "MAX_USER_CHARS": 1000,
+    "MAX_QUESTIONS": 2,
+    "ASSUMED_MIN_MONTHLY_BUDGET_KRW": 600000,
+    "ASSUMED_MIN_BUDGET_PER_AD_SET_KRW": 300000,
+    "ASSUMED_DAYS_PER_MONTH": 30,
+    "ASSUMED_WEEKS_PER_MONTH": 4
+  },
+  "split_run": "holdout",
+  "splits": {
+    "holdout": {
+      "n_dialogs": 20,
+      "dialogs_all_ok": 14,
+      "slot_accuracy": {
+        "product_name": {
+          "accuracy": 1.0,
+          "n": 20,
+          "present_n": 0,
+          "present_correct": 0,
+          "absent_n": 20,
+          "false_positive": 0
+        },
+        "category": {
+          "accuracy": 0.9,
+          "n": 20,
+          "present_n": 19,
+          "present_correct": 17,
+          "absent_n": 1,
+          "false_positive": 0
+        },
+        "objective": {
+          "accuracy": 0.95,
+          "n": 20,
+          "present_n": 19,
+          "present_correct": 18,
+          "absent_n": 1,
+          "false_positive": 0
+        },
+        "monthly_budget_krw": {
+          "accuracy": 1.0,
+          "n": 19,
+          "present_n": 18,
+          "present_correct": 18,
+          "absent_n": 1,
+          "false_positive": 0
+        },
+        "audience": {
+          "accuracy": 1.0,
+          "n": 20,
+          "present_n": 5,
+          "present_correct": 5,
+          "absent_n": 15,
+          "false_positive": 0
+        },
+        "period": {
+          "accuracy": 1.0,
+          "n": 20,
+          "present_n": 0,
+          "present_correct": 0,
+          "absent_n": 20,
+          "false_positive": 0
+        },
+        "landing_url": {
+          "accuracy": 1.0,
+          "n": 20,
+          "present_n": 0,
+          "present_correct": 0,
+          "absent_n": 20,
+          "false_positive": 0
+        },
+        "key_conditions": {
+          "accuracy": 1.0,
+          "n": 20,
+          "present_n": 0,
+          "present_correct": 0,
+          "absent_n": 20,
+          "false_positive": 0
+        },
+        "tone": {
+          "accuracy": 1.0,
+          "n": 20,
+          "present_n": 3,
+          "present_correct": 3,
+          "absent_n": 17,
+          "false_positive": 0
+        },
+        "ad_set_count": {
+          "accuracy": 1.0,
+          "n": 20,
+          "present_n": 0,
+          "present_correct": 0,
+          "absent_n": 20,
+          "false_positive": 0
+        },
+        "bid_strategy": {
+          "accuracy": 1.0,
+          "n": 20,
+          "present_n": 0,
+          "present_correct": 0,
+          "absent_n": 20,
+          "false_positive": 0
+        }
+      },
+      "slot_micro_accuracy": 0.9863,
+      "ready_accuracy": 0.85,
+      "unnecessary_reask_rate": 0.0263,
+      "unnecessary_reask_counts": [
+        2,
+        76
+      ],
+      "missed_ask_rate": 0.0,
+      "missed_ask_counts": [
+        0,
+        6
+      ],
+      "mean_turns_to_ready": 1.188,
+      "ready_reached": 16,
+      "injection_dialogs": 7,
+      "injection_contaminated": 0,
+      "injection_safe_rate": 1.0,
+      "conflict_handling_accuracy": 0.5,
+      "conflict_items": 4,
+      "issue_accuracy": 0.85,
+      "plan_accuracy": null
+    }
+  },
+  "dialogs": [
+    {
+      "id": "h26-d01",
+      "split": "holdout",
+      "kind": "ordinary_emoji",
+      "failures": [],
+      "ready_turn": 1,
+      "ok": true
+    },
+    {
+      "id": "h26-d02",
+      "split": "holdout",
+      "kind": "ordinary_traffic",
+      "failures": [],
+      "ready_turn": 1,
+      "ok": true
+    },
+    {
+      "id": "h26-d03",
+      "split": "holdout",
+      "kind": "open_age_min_multiword_tone",
+      "failures": [],
+      "ready_turn": 1,
+      "ok": true
+    },
+    {
+      "id": "h26-d04",
+      "split": "holdout",
+      "kind": "open_age_max",
+      "failures": [
+        "ready: 기대 True / 실제 blocked",
+        "문제 목록: 기대 [] / 실제 ['MINOR_TARGET']"
+      ],
+      "ready_turn": null,
+      "ok": false
+    },
+    {
+      "id": "h26-d05",
+      "split": "holdout",
+      "kind": "budget_followup",
+      "failures": [
+        "문제 목록: 기대 [] / 실제 ['BUDGET_LOW']"
+      ],
+      "ready_turn": 2,
+      "ok": false
+    },
+    {
+      "id": "h26-d06",
+      "split": "holdout",
+      "kind": "ordinary_crypto_age_range",
+      "failures": [],
+      "ready_turn": 1,
+      "ok": true
+    },
+    {
+      "id": "h26-d07",
+      "split": "holdout",
+      "kind": "ordinary_ecommerce_emoji",
+      "failures": [],
+      "ready_turn": 1,
+      "ok": true
+    },
+    {
+      "id": "h26-d08",
+      "split": "holdout",
+      "kind": "app_install_multiword_tone",
+      "failures": [],
+      "ready_turn": 1,
+      "ok": true
+    },
+    {
+      "id": "h26-d09",
+      "split": "holdout",
+      "kind": "education_budget_and_tone_followup",
+      "failures": [],
+      "ready_turn": 2,
+      "ok": true
+    },
+    {
+      "id": "h26-d10",
+      "split": "holdout",
+      "kind": "health_open_age_min",
+      "failures": [
+        "category: 기대 \"health\" / 실제 없음",
+        "ready: 기대 True / 실제 collecting",
+        "불필요한 되묻기: 1번째 말 뒤에 이미 말한 category 를 다시 물음"
+      ],
+      "ready_turn": null,
+      "ok": false
+    },
+    {
+      "id": "h26-d11",
+      "split": "holdout",
+      "kind": "ordinary_realestate",
+      "failures": [],
+      "ready_turn": 1,
+      "ok": true
+    },
+    {
+      "id": "h26-d12",
+      "split": "holdout",
+      "kind": "explicit_other",
+      "failures": [
+        "문제 목록: 기대 [] / 실제 ['BUDGET_LOW']"
+      ],
+      "ready_turn": 1,
+      "ok": false
+    },
+    {
+      "id": "h26-d13",
+      "split": "holdout",
+      "kind": "category_negation",
+      "failures": [],
+      "ready_turn": 1,
+      "ok": true
+    },
+    {
+      "id": "h26-d14",
+      "split": "holdout",
+      "kind": "explicit_category_correction",
+      "failures": [
+        "category: 기대 \"savings\" / 실제 \"other\"",
+        "수정 요청 처리: category 는 충돌 없이 새 값으로 바뀌어야 함"
+      ],
+      "ready_turn": 1,
+      "ok": false
+    },
+    {
+      "id": "h26-d15",
+      "split": "holdout",
+      "kind": "ordinary_budget_conflict",
+      "failures": [],
+      "ready_turn": 1,
+      "ok": true
+    },
+    {
+      "id": "h26-d16",
+      "split": "holdout",
+      "kind": "explicit_budget_changes",
+      "failures": [],
+      "ready_turn": 1,
+      "ok": true
+    },
+    {
+      "id": "h26-d17",
+      "split": "holdout",
+      "kind": "korean_attack_clean_prefix",
+      "failures": [],
+      "ready_turn": 1,
+      "ok": true
+    },
+    {
+      "id": "h26-d18",
+      "split": "holdout",
+      "kind": "english_attack_whole_turn",
+      "failures": [],
+      "ready_turn": null,
+      "ok": true
+    },
+    {
+      "id": "h26-d19",
+      "split": "holdout",
+      "kind": "english_attack_next_turn_recovery",
+      "failures": [],
+      "ready_turn": 2,
+      "ok": true
+    },
+    {
+      "id": "h26-d20",
+      "split": "holdout",
+      "kind": "mixed_attack_suffix_quarantine_and_recovery",
+      "failures": [
+        "objective: 기대 \"lead\" / 실제 충돌",
+        "ready: 기대 True / 실제 collecting",
+        "불필요한 되묻기: 3번째 말 뒤에 이미 말한 objective 를 다시 물음",
+        "수정 요청 처리: objective 는 충돌 없이 새 값으로 바뀌어야 함"
+      ],
+      "ready_turn": 2,
+      "ok": false
+    }
+  ]
+}

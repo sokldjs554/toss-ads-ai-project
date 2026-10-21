@@ -107,7 +107,7 @@ def test_runbook_sections_for_every_monitor_rule_exist_and_have_the_standard_par
 def test_simulation_table_numbers_in_the_doc_match_the_stored_command_semantics():
     t = _read(OPS_DOC)
     assert "python -m ops.monitors --streams 100 --runs 300 --change-at 180 --baseline 100 --seed 2026 --eval-every 1" in t
-    assert "오경보 0 을 요구하지 않았고" in t and "합성" in t and "실제 서비스에서의 탐지 성능" in t
+    assert "잘못된 알림 0건을 요구하지 않았고" in t and "합성" in t and "실제 서비스에서의 탐지 성능" in t
     assert "95% 구간" in t
 
 

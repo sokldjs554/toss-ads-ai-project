@@ -1,6 +1,6 @@
 """대화 평가(evals/dialogs.py) 테스트 — 네트워크·모델 호출 없음.
 
-- 데이터셋 구조: 60개 이상, dev 40 / holdout 20+, 대화마다 2~6번 말, 필요한 종류를 모두 포함
+- 데이터셋 구조: 회귀판 v2 66개, 원래 dev 40 / holdout 26 이름 유지, 대화마다 2~6번 말
 - 러너·지표: 코드가 계산하고, 기대를 틀리게 하면 실제로 실패한다 (채점이 비어 있지 않다)
 - 게이트: 기준선보다 나빠지거나 인젝션 오염이 있으면 실패, 통과했을 때만 저장
 - 리포트: 규칙 기반(extractor: rules)임을 밝히고, 저장된 리포트가 지금 코드·데이터의 결과와 같다 (오래된 숫자가 남지 않는다)
@@ -157,6 +157,17 @@ def test_eval_runs_are_deterministic():
     assert a == b
 
 
+def test_dialog_runner_can_use_a_shared_router_and_its_call_budget():
+    from llm.router import Router
+    from observability.tracer import Tracer
+
+    settings = E.default_settings()
+    router = Router(settings, tracer=Tracer())
+    run = E.run_dialog(dialog("DLG-001"), settings=settings, router=router)
+    assert not run.error and router.budget.calls > 0
+    assert E.evaluate(run)["ok"]
+
+
 # ───────────── 게이트 ─────────────
 def synthetic(dev_overrides=None, sha="x"):
     m = {k: 1.0 for k in E.HIGHER_BETTER}
@@ -222,29 +233,71 @@ REPORT = Path(E.DEFAULT_REPORT)
 
 
 def test_saved_report_is_exactly_what_the_current_code_and_data_produce():
-    """저장된 evals/reports/dialogs_controlled.json 은 지금의 코드·데이터로 다시 돌린 결과와 같아야 한다 (코드나 데이터를 고쳤다면 `python -m evals.dialogs --split all --out ...` 로 다시 만든다)."""
+    """현재 회귀판 보고서는 다시 실행한 결과와 같아야 한다. 과거 보고서는 별도로 보존한다."""
     saved = json.loads(REPORT.read_text(encoding="utf-8"))
     assert saved == json.loads(json.dumps(E.build_report("all"), ensure_ascii=False)), "리포트가 오래됐다 — " + E.REPRO
 
 
 def test_report_states_what_the_numbers_are_and_are_not():
     saved = json.loads(REPORT.read_text(encoding="utf-8"))
-    assert saved["extractor"] == "rules" and saved["repro"] == E.REPRO == "python -m evals.dialogs --split all --out evals/reports/dialogs_controlled.json"
+    assert saved["extractor"] == "rules" and saved["repro"] == E.REPRO == "python -m evals.dialogs --split all --out evals/reports/dialogs_regression_v2.json"
     assert "모델" in " ".join(saved["caveats"]) and "라벨" in " ".join(saved["caveats"]) and "holdout" in " ".join(saved["caveats"])
     assert saved["dataset"]["counts"]["dev"] == 40 and saved["dataset"]["counts"]["holdout"] >= 20
     assert set(saved["splits"]) == {"dev", "holdout", "all"}
-    assert saved["splits"]["dev"]["injection_contaminated"] == 0                          # dev 는 0 (이 대화로 추출기를 고쳤다)
+    assert saved["dataset"]["role"] == "seen_regression"
+    assert saved["splits"]["dev"]["injection_contaminated"] == 0
     hold = saved["splits"]["holdout"]
-    assert hold["injection_dialogs"] == 2 and hold["injection_contaminated"] == 1         # holdout 은 1건 — 고치지 않고 그대로 적는다 (tests/test_conv_known_gaps.py)
-    assert saved["splits"]["holdout"]["dialogs_all_ok"] == 20 and saved["splits"]["holdout"]["n_dialogs"] == 26
+    assert hold["injection_dialogs"] == 2 and hold["injection_contaminated"] == 0
+    assert hold["dialogs_all_ok"] == hold["n_dialogs"] == 26
     assert "의미하지 않는" in E.__doc__ and "extractor" in E.__doc__ and "규칙 기반" in E.__doc__
 
 
-def test_holdout_was_not_tuned_on_the_codes_fingerprints_match_the_freeze():
-    """holdout 대화는 추출기·대화 로직을 고정한 뒤에 썼고 그 결과를 보고 고치지 않았다. 그 뒤에 코드를 고치면 이 테스트가 실패해 '고정한 뒤의 값' 이라는 주장이 깨졌음을 알린다."""
+def test_seen_holdout_is_never_relabeled_as_unseen_and_historical_fingerprints_are_preserved():
     saved = json.loads(REPORT.read_text(encoding="utf-8"))
-    assert saved["holdout"]["frozen"]["extractor_sha256"] and saved["holdout"]["clean"] is True
-    assert saved["holdout"]["frozen"] == E.code_fingerprints() == {k: saved["code"][k] for k in ("extractor_sha256", "conversation_sha256")}
+    historical = json.loads(E.HISTORICAL_REPORT.read_text(encoding="utf-8"))
+    assert saved["holdout"]["clean"] is False and saved["holdout"]["used_for_tuning"] is True
+    assert saved["holdout"]["role"] == "seen_regression"
+    assert saved["holdout"]["frozen"] == historical["holdout"]["frozen"] == E.HOLDOUT_FROZEN
+    assert saved["code"] == E.code_fingerprints() and saved["code"] != E.HOLDOUT_FROZEN
+    assert historical["holdout"]["clean"] is True
+    assert historical["splits"]["holdout"]["dialogs_all_ok"] == 20
+    assert historical["splits"]["holdout"]["injection_contaminated"] == 1
+
+
+def test_regression_v2_changes_only_the_documented_recovery_turn():
+    manifest = json.loads(E.PROVENANCE.read_text(encoding="utf-8"))
+    assert manifest["original_dataset"]["sha256"] == E.sha256_of(E.ORIGINAL_DATASET)
+    assert manifest["original_report"]["sha256"] == E.sha256_of(E.HISTORICAL_REPORT)
+    assert manifest["regression_dataset"]["sha256"] == E.sha256_of(E.DATASET)
+    original = {d["id"]: d for d in E.load_dialogs(path=E.ORIGINAL_DATASET)}
+    changed = [d for d in ALL if d != original[d["id"]]]
+    assert [d["id"] for d in changed] == [c["origin_id"] for c in manifest["changes"]] == ["DLG-035"]
+    assert changed[0]["expected_slots"] == original["DLG-035"]["expected_slots"]
+    assert changed[0]["turns"] == manifest["changes"][0]["regression_turns"]
+    assert original["DLG-035"]["turns"] == manifest["changes"][0]["original_turns"]
+
+
+def test_recovery_contract_quarantines_the_first_turn_and_reads_the_next_turn():
+    from llm.router import Router
+    from observability.tracer import Tracer
+
+    settings = E.default_settings()
+    router = Router(settings, tracer=Tracer())
+    d = dialog("DLG-035")
+    first = C.step(C.new_state(), d["turns"][0], router, settings)
+    assert not first.state.slots and not first.ready
+    assert first.state.turns[-2].clean == "" and first.state.turns[-2].quarantined
+    next_turn = C.step(first.state, d["turns"][1], router, settings)
+    assert next_turn.ready and next_turn.state.slots["monthly_budget_krw"].value == 3_000_000
+    assert next_turn.state.slots["category"].value == "app" and next_turn.state.slots["objective"].value == "app_install"
+
+
+def test_original_after_fix_report_keeps_the_stricter_boundary_tradeoff_visible():
+    saved = json.loads(E.ORIGINAL_CURRENT_REPORT.read_text(encoding="utf-8"))
+    assert saved == json.loads(json.dumps(E.build_report(path=E.ORIGINAL_DATASET), ensure_ascii=False))
+    assert saved["splits"]["dev"]["dialogs_all_ok"] == 39 and saved["splits"]["dev"]["n_dialogs"] == 40
+    assert saved["splits"]["holdout"]["dialogs_all_ok"] == 26
+    assert [d["id"] for d in saved["dialogs"] if not d["ok"]] == ["DLG-035"]
 
 
 def test_report_lists_every_failed_dialog_with_the_reason():
@@ -256,10 +309,15 @@ def test_report_lists_every_failed_dialog_with_the_reason():
     assert saved["splits"]["all"]["dialogs_all_ok"] == sum(d["ok"] for d in saved["dialogs"])
 
 
-def test_gate_on_the_saved_report_fails_for_holdout_contamination_and_passes_for_dev(tmp_path, capsys):
-    """저장된 holdout 결과에는 인젝션 오염 1건이 있다 — 게이트는 이를 숨기지 않는다. dev 게이트는 통과한다."""
+def test_gate_on_the_current_regression_report_passes_both_original_splits(capsys):
     assert E.main(["--split", "dev", "--gate", "--quiet"]) == 0
-    assert E.main(["--split", "holdout", "--gate", "--quiet"]) == 1
+    assert E.main(["--split", "holdout", "--gate", "--quiet"]) == 0
+    assert E.main(["--split", "all", "--gate", "--quiet"]) == 0
     text = capsys.readouterr().out
-    assert "[holdout] 인젝션 오염 1건" in text and "게이트 통과" in text
-    assert E.main(["--split", "all", "--gate", "--quiet"]) == 1
+    assert "게이트 통과" in text and "게이트 실패" not in text
+
+
+def test_original_dataset_gate_against_history_still_reports_the_tradeoff(capsys):
+    assert E.main(["--split", "all", "--dataset", str(E.ORIGINAL_DATASET), "--baseline", str(E.HISTORICAL_REPORT), "--gate", "--quiet"]) == 1
+    text = capsys.readouterr().out
+    assert "[dev] slot_micro_accuracy" in text and "게이트 실패" in text

@@ -1,0 +1,1346 @@
+{
+  "kind": "same-app-runtime-comparison",
+  "started_at": "2026-10-21T01:56:08.971088+00:00",
+  "stlite": "1.12.0",
+  "pyodide_expected": "314.0.3",
+  "app_archive_sha256": "27a310c3ce36252f87e639f2f77e7f0d26d084a2233c37f8660338c8b7a6b7a5",
+  "headless": true,
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "source_sha": "000bc89ed096f8003d11f40a5c5c6f70e422955c",
+  "ignore_https_errors": true,
+  "idle_seconds_planned": 0,
+  "scope": "navigation-only",
+  "switches_planned": 60,
+  "switch_interval_seconds": 7,
+  "model_mode": "browser demonstration; provider endpoints blocked by probe",
+  "blocked_model_requests": [],
+  "page_errors": [],
+  "console_errors": [
+    {
+      "at": "2026-10-21T01:56:54.747257+00:00",
+      "elapsed_seconds": 45.78,
+      "message": "Access to fetch at 'https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F' from origin 'http://127.0.0.1:34335' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "location": {
+        "url": "http://127.0.0.1:34335/1.12.0/",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T01:56:54.748414+00:00",
+      "elapsed_seconds": 45.78,
+      "message": "Failed to load resource: net::ERR_FAILED",
+      "location": {
+        "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T01:56:54.748550+00:00",
+      "elapsed_seconds": 45.78,
+      "message": "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+      "location": {
+        "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-B1FrxEMd-BsPMjC5n.js",
+        "lineNumber": 84389,
+        "columnNumber": 9
+      }
+    },
+    {
+      "at": "2026-10-21T01:56:55.105104+00:00",
+      "elapsed_seconds": 46.13,
+      "message": "Access to fetch at 'https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F' from origin 'http://127.0.0.1:34335' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "location": {
+        "url": "http://127.0.0.1:34335/1.12.0/",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T01:56:55.105434+00:00",
+      "elapsed_seconds": 46.13,
+      "message": "Failed to load resource: net::ERR_FAILED",
+      "location": {
+        "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T01:56:55.105516+00:00",
+      "elapsed_seconds": 46.13,
+      "message": "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+      "location": {
+        "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-B1FrxEMd-BsPMjC5n.js",
+        "lineNumber": 84389,
+        "columnNumber": 9
+      }
+    },
+    {
+      "at": "2026-10-21T01:57:33.622076+00:00",
+      "elapsed_seconds": 84.65,
+      "message": "Access to fetch at 'https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F' from origin 'http://127.0.0.1:34335' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "location": {
+        "url": "http://127.0.0.1:34335/1.12.0/",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T01:57:33.622854+00:00",
+      "elapsed_seconds": 84.65,
+      "message": "Failed to load resource: net::ERR_FAILED",
+      "location": {
+        "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T01:57:33.623259+00:00",
+      "elapsed_seconds": 84.65,
+      "message": "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+      "location": {
+        "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-B1FrxEMd-BsPMjC5n.js",
+        "lineNumber": 84389,
+        "columnNumber": 9
+      }
+    },
+    {
+      "at": "2026-10-21T01:57:33.623726+00:00",
+      "elapsed_seconds": 84.65,
+      "message": "Access to fetch at 'https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F' from origin 'http://127.0.0.1:34335' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "location": {
+        "url": "http://127.0.0.1:34335/1.12.0/",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T01:57:33.623876+00:00",
+      "elapsed_seconds": 84.65,
+      "message": "Failed to load resource: net::ERR_FAILED",
+      "location": {
+        "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T01:57:33.623969+00:00",
+      "elapsed_seconds": 84.65,
+      "message": "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+      "location": {
+        "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-B1FrxEMd-BsPMjC5n.js",
+        "lineNumber": 84389,
+        "columnNumber": 9
+      }
+    },
+    {
+      "at": "2026-10-21T01:58:12.961013+00:00",
+      "elapsed_seconds": 123.99,
+      "message": "Access to fetch at 'https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F' from origin 'http://127.0.0.1:34335' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "location": {
+        "url": "http://127.0.0.1:34335/1.12.0/",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T01:58:12.963002+00:00",
+      "elapsed_seconds": 123.99,
+      "message": "Failed to load resource: net::ERR_FAILED",
+      "location": {
+        "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T01:58:12.963178+00:00",
+      "elapsed_seconds": 123.99,
+      "message": "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+      "location": {
+        "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-B1FrxEMd-BsPMjC5n.js",
+        "lineNumber": 84389,
+        "columnNumber": 9
+      }
+    },
+    {
+      "at": "2026-10-21T01:58:12.963262+00:00",
+      "elapsed_seconds": 123.99,
+      "message": "Access to fetch at 'https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F' from origin 'http://127.0.0.1:34335' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "location": {
+        "url": "http://127.0.0.1:34335/1.12.0/",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T01:58:12.963442+00:00",
+      "elapsed_seconds": 123.99,
+      "message": "Failed to load resource: net::ERR_FAILED",
+      "location": {
+        "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T01:58:12.963539+00:00",
+      "elapsed_seconds": 123.99,
+      "message": "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+      "location": {
+        "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-B1FrxEMd-BsPMjC5n.js",
+        "lineNumber": 84389,
+        "columnNumber": 9
+      }
+    },
+    {
+      "at": "2026-10-21T01:58:52.761393+00:00",
+      "elapsed_seconds": 163.79,
+      "message": "Access to fetch at 'https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F' from origin 'http://127.0.0.1:34335' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "location": {
+        "url": "http://127.0.0.1:34335/1.12.0/",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T01:58:52.762055+00:00",
+      "elapsed_seconds": 163.79,
+      "message": "Failed to load resource: net::ERR_FAILED",
+      "location": {
+        "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T01:58:52.762143+00:00",
+      "elapsed_seconds": 163.79,
+      "message": "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+      "location": {
+        "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-B1FrxEMd-BsPMjC5n.js",
+        "lineNumber": 84389,
+        "columnNumber": 9
+      }
+    },
+    {
+      "at": "2026-10-21T01:58:52.762202+00:00",
+      "elapsed_seconds": 163.79,
+      "message": "Access to fetch at 'https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F' from origin 'http://127.0.0.1:34335' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "location": {
+        "url": "http://127.0.0.1:34335/1.12.0/",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T01:58:52.762314+00:00",
+      "elapsed_seconds": 163.79,
+      "message": "Failed to load resource: net::ERR_FAILED",
+      "location": {
+        "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T01:58:52.762370+00:00",
+      "elapsed_seconds": 163.79,
+      "message": "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+      "location": {
+        "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-B1FrxEMd-BsPMjC5n.js",
+        "lineNumber": 84389,
+        "columnNumber": 9
+      }
+    },
+    {
+      "at": "2026-10-21T01:59:32.800631+00:00",
+      "elapsed_seconds": 203.83,
+      "message": "Access to fetch at 'https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F' from origin 'http://127.0.0.1:34335' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "location": {
+        "url": "http://127.0.0.1:34335/1.12.0/",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T01:59:32.802675+00:00",
+      "elapsed_seconds": 203.83,
+      "message": "Failed to load resource: net::ERR_FAILED",
+      "location": {
+        "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T01:59:32.802801+00:00",
+      "elapsed_seconds": 203.83,
+      "message": "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+      "location": {
+        "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-B1FrxEMd-BsPMjC5n.js",
+        "lineNumber": 84389,
+        "columnNumber": 9
+      }
+    },
+    {
+      "at": "2026-10-21T01:59:32.830703+00:00",
+      "elapsed_seconds": 203.86,
+      "message": "Access to fetch at 'https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F' from origin 'http://127.0.0.1:34335' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "location": {
+        "url": "http://127.0.0.1:34335/1.12.0/",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T01:59:32.831992+00:00",
+      "elapsed_seconds": 203.86,
+      "message": "Failed to load resource: net::ERR_FAILED",
+      "location": {
+        "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T01:59:32.832075+00:00",
+      "elapsed_seconds": 203.86,
+      "message": "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+      "location": {
+        "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-B1FrxEMd-BsPMjC5n.js",
+        "lineNumber": 84389,
+        "columnNumber": 9
+      }
+    },
+    {
+      "at": "2026-10-21T02:00:12.660761+00:00",
+      "elapsed_seconds": 243.69,
+      "message": "Access to fetch at 'https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F' from origin 'http://127.0.0.1:34335' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "location": {
+        "url": "http://127.0.0.1:34335/1.12.0/",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T02:00:12.661207+00:00",
+      "elapsed_seconds": 243.69,
+      "message": "Failed to load resource: net::ERR_FAILED",
+      "location": {
+        "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T02:00:12.661316+00:00",
+      "elapsed_seconds": 243.69,
+      "message": "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+      "location": {
+        "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-B1FrxEMd-BsPMjC5n.js",
+        "lineNumber": 84389,
+        "columnNumber": 9
+      }
+    },
+    {
+      "at": "2026-10-21T02:00:12.661370+00:00",
+      "elapsed_seconds": 243.69,
+      "message": "Access to fetch at 'https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F' from origin 'http://127.0.0.1:34335' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "location": {
+        "url": "http://127.0.0.1:34335/1.12.0/",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T02:00:12.661550+00:00",
+      "elapsed_seconds": 243.69,
+      "message": "Failed to load resource: net::ERR_FAILED",
+      "location": {
+        "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T02:00:12.661636+00:00",
+      "elapsed_seconds": 243.69,
+      "message": "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+      "location": {
+        "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-B1FrxEMd-BsPMjC5n.js",
+        "lineNumber": 84389,
+        "columnNumber": 9
+      }
+    },
+    {
+      "at": "2026-10-21T02:00:52.039827+00:00",
+      "elapsed_seconds": 283.07,
+      "message": "Access to fetch at 'https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F' from origin 'http://127.0.0.1:34335' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "location": {
+        "url": "http://127.0.0.1:34335/1.12.0/",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T02:00:52.040102+00:00",
+      "elapsed_seconds": 283.07,
+      "message": "Failed to load resource: net::ERR_FAILED",
+      "location": {
+        "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T02:00:52.040190+00:00",
+      "elapsed_seconds": 283.07,
+      "message": "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+      "location": {
+        "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-B1FrxEMd-BsPMjC5n.js",
+        "lineNumber": 84389,
+        "columnNumber": 9
+      }
+    },
+    {
+      "at": "2026-10-21T02:00:52.040233+00:00",
+      "elapsed_seconds": 283.07,
+      "message": "Access to fetch at 'https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F' from origin 'http://127.0.0.1:34335' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "location": {
+        "url": "http://127.0.0.1:34335/1.12.0/",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T02:00:52.040338+00:00",
+      "elapsed_seconds": 283.07,
+      "message": "Failed to load resource: net::ERR_FAILED",
+      "location": {
+        "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T02:00:52.040413+00:00",
+      "elapsed_seconds": 283.07,
+      "message": "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+      "location": {
+        "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-B1FrxEMd-BsPMjC5n.js",
+        "lineNumber": 84389,
+        "columnNumber": 9
+      }
+    },
+    {
+      "at": "2026-10-21T02:01:31.995311+00:00",
+      "elapsed_seconds": 323.02,
+      "message": "Access to fetch at 'https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F' from origin 'http://127.0.0.1:34335' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "location": {
+        "url": "http://127.0.0.1:34335/1.12.0/",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T02:01:31.995836+00:00",
+      "elapsed_seconds": 323.02,
+      "message": "Failed to load resource: net::ERR_FAILED",
+      "location": {
+        "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T02:01:31.995960+00:00",
+      "elapsed_seconds": 323.02,
+      "message": "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+      "location": {
+        "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-B1FrxEMd-BsPMjC5n.js",
+        "lineNumber": 84389,
+        "columnNumber": 9
+      }
+    },
+    {
+      "at": "2026-10-21T02:01:31.996026+00:00",
+      "elapsed_seconds": 323.03,
+      "message": "Access to fetch at 'https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F' from origin 'http://127.0.0.1:34335' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "location": {
+        "url": "http://127.0.0.1:34335/1.12.0/",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T02:01:31.996290+00:00",
+      "elapsed_seconds": 323.03,
+      "message": "Failed to load resource: net::ERR_FAILED",
+      "location": {
+        "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T02:01:31.996352+00:00",
+      "elapsed_seconds": 323.03,
+      "message": "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+      "location": {
+        "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-B1FrxEMd-BsPMjC5n.js",
+        "lineNumber": 84389,
+        "columnNumber": 9
+      }
+    },
+    {
+      "at": "2026-10-21T02:02:11.422380+00:00",
+      "elapsed_seconds": 362.45,
+      "message": "Access to fetch at 'https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F' from origin 'http://127.0.0.1:34335' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "location": {
+        "url": "http://127.0.0.1:34335/1.12.0/",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T02:02:11.423223+00:00",
+      "elapsed_seconds": 362.45,
+      "message": "Failed to load resource: net::ERR_FAILED",
+      "location": {
+        "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T02:02:11.423308+00:00",
+      "elapsed_seconds": 362.45,
+      "message": "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+      "location": {
+        "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-B1FrxEMd-BsPMjC5n.js",
+        "lineNumber": 84389,
+        "columnNumber": 9
+      }
+    },
+    {
+      "at": "2026-10-21T02:02:11.426193+00:00",
+      "elapsed_seconds": 362.46,
+      "message": "Access to fetch at 'https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F' from origin 'http://127.0.0.1:34335' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "location": {
+        "url": "http://127.0.0.1:34335/1.12.0/",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T02:02:11.426386+00:00",
+      "elapsed_seconds": 362.46,
+      "message": "Failed to load resource: net::ERR_FAILED",
+      "location": {
+        "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T02:02:11.426455+00:00",
+      "elapsed_seconds": 362.46,
+      "message": "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+      "location": {
+        "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-B1FrxEMd-BsPMjC5n.js",
+        "lineNumber": 84389,
+        "columnNumber": 9
+      }
+    },
+    {
+      "at": "2026-10-21T02:02:50.649112+00:00",
+      "elapsed_seconds": 401.68,
+      "message": "Access to fetch at 'https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F' from origin 'http://127.0.0.1:34335' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "location": {
+        "url": "http://127.0.0.1:34335/1.12.0/",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T02:02:50.650209+00:00",
+      "elapsed_seconds": 401.68,
+      "message": "Failed to load resource: net::ERR_FAILED",
+      "location": {
+        "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T02:02:50.650310+00:00",
+      "elapsed_seconds": 401.68,
+      "message": "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+      "location": {
+        "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-B1FrxEMd-BsPMjC5n.js",
+        "lineNumber": 84389,
+        "columnNumber": 9
+      }
+    },
+    {
+      "at": "2026-10-21T02:02:50.650352+00:00",
+      "elapsed_seconds": 401.68,
+      "message": "Access to fetch at 'https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F' from origin 'http://127.0.0.1:34335' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "location": {
+        "url": "http://127.0.0.1:34335/1.12.0/",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T02:02:50.650468+00:00",
+      "elapsed_seconds": 401.68,
+      "message": "Failed to load resource: net::ERR_FAILED",
+      "location": {
+        "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T02:02:50.651174+00:00",
+      "elapsed_seconds": 401.68,
+      "message": "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+      "location": {
+        "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-B1FrxEMd-BsPMjC5n.js",
+        "lineNumber": 84389,
+        "columnNumber": 9
+      }
+    },
+    {
+      "at": "2026-10-21T02:03:30.214308+00:00",
+      "elapsed_seconds": 441.24,
+      "message": "Access to fetch at 'https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F' from origin 'http://127.0.0.1:34335' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "location": {
+        "url": "http://127.0.0.1:34335/1.12.0/",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T02:03:30.214787+00:00",
+      "elapsed_seconds": 441.24,
+      "message": "Failed to load resource: net::ERR_FAILED",
+      "location": {
+        "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T02:03:30.214860+00:00",
+      "elapsed_seconds": 441.24,
+      "message": "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+      "location": {
+        "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-B1FrxEMd-BsPMjC5n.js",
+        "lineNumber": 84389,
+        "columnNumber": 9
+      }
+    },
+    {
+      "at": "2026-10-21T02:03:30.257268+00:00",
+      "elapsed_seconds": 441.29,
+      "message": "Access to fetch at 'https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F' from origin 'http://127.0.0.1:34335' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "location": {
+        "url": "http://127.0.0.1:34335/1.12.0/",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T02:03:30.257526+00:00",
+      "elapsed_seconds": 441.29,
+      "message": "Failed to load resource: net::ERR_FAILED",
+      "location": {
+        "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T02:03:30.257601+00:00",
+      "elapsed_seconds": 441.29,
+      "message": "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+      "location": {
+        "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-B1FrxEMd-BsPMjC5n.js",
+        "lineNumber": 84389,
+        "columnNumber": 9
+      }
+    },
+    {
+      "at": "2026-10-21T02:04:09.825157+00:00",
+      "elapsed_seconds": 480.85,
+      "message": "Access to fetch at 'https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F' from origin 'http://127.0.0.1:34335' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "location": {
+        "url": "http://127.0.0.1:34335/1.12.0/",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T02:04:09.827703+00:00",
+      "elapsed_seconds": 480.86,
+      "message": "Failed to load resource: net::ERR_FAILED",
+      "location": {
+        "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T02:04:09.827802+00:00",
+      "elapsed_seconds": 480.86,
+      "message": "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+      "location": {
+        "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-B1FrxEMd-BsPMjC5n.js",
+        "lineNumber": 84389,
+        "columnNumber": 9
+      }
+    },
+    {
+      "at": "2026-10-21T02:04:09.828233+00:00",
+      "elapsed_seconds": 480.86,
+      "message": "Access to fetch at 'https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F' from origin 'http://127.0.0.1:34335' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "location": {
+        "url": "http://127.0.0.1:34335/1.12.0/",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T02:04:09.828668+00:00",
+      "elapsed_seconds": 480.86,
+      "message": "Failed to load resource: net::ERR_FAILED",
+      "location": {
+        "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "at": "2026-10-21T02:04:09.828761+00:00",
+      "elapsed_seconds": 480.86,
+      "message": "Client Error: Custom Component ui.review_queue_storage.review_queue_storage fetch error - Failed to fetch",
+      "location": {
+        "url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/index-B1FrxEMd-BsPMjC5n.js",
+        "lineNumber": 84389,
+        "columnNumber": 9
+      }
+    }
+  ],
+  "network_errors": [
+    {
+      "at": "2026-10-21T01:56:54.748249+00:00",
+      "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "at": "2026-10-21T01:56:55.105369+00:00",
+      "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "at": "2026-10-21T01:57:33.622686+00:00",
+      "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "at": "2026-10-21T01:57:33.623830+00:00",
+      "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "at": "2026-10-21T01:58:12.962842+00:00",
+      "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "at": "2026-10-21T01:58:12.963384+00:00",
+      "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "at": "2026-10-21T01:58:52.761977+00:00",
+      "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "at": "2026-10-21T01:58:52.762277+00:00",
+      "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "at": "2026-10-21T01:59:32.802546+00:00",
+      "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "at": "2026-10-21T01:59:32.831877+00:00",
+      "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "at": "2026-10-21T02:00:12.661112+00:00",
+      "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "at": "2026-10-21T02:00:12.661496+00:00",
+      "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "at": "2026-10-21T02:00:52.040043+00:00",
+      "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "at": "2026-10-21T02:00:52.040306+00:00",
+      "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "at": "2026-10-21T02:01:31.995764+00:00",
+      "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "at": "2026-10-21T02:01:31.996249+00:00",
+      "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "at": "2026-10-21T02:02:11.423137+00:00",
+      "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "at": "2026-10-21T02:02:11.426334+00:00",
+      "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "at": "2026-10-21T02:02:50.650142+00:00",
+      "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "at": "2026-10-21T02:02:50.650431+00:00",
+      "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "at": "2026-10-21T02:03:30.214708+00:00",
+      "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "at": "2026-10-21T02:03:30.257470+00:00",
+      "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "at": "2026-10-21T02:04:09.827612+00:00",
+      "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+      "failure": "net::ERR_FAILED"
+    },
+    {
+      "at": "2026-10-21T02:04:09.828619+00:00",
+      "url": "https://stlite.invalid/1.12.0/component/ui.review_queue_storage.review_queue_storage/index.html?streamlitUrl=http%3A%2F%2F127.0.0.1%3A34335%2F1.12.0%2F",
+      "failure": "net::ERR_FAILED"
+    }
+  ],
+  "loaded_pyodide_resources": [
+    {
+      "url": "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/pyodide.mjs",
+      "status": 200
+    },
+    {
+      "url": "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/pyodide.asm.mjs",
+      "status": 200
+    },
+    {
+      "url": "https://cdn.jsdelivr.net/pyodide/v314.0.3/full/pyodide.asm.wasm",
+      "status": 200
+    }
+  ],
+  "events": [
+    {
+      "event": "initial_app_ready",
+      "at": "2026-10-21T01:56:24.829044+00:00",
+      "elapsed_seconds": 15.86
+    },
+    {
+      "event": "navigation_started",
+      "at": "2026-10-21T01:56:29.481841+00:00",
+      "elapsed_seconds": 20.51
+    },
+    {
+      "event": "navigation_progress",
+      "at": "2026-10-21T01:57:09.282724+00:00",
+      "elapsed_seconds": 60.31,
+      "completed": 5
+    },
+    {
+      "event": "navigation_progress",
+      "at": "2026-10-21T01:57:48.533094+00:00",
+      "elapsed_seconds": 99.56,
+      "completed": 10
+    },
+    {
+      "event": "navigation_progress",
+      "at": "2026-10-21T01:58:27.890520+00:00",
+      "elapsed_seconds": 138.92,
+      "completed": 15
+    },
+    {
+      "event": "navigation_progress",
+      "at": "2026-10-21T01:59:07.933935+00:00",
+      "elapsed_seconds": 178.96,
+      "completed": 20
+    },
+    {
+      "event": "navigation_progress",
+      "at": "2026-10-21T01:59:47.857875+00:00",
+      "elapsed_seconds": 218.89,
+      "completed": 25
+    },
+    {
+      "event": "navigation_progress",
+      "at": "2026-10-21T02:00:27.593880+00:00",
+      "elapsed_seconds": 258.62,
+      "completed": 30
+    },
+    {
+      "event": "navigation_progress",
+      "at": "2026-10-21T02:01:07.360639+00:00",
+      "elapsed_seconds": 298.39,
+      "completed": 35
+    },
+    {
+      "event": "navigation_progress",
+      "at": "2026-10-21T02:01:46.941881+00:00",
+      "elapsed_seconds": 337.97,
+      "completed": 40
+    },
+    {
+      "event": "navigation_progress",
+      "at": "2026-10-21T02:02:26.357981+00:00",
+      "elapsed_seconds": 377.39,
+      "completed": 45
+    },
+    {
+      "event": "navigation_progress",
+      "at": "2026-10-21T02:03:05.571246+00:00",
+      "elapsed_seconds": 416.6,
+      "completed": 50
+    },
+    {
+      "event": "navigation_progress",
+      "at": "2026-10-21T02:03:45.199463+00:00",
+      "elapsed_seconds": 456.23,
+      "completed": 55
+    },
+    {
+      "event": "navigation_progress",
+      "at": "2026-10-21T02:04:24.801875+00:00",
+      "elapsed_seconds": 495.83,
+      "completed": 60
+    },
+    {
+      "event": "finished",
+      "at": "2026-10-21T02:04:24.869036+00:00",
+      "elapsed_seconds": 495.9
+    }
+  ],
+  "checks": {
+    "initial_app_ready": true,
+    "sample_execution_completed": true,
+    "sixty_navigation_switches_completed": true,
+    "no_page_errors": true,
+    "no_fatal_runtime_error": true,
+    "no_model_requests": true
+  },
+  "switches": [
+    {
+      "ordinal": 1,
+      "view": "성과 리포트",
+      "at": "2026-10-21T01:56:29.860376+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 2,
+      "view": "검사 사례",
+      "at": "2026-10-21T01:56:37.738701+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 3,
+      "view": "품질 확인",
+      "at": "2026-10-21T01:56:46.399903+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 4,
+      "view": "운영",
+      "at": "2026-10-21T01:56:54.370100+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 5,
+      "view": "광고 작업",
+      "at": "2026-10-21T01:57:02.275041+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 6,
+      "view": "성과 리포트",
+      "at": "2026-10-21T01:57:09.642656+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 7,
+      "view": "검사 사례",
+      "at": "2026-10-21T01:57:17.473922+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 8,
+      "view": "품질 확인",
+      "at": "2026-10-21T01:57:25.874144+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 9,
+      "view": "운영",
+      "at": "2026-10-21T01:57:33.670312+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 10,
+      "view": "광고 작업",
+      "at": "2026-10-21T01:57:41.525420+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 11,
+      "view": "성과 리포트",
+      "at": "2026-10-21T01:57:48.804653+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 12,
+      "view": "검사 사례",
+      "at": "2026-10-21T01:57:56.648335+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 13,
+      "view": "품질 확인",
+      "at": "2026-10-21T01:58:05.258416+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 14,
+      "view": "운영",
+      "at": "2026-10-21T01:58:13.007841+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 15,
+      "view": "광고 작업",
+      "at": "2026-10-21T01:58:20.882739+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 16,
+      "view": "성과 리포트",
+      "at": "2026-10-21T01:58:28.197435+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 17,
+      "view": "검사 사례",
+      "at": "2026-10-21T01:58:36.174093+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 18,
+      "view": "품질 확인",
+      "at": "2026-10-21T01:58:44.855055+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 19,
+      "view": "운영",
+      "at": "2026-10-21T01:58:52.829411+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 20,
+      "view": "광고 작업",
+      "at": "2026-10-21T01:59:00.926007+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 21,
+      "view": "성과 리포트",
+      "at": "2026-10-21T01:59:08.283581+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 22,
+      "view": "검사 사례",
+      "at": "2026-10-21T01:59:16.136043+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 23,
+      "view": "품질 확인",
+      "at": "2026-10-21T01:59:25.075776+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 24,
+      "view": "운영",
+      "at": "2026-10-21T01:59:32.868116+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 25,
+      "view": "광고 작업",
+      "at": "2026-10-21T01:59:40.849945+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 26,
+      "view": "성과 리포트",
+      "at": "2026-10-21T01:59:48.246671+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 27,
+      "view": "검사 사례",
+      "at": "2026-10-21T01:59:56.287583+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 28,
+      "view": "품질 확인",
+      "at": "2026-10-21T02:00:04.961630+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 29,
+      "view": "운영",
+      "at": "2026-10-21T02:00:12.733441+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 30,
+      "view": "광고 작업",
+      "at": "2026-10-21T02:00:20.589119+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 31,
+      "view": "성과 리포트",
+      "at": "2026-10-21T02:00:27.872487+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 32,
+      "view": "검사 사례",
+      "at": "2026-10-21T02:00:35.728682+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 33,
+      "view": "품질 확인",
+      "at": "2026-10-21T02:00:44.248390+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 34,
+      "view": "운영",
+      "at": "2026-10-21T02:00:52.420951+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 35,
+      "view": "광고 작업",
+      "at": "2026-10-21T02:01:00.352378+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 36,
+      "view": "성과 리포트",
+      "at": "2026-10-21T02:01:07.749782+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 37,
+      "view": "검사 사례",
+      "at": "2026-10-21T02:01:15.589990+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 38,
+      "view": "품질 확인",
+      "at": "2026-10-21T02:01:24.222669+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 39,
+      "view": "운영",
+      "at": "2026-10-21T02:01:32.044660+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 40,
+      "view": "광고 작업",
+      "at": "2026-10-21T02:01:39.933944+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 41,
+      "view": "성과 리포트",
+      "at": "2026-10-21T02:01:47.333165+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 42,
+      "view": "검사 사례",
+      "at": "2026-10-21T02:01:55.188071+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 43,
+      "view": "품질 확인",
+      "at": "2026-10-21T02:02:03.707394+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 44,
+      "view": "운영",
+      "at": "2026-10-21T02:02:11.480931+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 45,
+      "view": "광고 작업",
+      "at": "2026-10-21T02:02:19.349497+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 46,
+      "view": "성과 리포트",
+      "at": "2026-10-21T02:02:26.657558+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 47,
+      "view": "검사 사례",
+      "at": "2026-10-21T02:02:34.487006+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 48,
+      "view": "품질 확인",
+      "at": "2026-10-21T02:02:42.982642+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 49,
+      "view": "운영",
+      "at": "2026-10-21T02:02:50.704186+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 50,
+      "view": "광고 작업",
+      "at": "2026-10-21T02:02:58.562570+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 51,
+      "view": "성과 리포트",
+      "at": "2026-10-21T02:03:05.844781+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 52,
+      "view": "검사 사례",
+      "at": "2026-10-21T02:03:13.671821+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 53,
+      "view": "품질 확인",
+      "at": "2026-10-21T02:03:22.474203+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 54,
+      "view": "운영",
+      "at": "2026-10-21T02:03:30.298463+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 55,
+      "view": "광고 작업",
+      "at": "2026-10-21T02:03:38.190443+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 56,
+      "view": "성과 리포트",
+      "at": "2026-10-21T02:03:45.478280+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 57,
+      "view": "검사 사례",
+      "at": "2026-10-21T02:03:53.317225+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 58,
+      "view": "품질 확인",
+      "at": "2026-10-21T02:04:02.103089+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 59,
+      "view": "운영",
+      "at": "2026-10-21T02:04:09.893576+00:00",
+      "completed": true
+    },
+    {
+      "ordinal": 60,
+      "view": "광고 작업",
+      "at": "2026-10-21T02:04:17.792489+00:00",
+      "completed": true
+    }
+  ],
+  "browser_version": "141.0.7390.37",
+  "jspi": {
+    "Suspending": "function",
+    "promising": "function"
+  },
+  "idle_seconds_observed": 0.0,
+  "status": "passed",
+  "finished_at": "2026-10-21T02:04:24.870431+00:00"
+}

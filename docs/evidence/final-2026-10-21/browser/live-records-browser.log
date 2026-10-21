@@ -1,0 +1,37 @@
+PASS desktop: latest report is expanded
+PASS desktop: completed status is visible
+PASS desktop: previous report is retained and collapsed
+PASS desktop: latest run appears before previous run
+PASS desktop: same-input regression is labelled
+PASS desktop: five task groups are visible
+PASS desktop: vision: displayed denominators match stored report
+PASS desktop: conversation: displayed denominators match stored report
+PASS desktop: insights: displayed denominators match stored report
+PASS desktop: quality: displayed denominators match stored report
+PASS desktop: pipeline: displayed denominators match stored report
+PASS desktop: usage cost matches report and is qualified
+PASS desktop: call count matches report
+PASS desktop: actual model and source are visible
+PASS desktop: no Streamlit exception
+PASS desktop: no page horizontal overflow
+PASS desktop: no browser exception
+PASS desktop: viewing records makes no provider requests
+PASS mobile: latest report is expanded
+PASS mobile: completed status is visible
+PASS mobile: previous report is retained and collapsed
+PASS mobile: latest run appears before previous run
+PASS mobile: same-input regression is labelled
+PASS mobile: five task groups are visible
+PASS mobile: vision: displayed denominators match stored report
+PASS mobile: conversation: displayed denominators match stored report
+PASS mobile: insights: displayed denominators match stored report
+PASS mobile: quality: displayed denominators match stored report
+PASS mobile: pipeline: displayed denominators match stored report
+PASS mobile: usage cost matches report and is qualified
+PASS mobile: call count matches report
+PASS mobile: actual model and source are visible
+PASS mobile: no Streamlit exception
+PASS mobile: no page horizontal overflow
+PASS mobile: no browser exception
+PASS mobile: viewing records makes no provider requests
+{"checks": 36, "failed": 0, "source_sha": "80e88076dd829d1def8034b442363bb24331e720", "run_id": "features-20261020-run2"}

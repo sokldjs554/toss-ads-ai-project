@@ -1,0 +1,16 @@
+{"version": "1.12.0", "event": "initial_app_ready", "at": "2026-10-21T01:56:24.829044+00:00", "elapsed_seconds": 15.86}
+{"version": "1.12.0", "event": "navigation_started", "at": "2026-10-21T01:56:29.481841+00:00", "elapsed_seconds": 20.51}
+{"version": "1.12.0", "event": "navigation_progress", "at": "2026-10-21T01:57:09.282724+00:00", "elapsed_seconds": 60.31, "completed": 5}
+{"version": "1.12.0", "event": "navigation_progress", "at": "2026-10-21T01:57:48.533094+00:00", "elapsed_seconds": 99.56, "completed": 10}
+{"version": "1.12.0", "event": "navigation_progress", "at": "2026-10-21T01:58:27.890520+00:00", "elapsed_seconds": 138.92, "completed": 15}
+{"version": "1.12.0", "event": "navigation_progress", "at": "2026-10-21T01:59:07.933935+00:00", "elapsed_seconds": 178.96, "completed": 20}
+{"version": "1.12.0", "event": "navigation_progress", "at": "2026-10-21T01:59:47.857875+00:00", "elapsed_seconds": 218.89, "completed": 25}
+{"version": "1.12.0", "event": "navigation_progress", "at": "2026-10-21T02:00:27.593880+00:00", "elapsed_seconds": 258.62, "completed": 30}
+{"version": "1.12.0", "event": "navigation_progress", "at": "2026-10-21T02:01:07.360639+00:00", "elapsed_seconds": 298.39, "completed": 35}
+{"version": "1.12.0", "event": "navigation_progress", "at": "2026-10-21T02:01:46.941881+00:00", "elapsed_seconds": 337.97, "completed": 40}
+{"version": "1.12.0", "event": "navigation_progress", "at": "2026-10-21T02:02:26.357981+00:00", "elapsed_seconds": 377.39, "completed": 45}
+{"version": "1.12.0", "event": "navigation_progress", "at": "2026-10-21T02:03:05.571246+00:00", "elapsed_seconds": 416.6, "completed": 50}
+{"version": "1.12.0", "event": "navigation_progress", "at": "2026-10-21T02:03:45.199463+00:00", "elapsed_seconds": 456.23, "completed": 55}
+{"version": "1.12.0", "event": "navigation_progress", "at": "2026-10-21T02:04:24.801875+00:00", "elapsed_seconds": 495.83, "completed": 60}
+{"version": "1.12.0", "event": "finished", "at": "2026-10-21T02:04:24.869036+00:00", "elapsed_seconds": 495.9}
+[{"version": "1.12.0", "status": "passed", "checks": {"initial_app_ready": true, "sample_execution_completed": true, "sixty_navigation_switches_completed": true, "no_page_errors": true, "no_fatal_runtime_error": true, "no_model_requests": true}, "switches": 60, "page_errors": 0, "console_errors": 72}]

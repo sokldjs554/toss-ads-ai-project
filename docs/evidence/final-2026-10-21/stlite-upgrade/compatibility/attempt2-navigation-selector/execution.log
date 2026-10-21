@@ -1,0 +1,10 @@
+PASS full app boots
+PASS full app boot: no Streamlit exception
+PASS full app boot: no Python worker fatal error
+PASS category changes to commerce
+PASS category can change back
+PASS example pipeline completes without API call
+PASS example pipeline: no Streamlit exception
+PASS example pipeline: no Python worker fatal error
+{"phase": "performance report", "type": "TimeoutError", "message": "Locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for get_by_role(\"button\", name=\"성과 리포트\", exact=True)\n"}
+{"status": "failed", "checks": 8, "failed_checks": 0, "failure": {"phase": "performance report", "type": "TimeoutError", "message": "Locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for get_by_role(\"button\", name=\"성과 리포트\", exact=True)\n"}, "runtime_text": "", "browser": "141.0.7390.37"}

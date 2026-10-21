@@ -1,0 +1,20 @@
+{
+  "checked_at": "2026-10-21T02:05:47.585580+00:00",
+  "command": ".venv311/bin/python scripts/build_site.py --out /tmp/preflight-runtime-final-site",
+  "build_exit_code": 0,
+  "source_sha": "d9633d6efcf29ea99cdfb8a4eee2990400105244",
+  "source_html_sha256": "9083776a80c5927a226c58eacbcb956f95ea250ecadf46efd56234c4f0a324c7",
+  "built_html_sha256": "9083776a80c5927a226c58eacbcb956f95ea250ecadf46efd56234c4f0a324c7",
+  "app_archive_sha256": "9e93b319b184e1df05ba672b7079803056cd5ccd74877c2068b6d1e43e367c78",
+  "archive_entries": 259,
+  "runtime_pin": "1.12.0",
+  "runtime_pin_occurrences": 2,
+  "plain_korean_boot_copy": true,
+  "replay_link_resolves": true,
+  "stored_feature_report_files": [
+    "evals/reports/live_features/features-20261020-run1.json",
+    "evals/reports/live_features/features-20261020-run2.json",
+    "evals/reports/live_features/features-20261020-run3.json"
+  ],
+  "scope": "Static build verification only; runtime observations are separate records."
+}

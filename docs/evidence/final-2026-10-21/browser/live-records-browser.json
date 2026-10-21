@@ -1,0 +1,387 @@
+{
+  "kind": "native-local-browser-stored-api-records",
+  "run_at_utc": "2026-10-21T01:26:18.552724+00:00",
+  "current_checkout_commit": "3e3f830eeac0743dfbbdcae449cf3660f347add9",
+  "source_sha": "80e88076dd829d1def8034b442363bb24331e720",
+  "run_id": "features-20261020-run2",
+  "url": "http://127.0.0.1:8622/?view=%ED%92%88%EC%A7%88%20%ED%99%95%EC%9D%B8",
+  "public_deployment_check": false,
+  "paid_calls_made_by_this_verification": 0,
+  "python": "3.11.17",
+  "playwright": "1.51.0",
+  "streamlit": "1.66.0",
+  "browser": "134.0.6998.35",
+  "reports": {
+    "features-20261020-run1.json": "b5c40bd30cc353730eb6da0d7104d08aefb91945949c6d519cca5a3c3d345247",
+    "features-20261020-run2.json": "429894549ee081e9789a24abf304c1f46f374c4afba042314720684c2ee70acd",
+    "reservations.json": "eee87f8745980c09e979fe289a69e8e68b46dddee609b6d4ef27de3e44ca2785"
+  },
+  "source_hashes": {
+    "ui/new_evals.py": "240df79e3af95669c8a5336c0d7f0f58733b16f08d425dae4be6e1c1ec34e6e2",
+    "scripts/e2e_flow.py": "c723d8796befe8cc677c9b52b24444cfa22d7f195405bd3fb73c3722a4e70c49"
+  },
+  "font_files": {
+    "NotoSansCJKkr-Regular.otf": "6bcb2a0703aa137e874fc2dffa85f6c21ba9a67fa329e81b8c801663af7e992a"
+  },
+  "checks": 36,
+  "failed": 0,
+  "results": [
+    {
+      "viewport": "desktop",
+      "check": "latest report is expanded",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "viewport": "desktop",
+      "check": "completed status is visible",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "viewport": "desktop",
+      "check": "previous report is retained and collapsed",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "viewport": "desktop",
+      "check": "latest run appears before previous run",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "viewport": "desktop",
+      "check": "same-input regression is labelled",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "viewport": "desktop",
+      "check": "five task groups are visible",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "viewport": "desktop",
+      "check": "vision: displayed denominators match stored report",
+      "ok": true,
+      "detail": {
+        "expected": [
+          "이미지 속 글자·검사",
+          "12/12",
+          "12/12",
+          "12/12"
+        ],
+        "actual": [
+          "이미지 속 글자·검사",
+          "12/12",
+          "12/12",
+          "12/12"
+        ]
+      }
+    },
+    {
+      "viewport": "desktop",
+      "check": "conversation: displayed denominators match stored report",
+      "ok": true,
+      "detail": {
+        "expected": [
+          "여러 턴 캠페인 설정",
+          "20/20",
+          "19/20",
+          "17/20"
+        ],
+        "actual": [
+          "여러 턴 캠페인 설정",
+          "20/20",
+          "19/20",
+          "17/20"
+        ]
+      }
+    },
+    {
+      "viewport": "desktop",
+      "check": "insights: displayed denominators match stored report",
+      "ok": true,
+      "detail": {
+        "expected": [
+          "성과 보고서 문장화",
+          "12/12",
+          "12/12",
+          "12/12"
+        ],
+        "actual": [
+          "성과 보고서 문장화",
+          "12/12",
+          "12/12",
+          "12/12"
+        ]
+      }
+    },
+    {
+      "viewport": "desktop",
+      "check": "quality: displayed denominators match stored report",
+      "ok": true,
+      "detail": {
+        "expected": [
+          "광고 문구 비교",
+          "28/28",
+          "28/28",
+          "21/28"
+        ],
+        "actual": [
+          "광고 문구 비교",
+          "28/28",
+          "28/28",
+          "21/28"
+        ]
+      }
+    },
+    {
+      "viewport": "desktop",
+      "check": "pipeline: displayed denominators match stored report",
+      "ok": true,
+      "detail": {
+        "expected": [
+          "캠페인 구성·문구 생성·검사",
+          "4/4",
+          "4/4",
+          "4/4"
+        ],
+        "actual": [
+          "캠페인 구성·문구 생성·검사",
+          "4/4",
+          "4/4",
+          "4/4"
+        ]
+      }
+    },
+    {
+      "viewport": "desktop",
+      "check": "usage cost matches report and is qualified",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "viewport": "desktop",
+      "check": "call count matches report",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "viewport": "desktop",
+      "check": "actual model and source are visible",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "viewport": "desktop",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "viewport": "desktop",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 1280,
+        "viewport": 1280
+      }
+    },
+    {
+      "viewport": "desktop",
+      "check": "no browser exception",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "viewport": "desktop",
+      "check": "viewing records makes no provider requests",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "viewport": "mobile",
+      "check": "latest report is expanded",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "viewport": "mobile",
+      "check": "completed status is visible",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "viewport": "mobile",
+      "check": "previous report is retained and collapsed",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "viewport": "mobile",
+      "check": "latest run appears before previous run",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "viewport": "mobile",
+      "check": "same-input regression is labelled",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "viewport": "mobile",
+      "check": "five task groups are visible",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "viewport": "mobile",
+      "check": "vision: displayed denominators match stored report",
+      "ok": true,
+      "detail": {
+        "expected": [
+          "이미지 속 글자·검사",
+          "12/12",
+          "12/12",
+          "12/12"
+        ],
+        "actual": [
+          "이미지 속 글자·검사",
+          "12/12",
+          "12/12",
+          "12/12"
+        ]
+      }
+    },
+    {
+      "viewport": "mobile",
+      "check": "conversation: displayed denominators match stored report",
+      "ok": true,
+      "detail": {
+        "expected": [
+          "여러 턴 캠페인 설정",
+          "20/20",
+          "19/20",
+          "17/20"
+        ],
+        "actual": [
+          "여러 턴 캠페인 설정",
+          "20/20",
+          "19/20",
+          "17/20"
+        ]
+      }
+    },
+    {
+      "viewport": "mobile",
+      "check": "insights: displayed denominators match stored report",
+      "ok": true,
+      "detail": {
+        "expected": [
+          "성과 보고서 문장화",
+          "12/12",
+          "12/12",
+          "12/12"
+        ],
+        "actual": [
+          "성과 보고서 문장화",
+          "12/12",
+          "12/12",
+          "12/12"
+        ]
+      }
+    },
+    {
+      "viewport": "mobile",
+      "check": "quality: displayed denominators match stored report",
+      "ok": true,
+      "detail": {
+        "expected": [
+          "광고 문구 비교",
+          "28/28",
+          "28/28",
+          "21/28"
+        ],
+        "actual": [
+          "광고 문구 비교",
+          "28/28",
+          "28/28",
+          "21/28"
+        ]
+      }
+    },
+    {
+      "viewport": "mobile",
+      "check": "pipeline: displayed denominators match stored report",
+      "ok": true,
+      "detail": {
+        "expected": [
+          "캠페인 구성·문구 생성·검사",
+          "4/4",
+          "4/4",
+          "4/4"
+        ],
+        "actual": [
+          "캠페인 구성·문구 생성·검사",
+          "4/4",
+          "4/4",
+          "4/4"
+        ]
+      }
+    },
+    {
+      "viewport": "mobile",
+      "check": "usage cost matches report and is qualified",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "viewport": "mobile",
+      "check": "call count matches report",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "viewport": "mobile",
+      "check": "actual model and source are visible",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "viewport": "mobile",
+      "check": "no Streamlit exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "viewport": "mobile",
+      "check": "no page horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scroll": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "viewport": "mobile",
+      "check": "no browser exception",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "viewport": "mobile",
+      "check": "viewing records makes no provider requests",
+      "ok": true,
+      "detail": []
+    }
+  ],
+  "screenshots": [
+    "live-records-desktop.png",
+    "live-records-mobile.png",
+    "live-records-mobile-cost.png"
+  ]
+}

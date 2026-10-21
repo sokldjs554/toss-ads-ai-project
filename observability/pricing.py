@@ -12,6 +12,8 @@ PRICES_PER_MTOK: dict[str, tuple[float, float]] = {
     "gpt-4.1-mini": (0.40, 1.60),
     "gpt-5": (1.25, 10.00),
     "gpt-5-mini": (0.25, 2.00),
+    # 2026-10-20 공식 가격 확인. 평가에서는 gpt-5.4-mini-2026-03-17 고정 버전을 사용한다.
+    "gpt-5.4-mini": (0.75, 4.50),
     # Anthropic
     "claude-sonnet-5-5": (2.00, 10.00),
     "claude-sonnet-5": (2.00, 10.00),
@@ -29,9 +31,10 @@ _CONSERVATIVE = (5.00, 25.00)
 def price_for(model: str) -> tuple[float, float]:
     if model in PRICES_PER_MTOK:
         return PRICES_PER_MTOK[model]
-    for known, p in PRICES_PER_MTOK.items():  # 날짜 접미사 등 변형 모델명
+    # mini의 날짜 버전이 상위 모델(gpt-4o 등)의 가격에 먼저 걸리지 않도록 긴 이름부터.
+    for known in sorted(PRICES_PER_MTOK, key=len, reverse=True):
         if model.startswith(known):
-            return p
+            return PRICES_PER_MTOK[known]
     return _CONSERVATIVE
 
 

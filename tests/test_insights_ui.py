@@ -125,7 +125,7 @@ def test_anomalous_example_shows_what_happened_causes_actions_and_the_report():
     at = run_example(fresh(), label_of("dev-tracking_break-1"))
     t, v = text(at), visible(at)
     for needle in ("무슨 일이 있었나", "원인 후보", "다음에 할 일", "보고서 글", "지표 추이", "크게 벗어남", "전환 추적 오류", "합성 예시 데이터 — 실제 광고 성과가 아닙니다",
-                   "예시 실행: 문장은 템플릿이 만듭니다", pv.LIMIT_LINE, "하지 말아야 할 것", "확신은 확률이 아닙니다"):
+                   "예시 실행: 문장은 템플릿이 만듭니다", pv.LIMIT_LINE, "하지 말아야 할 것", "근거 일치 점수는 원인이 맞을 확률이 아닙니다"):
         assert needle in t, needle
     assert "전환 추적 점검" in t and "예산 상향" in t                                       # 해야 할 것과 하지 말아야 할 것(예산 상향 금지)이 함께 보인다
     assert "이상 없음" not in v
@@ -136,7 +136,7 @@ def test_anomalous_example_shows_what_happened_causes_actions_and_the_report():
 def test_uncertain_example_says_the_cause_is_hard_to_determine():
     at = run_example(fresh(), label_of("dev-ambiguous-1"))
     t = text(at)
-    assert "원인을 정하기 어렵습니다" in t and "억지로 1순위를 고르지 않았습니다" in t and "확인하지 못한 것" in t
+    assert "원인을 정하기 어렵습니다" in t and "추가 자료가 필요합니다" in t and "확인하지 못한 것" in t
     assert "데이터를 고르고" not in t
 
 

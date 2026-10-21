@@ -11,6 +11,7 @@ import re
 from functools import lru_cache
 from pathlib import Path
 
+import pytest
 from streamlit.testing.v1 import AppTest
 
 from agents.pipeline import RunOptions, run_pipeline
@@ -19,6 +20,15 @@ from core.schemas import AdCopy
 from observability.tracer import Tracer
 from ui import review_queue_view as rqv
 from ui.presets import PRESETS, build_brief
+from tests.review_storage_harness import BrowserStorageHarness
+
+
+@pytest.fixture(autouse=True)
+def _browser_storage_transport(monkeypatch):
+    """AppTest는 iframe JS를 실행하지 않으므로 전송만 대체한다. 실제 브라우저 저장은 별도 검증한다."""
+    from ui import review_queue_storage
+
+    monkeypatch.setattr(review_queue_storage, "_component", BrowserStorageHarness())
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = f'''

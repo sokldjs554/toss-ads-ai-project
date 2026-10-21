@@ -1,0 +1,1 @@
+The second attempt passed boot, category changes, and example generation. It stopped at a test navigation selector: get_by_role(button, name=성과 리포트) did not resolve the visible segmented navigation option. No application or console error occurred. The verifier uses the observed visible navigation text in the next attempt, with no app source changes.

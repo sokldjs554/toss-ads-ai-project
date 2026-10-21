@@ -107,7 +107,7 @@ class AnthropicProvider:
             itok = estimate_tokens(req.system + req.user) if itok is None else itok
             otok = estimate_tokens(text) if otok is None else otok
         return LLMResponse(
-            text=text, parsed=parsed, provider=self.name, model=self.model,
+            text=text, parsed=parsed, provider=self.name, model=getattr(message, "model", None) or "",
             input_tokens=itok, output_tokens=otok, latency_ms=round(latency, 1),
             cost_usd=estimate_cost_usd(self.model, itok, otok), finish_reason=message.stop_reason or "", cost_estimated=estimated,
         )

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ko">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;font:14px system-ui,sans-serif">
+<a id="backup" hidden style="display:none;color:#1b64da;line-height:40px"></a>
+<script type="module">
+  import { execute } from "./storage.js";
+  const send = (type, values = {}) => window.parent.postMessage({isStreamlitMessage: true, type, ...values}, "*");
+  let lastId = null;
+  let chain = Promise.resolve();
+  let backupUrl = null;
+  window.addEventListener("message", (event) => {
+    if (event.source !== window.parent || !event.data || event.data.type !== "streamlit:render") return;
+    const {command, namespace, backup} = event.data.args || {};
+    const link = document.getElementById("backup");
+    if (backupUrl) { URL.revokeObjectURL(backupUrl); backupUrl = null; }
+    if (backup && typeof backup.text === "string") {
+      backupUrl = URL.createObjectURL(new Blob([backup.text], {type: "application/x-ndjson;charset=utf-8"}));
+      link.href = backupUrl;
+      link.download = backup.file_name;
+      link.textContent = backup.label;
+      link.hidden = false;
+      link.style.display = "inline-block";
+      send("streamlit:setFrameHeight", {height: 44});
+    } else {
+      link.hidden = true;
+      link.style.display = "none";
+      send("streamlit:setFrameHeight", {height: 0});
+    }
+    if (!command || command.id === lastId) return;
+    lastId = command.id;
+    chain = chain.then(async () => {
+      const response = await execute(command, namespace);
+      send("streamlit:setComponentValue", {value: response, dataType: "json"});
+    });
+  });
+  send("streamlit:componentReady", {apiVersion: 1});
+  send("streamlit:setFrameHeight", {height: 0});
+</script>
+</body>
+</html>

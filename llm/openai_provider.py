@@ -31,11 +31,13 @@ def _user_content(req: LLMRequest):
 class OpenAIProvider:
     name = "openai"
 
-    def __init__(self, api_key: str, model: str, timeout_s: float = 45.0, max_retries: int = 2) -> None:
+    def __init__(self, api_key: str, model: str, timeout_s: float = 45.0, max_retries: int = 2,
+                 reasoning_effort: Optional[str] = None) -> None:
         self.model = model
         self._api_key = api_key
         self._timeout = timeout_s
         self._max_retries = max_retries
+        self._reasoning_effort = reasoning_effort
         self._client = None
 
     @property
@@ -55,6 +57,8 @@ class OpenAIProvider:
         client = self._get_client()
         messages = [{"role": "system", "content": req.system}, {"role": "user", "content": _user_content(req)}]
         kwargs: dict = dict(model=self.model, messages=messages, max_completion_tokens=req.max_tokens)
+        if self._reasoning_effort is not None:
+            kwargs["reasoning_effort"] = self._reasoning_effort
         if self.model.startswith(_TEMPERATURE_OK_PREFIXES):
             kwargs["temperature"] = req.temperature
         t0 = time.perf_counter()
@@ -99,7 +103,7 @@ class OpenAIProvider:
             itok = estimate_tokens(req.system + req.user) if itok is None else itok
             otok = estimate_tokens(text) if otok is None else otok
         return LLMResponse(
-            text=text, parsed=parsed, provider=self.name, model=self.model,
+            text=text, parsed=parsed, provider=self.name, model=getattr(completion, "model", None) or "",
             input_tokens=itok, output_tokens=otok, latency_ms=round(latency, 1),
             cost_usd=estimate_cost_usd(self.model, itok, otok), finish_reason=choice.finish_reason or "", cost_estimated=estimated,
         )

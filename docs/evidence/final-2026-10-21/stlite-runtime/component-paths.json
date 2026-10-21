@@ -1,0 +1,25 @@
+{
+  "kind": "upstream-code-path-comparison",
+  "source_check_body_identical": true,
+  "versions": [
+    {
+      "version": "1.11.0",
+      "source_check_sha256": "2d2ab240d7c106a86e1b8c97ffcded45d63fe6de15b41b3cd5fe96196940a3e5",
+      "source_check_lines": 10,
+      "has_virtual_iframe_loader": true,
+      "component_source_check": "DefaultStreamlitEndpoints.checkSourceUrlResponse",
+      "component_loader": "InnerIFrame -> kernel.sendHttpRequest -> iframe.srcDoc",
+      "source_url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/stlite.js"
+    },
+    {
+      "version": "1.12.0",
+      "source_check_sha256": "2d2ab240d7c106a86e1b8c97ffcded45d63fe6de15b41b3cd5fe96196940a3e5",
+      "source_check_lines": 10,
+      "has_virtual_iframe_loader": true,
+      "component_source_check": "DefaultStreamlitEndpoints.checkSourceUrlResponse",
+      "component_loader": "InnerIFrame -> kernel.sendHttpRequest -> iframe.srcDoc",
+      "source_url": "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.0/build/stlite.js"
+    }
+  ],
+  "interpretation": "The diagnostic source-URL fetch uses browser fetch and catches/logs errors. The stlite iframe loads its HTML separately through the kernel and srcDoc. Actual application save acknowledgement and reload tests are still required to determine user-visible impact."
+}
