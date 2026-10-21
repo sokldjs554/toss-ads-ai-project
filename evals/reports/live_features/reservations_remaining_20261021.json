@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "scope": "remaining-20261021",
+  "total_cap_usd": "4",
+  "reserved_total_usd": "2",
+  "prior_ledger_sha256": "576c98fb311448fce78456cdac89769c8ecda81a368046ed85763662bcaeb54a",
+  "authorization": "Continuation and paid calls authorized by the user; additional USD4 cap chosen by the implementer.",
+  "policy": "과거 $10 예약은 별도 보존. 이번 예약도 실패·중단 시 반환하거나 다시 사용하지 않음.",
+  "reservations": [
+    {
+      "run_id": "features-20261021-run1",
+      "reserved_cap_usd": "2",
+      "workflow_run_id": "39557214914",
+      "manifest_sha256": "79ce23143c943179177f865205f6d5d03a8122647216017ddad92bb0765f2a51",
+      "reserved_at": "2026-10-21T06:44:14.798176+00:00"
+    }
+  ]
+}
