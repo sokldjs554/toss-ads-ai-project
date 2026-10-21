@@ -15,7 +15,7 @@ def db_space():
     if not dsn:
         pytest.skip("PostgreSQL integration DSN not configured; mandatory in CI")
     schema = "team_test_" + uuid4().hex
-    store = PostgresTeamStore(dsn, schema=schema, lock_timeout_ms=100)
+    store = PostgresTeamStore(dsn, schema=schema, lock_timeout_ms=100, admin_mode=True)
     owner = new_access_key()
     store.initialize(key_digest(owner))
     yield store, owner
@@ -60,7 +60,7 @@ def test_concurrent_duplicate_claim_returns_same_saved_receipt(db_space):
     assert results[0] == results[1]
     assert len(invoke(store, token, "overview")["held_items"]) == 1
     # A new store/connection represents another device after response loss.
-    other = PostgresTeamStore(store._database_url, schema=store.schema)
+    other = PostgresTeamStore(store._database_url, schema=store.schema, admin_mode=True)
     assert invoke(other, token, "claim", rid=rid) == results[0]
 
 
@@ -94,7 +94,7 @@ def test_revocation_applies_to_other_connection_and_cached_requests(db_space):
     invoke(store, token, "claim", rid=rid)
     invoke(store, owner, "set_active", {"account_id": aid, "active": False})
     with pytest.raises(AuthenticationError):
-        invoke(PostgresTeamStore(store._database_url, schema=store.schema), token, "claim", rid=rid)
+        invoke(PostgresTeamStore(store._database_url, schema=store.schema, admin_mode=True), token, "claim", rid=rid)
 
 
 def test_broken_database_is_reported_without_local_success_or_credentials():

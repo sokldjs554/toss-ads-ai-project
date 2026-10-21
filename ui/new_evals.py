@@ -214,9 +214,13 @@ def rows_insights(rep: dict) -> list[tuple[str, str, str]]:
 
 def _insights() -> None:
     historical = _load("insights_controlled.json")
-    current = _load("insights_followup_regression_v2_20261020.json") or _load("insights_followup_regression.json")
+    prior = _load("insights_followup_regression_v2_20261020.json") or _load("insights_followup_regression.json")
+    current = _load("remaining-20261021/insights-after-original.json") or prior
     held = _load("insights_holdout_20261020.json")
-    revised = _load("insights_holdout_regression_20261020.json")
+    prior_revised = _load("insights_holdout_regression_20261020.json")
+    latest_revised = _load("remaining-20261021/insights-after-holdout.json")
+    revised = latest_revised or prior_revised
+    contrasts = _load("remaining-20261021/insights-contrasts-after.json")
     if not historical and not current and not held:
         return _missing("insights_controlled.json")
     if current:
@@ -233,9 +237,25 @@ def _insights() -> None:
         if held.get("engine_changed_after_holdout") or held.get("holdout_provenance_issues"):
             st.warning("저장된 동결 정보와 엔진이 일치하지 않아 새 최종 확인 결과로 해석할 수 없습니다.")
     if revised:
-        st.markdown("**처음 평가에서 드러난 한계를 보완한 뒤 재검사**")
+        st.markdown("**처음 평가에서 드러난 한계를 보완한 뒤 재검사 · 최신 기록**")
         _table(rows_insights(revised), first="개발 사례", second="같은 80개 합성 사례 재검사")
-        st.caption("변화가 기준기간에 섞이는 경우를 보완한 뒤 같은 자료를 다시 실행했습니다. 새 독립 평가가 아닙니다.")
+        st.caption("변화가 기준기간에 섞이는 경우를 보완한 뒤 같은 자료를 다시 실행했습니다. 새 독립 평가가 아닙니다. 작은 변화를 모두 찾지는 못했습니다.")
+    if contrasts:
+        summary = contrasts.get("summary", {})
+        names = {"persistent_local_drop": "한 광고세트의 작은 하락",
+                 "normal": "변화 없는 구간", "continuing_trend": "이어지는 추세",
+                 "recovered_before_window": "표시 기간 전에 회복한 변화"}
+        st.markdown("**작은 변화와 정상 흐름을 구분하는 추가 대조**")
+        _table([(label, _frac(summary.get(key, {}).get("alerted"), summary.get(key, {}).get("n")),
+                 "작은 하락을 찾은 수" if key == "persistent_local_drop" else "점검 알림을 낸 수")
+                for key, label in names.items()], first="사례 수", second="뜻")
+        total = sum(item.get("n", 0) for item in summary.values())
+        small = summary.get("persistent_local_drop", {})
+        missed = small.get("n", 0) - small.get("alerted", 0)
+        st.caption(f"수정 전에 조건을 정한 {total}개 개발 대조입니다. 같은 합성 생성기를 사용하므로 독립 평가가 아닙니다. 작은 하락 {small.get('n', 0)}개 중 {missed}개를 찾지 못해 이 범위의 한계는 남아 있습니다.")
+    if prior_revised and latest_revised:
+        with st.expander("2026-10-20의 같은 80개 재검사 기록"):
+            _table(rows_insights(prior_revised), first="개발 사례", second="이전 회귀 검사")
     if historical:
         with st.expander("처음 저장한 평가 기록"):
             _table(rows_insights(historical))
@@ -251,7 +271,7 @@ ROWS = {   # 문서 생성기(scripts/gen_feature_docs.py)가 같은 표를 쓴�
     "urls": ("url_ingest_eval.json", rows_urls),
     "images": ("image_eval.json", rows_images),
     "quality": ("quality_signals.json", rows_quality),
-    "insights": ("insights_followup_regression_v2_20261020.json", rows_insights),
+    "insights": ("remaining-20261021/insights-after-original.json", rows_insights),
 }
 
 

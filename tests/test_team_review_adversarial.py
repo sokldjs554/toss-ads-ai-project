@@ -255,7 +255,7 @@ def test_store_does_not_turn_falsey_invalid_payload_into_a_valid_claim(workspace
     reviewer, _ = workspace.reviewer()
     workspace.add()
     connection = _BoundaryConnection(workspace.state)
-    store = PostgresTeamStore("unused-boundary-test")
+    store = PostgresTeamStore("unused-boundary-test", admin_mode=True)
     monkeypatch.setattr(store, "_connect", lambda: connection)
     with pytest.raises(team.InvalidCommand):
         store.execute(reviewer, "claim", payload, request_id=str(uuid4()))
@@ -268,7 +268,7 @@ def pg_adversarial_space():
     if not dsn:
         pytest.skip("PostgreSQL integration DSN not configured; run with the CI PostgreSQL service")
     # The fixture creates and drops only its own randomly named isolated schema.
-    store = PostgresTeamStore(dsn, schema="team_adversarial_" + uuid4().hex)
+    store = PostgresTeamStore(dsn, schema="team_adversarial_" + uuid4().hex, admin_mode=True)
     owner = _key()
     store.initialize(team.key_digest(owner))
     try:
@@ -324,7 +324,7 @@ def test_postgres_same_request_recovers_across_real_commit_boundary(pg_adversari
             store.execute(reviewer, "claim", {}, request_id=rid)
 
     # A separate connection sees either both the claim and receipt, or neither.
-    observer = PostgresTeamStore(store._database_url, schema=store.schema)
+    observer = PostgresTeamStore(store._database_url, schema=store.schema, admin_mode=True)
     before_retry = observer.execute(reviewer, "overview", {}, request_id=str(uuid4()))
     assert len(before_retry["held_items"]) == held_after_failure
     with observer._connect() as connection:

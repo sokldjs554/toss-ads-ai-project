@@ -2,7 +2,7 @@
 
 Run as ``python -m scripts.team_review_admin``. The private operation file is
 durable BEFORE any key mutation; ``resume`` reuses its key and request ID.
-Only bootstrap/recovery/inspection use the explicitly selected DB-admin path.
+Only bootstrap/recovery/inspection/API installation use the explicitly selected DB-admin path.
 Application/UI startup must never invoke this module automatically.
 """
 from __future__ import annotations
@@ -444,6 +444,21 @@ class AdminDatabase:
         except psycopg.Error:
             raise StorageUnavailable("공동 저장 상태를 확인하지 못했습니다.") from None
 
+    def configure_api(self, runtime_role, *, install=False):
+        """Explicit privileged CLI only; never creates a runtime LOGIN/password."""
+        import psycopg
+        from ops import team_review_db_api
+        try:
+            with self._connect() as conn:
+                conn.execute("SET LOCAL statement_timeout = '15s'")
+                operation = team_review_db_api.install_api if install else team_review_db_api.verify_api
+                result = operation(conn, schema=self.schema, runtime_role=runtime_role)
+            return result
+        except ValueError:
+            raise AdminError("api_configuration_invalid") from None
+        except psycopg.Error:
+            raise StorageUnavailable("DB API 설정 결과를 확인하지 못했습니다.") from None
+
     def apply(self, record):
         import psycopg
         from psycopg import sql
@@ -489,14 +504,14 @@ class _Parser(argparse.ArgumentParser):
 def _parser():
     parser = _Parser(description="공동 검수 키 관리. 비밀값은 환경 변수 또는 본인 소유 0600 파일로만 입력합니다.")
     commands = parser.add_subparsers(dest="command", required=True, parser_class=_Parser)
-    for name in ("bootstrap", "inspect", "issue", "replace", "rotate-owner", "recover-owner", "resume"):
+    for name in ("bootstrap", "inspect", "issue", "replace", "rotate-owner", "recover-owner", "resume", "install-api", "verify-api"):
         command = commands.add_parser(name)
         database = command.add_mutually_exclusive_group()
         database.add_argument("--database-env", metavar="ENV_NAME")
         database.add_argument("--database-file", type=Path)
         command.add_argument("--schema", default="preflight_team")
         command.add_argument("--out", type=Path, required=True)
-        if name in ADMIN_OPERATIONS | {"inspect", "resume"}:
+        if name in ADMIN_OPERATIONS | {"inspect", "resume", "install-api", "verify-api"}:
             command.add_argument("--database-admin", action="store_true", required=name != "resume")
         if name in REGULAR_OPERATIONS | {"resume"}:
             key = command.add_mutually_exclusive_group()
@@ -510,6 +525,8 @@ def _parser():
         if name == "recover-owner":
             command.add_argument("--expected-revision", type=int, required=True)
             command.add_argument("--reason", required=True)
+        if name in {"install-api", "verify-api"}:
+            command.add_argument("--runtime-role", required=True)
     return parser
 
 
@@ -528,7 +545,7 @@ def main(argv=None, *, environ=None, store_factory=None, admin_factory=None):
             if record is not None:
                 validate_operation(record)
             kind = record["operation"] if record is not None else args.command
-            privileged = kind in ADMIN_OPERATIONS | {"inspect"}
+            privileged = kind in ADMIN_OPERATIONS | {"inspect", "install-api", "verify-api"}
             if privileged and not getattr(args, "database_admin", False):
                 raise AdminError("database_admin_required")
             if not privileged and getattr(args, "database_admin", False):
@@ -538,7 +555,17 @@ def main(argv=None, *, environ=None, store_factory=None, admin_factory=None):
             binding = database_binding(dsn, args.schema, environ)
             if record is not None and (record["schema"] != args.schema or record["database_binding"] != binding):
                 raise AdminError("database_binding_mismatch")
-            if kind == "inspect":
+            if kind in {"install-api", "verify-api"}:
+                report = {"format": "preflight-team-api-inspection-v1", "schema": args.schema,
+                          "database_binding": binding, "runtime_role": args.runtime_role,
+                          "created_at": _timestamp().isoformat(), "status": "prepared"}
+                file.create(report)
+                mutation_started = kind == "install-api"
+                result = admin_factory(dsn, schema=args.schema).configure_api(args.runtime_role, install=mutation_started)
+                status = ("api_installed" if mutation_started else "api_verified") if result.get("boundary_valid") is True else "api_invalid"
+                report.update(status=status, result=result)
+                file.save(report)
+            elif kind == "inspect":
                 result = admin_factory(dsn, schema=args.schema).inspect()
                 file.create({"format": "preflight-team-admin-inspection-v1", "schema": args.schema,
                              "database_binding": binding, "created_at": _timestamp().isoformat(), **result})
@@ -562,7 +589,7 @@ def main(argv=None, *, environ=None, store_factory=None, admin_factory=None):
                 record.update(status=status, result=result)
                 file.save(record)
         print(json.dumps({"status": status, "result_file": output}, ensure_ascii=False))
-        return 0 if status in {"confirmed", "inspected", "applied_inactive"} else 3
+        return 0 if status in {"confirmed", "inspected", "applied_inactive", "api_installed", "api_verified"} else 3
     except SystemExit as exc:  # --help is the only parser exit; errors are sanitized above.
         return int(exc.code or 0)
     except AdminError as exc:

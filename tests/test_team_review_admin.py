@@ -59,6 +59,35 @@ def private_text(path, value):
     return path
 
 
+@pytest.mark.parametrize("command", ["install-api", "verify-api"])
+def test_api_commands_require_explicit_admin_and_private_results(tmp_path, capsys, command):
+    calls = []
+    target = tmp_path / "api-report.json"
+
+    class Database:
+        def __init__(self, dsn, *, schema):
+            assert dsn == DSN
+            assert schema == "preflight_team"
+
+        def configure_api(self, role, *, install):
+            assert stat.S_IMODE(target.stat().st_mode) == 0o600
+            calls.append((role, install))
+            return {"boundary_valid": True, "logging_review_required": True}
+
+    arguments = [command, "--runtime-role", "test_runtime", "--out", str(target)]
+    assert admin.main(arguments, environ={"PREFLIGHT_TEAM_ADMIN_DATABASE_URL": DSN}, admin_factory=Database) == 2
+    assert calls == []
+    assert admin.main(arguments + ["--database-admin"], environ={"PREFLIGHT_TEAM_ADMIN_DATABASE_URL": DSN}, admin_factory=Database) == 0
+    assert calls == [("test_runtime", command == "install-api")]
+    stored = json.loads(target.read_text())
+    assert stored["result"]["logging_review_required"] is True
+    assert "access_key" not in stored and DSN not in target.read_text()
+    output = capsys.readouterr().out
+    assert DSN not in output and "never-print" not in output
+    assert admin.main(arguments + ["--database-admin"], environ={"PREFLIGHT_TEAM_ADMIN_DATABASE_URL": DSN}, admin_factory=Database) == 2
+    assert len(calls) == 1
+
+
 def test_operation_file_is_private_atomic_and_never_overwrites(tmp_path):
     path = tmp_path / "owner.json"
     record = operation("rotate-owner")

@@ -2,7 +2,7 @@
 
 ## 현재 지원 범위
 
-서버의 공동 검수는 PostgreSQL의 `preflight_team.workspace` 한 행에 계정, 키의 해시, 대기열, 검토·조정 기록, 요청 영수증을 저장한다. `ops/team_review_store.py`는 행 잠금 안에서 인증·권한 검사·상태 변경·영수증 저장을 처리한다. 브라우저가 전체 대기열을 업로드해 서버 상태를 덮어쓰는 경로는 없다. 브라우저 전용 로컬 대기열과 서버의 공동 검수는 별개다.
+서버의 공동 검수는 PostgreSQL의 `preflight_team.workspace` 한 행에 계정, 키의 해시, 대기열, 검토·조정 기록, 요청 영수증을 저장한다. `ops/team_review_store.py`는 기본적으로 두 개의 DB API 함수를 호출한다. DB가 행을 잠그고 원본 상태로 앱 키·역할·만료를 인증하며, Python이 대기열 전이를 계산한 뒤 DB가 허용된 인증 정보 변경과 영수증 계약을 재검사하고 저장한다. 브라우저가 전체 대기열을 업로드해 서버 상태를 덮어쓰는 경로는 없다. 브라우저 전용 로컬 대기열과 서버의 공동 검수는 별개다.
 
 이 기능의 계정은 **접근키가 가리키는 계정**이다. SSO, 실명 확인, 서로 다른 실제 사람의 참여나 독립 검토를 증명하는 시스템은 아니다. 내보내기의 `identity_verified=false`, `independence_verified=false`를 유지한다. 코드와 통제된 테스트가 있다는 사실을 실제 광고주 운영, 실제 검수자의 참여, 독립 사람 라벨의 확보로 확대해서 설명하지 않는다.
 
@@ -66,6 +66,60 @@ bootstrap은 기존 저장소 초기화와 같은 advisory lock을 사용한다.
 `workspace_exists`이면 새 결과 파일의 키를 운영 키로 전달하지 않는다. 기존 owner가 정상 키를 가지고 있으면 정상 관리 경로를 사용하고, 키가 만료·유실됐다면 아래 DB 관리자 복구 절차를 사용한다. 환경 변수에 다른 owner 키를 넣거나 초기화를 다시 호출해서 기존 공간을 덮어쓰지 않는다.
 
 DB 관리자 도구로 같은 작업을 수행할 때도 준비된 키 파일을 먼저 durable하게 보관한다. SQL에는 원문 키를 넣지 않고 `apply_admin(None, record)`가 만든 해시·상태·감사 영수증만 넣는다. `INSERT ... ON CONFLICT DO NOTHING`의 실행 성공만으로 초기화를 성공으로 판단하지 않는다. 조회한 스키마 버전, revision, 상태와 해당 UUID의 fingerprint가 준비한 결과와 일치하는지 확인한다. 다른 상태가 있으면 기존 데이터를 그대로 두고 실패로 기록한다. 같은 원칙은 MCP를 이용한 명시적 bootstrap에도 적용되며, 이를 CLI 실행 증거로 바꾸지 않는다.
+
+## 1.1 런타임 DB API 설치와 권한 검증
+
+`bootstrap`은 workspace와 최초 관리자 키를 준비하는 작업이다. 런타임용 제한 API는 별도로 설치한다. `ops/team_review_db_api.py`의 `install_api()`/`verify_api()`와 다음 CLI는 **명시적인 관리자 연결에서만** 실행한다. 앱 시작, 공개 UI, 일반 환경 변수에서 설치나 권한 복구를 자동 실행하지 않는다. 기존 테이블 권한으로 자동 되돌아가는 경로도 없다.
+
+운영자가 먼저 전용 runtime LOGIN 역할을 준비한다. installer는 그 비밀번호를 생성하거나 argv로 받지 않는다. 역할은 superuser/CREATEDB/CREATEROLE/REPLICATION/BYPASSRLS가 없어야 하며 **다른 역할의 멤버십도 하나도 없어야 한다.** `NOINHERIT`만으로는 `SET ROLE`을 막지 못하므로 충분하지 않다. 역할 이름은 아래 예시의 비밀이 아닌 식별자이며, 실제 승인된 역할로 바꾼다.
+
+```bash
+.venv311/bin/python -m scripts.team_review_admin install-api \
+  --database-admin \
+  --database-file /secure/preflight-team/admin-database.secret \
+  --runtime-role preflight_team_runtime \
+  --out /secure/preflight-team/api-installation.json
+
+.venv311/bin/python -m scripts.team_review_admin verify-api \
+  --database-admin \
+  --database-file /secure/preflight-team/admin-database.secret \
+  --runtime-role preflight_team_runtime \
+  --out /secure/preflight-team/api-verification.json
+```
+
+설치에는 PostgreSQL 16 이상, 대상 스키마/테이블의 소유권 또는 충분한 GRANT 권한, CREATEROLE과 함수 소유 역할에 대한 ADMIN 권한이 필요하다. superuser를 필수로 요구하지 않는다. 함수 소유자는 스키마별 전용 **NOLOGIN** 역할이고, 다른 역할의 멤버가 될 수 없다. 관리자와 runtime 로그인은 이 소유자 역할과 분리한다.
+
+PostgreSQL 16에서 비 superuser가 만든 역할은 생성자에게 ADMIN이 자동 부여되지만 SET/INHERIT는 기본적으로 부여되지 않는다. installer는 직접 관리자 세션에서만 실행되며, 필요한 경우 관리자 자신에게 일시적인 SET 멤버십을 부여하고 `SET LOCAL ROLE`로 함수 소유자가 되어 함수를 생성한다. 종료 전에 자신이 추가한 멤버십을 제거하거나 이전 옵션으로 복구한다. 기존 생성자 ADMIN 권한은 유지한다. 이 권한은 DB 관리자의 관리 능력이며 runtime에 넘기지 않는다. 모든 설치와 권한 변경은 호출자가 커밋하는 한 트랜잭션 안에 있고, 검증 실패는 롤백한다. [PostgreSQL 16 역할 생성 규칙](https://www.postgresql.org/docs/16/role-attributes.html), [SET ROLE](https://www.postgresql.org/docs/16/sql-set-role.html).
+
+| 주체 | 대상 workspace에 대한 권한 |
+|---|---|
+| runtime LOGIN | 스키마 USAGE와 `lock_workspace`/`save_workspace` EXECUTE만 갖는다. 테이블 및 열의 SELECT/INSERT/UPDATE/DELETE 등 권한, 스키마 CREATE, 함수 소유자나 다른 역할의 멤버십은 허용하지 않는다. |
+| API 함수 소유자 | NOLOGIN, 테이블 SELECT/UPDATE, 스키마 USAGE. 설치 중 필요한 CREATE는 설치 후 회수한다. |
+| DB 관리자 | 명시적인 bootstrap/recovery/설치/점검에 필요한 별도 권한. 앱 런타임 DSN으로 배포하지 않는다. |
+
+installer는 모든 API 함수의 PUBLIC EXECUTE를 회수하고 내부 검증 helper에는 runtime EXECUTE를 주지 않는다. 두 공개 함수만 SECURITY DEFINER이며 모든 함수의 `search_path`는 `pg_catalog, pg_temp`로 고정하고 UTC 시간을 사용한다. 설치 확인은 실제 역할 속성·멤버십, 테이블/열 권한, 스키마 권한, 함수 소유자·PUBLIC/런타임 EXECUTE·고정 경로·함수 본문과 언어까지 검사한다. 기존 workspace 데이터는 설치로 바꾸지 않는다. [SECURITY DEFINER 작성 규칙](https://www.postgresql.org/docs/16/sql-createfunction.html).
+
+설치 결과를 잃었어도 새 키가 추가 생성되는 작업은 아니다. 새 결과 경로로 `verify-api`를 실행해 현재 정의와 권한을 확인한다. 설치 자체는 같은 소스로 재실행할 수 있으며 `resume`는 키 관리 작업 전용이다. 결과 파일의 `api_installed`/`api_verified`는 DB API 계약 검사 결과다. 별도의 운영 승인, 로그 정책, 실제 사람 검수 확인까지 완료했다는 뜻은 아니다.
+
+### DB 함수가 보장하는 계약
+
+`lock_workspace(access_key, request_id UUID, command_text)`는 workspace 행을 잠근 뒤 DB 원본의 키 SHA-256, 계정 active, 만료 시각, action에 허용된 역할을 검사한다. `pg_catalog.sha256(bytea)`를 사용하므로 pgcrypto 확장이 필요하지 않다. Python에는 revision, 전체 상태, DB 현재 시각을 반환한다. Python은 그 시각으로 상태 전이를 계산한다. [PostgreSQL 16 기본 해시 함수](https://www.postgresql.org/docs/16/functions-binarystring.html).
+
+`save_workspace(access_key, request_id UUID, command_text, expected_revision, updated_document)`는 동일 트랜잭션의 행 잠금 아래 **DB 원본 자격을 다시 인증**한다. 만료 판단에는 실제 현재 시각인 `clock_timestamp()`를 사용한다. 클라이언트가 설정할 수 있는 사용자 GUC를 인증 근거로 사용하지 않는다. 다음 조건을 통과한 상태만 revision CAS로 저장한다.
+
+- 명령은 UTF-8 크기 제한, action 목록, payload 필수/허용 필드와 타입을 만족해야 한다. request ID와 expected revision의 SQL NULL도 거절한다.
+- 문서의 최상위 키는 `schema_version/revision/queue/accounts/keys/receipts`이며 버전과 DB revision을 일치시킨다. 알 수 없는 키를 암묵적으로 보존하거나 허용하지 않는다.
+- 일반 action은 owner를 포함해 accounts/keys를 전혀 바꿀 수 없다. owner의 계정 생성·키 교체·활성 변경은 지정한 대상의 정확한 허용 delta만 인정한다. 계정 ID/역할/생성 시각을 임의 변경하거나 owner를 새로 만들거나 비활성화할 수 없다. 키 교체는 대상의 이전 키를 모두 회수하고 30/90일 만료의 새 해시 하나만 허용한다.
+- 기존 영수증은 바뀌거나 없어질 수 없다. 변경 요청은 인증된 `actor_id:request_UUID` 영수증 하나만 추가할 수 있고, action, 원문 command_text의 SHA-256 fingerprint, 결과 revision을 일치시킨다. 시각은 해당 트랜잭션 시작 이후이면서 DB 현재 시각 이하이어야 한다. 키 만료도 이 검증된 시각으로 계산한다. runtime은 `database_admin:` 감사 영수증을 추가할 수 없다.
+- 같은 actor/UUID를 다시 쓰면 기존 fingerprint가 같아야 하고 상태를 추가 변경할 수 없다. 인증이 재생보다 먼저이므로 회수·만료된 키로 과거 성공을 재생할 수 없다. 조회는 새 영수증을 추가하지 않으며, 만료 배정 정리로 변경된 queue의 저장은 기존 Python 전이대로 처리한다.
+
+원문 키·명령·상태는 psycopg의 bound parameters로 전달한다. 드라이버 오류를 사용자 출력에 그대로 포함하지 않는다. `verify-api` 결과에는 **검사한 관리자 세션**의 `log_statement`, `log_parameter_max_length`, `log_parameter_max_length_on_error`와 `logging_review_required`가 들어간다. 이는 runtime 로그인에 적용된 별도 역할 설정이나 외부 프록시·추적 시스템까지 인증하지 않는다. 실제 runtime 세션의 설정도 운영자가 확인하고, 오류·statement·duration·audit 로그에 파라미터가 남지 않도록 검토한다. bound parameters 자체가 서버 로그에서 비밀을 숨겨준다는 뜻은 아니다. [PostgreSQL 로그 설정](https://www.postgresql.org/docs/16/runtime-config-logging.html).
+
+### 이 경계의 명확한 한계
+
+**runtime DSN만으로는 앱 키 인증 없이 workspace를 읽거나 계정·키를 조작할 수 없게 하는 경계다.** 유효한 앱 키와 runtime DSN이 함께 유출되면 `lock_workspace`가 반환하는 전체 queue, 계정 메타데이터와 기존 영수증을 볼 수 있다. 또한 해당 역할의 action을 사용해 Python의 전체 대기열 의미 검증을 우회한 queue 제안을 제출할 수 있다. SQL은 독립 검수, 본인 배정, 라벨의 의미, reviewer 간 블라인드 조회를 전부 재구현하지 않았다. 브라우저의 정상 앱 경로에서는 Python 검사가 계속 적용되지만, 이 DB API를 전체 블라인드 워크플로의 독립 보안 계층이라고 설명하면 안 된다.
+
+DB 관리자는 테이블·함수·역할을 관리할 수 있으므로 앱 키에 대한 보안 경계 밖에 있다. 다른 DB 확장이나 별도로 설치한 SECURITY DEFINER 함수의 권한까지 이 verifier가 전수 감사하는 것도 아니다. 여기서 확인하는 것은 지정한 workspace와 이 모듈이 설치한 함수·역할 계약이다. 실제 운영 설치와 DB 권한 변경에는 별도의 명시적인 승인이 필요하다. 코드·CI 테스트가 있다는 사실은 운영 변경이 승인되거나 실행됐다는 증거가 아니다.
 
 ## 2. 검수자·조정자 발급과 기존 계정 키 교체
 
@@ -183,7 +237,7 @@ DB 관리자 bootstrap 또는 복구의 재시도에는 관리자 연결과 `--d
 5. 기존 revision을 증가시키며 새 키 설치와 감사 영수증을 **한 번에 커밋**한다. 감사에는 UUID, 명령 hash, 시각, 실제 DB `current_user`, 명시적 DB 관리자 권한 사용, 사유, 이전 revision, 회수한 owner 키 수를 기록한다. 원문 키와 DSN은 기록하지 않는다.
 6. 응답 유실 후에는 동일 UUID·hash 영수증만 재생한다. 더 나중의 회전이나 복구로 이 키가 회수됐다면 `superseded`로 알려 주고 되살리지 않는다.
 
-일반 앱의 runtime DB 계정과 관리 계정은 분리한다. runtime에는 필요한 스키마 `USAGE`, workspace 테이블 `SELECT/UPDATE`처럼 실제 실행에 필요한 권한만 부여한다. bootstrap에는 DDL·INSERT 권한이 필요하고, 복구에는 해당 행의 SELECT/UPDATE 권한이 필요하다. 특정 PostgreSQL role 이름이나 superuser 여부를 CLI가 인증하는 것은 아니다. **DB 문서 전체에 대한 UPDATE 권한을 가진 자는 직접 SQL로 앱의 owner 검사를 우회할 수 있으므로 runtime DSN도 서버의 비밀이다.** 앱의 키 인증을 DB 관리자에 대한 보안 경계로 취급하지 않는다.
+일반 앱의 runtime DB 계정과 관리 계정은 분리한다. runtime에는 위의 두 API 함수 EXECUTE와 스키마 USAGE만 허용한다. workspace 테이블이나 열의 SELECT/UPDATE 권한을 runtime에 주지 않는다. bootstrap에는 별도 관리자의 DDL·INSERT 권한이 필요하고, 복구에는 해당 행의 SELECT/UPDATE 권한이 필요하다. 관리 CLI는 명시적인 직접 관리 경로를 사용하며 앱의 키 인증을 DB 관리자에 대한 보안 경계로 취급하지 않는다. `PostgresTeamStore(..., admin_mode=True)`는 기존 관리·트랜잭션 장애 테스트용 직접 경로이고, `from_env()`나 일반 앱 설정으로 켜지지 않는다.
 
 ## 용량 상한과 안전 관리 작업
 
@@ -204,11 +258,14 @@ DB 관리자 복구는 기존 정상 작업 장부가 가득 차도 새 키와 �
   tests/test_team_review_admin.py \
   tests/test_team_review.py \
   tests/test_team_review_adversarial.py \
-  tests/test_team_review_postgres.py --tb=short
+  tests/test_team_review_postgres.py \
+  tests/test_team_review_admin_review.py \
+  tests/test_team_review_db_api.py \
+  tests/test_team_review_db_boundary_review.py --tb=short
 ```
 
-CLI 자체의 로컬 검증은 **37개 통과, PostgreSQL 통합 3개 미실행**이다. 로컬 실행에는 `PREFLIGHT_TEAM_TEST_DATABASE_URL`이 없었다. 통제된 메모리 저장소로 실제 순수 상태 전이 함수를 호출했고, private 파일 권한·원자성·잠금·파일/디렉터리 fsync, 저장 전 실패, 커밋 후 응답 유실, 결과 파일 상태 갱신 실패, 동일 요청 재시도, 이전 키 회수, 기존 검토/배정/계정 보존, 다른 hash 거절, 용량 상한, 민감 예외 출력 방지를 검증했다.
+새 DB 경계와 CLI를 포함한 위 명령의 로컬 검증은 **85개 통과, PostgreSQL 통합 43개 미실행**이다. 로컬 실행에는 `PREFLIGHT_TEAM_TEST_DATABASE_URL`이 없었다. 통제된 메모리 저장소로 실제 순수 상태 전이 함수를 호출했고, private 파일 권한·원자성·잠금·파일/디렉터리 fsync, 저장 전 실패, 커밋 후 응답 유실, 결과 파일 상태 갱신 실패, 동일 요청 재시도, 이전 키 회수, 기존 검토/배정/계정 보존, 다른 hash 거절, 용량 상한, 민감 예외 출력 방지를 검증했다.
 
-PostgreSQL 통합 3개는 별도의 무작위 테스트 스키마에서 bootstrap/replay, 동시 복구의 1회 성공과 1회 충돌, DB 컬럼과 JSON revision 불일치 거절을 검사한다. CI의 격리된 `PREFLIGHT_TEAM_TEST_DATABASE_URL`로 실행해야 한다. 운영 DB를 테스트 대상으로 넣지 않는다. CI나 실제 운영에서 추가 검증한 결과는 실행 ID와 함께 별도로 기록하며 로컬에서 미실행한 검사를 성공으로 적지 않는다.
+PostgreSQL 검사는 별도의 무작위 테스트 스키마와 전용 runtime LOGIN으로 실행한다. 기존 bootstrap/replay·동시 복구·revision 불일치·커밋 장애 검사는 명시적 직접 관리자 경로로 유지했다. 새 API 검사는 실제 table 권한 거절, 올바른 앱 키 없는 조회 거절, 정상 계정/큐 전이, 키 회전과 동일 요청 재생, builtin SHA-256, 비 superuser CREATEROLE 설치 및 임시 멤버십 복구를 검사한다. 독립 공격 회귀는 SQL NULL, accounts/keys 변조, 잘못된 owner delta, 미래 시각/만료 동시 위조, 다른 actor 또는 기존 영수증 변조, load 후 키 만료, role membership과 열 권한 검증을 포함한다. CI의 격리된 `PREFLIGHT_TEAM_TEST_DATABASE_URL`로 실행해야 한다. 운영 DB를 테스트 대상으로 넣지 않는다. CI나 실제 운영에서 추가 검증한 결과는 실행 ID와 함께 별도로 기록하며 로컬에서 미실행한 검사를 성공으로 적지 않는다.
 
 이 도구는 OS 계정, DB 운영 권한, 비밀 파일의 보관·전달, 실제 참여자 확인을 대신하지 않는다. 키 결과 파일과 백업이 모두 유실되면 DB 관리자 복구가 필요하다. DB 자체의 손실·손상은 별도의 백업 복원 문제이며 owner 복구 명령으로 대기열을 재생성하지 않는다.
