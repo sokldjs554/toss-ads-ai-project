@@ -1,7 +1,7 @@
 {
   "version": 1,
   "total_cap_usd": "10",
-  "reserved_total_usd": "4",
+  "reserved_total_usd": "8",
   "policy": "예약액은 성공·실패·중단 여부와 관계없이 다시 사용하지 않음",
   "reservations": [
     {
@@ -10,6 +10,13 @@
       "workflow_run_id": "39446680702",
       "manifest_sha256": "5b3e6588b73e214e15727158c34c04c050cc9c2bf303aa10be61bf3497c28686",
       "reserved_at": "2026-10-20T15:15:35.829651+00:00"
+    },
+    {
+      "run_id": "features-20261020-run2",
+      "reserved_cap_usd": "4",
+      "workflow_run_id": "39526541269",
+      "manifest_sha256": "949971893ff79e6654e88e762579a1d8a48313100a86b37a73871a0773556bb4",
+      "reserved_at": "2026-10-21T01:19:00.918980+00:00"
     }
   ]
 }
