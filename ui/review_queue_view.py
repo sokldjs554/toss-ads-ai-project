@@ -582,7 +582,7 @@ def render(source: Any = None, *, catalog: Optional[PolicyCatalog] = None) -> No
     st.markdown("## 검수 대기열")
     st.markdown("자동 검사가 확정하지 못한 광고를 사람이 직접 보고 **판정(라벨)** 을 남기는 곳입니다. 남긴 라벨은 코드가 검증하고, 라벨러가 여럿이면 서로 얼마나 같게 판단했는지 재고, "
                 "확정된 라벨은 평가셋 후보로 내려받을 수 있습니다.")
-    st.info("이 프로젝트에는 사람 라벨러가 한 명뿐입니다. 여러 명이 라벨하는 기능은 만들었지만 합성 예시로만 검증했고, 독립 라벨러가 확보됐다는 뜻이 아닙니다.", icon="ℹ️")
+    st.info("이 프로젝트에는 독립적인 사람 검수 결과가 아직 없습니다. 여러 명이 라벨하는 기능은 합성 예시로 검증했습니다.", icon="ℹ️")
     saved = ss.setdefault("rq_saved", {})
     scope = st.radio("보기", [SCOPE_REAL, SCOPE_DEMO], index=1 if saved.get("scope") == SCOPE_DEMO else 0, horizontal=True, key="rq_scope", label_visibility="collapsed")
     saved["scope"] = scope

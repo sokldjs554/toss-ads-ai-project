@@ -443,25 +443,63 @@ def verify_api(conn, *, schema="preflight_team", runtime_role):
                          if conn.execute("SELECT pg_catalog.has_any_column_privilege(%s,%s,%s)", (runtime_role,relation,p)).fetchone()[0]]
     schema_create = conn.execute("SELECT pg_catalog.has_schema_privilege(%s,%s,'CREATE')", (runtime_role,schema)).fetchone()[0]
     schema_usage = conn.execute("SELECT pg_catalog.has_schema_privilege(%s,%s,'USAGE')", (runtime_role,schema)).fetchone()[0]
+    owner_schema_create = conn.execute("SELECT pg_catalog.has_schema_privilege(%s,%s,'CREATE')", (owner,schema)).fetchone()[0]
     owner_membership = conn.execute("SELECT EXISTS(SELECT 1 FROM pg_catalog.pg_auth_members m JOIN pg_catalog.pg_roles r ON r.oid=m.member WHERE r.rolname=%s)", (owner,)).fetchone()[0]
     functions = []
+    expected_oids = set()
+    failure_reasons = []
     valid = bool(owner_info) and not any(owner_info) and not privileges and not column_privileges and not schema_create and schema_usage and not owner_membership
+    if not valid:
+        failure_reasons.append("role_or_runtime_privilege_mismatch")
+    if owner_schema_create:
+        failure_reasons.append("function_owner_schema_create")
+    valid = valid and not owner_schema_create
     for name, args, definition in function_definitions(schema):
         signature = _function_signature(schema,name,args)
-        metadata = conn.execute("SELECT p.prosecdef,p.proconfig,r.rolname,EXISTS(SELECT 1 FROM pg_catalog.aclexplode(coalesce(p.proacl,pg_catalog.acldefault('f',p.proowner))) a WHERE a.grantee=0 AND a.privilege_type='EXECUTE'),p.prosrc,l.lanname FROM pg_catalog.pg_proc p JOIN pg_catalog.pg_roles r ON r.oid=p.proowner JOIN pg_catalog.pg_language l ON l.oid=p.prolang WHERE p.oid=pg_catalog.to_regprocedure(%s)", (signature,)).fetchone()
+        metadata = conn.execute("SELECT p.prosecdef,p.proconfig,r.rolname,EXISTS(SELECT 1 FROM pg_catalog.aclexplode(coalesce(p.proacl,pg_catalog.acldefault('f',p.proowner))) a WHERE a.grantee=0 AND a.privilege_type='EXECUTE'),p.prosrc,l.lanname,p.provolatile,p.proparallel,p.oid FROM pg_catalog.pg_proc p JOIN pg_catalog.pg_roles r ON r.oid=p.proowner JOIN pg_catalog.pg_language l ON l.oid=p.prolang WHERE p.oid=pg_catalog.to_regprocedure(%s)", (signature,)).fetchone()
         allowed = conn.execute("SELECT pg_catalog.has_function_privilege(%s,%s,'EXECUTE')", (runtime_role,signature)).fetchone()[0] if metadata else False
         public_entry = name in {"lock_workspace","save_workspace"}
         pinned = bool(metadata) and "search_path=pg_catalog, pg_temp" in (metadata[1] or [])
+        timezone_pinned = bool(metadata) and "TimeZone=UTC" in (metadata[1] or [])
+        volatility_matches = bool(metadata) and metadata[6] == "v"
+        parallel_matches = bool(metadata) and metadata[7] == "u"
         source = definition.split("AS $fn$",1)[1].rsplit("$fn$;",1)[0].strip()
         definition_matches = bool(metadata) and metadata[4].strip() == source and metadata[5] == "plpgsql"
-        correct = bool(metadata) and metadata[0] == public_entry and metadata[2] == owner and not metadata[3] and pinned and allowed == public_entry and definition_matches
+        checks = {
+            "function_missing": bool(metadata),
+            "security_definer_mismatch": bool(metadata) and metadata[0] == public_entry,
+            "function_owner_mismatch": bool(metadata) and metadata[2] == owner,
+            "public_execute_present": bool(metadata) and not metadata[3],
+            "search_path_mismatch": pinned,
+            "timezone_not_utc": timezone_pinned,
+            "volatility_mismatch": volatility_matches,
+            "parallel_mismatch": parallel_matches,
+            "runtime_execute_mismatch": bool(metadata) and allowed == public_entry,
+            "function_definition_mismatch": definition_matches,
+        }
+        function_reasons = [reason for reason, matches in checks.items() if not matches]
+        correct = not function_reasons
         valid = valid and correct
-        functions.append({"function": name,"valid": bool(correct),"runtime_execute": allowed,"public_execute": bool(metadata and metadata[3]),"definition_matches": definition_matches})
+        if metadata:
+            expected_oids.add(metadata[8])
+        functions.append({"function": name,"valid": bool(correct),"runtime_execute": allowed,"public_execute": bool(metadata and metadata[3]),"definition_matches": definition_matches,
+                          "timezone_pinned": timezone_pinned,"volatility_matches": volatility_matches,"parallel_matches": parallel_matches,
+                          "failure_reasons": function_reasons})
+    # Compare object identities, so an extra overload cannot hide behind a
+    # familiar name. Report constants only, never unexpected catalog contents.
+    actual_oids = {row[0] for row in conn.execute("SELECT p.oid FROM pg_catalog.pg_proc p WHERE p.pronamespace=pg_catalog.to_regnamespace(%s)", (schema,)).fetchall()}
+    surface_matches = len(expected_oids) == len(functions) and actual_oids == expected_oids
+    if not surface_matches:
+        failure_reasons.append("function_surface_mismatch")
+    if any(not function["valid"] for function in functions):
+        failure_reasons.append("function_metadata_mismatch")
+    valid = valid and surface_matches
     logging = {name: conn.execute("SELECT pg_catalog.current_setting(%s,true)", (name,)).fetchone()[0]
                for name in ("log_statement","log_parameter_max_length","log_parameter_max_length_on_error")}
     return {"boundary_valid": bool(valid),"schema": schema,"runtime_role": runtime_role,"function_owner": owner,
             "function_owner_login": bool(owner_info and owner_info[0]),"runtime_table_privileges": privileges,
             "runtime_column_privileges": column_privileges,
             "runtime_schema_create": schema_create,"runtime_schema_usage": schema_usage,"functions": functions,"parameter_logging": logging,
+            "function_owner_schema_create": owner_schema_create,"function_surface_matches": surface_matches,"failure_reasons": failure_reasons,
             "logging_review_required": logging.get("log_parameter_max_length") != "0" or logging.get("log_parameter_max_length_on_error") != "0",
             "limitations": "A valid application key plus runtime DSN can expose the full queue; Python validates queue semantics."}

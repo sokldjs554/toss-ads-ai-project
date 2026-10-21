@@ -185,7 +185,7 @@ def test_all_feature_adapters_execute_without_losing_results_in_controlled_harne
     # 실제 모델 성공처럼 세지 않고, 출처가 있는 명시적 ABSTAIN을 보낸다.
     def abstaining_judge(self, req):
         return {"dimensions": [
-            {"criterion": criterion, "preference": "UNKNOWN", "impact": "unknown",
+            {"criterion": criterion, "judgment": "UNKNOWN",
              "evidence_a": [{"field": field, "quote": req.context["copies"]["A"][field]}],
              "evidence_b": [{"field": field, "quote": req.context["copies"]["B"][field]}],
              "fact_ids": [], "reason": "통제된 연결 검사이며 문구 선호를 평가하지 않음"}

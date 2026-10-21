@@ -6,7 +6,7 @@
   "runtime_role": "preflight_runtime",
   "function_owner": "preflight_team_api_owner",
   "source_sha256": {
-    "ops/team_review_db_api.py": "e04a6e861d2b13830127e001f6bd6ed1ac16d6b3ba5916cf1885bf3122b0de16",
+    "ops/team_review_db_api.py": "f39e12d64f486f3d1d4f901985cc628dc5e377d7716299de875195f2807c8ff6",
     "ops/team_review.py": "22f0eaa68cbce659cd744e744ad280bf3b3b59968e86656b5f884cd4d2dc3ea7"
   },
   "functions": [
@@ -158,5 +158,6 @@
       "workspace state placeholder"
     ],
     "execution_status": "Prepared offline only; no database call, credential read, or execution approval is performed by this transformation."
-  }
+  },
+  "source_verification_note": "Function SQL and its original frozen commit remain unchanged. Source hashes identify the current reviewed files, including the strengthened operating verifier; the original frozen commit applies to the function SQL."
 }

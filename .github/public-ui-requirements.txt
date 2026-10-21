@@ -1,0 +1,6 @@
+# Isolated public-screen QA only. Do not change the app or database-test runtime.
+# The build/replay import path needs pydantic + PyYAML; no provider SDK is needed.
+pydantic==2.14.1
+PyYAML==6.0.3
+# Repo's verify_stlite_runtime.py already validated Chromium 141 with stlite 1.12.
+playwright==1.56.0

@@ -27,7 +27,7 @@ jobs:
           python-version: "3.11"
       - run: pip install -r requirements-dev.txt
       - name: PostgreSQL restricted API gate before browser suite
-        run: python -m pytest -o addopts='' -q -ra tests/test_team_review_db_api.py tests/test_team_review_db_boundary_review.py
+        run: python -m pytest -o addopts='' -q -ra tests/test_team_review_db_api.py tests/test_team_review_db_boundary_review.py tests/test_team_review_db_api_verifier.py
       - name: Install browser for persistent-queue transaction tests
         run: python -m playwright install --with-deps chromium
       - name: unit and isolated PostgreSQL transaction tests (no provider calls)

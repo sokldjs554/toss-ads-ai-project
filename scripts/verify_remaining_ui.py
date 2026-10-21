@@ -57,7 +57,9 @@ class QuietHandler(http.server.SimpleHTTPRequestHandler):
 
 
 def main() -> int:
+    global ROOT
     ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--source-root", type=Path, default=ROOT, help="Pinned application checkout; the QA script may come from a separate tooling checkout")
     ap.add_argument("--out", required=True, type=Path)
     ap.add_argument("--modes", default="native,pages", choices=("native", "pages", "native,pages"))
     ap.add_argument("--app-python", default=sys.executable, help="Existing application environment, separate from an optional QA browser environment")
@@ -70,6 +72,9 @@ def main() -> int:
     ap.add_argument("--expected-build-sha", help="Required for public URLs; compare the displayed build and public Pages archive with this revision")
     ap.add_argument("--native-shared-state", choices=("unconfigured", "login"), default="unconfigured", help="Expected public server state; login checks the empty masked input without authenticating")
     args = ap.parse_args()
+    ROOT = args.source_root.resolve()
+    if not (ROOT / "app.py").is_file() or not (ROOT / "scripts/build_site.py").is_file():
+        ap.error("--source-root must be an application checkout with app.py and scripts/build_site.py")
     public_urls = {mode: value for mode, value in (("native", args.native_url), ("pages", args.pages_url)) if value}
     for mode, value in public_urls.items():
         parsed = urlsplit(value)
@@ -171,6 +176,8 @@ def main() -> int:
                 print(f"OPEN {scope}", flush=True)
                 page.goto(url, wait_until="domcontentloaded", timeout=60000)
                 observed["webassembly"] = page.evaluate("({Suspending:typeof WebAssembly.Suspending,promising:typeof WebAssembly.promising})")
+                if mode == "pages" and mode in public_urls:
+                    check(scope, "browser supports the deployed stlite JSPI runtime", all(value == "function" for value in observed["webassembly"].values()), observed["webassembly"])
                 page.get_by_role("radio", name="운영", exact=True).wait_for(timeout=args.timeout_ms)
                 if mode in public_urls:
                     observed["url"] = page.url
@@ -347,7 +354,10 @@ def main() -> int:
                 raise ValueError("Remaining evaluation has not been saved with the required separate summaries")
         with tempfile.TemporaryDirectory(prefix="preflight-remaining-site-") as temporary:
             site = Path(temporary) / "site"
-            build = subprocess.run([app_python, "scripts/build_site.py", "--out", str(site)], cwd=ROOT, capture_output=True, text=True, check=True)
+            # A separate tooling workflow has its own GITHUB_SHA. The app bundle
+            # must carry the pinned application revision rather than that trigger.
+            build_env = {**os.environ, "GITHUB_SHA": report["head"]}
+            build = subprocess.run([app_python, "scripts/build_site.py", "--out", str(site)], cwd=ROOT, env=build_env, capture_output=True, text=True, check=True)
             (out / "pages-build.log").write_text(build.stdout, encoding="utf-8")
             archive = site / "app/src.zip"
             with zipfile.ZipFile(archive) as zf:

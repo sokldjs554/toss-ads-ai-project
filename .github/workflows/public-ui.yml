@@ -1,0 +1,102 @@
+name: public-ui
+
+on:
+  push:
+    branches: [codex/resume-ads-20261021]
+    paths: [.github/workflows/public-ui.yml]
+  workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: Optional full current main SHA; a mismatch fails before probing
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  public-screens:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      PREFLIGHT_FORCE_DEMO: "1"
+      OPENAI_API_KEY: ""
+      OPEN_API_KEY: ""
+      ANTHROPIC_API_KEY: ""
+      PREFLIGHT_TEAM_DATABASE_URL: ""
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - name: Checkout QA tooling
+        uses: actions/checkout@v4
+        with:
+          path: tooling
+          persist-credentials: false
+      - name: Prepare evidence directory
+        run: |
+          mkdir -p evidence
+          printf 'run_id=%s\nattempt=%s\n' "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" > evidence/workflow.txt
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.17"
+      - name: Pin current public main once
+        id: pin
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        run: >-
+          python tooling/scripts/public_ui_pin.py
+          --expected-sha "$EXPECTED_SHA"
+          --out evidence/pin.json
+          --github-output "$GITHUB_OUTPUT"
+      - name: Checkout the pinned public application
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.pin.outputs.sha }}
+          path: public-source
+          persist-credentials: false
+      - name: Install isolated pinned QA dependencies
+        run: |
+          python -m pip install -r tooling/.github/public-ui-requirements.txt
+          python -m pip freeze > evidence/python-packages.txt
+          python -m playwright install --with-deps chromium
+      - name: Check real public desktop and mobile screens with default TLS
+        env:
+          EXPECTED_SHA: ${{ steps.pin.outputs.sha }}
+        run: >-
+          python tooling/scripts/verify_remaining_ui.py
+          --source-root public-source
+          --out evidence/screens
+          --expected-run-id features-20261021-run1
+          --require-remaining-evaluation
+          --native-url https://preflight-toss-ads.onrender.com/
+          --pages-url https://sokldjs554.github.io/toss-ads-ai-project/app/
+          --expected-build-sha "$EXPECTED_SHA"
+          --native-shared-state unconfigured
+      - name: Report actual observed counts
+        if: always()
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          result = Path('evidence/screens/result.json')
+          pin = Path('evidence/pin.json')
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              summary.write('## Public desktop/mobile verification\n\n')
+              if pin.exists():
+                  record = json.loads(pin.read_text())
+                  summary.write(f"Pinned main: `{record.get('sha', 'not pinned')}`\n\n")
+              if result.exists():
+                  report = json.loads(result.read_text())
+                  summary.write(f"Status: **{report.get('status')}**; actual checks: **{len(report.get('checks', []))}**; failed: **{report.get('failed_checks')}**.\n\n")
+                  summary.write(f"Browser: `{report.get('browser', 'not started')}`; TLS bypass: `{report.get('ignore_https_errors')}`.\n\n")
+                  summary.write('JSON, screenshots and recorded browser/network errors are in the artifact. No model or database credentials were provided.\n')
+              else:
+                  summary.write('The screen probe did not start or could not create a report. See pin/dependency logs; no screen-pass claim is made.\n')
+          PY
+      - name: Preserve success and failure evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-ui-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/
+          if-no-files-found: warn
+          retention-days: 14
