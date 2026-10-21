@@ -1,0 +1,225 @@
+{
+  "format": "preflight-neon-installation-evidence-v1",
+  "observed_at_utc": "2026-10-21T16:01:34Z",
+  "observed_date_kst": "2026-10-22",
+  "source_commit": "63ad0e6ff73a695a53fcca3a4eb8641fe18acacb",
+  "template": "docs/deployment/team-review-neon-existing-runtime-template.json",
+  "template_sha256": "67db57b197df66e47390a0ddf2eebdfa59bf2c6cf0735fca80ee41e7a61eb90a",
+  "target": {
+    "project_id": "fancy-cell-02708790",
+    "branch_id": "br-ancient-firefly-a1opl77x",
+    "database_name": "preflight",
+    "administrator": "preflight_owner",
+    "runtime_role": "preflight_runtime"
+  },
+  "authorization": "User explicitly approved the reviewed password-free existing-runtime DB installation and verification.",
+  "execution": {
+    "tool": "Neon run_sql_transaction",
+    "statement_count": 50,
+    "transaction_count": 1,
+    "runtime_role_created_by_user": true,
+    "runtime_password_read_by_assistant": false,
+    "runtime_password_reset": false,
+    "raw_app_key_in_sql": false,
+    "returned_status": {
+      "status": "restricted_api_bootstrap_verified",
+      "revision": "1",
+      "schema_version": "1",
+      "api_function_count": "7"
+    }
+  },
+  "postcommit": {
+    "read_only_transaction": true,
+    "final_permission_guard_passed": true,
+    "prepared_state_matches": true,
+    "workspace_summary": {
+      "database_matches": true,
+      "direct_admin_matches": true,
+      "workspace_rows": 1,
+      "revision": 1,
+      "state_version_matches": true,
+      "account_count": 1,
+      "key_count": 1,
+      "receipt_count": 1,
+      "owner_active": true
+    },
+    "privilege_summary": {
+      "runtime_schema_usage": true,
+      "runtime_schema_create": false,
+      "runtime_table_select": false,
+      "runtime_table_update": false,
+      "function_owner_schema_create": false,
+      "log_statement": "none",
+      "log_parameter_max_length": "-1",
+      "log_parameter_max_length_on_error": "0"
+    },
+    "functions": [
+      {
+        "function_name": "_api_auth",
+        "security_definer": false,
+        "runtime_execute": false,
+        "owner": "preflight_team_api_owner",
+        "volatility": "v",
+        "parallel_safety": "u",
+        "settings": [
+          "search_path=pg_catalog, pg_temp",
+          "TimeZone=UTC"
+        ]
+      },
+      {
+        "function_name": "_api_auth_delta",
+        "security_definer": false,
+        "runtime_execute": false,
+        "owner": "preflight_team_api_owner",
+        "volatility": "v",
+        "parallel_safety": "u",
+        "settings": [
+          "search_path=pg_catalog, pg_temp",
+          "TimeZone=UTC"
+        ]
+      },
+      {
+        "function_name": "_api_command",
+        "security_definer": false,
+        "runtime_execute": false,
+        "owner": "preflight_team_api_owner",
+        "volatility": "v",
+        "parallel_safety": "u",
+        "settings": [
+          "search_path=pg_catalog, pg_temp",
+          "TimeZone=UTC"
+        ]
+      },
+      {
+        "function_name": "_api_stamp",
+        "security_definer": false,
+        "runtime_execute": false,
+        "owner": "preflight_team_api_owner",
+        "volatility": "v",
+        "parallel_safety": "u",
+        "settings": [
+          "search_path=pg_catalog, pg_temp",
+          "TimeZone=UTC"
+        ]
+      },
+      {
+        "function_name": "_api_state",
+        "security_definer": false,
+        "runtime_execute": false,
+        "owner": "preflight_team_api_owner",
+        "volatility": "v",
+        "parallel_safety": "u",
+        "settings": [
+          "search_path=pg_catalog, pg_temp",
+          "TimeZone=UTC"
+        ]
+      },
+      {
+        "function_name": "lock_workspace",
+        "security_definer": true,
+        "runtime_execute": true,
+        "owner": "preflight_team_api_owner",
+        "volatility": "v",
+        "parallel_safety": "u",
+        "settings": [
+          "search_path=pg_catalog, pg_temp",
+          "TimeZone=UTC"
+        ]
+      },
+      {
+        "function_name": "save_workspace",
+        "security_definer": true,
+        "runtime_execute": true,
+        "owner": "preflight_team_api_owner",
+        "volatility": "v",
+        "parallel_safety": "u",
+        "settings": [
+          "search_path=pg_catalog, pg_temp",
+          "TimeZone=UTC"
+        ]
+      }
+    ]
+  },
+  "runtime_connection": {
+    "tool": "Neon run_sql",
+    "credentials_resolved_internally_by_connector": true,
+    "assistant_received_credentials": false,
+    "result": {
+      "database_role": "preflight_runtime",
+      "database_name": "preflight",
+      "schema_usage": true,
+      "schema_create": false,
+      "direct_table_select": false,
+      "direct_table_update": false,
+      "lock_workspace_execute": true,
+      "save_workspace_execute": true
+    }
+  },
+  "logging": {
+    "runtime_pg_settings": [
+      {
+        "name": "log_duration",
+        "setting": "off",
+        "unit": null,
+        "context": "superuser"
+      },
+      {
+        "name": "log_min_duration_sample",
+        "setting": "-1",
+        "unit": "ms",
+        "context": "superuser"
+      },
+      {
+        "name": "log_min_duration_statement",
+        "setting": "-1",
+        "unit": "ms",
+        "context": "superuser"
+      },
+      {
+        "name": "log_parameter_max_length",
+        "setting": "-1",
+        "unit": "B",
+        "context": "superuser"
+      },
+      {
+        "name": "log_parameter_max_length_on_error",
+        "setting": "0",
+        "unit": "B",
+        "context": "user"
+      },
+      {
+        "name": "log_statement",
+        "setting": "none",
+        "unit": null,
+        "context": "superuser"
+      },
+      {
+        "name": "log_statement_sample_rate",
+        "setting": "1",
+        "unit": null,
+        "context": "superuser"
+      },
+      {
+        "name": "log_transaction_sample_rate",
+        "setting": "0",
+        "unit": null,
+        "context": "superuser"
+      }
+    ],
+    "logging_review_required": true,
+    "interpretation": "Normal parameter length is -1; observed statement/duration/sampling logging is disabled and error parameter length is 0. The verifier flag remains true. Provider proxy/audit logging was not inspected or certified."
+  },
+  "completion": {
+    "database_installation_verified": true,
+    "operational_workspace_count": 1,
+    "render_environment_registered_by_assistant": false,
+    "render_connection_verified": false,
+    "public_app_shared_review_verified": false,
+    "independent_human_reviews": 0
+  },
+  "limitations": [
+    "This evidence verifies the Neon DB installation and role boundary, not Render environment configuration or public app persistence.",
+    "No paid model call or synthetic review submission was performed during this installation.",
+    "An active app owner key is preserved in protected private operation files; its value and credential hashes are not part of this public evidence."
+  ]
+}

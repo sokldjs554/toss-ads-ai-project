@@ -42,4 +42,6 @@ Pages의 `stlite.invalid` 요청 실패는 이전 저장 성공과 함께 관측
 
 독립 사람 검수 제출은 **0건**이다. 검수 패킷은 준비됐지만 AI가 사람 대신 제출하지 않는다. 성과 탐지의 개발용 지속 하락 12개 중 7개 미탐도 기존 기록대로 유지한다.
 
-운영 공동 공간도 **0개**이며 `PREFLIGHT_TEAM_DATABASE_URL`을 등록하지 않았다. 새 프로젝트 전용 비밀번호를 Neon에 전달해 지속적인 제한 runtime 계정을 만드는 요청은 앞서 자동 승인 검토에서 거절됐다. [51문장 템플릿과 구체적인 활성화 계획](deployment/team-review-neon-activation.md)은 준비되어 있고, 구체적 승인을 받기 전에는 다른 경로로 재시도하지 않는다.
+2026-10-21 당시 운영 공동 공간은 **0개**였고 `PREFLIGHT_TEAM_DATABASE_URL`을 등록하지 않았다. 원문 DB 비밀번호 전달 요청이 자동 승인 검토에서 거절된 [51문장 준비 기록](deployment/team-review-neon-activation.md)은 보존한다.
+
+**2026-10-22 KST 후속:** 사용자가 제한 runtime을 직접 생성한 뒤, 비밀번호를 읽거나 바꾸지 않는 설치안을 별도로 승인했다. 기존 계정 재사용 50문장을 단일 트랜잭션으로 실행해 운영 공간 **1개**를 만들었고, 사후 읽기 검증·함수 7개·제한 권한·실제 runtime 역할 연결을 확인했다. [실제 설치 증거와 남은 단계](deployment/team-review-neon-existing-runtime-activation.md). Render 연결 정보 등록과 공개 앱 저장 시험은 아직 완료되지 않았으며 독립 사람 검수는 0건이다. 기존 verifier의 로깅 검토 필요 표시는 유지한다.

@@ -122,7 +122,9 @@
 - [별도 wire/API 확인](evals/reports/quality_wire_smoke/README.md): 이미 본 4쌍을 두 순서로 **8회 호출**, 구조·근거 계약 **8/8**, 사용량 기준 **$0.0285105**. 전체 159회 평가를 반복하지 않았으며, 정확도나 사람 평가로 집계하지 않습니다.
 - [병합 후 공개 빌드 `952b78a` 확인](docs/evidence/verified-gaps-20261021/public-final-952b78a/README.md): 실제 Pages·Render의 desktop/mobile에서 기본 TLS로 **242개 검사 통과**, 실패 **0개**. 네 조합 모두 빈 개인 대기열의 최초 load와 새로고침 후 load 응답을 확인했습니다. 원시 진단 로그와 검증 범위도 함께 보존했습니다. [이전 빌드 `7f50da2`의 194개 검사](docs/evidence/verified-gaps-20261021/public-baseline-7f50da2/README.md)는 별도 baseline입니다.
 
-변경과 근거, 배포 후 공개 확인은 [추가 보완 기록](docs/release-verified-gaps-2026-10-21.md)에 모읍니다. 실제 운영 DB 활성화는 기존의 구체적 사용자 승인 대기 상태이며 이번 검사에 포함하지 않습니다.
+변경과 근거, 배포 후 공개 확인은 [추가 보완 기록](docs/release-verified-gaps-2026-10-21.md)에 모읍니다. 위 화면·CI 검사에는 운영 DB 설치가 포함되지 않습니다.
+
+**공동 검수 DB 설치 — 2026-10-22 KST:** 사용자 승인 후 기존 제한 runtime 계정으로 Neon 운영 공간 **1개**를 설치했습니다. 단일 트랜잭션과 별도 읽기 검증에서 함수 **7개**, runtime의 두 공개 함수 실행 권한, 직접 테이블 접근 차단, 실제 runtime 역할 연결을 확인했습니다. [DB 설치 증거와 범위](docs/deployment/team-review-neon-existing-runtime-activation.md). Render 연결 정보 등록과 공개 앱 공동 저장 시험은 아직 완료되지 않았으며, 독립 사람 검수 결과는 **0건**입니다.
 
 **용어 풀이**
 
