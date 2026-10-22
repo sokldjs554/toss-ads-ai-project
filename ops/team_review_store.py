@@ -44,7 +44,9 @@ class PostgresTeamStore:
 
     @classmethod
     def from_env(cls):
-        value = os.environ.get("PREFLIGHT_TEAM_DATABASE_URL", "")
+        # Pasted deployment values may contain outer whitespace/newlines.
+        # Preserve every character inside the URI, including encoded passwords.
+        value = os.environ.get("PREFLIGHT_TEAM_DATABASE_URL", "").strip()
         return cls(value) if value else None
 
     def _connect(self):

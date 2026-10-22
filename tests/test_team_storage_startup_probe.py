@@ -111,3 +111,40 @@ def test_main_always_emits_secret_free_json_and_does_not_fail_app_start():
     assert result == 0
     assert json.loads(out.getvalue())["status"] == "command_not_url"
     assert "SECRET_SENTINEL" not in out.getvalue()
+
+@pytest.mark.parametrize("padding", [" ", "\n", "\r\n", "\t", " \t\r\n"])
+def test_store_trims_only_surrounding_whitespace_without_changing_environment(padding):
+    from ops.team_review_store import PostgresTeamStore
+    value = padding + URL + padding
+    with patch.dict("os.environ", {"PREFLIGHT_TEAM_DATABASE_URL": value}):
+        store = PostgresTeamStore.from_env()
+        assert store._database_url == URL
+        assert store.admin_mode is False
+        assert __import__("os").environ["PREFLIGHT_TEAM_DATABASE_URL"] == value
+
+@pytest.mark.parametrize("value", ["", " ", "\r\n\t"])
+def test_store_treats_whitespace_only_environment_as_unconfigured(value):
+    from ops.team_review_store import PostgresTeamStore
+    with patch.dict("os.environ", {"PREFLIGHT_TEAM_DATABASE_URL": value}):
+        assert PostgresTeamStore.from_env() is None
+
+@pytest.mark.parametrize("value", [URL.replace("SECRET_SENTINEL", "secret%20with%20spaces"), "host=db.example dbname=preflight user=preflight_runtime password='value with spaces'"])
+def test_store_preserves_password_and_internal_connection_parameters(value):
+    from ops.team_review_store import PostgresTeamStore
+    with patch.dict("os.environ", {"PREFLIGHT_TEAM_DATABASE_URL": "\n" + value + "\n"}):
+        assert PostgresTeamStore.from_env()._database_url == value
+
+
+def test_main_checks_the_same_trimmed_url_as_the_app_without_emitting_it():
+    conn = FakeConnection([("preflight", "preflight_runtime"), (True, True), (True, True, False, False)])
+    def connect(value, **kwargs):
+        assert value == URL
+        return conn
+    with patch.dict(sys.modules, {"psycopg": types.SimpleNamespace(connect=connect)}):
+        with patch.dict("os.environ", {"PREFLIGHT_TEAM_DATABASE_URL": " \n" + URL + "\r\n"}):
+            with contextlib.redirect_stdout(io.StringIO()) as out:
+                assert probe.main() == 0
+    report = json.loads(out.getvalue())
+    assert report["status"] == "connection_and_permissions_ok"
+    assert report["outer_whitespace_removed"] is True
+    assert "SECRET_SENTINEL" not in out.getvalue()
