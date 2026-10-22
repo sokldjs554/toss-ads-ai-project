@@ -102,7 +102,9 @@ def diagnose(value: str) -> dict[str, str]:
 
 def main() -> int:
     try:
-        report = diagnose(os.environ.get("PREFLIGHT_TEAM_DATABASE_URL", ""))
+        value = os.environ.get("PREFLIGHT_TEAM_DATABASE_URL", "")
+        report = diagnose(value.strip())
+        report["outer_whitespace_removed"] = value != value.strip()
     except Exception:
         report = _result("probe", "diagnostic_failed")
     print(json.dumps(report, ensure_ascii=True, sort_keys=True), flush=True)
