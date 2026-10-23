@@ -1,0 +1,18 @@
+...F..............                                                       [100%]
+=================================== FAILURES ===================================
+____ test_provider_schema_binds_each_source_to_its_exact_retrieved_passage _____
+
+    def test_provider_schema_binds_each_source_to_its_exact_retrieved_passage():
+        from agents.live_pilot import review_format
+        copy, product = inputs()
+        docs = retrieve(copy, product)
+        schema = review_format(docs)["json_schema"]["schema"]
+        for field,kind in (("policy_citation","policy"),("fact_citation","fact")):
+>           branches=schema["properties"][field]["anyOf"]
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'anyOf'
+
+tests/test_live_pilot_engine.py:70: KeyError
+=========================== short test summary info ============================
+FAILED tests/test_live_pilot_engine.py::test_provider_schema_binds_each_source_to_its_exact_retrieved_passage
+1 failed, 17 passed in 0.44s

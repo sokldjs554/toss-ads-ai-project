@@ -96,12 +96,14 @@ def test_expired_account_cannot_read_or_charge(store):
 def test_durable_user_and_global_reservation_limits(store):
     import psycopg
     from psycopg import sql
-    for token in ("a"*64, "b"*64):
+    with psycopg.connect(store.database_url) as conn:
+        for name, token in (("third", "c"*64), ("fourth", "d"*64)):
+            conn.execute(sql.SQL("INSERT INTO {}.accounts(id,token_hash,kind) VALUES(%s,%s,'automation')").format(sql.Identifier(store.schema)), (name, token_digest(token)))
+    for token in ("a"*64, "b"*64, "c"*64):
         for i in range(6):
             store.begin(token, str(uuid4()), {"path":"rag", "sample":i}, "build123")
             with psycopg.connect(store.database_url) as conn:
                 conn.execute(sql.SQL("UPDATE {}.runs SET created_at=now()-interval '2 minutes'").format(sql.Identifier(store.schema)))
         with pytest.raises(PilotDenied): store.begin(token, str(uuid4()), {"path":"rag", "sample":7}, "build123")
-    with psycopg.connect(store.database_url) as conn:
-        conn.execute(sql.SQL("INSERT INTO {}.accounts(id,token_hash,kind) VALUES('third',%s,'automation')").format(sql.Identifier(store.schema)), (token_digest("c"*64),))
-    with pytest.raises(PilotDenied): store.begin("c"*64, str(uuid4()), {"path":"rag"}, "build123")
+    # 18 reservations total $1.44; the 19th would exceed $1.50.
+    with pytest.raises(PilotDenied): store.begin("d"*64, str(uuid4()), {"path":"rag"}, "build123")

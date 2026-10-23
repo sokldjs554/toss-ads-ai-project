@@ -157,7 +157,7 @@ def render():
             disclosures = st.text_area("LIVE 고지 (한 줄에 한 고지)", key="pilot_disclosures", max_chars=2000)
             facts_text = st.text_area("상품 근거 (한 줄에 한 사실)", key="pilot_facts", max_chars=10000)
             submit = st.form_submit_button("실제 LLM 실행", type="primary")
-        st.caption("요청당 최대 4회 호출·수정 2회·예약 $0.08, 사용자 누적 $0.50·전체 $1.00. 서버의 영속 장부로 중복·한도를 확인합니다.")
+        st.caption("요청당 최대 4회 호출·수정 2회·예약 $0.08, 사용자 누적 $0.50·전체 $1.50. 서버의 영속 장부로 중복·한도를 확인합니다.")
         if submit:
             if not all(x.strip() for x in (headline, body, cta, facts_text)):
                 st.error("제목·본문·버튼·상품 근거를 모두 입력하세요.")

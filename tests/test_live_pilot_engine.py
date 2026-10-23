@@ -39,7 +39,8 @@ def test_rag_requests_two_required_source_kinds_in_strict_provider_schema():
     schema = fmt["json_schema"]["schema"]
     assert {"policy_citation", "fact_citation"} <= set(schema["required"])
     for field,kind in (("policy_citation","policy"),("fact_citation","fact")):
-        assert set(schema["properties"][field]["properties"]["source_id"]["enum"]) == {d["id"] for d in retrieve(copy,product) if d["kind"]==kind}
+        choices = [schema["$defs"][b["$ref"].split("/")[-1]] for b in schema["properties"][field]["anyOf"]]
+        assert {c["properties"]["source_id"]["enum"][0] for c in choices} == {d["id"] for d in retrieve(copy,product) if d["kind"]==kind}
     assert result["status"] == "human_review"
     assert len(result["review"]["citations"]) == 2
 
@@ -59,6 +60,26 @@ def test_failed_structured_review_retains_retrieved_sources_for_authenticated_re
     result = run_workflow("rag", copy, product, lambda **kw: message(raw))
     assert result["status"] == "hold" and result["review"] is None
     assert result["sources"] == retrieve(copy, product)
+
+
+def test_provider_schema_binds_each_source_to_its_exact_retrieved_passage():
+    from agents.live_pilot import review_format
+    copy, product = inputs()
+    docs = retrieve(copy, product)
+    schema = review_format(docs)["json_schema"]["schema"]
+    for field,kind in (("policy_citation","policy"),("fact_citation","fact")):
+        branches=schema["properties"][field]["anyOf"]
+        choices=[schema["$defs"][b["$ref"].split("/")[-1]]["properties"] for b in branches]
+        assert {(c["source_id"]["enum"][0],c["quote"]["enum"][0]) for c in choices} == {(d["id"],d["text"]) for d in docs if d["kind"]==kind}
+
+
+def test_paraphrased_provider_quote_is_not_silently_replaced_with_source_text():
+    copy, product = inputs()
+    raw=structured_answer(retrieve(copy,product))
+    raw["fact_citation"]["quote"]="상품 페이지를 확인해 보세요"
+    result=run_workflow("rag",copy,product,lambda **kw:message(raw))
+    assert result["status"]=="hold" and result["reason"]=="citation_mismatch"
+    assert result["review"] is None
 
 
 def test_retrieval_excludes_unrelated_category_and_includes_triggered_policy():

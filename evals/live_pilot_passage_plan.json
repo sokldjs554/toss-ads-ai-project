@@ -1,0 +1,36 @@
+{
+  "frozen_before_execution": true,
+  "prompt": "live-rag-tools-3",
+  "model": "gpt-4o-mini-2024-07-18",
+  "maximum_new_requests": 2,
+  "maximum_api_calls": 8,
+  "expected_actual_cost_usd_below": 0.02,
+  "request_reservation_usd": 0.08,
+  "global_reservation_cap_usd": 1.5,
+  "account_cap_usd": 0.5,
+  "rationale": "Two bounded probes after v2 citation mismatch. Preserve earlier failures and leave capacity for human use; do not refund old reservations.",
+  "cases": [
+    {
+      "id": "passage-tools-comparison",
+      "account": "automation-primary",
+      "parent": "f0db3262-93ff-45d6-ba37-df3a675e807e",
+      "dataset": "evals/datasets/live_pilot_structured_holdout_20261023.json",
+      "split": "development comparison: formerly v2 heldout, used to diagnose v3; not independent v3 evaluation"
+    },
+    {
+      "id": "passage-rag-new",
+      "account": "automation-secondary",
+      "parent": null,
+      "path": "rag",
+      "headline": "스테인리스 텀블러 안내",
+      "body": "용량 300ml 스테인리스 텀블러를 소개합니다.",
+      "cta": "상품 보기",
+      "facts": [
+        "이 상품은 용량 300ml 스테인리스 텀블러입니다."
+      ],
+      "expected_code": "APPROVE",
+      "split": "new AI-authored synthetic operational probe; not human gold"
+    }
+  ],
+  "acceptance": "Record both outputs before checking: each uses prompt v3 and actual model, bounded calls, exactly one automation audit; RAG reaches verified-source human_review and tools revises/rechecks to APPROVE human_review. Any HOLD remains a failed completion, not a policy accuracy score. No changes to inputs/criteria after results."
+}

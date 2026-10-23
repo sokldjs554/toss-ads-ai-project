@@ -28,6 +28,7 @@ def main():
     parser.add_argument("--verify-only", action="store_true")
     parser.add_argument("--secondary-account", action="store_true")
     parser.add_argument("--expected-prompt")
+    parser.add_argument("--passage-v3", action="store_true")
     args = parser.parse_args()
     if not re.fullmatch(r"[0-9a-f]{40}", args.expected_sha): raise ValueError("full expected commit required")
     key = os.environ.get("OPENAI_API_KEY", "")
@@ -175,6 +176,67 @@ def main():
             check("Pages explicitly separates DEMO from authenticated LIVE server", "DEMO 브라우저 실행판" in demo.inner_text("body") and unquote(demo.get_by_role("link", name="인증된 LIVE 검토 열기", exact=True).get_attribute("href"))==unquote(URL))
             shot(demo,"pages-live-server-link")
             public.close()
+            if args.passage_v3:
+                plan=json.loads((ROOT/"evals/live_pilot_passage_plan.json").read_text())
+                # Exactly the two precommitted probes. Repeated browser runs reuse
+                # the durable same-input result; no revised retry payloads.
+                for index, spec in enumerate(plan["cases"]):
+                    credential=token if index==0 else other
+                    ctx,page=login(credential)
+                    case=json.loads((ROOT/spec["dataset"]).read_text()) if "dataset" in spec else spec
+                    if args.verify_only:
+                        receipts=[]
+                        for rid in listed_ids(page):
+                            open_record(page,rid)
+                            receipt=download(page)
+                            if receipt["prompt_version"]==plan["prompt"]: receipts.append(receipt)
+                        check(spec["id"]+": exactly one persisted v3 receipt",len(receipts)==1)
+                        data=receipts[0]
+                        open_record(page,data["request_id"])
+                    else:
+                        if spec["parent"]:
+                            open_record(page,spec["parent"])
+                            page.get_by_role("button",name="이 문구를 직접 수정하고 재검사",exact=True).click()
+                            page.get_by_label("LIVE 제목",exact=True).wait_for()
+                            expect(page.get_by_label("상품 근거 (한 줄에 한 사실)",exact=True)).to_have_value("\n".join(case["facts"]))
+                        for label,field in (("LIVE 제목","headline"),("LIVE 본문","body"),("LIVE 버튼 문구","cta")):
+                            page.get_by_label(label,exact=True).fill(case[field])
+                        page.get_by_label("LIVE 고지 (한 줄에 한 고지)",exact=True).fill("")
+                        page.get_by_label("상품 근거 (한 줄에 한 사실)",exact=True).fill("\n".join(case["facts"]))
+                        path_label="RAG 정책 검토" if case["path"]=="rag" else "도구 호출 수정·재검사"
+                        page.get_by_text(path_label,exact=True).click()
+                        expect(page.get_by_role("radio",name=path_label,exact=True)).to_be_checked()
+                        for label,expected in (("LIVE 제목",case["headline"]),("LIVE 본문",case["body"]),("LIVE 버튼 문구",case["cta"]),("상품 근거 (한 줄에 한 사실)","\n".join(case["facts"]))):
+                            expect(page.get_by_label(label,exact=True)).to_have_value(expected)
+                        report["phase"]=spec["id"]+":execute"
+                        page.get_by_role("button",name="실제 LLM 실행",exact=True).click()
+                        page.get_by_role("heading",name="저장된 LIVE 검토",exact=True).wait_for(timeout=240000)
+                        data=download(page)
+                        if not page.get_by_text("검토 저장됨",exact=False).count():
+                            select(page,"사람 검토 결과","승인" if data["decision"]=="APPROVE" and data["status"]=="human_review" else "반려")
+                            page.get_by_label("검토 사유",exact=True).fill("고정 합성 사례의 실제 API·자동 브라우저 검증. 사람 참여가 아닙니다.")
+                            page.get_by_role("button",name="검토 결과 저장",exact=True).click()
+                            page.get_by_text("검토 저장됨",exact=False).wait_for()
+                        data=download(page)
+                    report["runs"].append({"case_id":spec["id"],"evaluation_split":spec["split"],**data})
+                    check(spec["id"]+": actual bounded model and prompt",0<data["call_count"]<=4 and data["revisions"]<=2 and data["prompt_version"]==plan["prompt"] and all(c["model"]==plan["model"] for c in data["calls"]))
+                    check(spec["id"]+": frozen original code decision",data["original_code_decision"]==case["expected_code"])
+                    check(spec["id"]+": automation audit exactly once",len(data["audit"])==1 and data["audit"][0]["actor_kind"]=="automation")
+                    shot(page,spec["id"]+"-saved")
+                    ctx.close()
+                    ctx,page=login(credential)
+                    open_record(page,data["request_id"])
+                    again=download(page)
+                    check(spec["id"]+": fresh session preserves receipt without new call",again["calls"]==data["calls"] and again["audit"]==data["audit"])
+                    shot(page,spec["id"]+"-reconnected")
+                    ctx.close()
+                    ctx,page=login(other if index==0 else token)
+                    check(spec["id"]+": other account cannot list receipt",data["request_id"] not in listed_ids(page))
+                    ctx.close()
+                check("RAG v3 source-verified human handoff",any(r["path"]=="rag" and r["status"]=="human_review" for r in report["runs"]))
+                check("tools v3 revised/rechecked APPROVE human handoff",any(r["path"]=="tools" and r["status"]=="human_review" and r["decision"]=="APPROVE" and r["revisions"]>=1 for r in report["runs"]))
+                report["status"]="passed"
+                return 0
             ctx,page=login(token)
             shot(page,"authenticated-home")
             cases=json.loads((ROOT/"evals/datasets/live_pilot_20261023.json").read_text())["cases"]
