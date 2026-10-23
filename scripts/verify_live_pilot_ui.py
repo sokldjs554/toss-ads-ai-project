@@ -75,6 +75,9 @@ def main():
             check("server screen build matches requested commit", "빌드 "+args.expected_sha[:7] in page.inner_text("body"))
             try:
                 report["login_phase"]="waiting_for_access_key_input"
+                page.get_by_label("LIVE 검토 접근키", exact=True).or_(page.get_by_text("LIVE 설정 대기", exact=False)).first.wait_for()
+                if page.get_by_text("LIVE 설정 대기", exact=False).count():
+                    raise RuntimeError("live_configuration_missing")
                 page.get_by_label("LIVE 검토 접근키", exact=True).fill(credential)
                 report["login_phase"]="submitting_access_key"
                 page.get_by_role("button", name="LIVE 검토 접속", exact=True).click()

@@ -5,15 +5,11 @@ on:
     paths: [.github/workflows/live-pilot-readiness.yml]
 permissions:
   contents: read
-  actions: write
+  actions: read
 jobs:
   readiness:
     runs-on: ubuntu-latest
     steps:
-      - name: Cancel superseded pilot browser job stalled before any model calls
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh api --method POST repos/sokldjs554/toss-ads-ai-project/actions/runs/39959335588/cancel || true
       - name: Report bindings only, never credential values
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || secrets.OPEN_API_KEY }}
@@ -34,14 +30,19 @@ jobs:
       - name: Read public LIVE configuration without login or model calls
         run: |
           python - <<'PY'
-          import json, shutil
+          import json, shutil, time
           from playwright.sync_api import sync_playwright
           with sync_playwright() as p:
               browser=p.chromium.launch(executable_path=shutil.which('google-chrome'),headless=True)
               page=browser.new_page()
-              page.goto('https://preflight-toss-ads.onrender.com/?view=LIVE%20검토',wait_until='domcontentloaded',timeout=90000)
-              page.get_by_role('heading',name='LIVE 검토',exact=True).wait_for(timeout=180000)
-              page.wait_for_timeout(3000)
+              deadline=time.monotonic()+300
+              while True:
+                  page.goto('https://preflight-toss-ads.onrender.com/?view=LIVE%20검토',wait_until='domcontentloaded',timeout=90000)
+                  page.get_by_role('heading',name='LIVE 검토',exact=True).wait_for(timeout=180000)
+                  page.wait_for_timeout(3000)
+                  if '빌드 436b1f5' in page.inner_text('body'): break
+                  if time.monotonic()>deadline: raise AssertionError('expected deployment unavailable')
+                  page.wait_for_timeout(10000)
               print(json.dumps({'alerts':page.locator('[data-testid="stAlert"]').all_text_contents(),'labels':page.locator('label').all_text_contents(),'visible_build':page.locator('.pf-topbar').inner_text()},ensure_ascii=False))
               browser.close()
           PY
