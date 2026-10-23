@@ -1,10 +1,10 @@
 {
-  "expected_sha": "b0f110cc48fb3b522f4b6545145b1c34209a5b4a",
-  "verify_only": false,
+  "expected_sha": "b94aadb0d99736a9a6060012e658d1c925663b0f",
+  "verify_only": true,
   "passage_v3": true,
   "passage_plan": "evals/live_pilot_control_plan.json",
   "secondary_account": false,
   "expected_prompt": "live-rag-tools-4",
-  "scope": "Two unchanged frozen server probes after provider-literal fix; failure history preserved; zero human participation",
-  "verification_attempt": 16
+  "scope": "Read-only final redeploy verification; no model Run pressed; preserve all prior automatic records",
+  "verification_attempt": 17
 }
