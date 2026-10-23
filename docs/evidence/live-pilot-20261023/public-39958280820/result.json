@@ -1,0 +1,20 @@
+{
+  "kind": "authenticated-deployed-live-pilot",
+  "expected_sha": "5c7abb8f1b1ffce9d03150bd8528543f9f8e0170",
+  "started_at": "2026-10-23T13:05:23.081821+00:00",
+  "mode": "execute_frozen_inputs",
+  "human_participants": 0,
+  "synthetic": true,
+  "checks": [
+    {
+      "check": "Pages build matches requested commit",
+      "ok": false
+    }
+  ],
+  "runs": [],
+  "screens": [],
+  "status": "failed",
+  "browser": "141.0.7390.37",
+  "error_type": "AssertionError",
+  "finished_at": "2026-10-23T13:05:32.131530+00:00"
+}
