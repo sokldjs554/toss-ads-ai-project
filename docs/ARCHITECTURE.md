@@ -139,4 +139,3 @@ JSON 으로 내보내고 다시 읽어 '재생' 할 수 있다 — 품질 확인
 ## 왜 Streamlit 하나에 다 넣었나
 
 면접관이 `pip install -r requirements.txt && streamlit run app.py` 한 줄로 에이전트의 움직임·가드레일·트레이스·평가를 전부 볼 수 있어야 한다는 요구 때문이다. 계산 코드는 UI 와 분리되어 있어(`ui/` 는 그리기만 한다) FastAPI 등으로 옮기는 데 UI 코드 변경이 필요 없다.
-

@@ -119,7 +119,7 @@ _____________ test_false_fragment_does_not_hide_a_later_real_match _____________
         findings = [f for f in scan(text, {"ecommerce"}) if f.rule_id == RESTRICTED]
 >       assert [(f.quote, f.start, f.end) for f in findings] == [("폰 . 지", 11, 16)]
 E       AssertionError: assert [('폰! 지', 1, .... 지', 11, 16)] == [('폰 . 지', 11, 16)]
-E         
+E
 E         At index 0 diff: ('폰! 지', 1, 5) != ('폰 . 지', 11, 16)
 E         Left contains one more item: ('폰 . 지', 11, 16)
 E         Use -v to get more diff
@@ -172,7 +172,7 @@ tracer = <observability.tracer.Tracer object at 0x7fecd58c34a0>
                                 demo_settings.auto_decision_confidence)
 >       assert result.report.final_decision == rewrite.decision == expected
 E       AssertionError: assert <Decision.REJECT: 'REJECT'> == <Decision.APPROVE: 'APPROVE'>
-E         
+E
 E         - APPROVE
 E         + REJECT
 

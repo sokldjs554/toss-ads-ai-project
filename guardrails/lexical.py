@@ -180,4 +180,3 @@ def strip_spans(text: str, findings: list[Finding]) -> tuple[str, list[str]]:
     out = re.sub(r"\s{2,}", " ", "".join(parts)).strip(" ,.!")
     out = re.sub(r"(,|\.)\s*(,|\.)", r"\1", out)
     return out, removed
-

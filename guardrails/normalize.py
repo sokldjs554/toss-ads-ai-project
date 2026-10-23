@@ -167,4 +167,3 @@ def normalize(original: str) -> Normalized:
 
 def loose_text(s: str) -> str:
     return normalize(s).loose.text
-

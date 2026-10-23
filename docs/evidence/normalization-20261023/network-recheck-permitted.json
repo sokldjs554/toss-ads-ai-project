@@ -1,0 +1,21 @@
+{
+  "time_utc": "2026-10-23T06:21:06.814669+00:00",
+  "proxy_configuration": "unchanged",
+  "network_permission": "enabled",
+  "attempts": [
+    {
+      "url": "https://github.com/sokldjs554/toss-ads-ai-project",
+      "status": 200
+    },
+    {
+      "url": "https://sokldjs554.github.io/toss-ads-ai-project/app/",
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+      "type": "URLError"
+    },
+    {
+      "url": "https://preflight-toss-ads.onrender.com/",
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+      "type": "URLError"
+    }
+  ]
+}

@@ -140,4 +140,3 @@ def test_rewrite_recheck_runs_semantic_review(demo_settings, tracer):
     for r in verified:
         sp = next(s for s in spans if s.attributes.get("decision") == "APPROVE" and s.attributes.get("semantic_decision"))
         assert sp.attributes["semantic_decision"] == "APPROVE"
-

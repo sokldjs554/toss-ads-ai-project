@@ -447,4 +447,3 @@ def test_mock_rate_disclosure_keeps_the_whole_rate_phrase():
     first = _mock_disclosure("loan", [{"text": "금리 연 4.5%~15.0% (심사 결과에 따라 다름)"}])[0]
     assert first == "연 4.5%~15.0% (심사 결과에 따라 다름)"
     assert _mock_disclosure("loan", [{"text": "연 7.9% 고정"}])[0] == "연 7.9%"
-

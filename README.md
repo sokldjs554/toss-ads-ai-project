@@ -499,4 +499,3 @@ Dockerfile · render.yaml   Render 무료 웹 서비스 블루프린트
 3. `guardrails/grounding.py` — 숫자·단위·주기·조건(값·뜻)을 어떻게 대조하는지, 무엇을 확인하지 않는지
 4. `llm/router.py` — 라우팅·fallback·수리·요청 단위 예산
 5. `evals/metrics.py` + `docs/EVALS.md` — 무엇을 재고 왜 그 지표인지, 라벨 변경 이력과 한계
-

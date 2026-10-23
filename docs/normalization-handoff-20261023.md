@@ -8,7 +8,7 @@
 - 보존한 첫 수정: `c7b86b692fe43b64ffeda66c3b567d6fd4512c0a`
 - 정책 버전/리뷰 보완: `ed6e8b9b27cbef6ac217acfa5ef173b167decac0`
 - 이 인계문을 포함하는 후속 커밋: 실제 UI 반려 fixture와 현재 대화 보고서의 정책 지문 보정. 수치·과거 보고서는 보존.
-- 로컬 소스: `/workspace/work/toss-ads-ai-project` (GitHub 연결 도구로 받은 소스; git checkout 아님). 기존 `/workspace`의 다른 작업은 변경하지 않았다.
+- 초기 로컬 소스: `/workspace/work/toss-ads-ai-project` (GitHub 연결 도구로 받은 소스; git checkout 아님). GitHub 접속 복구 뒤 `/workspace/work/verified-checkout`에 실제 clone을 받아 깨끗한 작업 트리와 커밋을 확인했다. 기존 `/workspace`의 다른 작업은 변경하지 않았다.
 - 원본/로그: `/workspace/work/baseline-files.json`, `/workspace/work/evidence/`. 핵심 로그는 `docs/evidence/normalization-20261023/`에도 보존했다.
 
 ## 재현 및 검증 명령
@@ -41,5 +41,7 @@ python scripts/verify_normalization_ui.py --expected-sha FULL_DEPLOYED_COMMIT --
 ```
 
 2026-10-23T06:07:34Z 로컬 `git ls-remote`는 `Failed to connect to proxy port 8080 after 0 ms: Could not connect to server`로 종료 128. 대상 도메인의 HTTP 차단 응답을 받은 것이 아니라 프록시 TCP 연결 단계에서 실패했다. 플랫폼 프록시를 제거하거나 우회하지 않았다. 오류 원문은 `docs/evidence/normalization-20261023/network-error.json`에 있다. GitHub/Render 연결 도구는 동작한다. 브라우저 검증이 실패/미실행이면 전체 수정 완료로 표시하지 않는다.
+
+2026-10-23T06:21:06Z 네트워크 허용을 명시한 재확인에서는 GitHub HTTP 200과 git clone이 가능해졌다. 두 공개 사이트는 `Tunnel connection failed: 403 Forbidden`으로 거절됐다. 이는 앞선 TCP 연결 거부와 구분되는 프록시 터널 단계의 차단이다. `network-recheck-permitted.json`에 URL별 오류를 보존했다. 로컬 공개 접속 실패를 전체 인터넷 장애로 일반화하지 않는다. GitHub Actions의 공개 브라우저 검증 결과를 별도로 확인한다.
 
 수정 원리·한계·동일 입력 전후·지원 문서 사실은 [기술 문서](normalization-boundaries-20261023.md)를 참조한다. 최종 CI 수·배포 SHA·실제 화면 검증 여부는 실행 후 결과로 채워야 하며 과거 4,396개 통과 기록으로 대체하지 않는다.
