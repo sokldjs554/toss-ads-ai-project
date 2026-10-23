@@ -45,6 +45,8 @@
 
 실제 화면: [버전과 모델 설정 부족](evidence/live-pilot-20261023/public-39962633033/live-configuration-missing.png), [Pages의 DEMO/서버 구분](evidence/live-pilot-20261023/public-39962633033/pages-live-server-link.png), [서버 우회 표기 재검사 반려](evidence/live-pilot-20261023/public-39962633033/free-current/server-restricted-recheck.png), [서버 쿠폰 직접 수정 통과](evidence/live-pilot-20261023/public-39962633033/free-current/server-coupon-recheck.png). Chrome 155.0.8059.39, 한글 폰트 설치 후 촬영한 원본이며 합성·이미지 편집으로 만든 화면이 아니다.
 
+후속 문서 배포 `b2ae660`에서도 두 사이트 버전·무료 공개 회귀 51/51은 확인됐다([원본](evidence/live-pilot-20261023/public-39963882976/free-current/result.json)). 다만 [CI 39963684607](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39963684607)은 **4,486 통과 / 1 실패 / pytest skip 0**, 394.23초였다. 운영 문서 첫 문장을 바꾸면서 기존 문서 정직성 검수가 요구하는 ‘실제 서비스의 운영 데이터가 없다’는 명시 문구를 누락했다. 테스트는 유지하고 문구를 복원했다. 실패 뒤 회귀 게이트는 실행되지 않았으므로 해당 CI를 전체 성공으로 표시하지 않는다.
+
 직접 수정 후 자동 검토 저장은 첫 유료 호출 전 `expected_automation_review=edit`으로 고정했다. 기존 입력 문구·정책 기대값은 유지하고 승인/반려 외 ‘수정 필요’ 감사 경로도 확인하려는 자동 동작이다. 이를 실제 사람의 수정 판단으로 집계하지 않는다.
 
 ## 사용자 절차와 범위
