@@ -1,0 +1,30 @@
+{
+  "kind": "authenticated-deployed-live-pilot",
+  "expected_sha": "da250e7769379ee3840678af6ca39f7bbf1d6eab",
+  "started_at": "2026-10-23T15:49:59.013744+00:00",
+  "mode": "execute_frozen_inputs",
+  "human_participants": 0,
+  "synthetic": true,
+  "checks": [
+    {
+      "check": "Pages build matches requested commit",
+      "ok": true
+    },
+    {
+      "check": "Pages explicitly separates DEMO from authenticated LIVE server",
+      "ok": true
+    }
+  ],
+  "runs": [],
+  "screens": [
+    "pages-version-observed.png",
+    "pages-live-server-link.png"
+  ],
+  "status": "failed",
+  "browser": "155.0.8059.39",
+  "pages_observed_builds": [
+    "da250e7"
+  ],
+  "error_type": "TimeoutError",
+  "finished_at": "2026-10-23T15:54:00.856558+00:00"
+}
