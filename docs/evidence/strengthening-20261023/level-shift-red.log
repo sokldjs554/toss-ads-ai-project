@@ -1,0 +1,24 @@
+F.......F                                                                [100%]
+=================================== FAILURES ===================================
+__ test_joint_evidence_recovers_persistent_change_without_assuming_zero_slope __
+
+    def test_joint_evidence_recovers_persistent_change_without_assuming_zero_slope():
+        det = detect(step=.6)
+>       assert det.spans
+E       AssertionError: assert []
+E        +  where [] = MetricDetection(metric='cvr', status='ok', reason='', sigma=0.09500405428698903, mu=-2.7831431751439735, trend=0.0, do...745625437456255, datetime.date(2026, 3, 15): 0.03394660533946606}, comparisons=2016, score_threshold=7.156657128742617).spans
+
+tests/test_insights_level_shift.py:28: AssertionError
+__________________ test_inverse_metric_direction_is_preserved __________________
+
+    def test_inverse_metric_direction_is_preserved():
+        det = detect(metric="cpa", step=.6)
+>       assert det.spans and det.spans[0].direction == "up"
+E       AssertionError: assert ([])
+E        +  where [] = MetricDetection(metric='cpa', status='ok', reason='', sigma=0.09508130780537415, mu=7.389022100506583, trend=0.0, dow=...288.3295194508005, datetime.date(2026, 3, 15): 2949.852507374631}, comparisons=2016, score_threshold=7.156657128742617).spans
+
+tests/test_insights_level_shift.py:49: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_insights_level_shift.py::test_joint_evidence_recovers_persistent_change_without_assuming_zero_slope
+FAILED tests/test_insights_level_shift.py::test_inverse_metric_direction_is_preserved
+2 failed, 7 passed in 0.11s

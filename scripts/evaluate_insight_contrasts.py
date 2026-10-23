@@ -33,7 +33,7 @@ def evaluate(path: Path) -> dict:
         cases.append({"id": case["id"], "family": case["family"], "expected": expected, "outcome": outcome,
                       "status": analysis.status, "reference_window": [d.isoformat() for d in analysis.baseline],
                       "incidents": [{"start": i.start.isoformat(), "end": i.end.isoformat(), "polarity": i.polarity,
-                                     "findings": [{"metric": m, "direction": s.direction, "pct": s.pct, "score": s.score, "segment": s.segment} for m, s in i.findings]} for i in analysis.incidents],
+                                     "findings": [{"metric": m, "direction": s.direction, "pct": s.pct, "score": s.score, "segment": s.segment, "method": getattr(s, "method", "reference_forecast")} for m, s in i.findings]} for i in analysis.incidents],
                       "actions": [a.action_id for a in analysis.actions], "audit_problems": problems})
     return {"input": str(path), "input_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
             "engine_fingerprint": engine_fingerprint(), "commit": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),

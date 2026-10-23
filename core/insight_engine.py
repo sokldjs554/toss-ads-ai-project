@@ -24,6 +24,7 @@ from statistics import median, pstdev
 from typing import Callable, Iterable, Optional
 
 from core.performance import NO_DIM, MetricRow
+from core.insight_shift import fit_shift
 
 # ───────────────────────────── 설정값 (이 프로젝트가 정한 값) ─────────────────────────────
 RECENT_DAYS = 14                 # 살펴볼 최근 기간
@@ -295,6 +296,7 @@ class Span:
     peak_z: float
     days: int
     segment: str = ""         # 소재·기기 같은 묶음 하나에서만 잡힌 변화면 "소재: 소재A1" 꼴 (전체 지표에서 잡힌 것은 빈 문자열)
+    method: str = "reference_forecast"
 
 
 @dataclass
@@ -353,7 +355,9 @@ def detect_metric(metric: str, total: dict, present: set, base_dates: list[dt.da
     """지표 하나의 변화 구간을 찾는다. total 은 날짜 → Counts (전체 또는 묶음 하나)."""
     # 한 보고서에서 더 많은 지표·묶음을 검사할수록 같은 신호에 더 엄격한 기준을 쓴다.
     # 정규 꼬리 상계의 union bound 형태다. 보정된 점수도 실서비스의 유의확률은 아니다.
-    comparisons = max(1, comparisons)
+    # Extended-reference scans test two model classes. Share the existing
+    # comparison budget; neither model gets a cheaper threshold.
+    comparisons = max(1, comparisons) * (2 if include_slope_uncertainty and report_start is not None else 1)
     h_score = math.sqrt(h_score ** 2 + 2 * math.log(comparisons))
     h_single = math.sqrt(h_single ** 2 + 2 * math.log(comparisons))
     det = MetricDetection(metric=metric, status="ok", comparisons=comparisons, score_threshold=h_score)
@@ -474,6 +478,19 @@ def detect_metric(metric: str, total: dict, present: set, base_dates: list[dt.da
                                       peak_z=max(abs(det.z[d]) for d in days), days=(days[-1] - days[0]).days + 1))
         for t in range(i, j + 1):
             work[t] = 0.0
+    if not det.spans and include_slope_uncertainty and report_start is not None:
+        fit = fit_shift(y, base_dates, win_dates, sigma)
+        days = [d for d in win_dates if d in y and d >= report_start]
+        if fit and len(days) >= MIN_WINDOW_DAYS and fit["score"] >= h_score:
+            sign = 1 if fit["shift"] > 0 else -1
+            residuals = [y[d] - fit["expected_log"][d] for d in days]
+            pct = math.exp(sum(residuals)/len(residuals)) - 1
+            if sign*pct >= min_effect and median(sign*r/fit["sigma"] for r in residuals) >= 2:
+                det.sigma, det.trend, det.mu, det.dow = fit["sigma"], fit["slope"], 0.0, fit["intercepts"]
+                det.expected = {d: math.exp(v) for d,v in fit["expected_log"].items()}
+                det.z = {d: (y[d]-fit["expected_log"][d])/fit["sigma"] for d in win_dates if d in y}
+                det.spans.append(Span(days[0], days[-1], "up" if sign > 0 else "down", pct, fit["score"],
+                                      max(abs(det.z[d]) for d in days), (days[-1]-days[0]).days+1, method="joint_level_shift"))
     return det
 
 
@@ -1515,7 +1532,7 @@ def _select_reference(table: Table, base_dates: list[dt.date], win_dates: list[d
         comparisons = series_count * 2 * earlier_count * max(1, math.ceil(scan_intervals / recent_intervals))
         result = _detect_against_reference(table, dates, scan_dates, comparisons,
                                             report_start=win_dates[0], include_slope_uncertainty=True)
-        score = max((s.score / math.sqrt((SEG_H_SCORE if s.segment else H_SCORE) ** 2 + 2 * math.log(comparisons))
+        score = max((s.score / math.sqrt((SEG_H_SCORE if s.segment else H_SCORE) ** 2 + 2 * math.log(2 * comparisons))
                      for _, s in result[2]), default=0.0)
         if score > best_score:
             selected_dates, selected, best_score = dates, result, score
