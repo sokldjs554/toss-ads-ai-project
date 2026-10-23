@@ -15,6 +15,7 @@ from pathlib import Path
 import streamlit as st
 
 from core.config import IN_BROWSER, Settings
+from core.live_access import require_server_access
 from llm.router import Router
 from observability.tracer import Tracer
 from ui import cases, ops_hub, performance_view, quality, theme, workbench
@@ -36,6 +37,11 @@ def make_settings(user_openai_key: str = "", user_anthropic_key: str = "", **ove
 
 def router_factory(settings: Settings, clean: bool = False) -> Router:
     """광고 작업용 라우터. 장애 시뮬레이션은 광고 작업에만 적용한다 (clean=True 면 무시 — 품질 확인의 평가 실행용)."""
+    try:
+        require_server_access(settings, _SERVER, st.session_state.get("live_access_key", ""), os.environ.get("PREFLIGHT_LIVE_ACCESS_TOKEN", ""))
+    except PermissionError:
+        st.error("서버 키로 실제 모델을 실행하려면 운영자가 발급한 모델 실행 접근키가 필요합니다. 예시 실행은 계속 사용할 수 있습니다.")
+        st.stop()
     r = Router(settings, tracer=st.session_state.tracer)
     drill = st.session_state.get("opt_drill", "없음")
     if not clean and drill and drill != "없음":
@@ -86,6 +92,11 @@ if nav is None:
     st.session_state["_nav_reset"] = st.session_state.get("_nav_last", VIEWS[0])
     st.rerun()
 st.session_state["_nav_last"] = nav
+
+if not IN_BROWSER and (SERVER_STATUS["openai"] or SERVER_STATUS["anthropic"]):
+    with st.expander("서버 모델 실행 접근"):
+        st.text_input("모델 실행 접근키", type="password", key="live_access_key", autocomplete="off")
+        st.caption("공동 검수 로그인과 별개입니다. 서버 키 실행만 제한하며 직접 넣은 API 키는 해당 계정 비용을 사용합니다.")
 
 if nav == "광고 작업":
     workbench.render(make_settings, st.session_state.tracer, router_factory, SERVER_STATUS)

@@ -152,9 +152,11 @@ def render(tracer: Tracer) -> None:
     if IN_BROWSER:
         # stlite(브라우저 실행판)에서는 파일 다운로드가 동작하지 않아 JSON 을 그대로 보여 준다.
         with st.expander("처리 기록 JSON (복사용 — 브라우저 실행판은 파일 다운로드 대신 표시)"):
-            st.code(trace.to_json(), language="json")
+            st.code(json.dumps(stored.operational_record(), ensure_ascii=False, indent=2), language="json")
     else:
-        st.download_button("처리 기록 JSON 내보내기", data=stored.to_json(), file_name=f"{stored.trace_id}.json", mime="application/json")   # 파일은 기록 원본 그대로 (화면용 가림은 하지 않음)
+        st.download_button("운영 기록 JSON 내보내기 (원문 제외)", data=json.dumps(stored.operational_record(), ensure_ascii=False, indent=2),
+                           file_name=f"{stored.trace_id}-metrics.json", mime="application/json")
+    st.caption("공유용 운영 기록에는 프롬프트·응답·상품명·오류 원문을 넣지 않습니다. 원문 재생용 파일과 형식이 다릅니다.")
     with st.expander("모델 호출 표"):
         st.dataframe([{"스팬": x.name, "task": x.attributes.get("task"), "provider": x.attributes.get("provider"), "model": x.attributes.get("model"),
                        "체인": " → ".join(x.attributes.get("fallback_chain") or []), "status": x.status, "ms": x.duration_ms,

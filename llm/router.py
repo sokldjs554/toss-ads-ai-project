@@ -23,6 +23,7 @@ from llm.errors import (
     TruncatedOutput,
 )
 from observability.tracer import Tracer, get_tracer
+from llm.spending import SpendingLimit
 
 _TRANSIENT = (Timeout, RateLimited, ProviderError)
 
@@ -100,6 +101,8 @@ class Router:
                  tracer: Optional[Tracer] = None) -> None:
         self.settings = settings
         self.tracer = tracer or get_tracer()
+        self._bound_default_providers = providers is None
+        self.spending = SpendingLimit(settings.run_budget_usd)
         self.providers: dict[str, Provider] = providers if providers is not None else self._default_providers(settings)
         self.breakers: dict[str, CircuitBreaker] = {name: CircuitBreaker() for name in self.providers}
         self.budget = RunBudget(cap_usd=settings.run_budget_usd)
@@ -113,9 +116,9 @@ class Router:
 
         provs: dict[str, Provider] = {}
         if s.has_openai:
-            provs["openai"] = OpenAIProvider(s.openai_api_key, s.openai_model, s.request_timeout_s, s.max_retries)
+            provs["openai"] = OpenAIProvider(s.openai_api_key, s.openai_model, s.request_timeout_s, 0)
         if s.has_anthropic:
-            provs["anthropic"] = AnthropicProvider(s.anthropic_api_key, s.anthropic_model, s.request_timeout_s, s.max_retries)
+            provs["anthropic"] = AnthropicProvider(s.anthropic_api_key, s.anthropic_model, s.request_timeout_s, 0)
         provs["mock"] = MockProvider()  # 항상 마지막 보루 — 단, LIVE 모드에서는 체인에 넣지 않는다
         return provs
 
@@ -126,11 +129,12 @@ class Router:
     def new_run(self) -> None:
         """파이프라인 실행마다 예산을 초기화한다."""
         self.budget = RunBudget(cap_usd=self.settings.run_budget_usd)
+        self.spending = SpendingLimit(self.settings.run_budget_usd)
 
     def chain_for(self, task: Task) -> list[str]:
         chain = [p for p in ROUTING[task] if p in self.providers and self.providers[p].available]
-        if self.mode == Mode.DEMO or not chain:
-            chain.append("mock")
+        if self.mode == Mode.DEMO:
+            return ["mock"]
         return chain
 
     # ------------------------------------------------------------------
@@ -211,18 +215,16 @@ class Router:
                 raise ModelRefusal("simulated refusal", provider=provider.name)
             if kind == "schema":
                 raise SchemaMismatch("simulated invalid json", provider=provider.name, raw_text="{not json")
-        self.budget.attempt()
         try:
             try:
-                resp = provider.complete(req)
+                resp = self._send(provider, req, span)
             except TruncatedOutput:
                 # 잘린 첫 요청도 보낸 요청이고 사용량을 못 받았다 → 실패 요청으로 세고(추정 표시), 재시도는 또 하나의 요청이다
                 self.budget.failed()
-                self.budget.attempt()
                 span.event("truncation_retry", provider=provider.name, max_tokens=req.max_tokens * 2)
                 bigger = LLMRequest(task=req.task, system=req.system, user=req.user, schema=req.schema,
                                     max_tokens=req.max_tokens * 2, temperature=req.temperature, context=req.context, label=req.label, images=req.images)
-                resp = provider.complete(bigger)
+                resp = self._send(provider, bigger, span)
         except BudgetExceeded:
             raise
         except LLMError:
@@ -234,6 +236,20 @@ class Router:
         self.budget.add(resp)
         span.set(budget_attempts=self.budget.attempts, budget_calls=self.budget.calls, budget_spent_usd=round(self.budget.spent_usd, 6))
         return resp
+
+    def _send(self, provider, req, span):
+        reservation = None
+        if self._bound_default_providers and provider.name != "mock":
+            reservation = self.spending.reserve(req, provider.model)
+        self.budget.attempt()
+        try:
+            response = provider.complete(req)
+            if reservation is not None:
+                self.spending.settle(reservation, req, provider.model, response)
+            return response
+        finally:
+            if reservation is not None:
+                span.set(budget_reserved_usd=round(self.spending.accounted, 6), budget_cap_usd=self.spending.cap)
 
     def _try_repair(self, req: LLMRequest, raw_text: str, span, exclude: str) -> Optional[LLMResponse]:
         if req.schema is None or not raw_text.strip():

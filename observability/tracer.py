@@ -120,6 +120,32 @@ class Trace:
             out[s.status] = out.get(s.status, 0) + 1
         return out
 
+    def operational_record(self) -> dict[str, Any]:
+        """Shareable metrics only. Never export prompts, responses, names or errors.
+
+        Full replay remains session-local; this allowlist is the operational
+        export, not a regex attempt to recognize every possible private input.
+        """
+        import re
+
+        def token(value):
+            return value if isinstance(value, str) and re.fullmatch(r"[a-zA-Z0-9_.:-]{1,80}", value) else None
+
+        def selected(source, keys):
+            return {k: token(source[k]) for k in keys if k in source and token(source[k]) is not None}
+
+        metric_keys = ("input_tokens", "output_tokens", "cost_usd", "cost_estimated", "latency_ms", "max_tokens", "confidence", "repaired", "budget_reserved_usd", "budget_cap_usd")
+        spans = []
+        for span in self.spans():
+            spans.append({"span_id": span.span_id, "parent_id": span.parent_id, "kind": span.kind, "status": span.status,
+                          "duration_ms": span.duration_ms,
+                          "attribution": selected(span.attributes, ("task", "provider", "model", "final", "decision", "rewrite_status")),
+                          "metrics": {k: span.attributes[k] for k in metric_keys if type(span.attributes.get(k)) in (int, float, bool)},
+                          "events": [selected(e, ("name", "type", "provider", "reason")) for e in span.events]})
+        return {"schema_version": 1, "trace_id": self.trace_id, "duration_ms": self.duration_ms,
+                "metadata": selected(self.metadata, ("mode", "prompt_version", "policy_version")), "spans": spans,
+                "privacy": "allowlisted operational metrics; raw content omitted"}
+
     # --- 직렬화 -------------------------------------------------------------
     def to_dict(self) -> dict[str, Any]:
         return {

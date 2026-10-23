@@ -147,7 +147,8 @@ def recheck(copy: AdCopy, product: ProductFacts, categories: set[str], settings:
     failures: list[FailureEvent] = []
     review_error = ""
     categories = recheck_categories(catalog, product, copy, categories)
-    with tracer.trace("recheck", product=product.name, variant_id=copy.variant_id, fingerprint=copy_fingerprint(copy), mode=settings.mode.value) as trace:
+    with tracer.trace("recheck", product=product.name, variant_id=copy.variant_id, fingerprint=copy_fingerprint(copy), mode=settings.mode.value,
+                      prompt_version=PROMPT_VERSION, policy_version=catalog.version) as trace:
         with tracer.span("output_guard", kind="guardrail") as span:
             det = output_guard.check(copy, product, categories, landing_text, rejected_history or [], catalog)
             span.set(decision=det.decision.value, findings=[f.model_dump(mode="json") for f in det.findings])
