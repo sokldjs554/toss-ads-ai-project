@@ -1,0 +1,9 @@
+{
+  "id": "manual-edit-recheck-20261023-v1",
+  "provenance": "Frozen synthetic browser edit before paid execution; AI draft operational expectation, not human gold",
+  "parent_case": "rag-normal",
+  "headline": "가을 쿠폰 이용 안내",
+  "expected_code": "APPROVE",
+  "path": "rag",
+  "additional_request_reservation_usd": 0.08
+}
