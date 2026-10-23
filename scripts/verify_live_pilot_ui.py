@@ -91,10 +91,14 @@ def main():
                         shot(page,"server-readiness-failure")
                         raise
                     continue  # Read-only page load, never a provider request retry.
-                if "빌드 "+args.expected_sha[:7] in page.inner_text("body"): break
+                try:
+                    expect(page.locator(".pf-topbar")).to_contain_text(args.expected_sha[:7],timeout=20000)
+                    break
+                except AssertionError:
+                    pass
                 if time.monotonic()>deadline: raise AssertionError("deployed build mismatch")
                 page.wait_for_timeout(15000)
-            check("server screen build matches requested commit", "빌드 "+args.expected_sha[:7] in page.inner_text("body"))
+            check("server screen build matches requested commit", args.expected_sha[:7] in page.locator(".pf-topbar").inner_text())
             try:
                 report["login_phase"]="waiting_for_access_key_input"
                 page.get_by_label("LIVE 검토 접근키", exact=True).or_(page.get_by_text("LIVE 설정 대기", exact=False)).first.wait_for()
@@ -228,7 +232,8 @@ def main():
                 parent_case=next(c for c in cases if c["id"]==manual["parent_case"])
                 expect(page.get_by_label("상품 근거 (한 줄에 한 사실)",exact=True)).to_have_value("\n".join(parent_case["facts"]),timeout=90000)
                 page.get_by_label("LIVE 제목",exact=True).fill(manual["headline"])
-                page.get_by_role("radio",name="RAG 정책 검토",exact=True).check()
+                page.get_by_text("RAG 정책 검토",exact=True).click()
+                expect(page.get_by_role("radio",name="RAG 정책 검토",exact=True)).to_be_checked()
                 page.get_by_role("button",name="실제 LLM 실행",exact=True).click()
                 page.get_by_role("heading",name="저장된 LIVE 검토",exact=True).wait_for(timeout=240000)
                 data=download(page)
@@ -274,7 +279,8 @@ def main():
                 for label,field in (("LIVE 제목","headline"),("LIVE 본문","body"),("LIVE 버튼 문구","cta")):
                     page.get_by_label(label,exact=True).fill(fresh[field])
                 page.get_by_label("상품 근거 (한 줄에 한 사실)",exact=True).fill("\n".join(fresh["facts"]))
-                page.get_by_role("radio",name="도구 호출 수정·재검사",exact=True).check()
+                page.get_by_text("도구 호출 수정·재검사",exact=True).click()
+                expect(page.get_by_role("radio",name="도구 호출 수정·재검사",exact=True)).to_be_checked()
                 page.get_by_role("button",name="실제 LLM 실행",exact=True).click()
                 page.get_by_role("heading",name="저장된 LIVE 검토",exact=True).wait_for(timeout=240000)
                 data=download(page)
