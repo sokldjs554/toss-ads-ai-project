@@ -1,0 +1,12 @@
+{
+  "id": "structured-holdout-minimum-purchase",
+  "provenance": "AI-authored synthetic case frozen before v2 provider execution; not human gold; not used to implement the citation schema change",
+  "path": "tools",
+  "headline": "생활용품 할인 안내",
+  "body": "5,000원 이상 구매 시 5% 할인",
+  "cta": "상품 보기",
+  "facts": ["생활용품은 50,000원 이상 구매 시 5% 할인됩니다."],
+  "expected_code": "REVISE",
+  "expected_workflow": "checked_revision_or_hold",
+  "scoring": "Record provider success separately from citation validation, final code/model decision, bounded revision, and automated audit. A hold is safe failure, not successful completion. No general accuracy estimate from n=1."
+}

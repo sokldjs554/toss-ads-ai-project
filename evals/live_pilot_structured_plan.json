@@ -1,0 +1,16 @@
+{
+  "prompt_version": "live-rag-tools-2",
+  "model": "gpt-4o-mini-2024-07-18",
+  "baseline_build": "da250e7769379ee3840678af6ca39f7bbf1d6eab",
+  "baseline_completed_cases": ["rag-normal", "rag-restricted", "tools-superlative", "tools-number"],
+  "baseline_calls": 8,
+  "comparison": "Same four frozen ad/product inputs, model, temperature, code policy and retrieval. Change structured review format/prompt only. Original failures retained. These inputs are now development comparisons, not independent holdout.",
+  "secondary_automation_account": "Five original frozen inputs, including the previously unexecuted manual edit probe; at most 20 calls and USD 0.40 reservation",
+  "primary_automation_account": "One newly frozen heldout minimum-purchase case; at most 4 calls and USD 0.08 additional reservation",
+  "combined_existing_and_planned_reservation_usd": 0.80,
+  "global_reservation_cap_unchanged_usd": 1.00,
+  "expected_additional_token_cost_usd_less_than": 0.10,
+  "maximum_additional_calls": 24,
+  "human_participants": 0,
+  "no_retries_or_gold_changes_after_results": true
+}

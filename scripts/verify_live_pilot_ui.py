@@ -26,16 +26,20 @@ def main():
     parser.add_argument("--expected-sha", required=True)
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument("--verify-only", action="store_true")
+    parser.add_argument("--secondary-account", action="store_true")
+    parser.add_argument("--expected-prompt")
     args = parser.parse_args()
     if not re.fullmatch(r"[0-9a-f]{40}", args.expected_sha): raise ValueError("full expected commit required")
     key = os.environ.get("OPENAI_API_KEY", "")
     if not key: raise ValueError("configured key required for app authentication derivation")
     token = hmac.new(key.encode(), b"preflight-live-pilot-20261023-automation-v1", hashlib.sha256).hexdigest()
     other = hmac.new(key.encode(), b"preflight-live-pilot-20261023-secondary-v1", hashlib.sha256).hexdigest()
+    if args.secondary_account: token, other = other, token
     args.out.mkdir(parents=True, exist_ok=True)
     report = {"kind":"authenticated-deployed-live-pilot", "expected_sha":args.expected_sha,
               "started_at":datetime.now(timezone.utc).isoformat(), "mode":"verify_only" if args.verify_only else "execute_frozen_inputs",
               "human_participants":0, "synthetic":True, "checks":[], "runs":[], "screens":[], "status":"running"}
+    report["automation_account"] = "secondary" if args.secondary_account else "primary"
 
     def save(): (args.out / "result.json").write_text(json.dumps(report, ensure_ascii=False, indent=2)+"\n")
     def check(label, okay):
@@ -129,6 +133,20 @@ def main():
             (args.out / (data["request_id"]+".json")).write_text(json.dumps(data,ensure_ascii=False,indent=2)+"\n")
             return data
 
+        def listed_ids(page):
+            box=page.get_by_role("combobox",name="내 저장 기록",exact=True)
+            if not box.count(): return []
+            box.press("ArrowDown")
+            page.get_by_role("option").first.wait_for()
+            ids=page.get_by_role("option").all_text_contents()
+            page.keyboard.press("Escape")
+            return ids
+
+        def open_record(page, rid):
+            select(page,"내 저장 기록",rid)
+            page.get_by_role("button",name="선택한 기록 열기",exact=True).click()
+            page.get_by_text(re.compile("실행 빌드 .* 요청 " + re.escape(rid))).wait_for()
+
         try:
             public = browser.new_context(viewport={"width":1440,"height":1100})
             demo = public.new_page()
@@ -169,6 +187,8 @@ def main():
                     report["phase"] = case["id"] + ":export"
                     data=download(page)
                     check(case["id"]+": actual server calls recorded",data["call_count"]>0 and data["mode"]=="LIVE")
+                    if args.expected_prompt:
+                        check(case["id"]+": requested prompt version executed",data["prompt_version"]==args.expected_prompt)
                     check(case["id"]+": original code outcome matches frozen expectation",data["original_code_decision"]==case["expected_code"])
                     check(case["id"]+": bounded calls",data["call_count"]<=4 and data["revisions"]<=2)
                     check(case["id"]+": actual model id and usage ledger",
@@ -189,8 +209,7 @@ def main():
                     save()
                 manual=json.loads((ROOT/"evals/datasets/live_pilot_manual_20261023.json").read_text())
                 parent=next(r for r in report["runs"] if r["case_id"]==manual["parent_case"])
-                select(page,"내 저장 기록",parent["request_id"])
-                page.get_by_role("button",name="선택한 기록 열기",exact=True).click()
+                open_record(page,parent["request_id"])
                 page.get_by_role("button",name="이 문구를 직접 수정하고 재검사",exact=True).click()
                 page.get_by_label("LIVE 제목",exact=True).wait_for()
                 page.get_by_label("LIVE 제목",exact=True).fill(manual["headline"])
@@ -210,14 +229,10 @@ def main():
                 shot(page,"manual-edit-rechecked-saved")
             else:
                 # Read every existing receipt after a deployment; never press Run.
-                options=page.get_by_role("combobox",name="내 저장 기록",exact=True)
-                options.click()
-                ids=page.get_by_role("option").all_text_contents()
-                page.keyboard.press("Escape")
+                ids=listed_ids(page)
                 check("existing persisted runs available",len(ids)>=5)
                 for rid in ids:
-                    select(page,"내 저장 기록",rid)
-                    page.get_by_role("button",name="선택한 기록 열기",exact=True).click()
+                    open_record(page,rid)
                     page.get_by_role("heading",name="저장된 LIVE 검토",exact=True).wait_for()
                     data=download(page)
                     check("persisted audit available after redeploy",bool(data["audit"]))
@@ -234,8 +249,30 @@ def main():
             shot(page,"reconnected-receipt")
             ctx.close()
             ctx,page=login(other)
-            check("second authenticated account cannot list first account records",page.get_by_role("combobox",name="내 저장 기록",exact=True).count()==0)
+            check("second authenticated account cannot list first account records",not (set(listed_ids(page)) & {r["request_id"] for r in report["runs"]}))
             shot(page,"isolated-second-account")
+            if args.secondary_account and not args.verify_only:
+                # Separate, precommitted heldout input, within the other test
+                # account's existing cap. Never change it after seeing output.
+                fresh=json.loads((ROOT/"evals/datasets/live_pilot_structured_holdout_20261023.json").read_text())
+                report["phase"]="heldout:execute"
+                for label,field in (("LIVE 제목","headline"),("LIVE 본문","body"),("LIVE 버튼 문구","cta")):
+                    page.get_by_label(label,exact=True).fill(fresh[field])
+                page.get_by_label("상품 근거 (한 줄에 한 사실)",exact=True).fill("\n".join(fresh["facts"]))
+                page.get_by_role("radio",name="도구 호출 수정·재검사",exact=True).check()
+                page.get_by_role("button",name="실제 LLM 실행",exact=True).click()
+                page.get_by_role("heading",name="저장된 LIVE 검토",exact=True).wait_for(timeout=240000)
+                data=download(page)
+                check("heldout: fixed original code expectation",data["original_code_decision"]==fresh["expected_code"])
+                check("heldout: bounded actual tools and requested prompt",data["path"]=="tools" and 0<data["call_count"]<=4 and data["revisions"]<=2 and data["prompt_version"]==args.expected_prompt)
+                if not page.get_by_text("검토 저장됨",exact=False).count():
+                    select(page,"사람 검토 결과","승인" if data["decision"]=="APPROVE" and data["status"]=="human_review" else "반려")
+                    page.get_by_label("검토 사유",exact=True).fill("별도 고정 합성 사례의 자동 검증이며 사람 판단이 아닙니다.")
+                    page.get_by_role("button",name="검토 결과 저장",exact=True).click()
+                    page.get_by_text("검토 저장됨",exact=False).wait_for()
+                data=download(page)
+                report["runs"].append({"case_id":fresh["id"],"evaluation_split":"heldout",**data})
+                shot(page,"heldout-minimum-purchase-saved")
             ctx.close()
             if not args.verify_only:
                 # Collect all frozen cases and persistence checks even if a

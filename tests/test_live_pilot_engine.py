@@ -21,6 +21,46 @@ def message(content=None, tool_calls=None):
             **({"tool_calls": tool_calls} if tool_calls else {})}
 
 
+def structured_answer(docs):
+    raw = answer(docs)
+    policy, fact = raw.pop("citations")
+    return {**raw, "policy_citation": policy, "fact_citation": fact, "additional_citations": []}
+
+
+def test_rag_requests_two_required_source_kinds_in_strict_provider_schema():
+    copy, product = inputs()
+    seen = []
+    def provider(**kw):
+        seen.append(kw)
+        return message(structured_answer(retrieve(copy, product)))
+    result = run_workflow("rag", copy, product, provider)
+    fmt = seen[0]["response_format"]
+    assert fmt["type"] == "json_schema" and fmt["json_schema"]["strict"] is True
+    schema = fmt["json_schema"]["schema"]
+    assert {"policy_citation", "fact_citation"} <= set(schema["required"])
+    for field,kind in (("policy_citation","policy"),("fact_citation","fact")):
+        assert set(schema["properties"][field]["properties"]["source_id"]["enum"]) == {d["id"] for d in retrieve(copy,product) if d["kind"]==kind}
+    assert result["status"] == "human_review"
+    assert len(result["review"]["citations"]) == 2
+
+
+def test_structured_field_cannot_pass_a_fact_as_policy_evidence():
+    copy, product = inputs()
+    raw = structured_answer(retrieve(copy, product))
+    raw["policy_citation"] = raw["fact_citation"]
+    result = run_workflow("rag", copy, product, lambda **kw: message(raw))
+    assert result["status"] == "hold" and result["reason"] == "citation_kind_mismatch"
+
+
+def test_failed_structured_review_retains_retrieved_sources_for_authenticated_review():
+    copy, product = inputs()
+    raw = structured_answer(retrieve(copy, product))
+    del raw["fact_citation"]
+    result = run_workflow("rag", copy, product, lambda **kw: message(raw))
+    assert result["status"] == "hold" and result["review"] is None
+    assert result["sources"] == retrieve(copy, product)
+
+
 def test_retrieval_excludes_unrelated_category_and_includes_triggered_policy():
     copy, product = inputs("업계 최저 가을 쿠폰")
     docs = retrieve(copy, product)
@@ -45,7 +85,7 @@ def test_source_and_ad_citation_mismatch_fails_closed(mutation):
 
 def test_model_approval_never_overrides_existing_block():
     copy, product = inputs("다! 단 계 영업")
-    result = run_workflow("rag", copy, product, lambda **kw: message(answer(retrieve(copy, product))))
+    result = run_workflow("rag", copy, product, lambda **kw: message(structured_answer(retrieve(copy, product))))
     assert result["code_decision"] == "REJECT"
     assert result["decision"] == "REJECT"
     assert result["status"] == "human_review"
@@ -78,7 +118,7 @@ def test_model_tool_call_runs_real_guardrail_and_returns_result_before_handoff()
             assert kw["messages"][-1]["role"] == "tool"
             assert json.loads(kw["messages"][-1]["content"])["decision"] == "APPROVE"
             return message({"finish": True})
-        return message(answer(retrieve(revised, product)))
+        return message(structured_answer(retrieve(revised, product)))
     result = run_workflow("tools", original, product, provider)
     assert result["status"] == "human_review" and result["decision"] == "APPROVE"
     assert result["revisions"] == 1 and len(calls) == 3

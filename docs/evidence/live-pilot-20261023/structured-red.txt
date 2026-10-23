@@ -1,0 +1,55 @@
+FFF.............                                                         [100%]
+=================================== FAILURES ===================================
+____ test_rag_requests_two_required_source_kinds_in_strict_provider_schema _____
+
+    def test_rag_requests_two_required_source_kinds_in_strict_provider_schema():
+        copy, product = inputs()
+        seen = []
+        def provider(**kw):
+            seen.append(kw)
+            return message(structured_answer(retrieve(copy, product)))
+        result = run_workflow("rag", copy, product, provider)
+        fmt = seen[0]["response_format"]
+>       assert fmt["type"] == "json_schema" and fmt["json_schema"]["strict"] is True
+E       AssertionError: assert ('json_object' == 'json_schema'
+E         
+E         - json_schema
+E         + json_object)
+
+tests/test_live_pilot_engine.py:38: AssertionError
+_________ test_structured_field_cannot_pass_a_fact_as_policy_evidence __________
+
+    def test_structured_field_cannot_pass_a_fact_as_policy_evidence():
+        copy, product = inputs()
+        raw = structured_answer(retrieve(copy, product))
+        raw["policy_citation"] = raw["fact_citation"]
+        result = run_workflow("rag", copy, product, lambda **kw: message(raw))
+>       assert result["status"] == "hold" and result["reason"] == "citation_kind_mismatch"
+E       AssertionError: assert ('hold' == 'hold'
+E         
+E           hold and 'invalid_structure' == 'citation_kind_mismatch'
+E         
+E         - citation_kind_mismatch
+E         + invalid_structure)
+
+tests/test_live_pilot_engine.py:50: AssertionError
+_ test_failed_structured_review_retains_retrieved_sources_for_authenticated_review _
+
+    def test_failed_structured_review_retains_retrieved_sources_for_authenticated_review():
+        copy, product = inputs()
+        raw = structured_answer(retrieve(copy, product))
+        del raw["fact_citation"]
+        result = run_workflow("rag", copy, product, lambda **kw: message(raw))
+        assert result["status"] == "hold" and result["review"] is None
+>       assert result["sources"] == retrieve(copy, product)
+E       AssertionError: assert [] == [{'id': 'TA-O... 2, ...}, ...]
+E         
+E         Right contains 7 more items, first extra item: {'id': 'TA-OMISSION-01', 'kind': 'policy', 'text': '혜택·할인의 조건 생략: 캐시백·할인·무료 등 혜택을 말하면서 적용 조건(대상·기간·한도·기준 상품)을 보여 주지 않는 경우.\n수정 지침: 조건을 같은 소재 안에 읽을 수 있는 크기로 표기', 'score': 3, ...}
+E         Use -v to get more diff
+
+tests/test_live_pilot_engine.py:59: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_live_pilot_engine.py::test_rag_requests_two_required_source_kinds_in_strict_provider_schema
+FAILED tests/test_live_pilot_engine.py::test_structured_field_cannot_pass_a_fact_as_policy_evidence
+FAILED tests/test_live_pilot_engine.py::test_failed_structured_review_retains_retrieved_sources_for_authenticated_review
+3 failed, 13 passed in 0.52s

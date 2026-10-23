@@ -11,9 +11,7 @@
 
 **LIVE 파일럿 보완:** 기존 Streamlit에 `LIVE 검토` 화면을 추가했다. 관련 정책·상품 사실을 검색하고 인용을 대조하는 RAG와, 모델의 실제 `check_policy` 호출을 받는 수정·재검사 경로를 구분한다. 별도 PostgreSQL 시험 공간에 본인 기록·비용 예약·검토 이력을 저장하며, 실제 호출·배포·사람 사용의 확인 범위는 [LIVE 파일럿 기술 장부](docs/live-pilot-20261023.md)에 기록한다. 공개 Pages는 DEMO와 인증된 서버 링크만 제공한다. 구현·자동 검증만으로 실사용 운영을 주장하지 않는다.
 
-**2026-10-23 13:35 UTC 확인 범위:** 배포 `436b1f5`의 CI는 4,487 통과·실패/skip 0. 공개 서버는 저장소 설정이 있으나 모델 연결 설정이 없어 LIVE 실행을 보류했다. 새 파일럿 실제 모델 호출 0회·사람 사용 0명이며, 두 LLM 방식의 실제 서비스 실행 목표는 아직 미완료다. [실측 상태](docs/evidence/live-pilot-20261023/runtime-blocker-1335.json), [사람 사용 준비 절차](docs/live-pilot-human-runbook.md), [ChatGPT Work 사실 검증표](docs/live-pilot-claims.md).
-
-같은 배포의 무료 공개 브라우저 회귀는 [51항목 통과](docs/evidence/live-pilot-20261023/public-39962633033/free-current/result.json). LIVE 검증은 설정 부족으로 중단됐으므로 전체 브라우저 작업을 성공으로 표기하지 않는다. [버전이 표시된 실제 화면](docs/evidence/live-pilot-20261023/public-39962633033/live-configuration-missing.png).
+**실제 LIVE 실행 확인:** 배포 `da250e7`에서 합성 광고 4건·실제 API 8회(입력 8,294/출력 796 tokens, 추정 $0.001722)를 기록했다. 도구 호출·수정·코드 재검사는 실행됐지만 3/4건이 필수 인용 누락으로 보류됐다. 정책/상품 인용을 각각 필수로 받는 구조 보완과 별도 검증을 진행한다. 아직 두 경로의 완료나 사람 사용을 주장하지 않는다. [실제 결과·보완 계획](docs/live-pilot-structured-20261023.md), [사람 절차](docs/live-pilot-human-runbook.md), [주장 검증표](docs/live-pilot-claims.md).
 
 2026-10-23 검증 보강: 지속 하락 탐지 후보는 개발 대조에서 5/12→8/12였지만, 사전 고정한 새 합성 자료에서는 11/24→10/24, 과탐 2/72→3/72로 악화되어 **배포에서 제외**했다. 기존 7/12 미탐은 남아 있다. 대신 LIVE 실패의 DEMO 대체 분기, 호출 전 비용 예약, 서버 키 접근, 원문 없는 운영 기록을 보완했다. 새 정책 대조에서도 규칙/DEMO가 근거 부족 4/16을 통과시키는 한계를 그대로 기록했다. [기술 인계·평가 원본](docs/strengthening-20261023.md), [사람 검수·업무 비교 절차](docs/strengthening-human-protocol-20261023.md), [ChatGPT Work용 주장 검증표](docs/strengthening-claims-20261023.md). **실사용 운영·독립 정책 정답·사람 시간 절감은 미검증**이다.
 
