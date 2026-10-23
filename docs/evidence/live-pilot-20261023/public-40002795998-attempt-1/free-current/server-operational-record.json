@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "trace_id": "tr_3a6d79b78fda",
+  "duration_ms": 4.4,
+  "metadata": {
+    "mode": "demo",
+    "prompt_version": "2026.10.4",
+    "policy_version": "2026.10.7"
+  },
+  "spans": [
+    {
+      "span_id": "f686fca30709",
+      "parent_id": null,
+      "kind": "stage",
+      "status": "ok",
+      "duration_ms": 4.4,
+      "attribution": {},
+      "metrics": {},
+      "events": []
+    },
+    {
+      "span_id": "5e96f96d4b6a",
+      "parent_id": "f686fca30709",
+      "kind": "guardrail",
+      "status": "ok",
+      "duration_ms": 1.2,
+      "attribution": {
+        "decision": "REJECT"
+      },
+      "metrics": {},
+      "events": []
+    },
+    {
+      "span_id": "b7b061445206",
+      "parent_id": "f686fca30709",
+      "kind": "stage",
+      "status": "ok",
+      "duration_ms": 1.7,
+      "attribution": {
+        "decision": "REJECT"
+      },
+      "metrics": {
+        "confidence": 0.93
+      },
+      "events": []
+    },
+    {
+      "span_id": "100ccf59c12e",
+      "parent_id": "b7b061445206",
+      "kind": "llm",
+      "status": "ok",
+      "duration_ms": 0.1,
+      "attribution": {
+        "task": "review",
+        "provider": "mock",
+        "model": "mock"
+      },
+      "metrics": {
+        "input_tokens": 2270,
+        "output_tokens": 145,
+        "cost_usd": 0.0,
+        "cost_estimated": false,
+        "latency_ms": 35.1,
+        "max_tokens": 1800,
+        "repaired": false
+      },
+      "events": []
+    },
+    {
+      "span_id": "09cafe05b8be",
+      "parent_id": "f686fca30709",
+      "kind": "guardrail",
+      "status": "intercepted",
+      "duration_ms": 1.3,
+      "attribution": {
+        "decision": "REJECT"
+      },
+      "metrics": {},
+      "events": [
+        {
+          "name": "semantic_recheck_skipped"
+        }
+      ]
+    },
+    {
+      "span_id": "625010cfd596",
+      "parent_id": "f686fca30709",
+      "kind": "guardrail",
+      "status": "ok",
+      "duration_ms": 0.1,
+      "attribution": {
+        "final": "REJECT",
+        "rewrite_status": "failed_recheck"
+      },
+      "metrics": {},
+      "events": []
+    }
+  ],
+  "privacy": "allowlisted operational metrics; raw content omitted"
+}
