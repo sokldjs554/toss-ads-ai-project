@@ -55,6 +55,10 @@ def main():
         if any(s in text for s in (key, token, other)): raise AssertionError("secret visible")
         if page.get_by_role("heading",name="저장된 LIVE 검토",exact=True).count():
             page.get_by_role("heading",name="저장된 LIVE 검토",exact=True).scroll_into_view_if_needed()
+        if name.endswith("-saved"):
+            details=page.get_by_text("실제 모델 도구 호출과 재검사",exact=True).locator("xpath=ancestor::details")
+            if details.count() and details.get_attribute("open") is None:
+                details.locator("summary").click()
         page.screenshot(path=str(args.out / (name+".png")), full_page=name.endswith("-saved"))
         (args.out / (name+".txt")).write_text(text)
         report["screens"].append(name+".png")
@@ -102,6 +106,9 @@ def main():
                 page.get_by_role("button", name="LIVE 검토 접속", exact=True).click()
                 report["login_phase"]="waiting_for_authenticated_view"
                 page.get_by_role("button", name="LIVE 로그아웃", exact=True).wait_for()
+                # Account history is rendered after a DB read. The input form
+                # follows it, so an early header cannot pass the isolation check.
+                page.get_by_label("LIVE 본문", exact=True).wait_for()
             except Exception:
                 alerts = page.locator('[data-testid="stAlert"]').all_text_contents()
                 report["login_alerts"] = [a for a in alerts if not any(s in a for s in (key,token,other))]
@@ -137,6 +144,7 @@ def main():
             box=page.get_by_role("combobox",name="내 저장 기록",exact=True)
             if not box.count(): return []
             box.press("ArrowDown")
+            box.fill("")
             page.get_by_role("option").first.wait_for()
             ids=page.get_by_role("option").all_text_contents()
             page.keyboard.press("Escape")

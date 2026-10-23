@@ -1,6 +1,8 @@
 {
-  "expected_sha": "da250e7769379ee3840678af6ca39f7bbf1d6eab",
+  "expected_sha": "1fe85eb1260cf3fa7cb19a986cbfdee22711e3f2",
   "verify_only": false,
-  "scope": "Five precommitted synthetic inputs; authenticated Render model calls; no human participation",
-  "verification_attempt": 11
+  "scope": "Structured v2 same-input comparison plus precommitted heldout; separate automation account; no human participation",
+  "secondary_account": true,
+  "expected_prompt": "live-rag-tools-2",
+  "verification_attempt": 12
 }

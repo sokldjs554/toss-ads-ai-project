@@ -1,0 +1,511 @@
+{
+  "scope": "Only isolated automation accounts and frozen synthetic ads; no human data or credentials",
+  "rows": [
+    {
+      "request_id": "2acef965-700d-4e32-b2fe-a38b6e5befad",
+      "account_id": "automation-primary",
+      "created_at": "2026-10-23T16:03:10.610Z",
+      "finished_at": "2026-10-23T16:03:18.507Z",
+      "build": "da250e7769379ee3840678af6ca39f7bbf1d6eab",
+      "reserved_usd": "0.08",
+      "call_count": 1,
+      "payload": {
+        "copy": {
+          "cta": "확인하기",
+          "body": "쿠폰! 지금 이용 조건을 확인하세요",
+          "tone": "",
+          "claims": [],
+          "headline": "가을 쿠폰 안내",
+          "variant_id": "live-input",
+          "disclosures": [],
+          "carried_fact_ids": []
+        },
+        "path": "rag",
+        "parent": null,
+        "product": {
+          "name": "합성 파일럿",
+          "facts": [
+            {
+              "id": "F1",
+              "text": "가을 쿠폰을 제공합니다. 이용 조건은 상품 페이지에서 확인할 수 있습니다."
+            }
+          ],
+          "category": "ecommerce",
+          "landing_url": null,
+          "raw_description": ""
+        }
+      },
+      "result": {
+        "copy": {
+          "cta": "확인하기",
+          "body": "쿠폰! 지금 이용 조건을 확인하세요",
+          "tone": "",
+          "claims": [],
+          "headline": "가을 쿠폰 안내",
+          "variant_id": "live-input",
+          "disclosures": [],
+          "carried_fact_ids": []
+        },
+        "mode": "LIVE",
+        "path": "rag",
+        "reason": "person_review_required",
+        "review": {
+          "reason": "이용 조건이 광고에 명시되어 있지 않음.",
+          "findings": [
+            {
+              "end": 28,
+              "start": 13,
+              "reason": "이용 조건이 광고에 명시되어 있지 않음.",
+              "rule_id": "TA-OMISSION-01",
+              "ad_quote": "지금 이용 조건을 확인하세요"
+            }
+          ],
+          "citations": [
+            {
+              "quote": "혜택·할인의 조건 생략: 캐시백·할인·무료 등 혜택을 말하면서 적용 조건(대상·기간·한도·기준 상품)을 보여 주지 않는 경우.",
+              "source_id": "TA-OMISSION-01"
+            },
+            {
+              "quote": "이용 조건은 상품 페이지에서 확인할 수 있습니다.",
+              "source_id": "fact:F1"
+            }
+          ],
+          "recommendation": "REVISE",
+          "semantic_entailment": "human_review_required",
+          "citation_membership_verified": true
+        },
+        "status": "human_review",
+        "sources": [
+          {
+            "id": "TA-OMISSION-01",
+            "kind": "policy",
+            "text": "혜택·할인의 조건 생략: 캐시백·할인·무료 등 혜택을 말하면서 적용 조건(대상·기간·한도·기준 상품)을 보여 주지 않는 경우.\n수정 지침: 조건을 같은 소재 안에 읽을 수 있는 크기로 표기",
+            "score": 3,
+            "sha256": "1234fece0adb1cea3f7f8ad48c904e5d74e77fa93d75004100c9a57033ee3a57",
+            "section": "공통 심사 정책 › 허위/과장/기만 3·6·11 (조건 미표기, 기준 상품 미표시)",
+            "version": "2026.10.7"
+          },
+          {
+            "id": "FIN-GOV-01",
+            "kind": "policy",
+            "text": "정부·공공기관·제도권 사칭: 정부·공공기관의 지원·보증을 받는 것처럼 오인하게 하는 표현. 광고주 검증 전까지 집행 불가.\n수정 지침: 실제 취급 기관명으로, 정책 상품은 공식 명칭과 조건만",
+            "score": 2,
+            "sha256": "40185bb0d3990c5c03e1aee4be9b7d573b5864e72332c2d7acf77a29d004b02c",
+            "section": "대부업법 제9조의2 · 금융감독원 불법 대부광고 식별 기준 (정부지원·서민금융 사칭)",
+            "version": "2026.10.7"
+          },
+          {
+            "id": "FIN-GUARANTEE-01",
+            "kind": "policy",
+            "text": "원금 보장·손실 없음 표현: 투자·예치 상품에서 원금이 보장되거나 손실이 없다는 인상을 주는 표현. 예금자보호 한도 안내는 별도 고지로만 가능.\n수정 지침: 삭제 후 '원금 손실 가능성' 고지 추가",
+            "score": 2,
+            "sha256": "80b4a8a2ba3ef48a23688ff51e6ff80071ad59d06d712d6bd80a6cc8d6ef866b",
+            "section": "금융소비자보호법 제22조 제3항 (손실보전·이익보장 오인 표현 금지) · 광고 불가 업종 12 (유사수신·원금보장)",
+            "version": "2026.10.7"
+          },
+          {
+            "id": "GRND-COND-01",
+            "kind": "policy",
+            "text": "상품 정보의 조건이 빠짐: 광고가 근거로 쓴 사실에 '~후 자동결제', '심사 결과에 따라', '~원 이상', '~까지', '1인 1회', '제외' 같은 조건이 있는데 광고 문구·고지 어디에도 그 조건이 없음. 코드가 보는 조건 표식은 이 여섯 종류뿐이다.\n수정 지침: 조건을 같은 소재 안에 표기 (예: '7일 무료 체험 후 월 19,900원 자동결제')",
+            "score": 2,
+            "sha256": "350a2e4192a5665a53486dd718c9b9af902203b516eee14c911fc3b6b1e42d68",
+            "section": "프로젝트 규칙 (근거 결합) · 공통 심사 정책 › 허위/과장/기만 3·6 (조건 미표기)",
+            "version": "2026.10.7"
+          },
+          {
+            "id": "GRND-COND-02",
+            "kind": "policy",
+            "text": "상품 정보와 다른 조건: 광고가 같은 종류의 조건을 말하는데 값이 사실과 다르거나(50,000원 이상 ↔ 5,000원 이상, 10월 31일까지 ↔ 11월 30일까지, 1인 1회 ↔ 1인 3회) 뜻이 반대(자동결제 있음 ↔ 자동결제 없음, 이상 ↔ 이하, 심사 결과에 따라 ↔ 무심사)임. 코드가 값·뜻을 비교하는 조건은 자동결제·심사·최소 금액·기간 한정·1인 횟수·제외 여섯 종류뿐이다.\n수정 지침: 사실 목록의 조건 그대로 표기 (예: '50,000원 이상 구매 시', '7일 무료 체험 후 월 19,900원 자동결제')",
+            "score": 2,
+            "sha256": "dbd12c0d1eceab1013cdcbf54bd69f32e01546d6c2523f563305268037b73cf5",
+            "section": "프로젝트 규칙 (근거 결합) · 공통 심사 정책 › 허위/과장/기만 3·6 (조건 변경·반대 표기)",
+            "version": "2026.10.7"
+          },
+          {
+            "id": "TA-LANDING-01",
+            "kind": "policy",
+            "text": "소재↔랜딩 페이지 표현 불일치: 소재의 숫자·혜택·조건이 랜딩 페이지 텍스트에서 확인되지 않음. 의미가 같아도 표현이 다르면 반려될 수 있다.\n수정 지침: 랜딩 페이지에 있는 표현·숫자 그대로 사용",
+            "score": 2,
+            "sha256": "ce867e1c448574caacd18e5f2f7b2683d99ad5d66ee3d8f7c746c5a775af7844",
+            "section": "소재별 심사 정책 › 랜딩 페이지 콘텐츠 규정 1, 공통 › 유저의 사용성 보호 (혜택·랜딩 일치) — 플랫폼이 밝힌 1위 반려 사유",
+            "version": "2026.10.7"
+          },
+          {
+            "id": "fact:F1",
+            "kind": "fact",
+            "text": "가을 쿠폰을 제공합니다. 이용 조건은 상품 페이지에서 확인할 수 있습니다.",
+            "score": 7,
+            "sha256": "bed53699ebf1fd163eb31f48bf9452d2d902150d197d43b6051ce88cd2e34a4e",
+            "version": "input"
+          }
+        ],
+        "decision": "REVISE",
+        "revisions": 0,
+        "tool_checks": [],
+        "code_decision": "APPROVE",
+        "code_findings": [],
+        "policy_version": "2026.10.7",
+        "prompt_version": "live-rag-tools-1",
+        "original_code_decision": "APPROVE"
+      },
+      "review": {
+        "note": "합성 광고 자동 브라우저 검증. 실제 사람 판단이 아닙니다.",
+        "decision": "reject",
+        "actor_kind": "automation"
+      },
+      "calls": [
+        {
+          "model": "gpt-4o-mini-2024-07-18",
+          "stage": "rag",
+          "reason": "",
+          "status": "success",
+          "cost_usd": 0.000364,
+          "sequence": 1,
+          "latency_ms": 4080.2,
+          "started_at": "2026-10-23T16:03:14.109224+00:00",
+          "input_tokens": 1649,
+          "output_tokens": 195,
+          "requested_model": "gpt-4o-mini-2024-07-18"
+        }
+      ]
+    },
+    {
+      "request_id": "63bf14a0-ebba-44fc-8e37-3e3394d06880",
+      "account_id": "automation-primary",
+      "created_at": "2026-10-23T16:11:11.623Z",
+      "finished_at": "2026-10-23T16:11:15.208Z",
+      "build": "da250e7769379ee3840678af6ca39f7bbf1d6eab",
+      "reserved_usd": "0.08",
+      "call_count": 1,
+      "payload": {
+        "copy": {
+          "cta": "확인하기",
+          "body": "지금 참여하세요",
+          "tone": "",
+          "claims": [],
+          "headline": "다! 단 계 영업",
+          "variant_id": "live-input",
+          "disclosures": [],
+          "carried_fact_ids": []
+        },
+        "path": "rag",
+        "parent": null,
+        "product": {
+          "name": "합성 파일럿",
+          "facts": [
+            {
+              "id": "F1",
+              "text": "모집을 안내합니다."
+            }
+          ],
+          "category": "ecommerce",
+          "landing_url": null,
+          "raw_description": ""
+        }
+      },
+      "result": {
+        "copy": {
+          "cta": "확인하기",
+          "body": "지금 참여하세요",
+          "tone": "",
+          "claims": [],
+          "headline": "다! 단 계 영업",
+          "variant_id": "live-input",
+          "disclosures": [],
+          "carried_fact_ids": []
+        },
+        "mode": "LIVE",
+        "path": "rag",
+        "reason": "citation_missing",
+        "review": null,
+        "status": "hold",
+        "sources": [],
+        "decision": "REJECT",
+        "revisions": 0,
+        "tool_checks": [],
+        "code_decision": "REJECT",
+        "code_findings": [
+          {
+            "end": 6,
+            "layer": "lexical",
+            "quote": "다! 단 계",
+            "start": 0,
+            "rule_id": "TA-RESTRICTED-01",
+            "severity": "block",
+            "explanation": "플랫폼에서 집행할 수 없는 업종·행위. 입력 단계에서 바로 중단(hard block). — 표기 변형(띄어쓰기·장식 기호·제로폭·한자)으로 필터 우회 흔적",
+            "verified_quote": true
+          }
+        ],
+        "policy_version": "2026.10.7",
+        "prompt_version": "live-rag-tools-1",
+        "original_code_decision": "REJECT"
+      },
+      "review": {
+        "note": "합성 광고 자동 브라우저 검증. 실제 사람 판단이 아닙니다.",
+        "decision": "reject",
+        "actor_kind": "automation"
+      },
+      "calls": [
+        {
+          "model": "gpt-4o-mini-2024-07-18",
+          "stage": "rag",
+          "reason": "",
+          "status": "success",
+          "cost_usd": 0.000316,
+          "sequence": 1,
+          "latency_ms": 3202.3,
+          "started_at": "2026-10-23T16:11:11.89948+00:00",
+          "input_tokens": 1513,
+          "output_tokens": 148,
+          "requested_model": "gpt-4o-mini-2024-07-18"
+        }
+      ]
+    },
+    {
+      "request_id": "7c255504-d9a3-4b5b-a3df-fe380c045062",
+      "account_id": "automation-primary",
+      "created_at": "2026-10-23T16:11:30.012Z",
+      "finished_at": "2026-10-23T16:11:35.715Z",
+      "build": "da250e7769379ee3840678af6ca39f7bbf1d6eab",
+      "reserved_usd": "0.08",
+      "call_count": 3,
+      "payload": {
+        "copy": {
+          "cta": "확인하기",
+          "body": "쿠폰 이용 조건을 확인하세요",
+          "tone": "",
+          "claims": [],
+          "headline": "업계 최저 가을 쿠폰",
+          "variant_id": "live-input",
+          "disclosures": [],
+          "carried_fact_ids": []
+        },
+        "path": "tools",
+        "parent": null,
+        "product": {
+          "name": "합성 파일럿",
+          "facts": [
+            {
+              "id": "F1",
+              "text": "가을 쿠폰을 제공합니다. 이용 조건은 상품 페이지에서 확인할 수 있습니다."
+            }
+          ],
+          "category": "ecommerce",
+          "landing_url": null,
+          "raw_description": ""
+        }
+      },
+      "result": {
+        "copy": {
+          "cta": "확인하기",
+          "body": "가을 쿠폰을 제공합니다. 이용 조건은 상품 페이지에서 확인할 수 있습니다.",
+          "tone": "",
+          "claims": [],
+          "headline": "가을 쿠폰 제공",
+          "variant_id": "var_36af42dde4",
+          "disclosures": [],
+          "carried_fact_ids": []
+        },
+        "mode": "LIVE",
+        "path": "tools",
+        "reason": "citation_missing",
+        "review": null,
+        "status": "hold",
+        "sources": [],
+        "decision": "HUMAN_REVIEW",
+        "revisions": 1,
+        "tool_checks": [
+          {
+            "copy": {
+              "cta": "확인하기",
+              "body": "가을 쿠폰을 제공합니다. 이용 조건은 상품 페이지에서 확인할 수 있습니다.",
+              "tone": "",
+              "claims": [],
+              "headline": "가을 쿠폰 제공",
+              "variant_id": "var_36af42dde4",
+              "disclosures": [],
+              "carried_fact_ids": []
+            },
+            "decision": "APPROVE",
+            "findings": [],
+            "tool_call_id": "call_7HUqPXSWYlQAVgzsY4PBub0P"
+          }
+        ],
+        "code_decision": "APPROVE",
+        "code_findings": [],
+        "policy_version": "2026.10.7",
+        "prompt_version": "live-rag-tools-1",
+        "original_code_decision": "REVISE"
+      },
+      "review": {
+        "note": "합성 광고 자동 브라우저 검증. 실제 사람 판단이 아닙니다.",
+        "decision": "reject",
+        "actor_kind": "automation"
+      },
+      "calls": [
+        {
+          "model": "gpt-4o-mini-2024-07-18",
+          "stage": "rewrite_tools",
+          "reason": "",
+          "status": "success",
+          "cost_usd": 0.000095,
+          "sequence": 1,
+          "latency_ms": 1585.5,
+          "started_at": "2026-10-23T16:11:30.223766+00:00",
+          "input_tokens": 441,
+          "output_tokens": 48,
+          "requested_model": "gpt-4o-mini-2024-07-18"
+        },
+        {
+          "model": "gpt-4o-mini-2024-07-18",
+          "stage": "rewrite_tools",
+          "reason": "",
+          "status": "success",
+          "cost_usd": 0.00008,
+          "sequence": 2,
+          "latency_ms": 1328.4,
+          "started_at": "2026-10-23T16:11:31.90686+00:00",
+          "input_tokens": 511,
+          "output_tokens": 6,
+          "requested_model": "gpt-4o-mini-2024-07-18"
+        },
+        {
+          "model": "gpt-4o-mini-2024-07-18",
+          "stage": "rag",
+          "reason": "",
+          "status": "success",
+          "cost_usd": 0.000312,
+          "sequence": 3,
+          "latency_ms": 2286.2,
+          "started_at": "2026-10-23T16:11:33.312643+00:00",
+          "input_tokens": 1650,
+          "output_tokens": 108,
+          "requested_model": "gpt-4o-mini-2024-07-18"
+        }
+      ]
+    },
+    {
+      "request_id": "4045790f-c8c9-4e7d-8af7-0f941e2a705b",
+      "account_id": "automation-primary",
+      "created_at": "2026-10-23T16:12:50.215Z",
+      "finished_at": "2026-10-23T16:12:58.328Z",
+      "build": "da250e7769379ee3840678af6ca39f7bbf1d6eab",
+      "reserved_usd": "0.08",
+      "call_count": 3,
+      "payload": {
+        "copy": {
+          "cta": "확인하기",
+          "body": "상품 페이지에서 조건을 확인하세요",
+          "tone": "",
+          "claims": [],
+          "headline": "가을 30% 쿠폰",
+          "variant_id": "live-input",
+          "disclosures": [],
+          "carried_fact_ids": []
+        },
+        "path": "tools",
+        "parent": null,
+        "product": {
+          "name": "합성 파일럿",
+          "facts": [
+            {
+              "id": "F1",
+              "text": "가을 쿠폰 할인율은 10%입니다."
+            }
+          ],
+          "category": "ecommerce",
+          "landing_url": null,
+          "raw_description": ""
+        }
+      },
+      "result": {
+        "copy": {
+          "cta": "확인하기",
+          "body": "상품 페이지에서 조건을 확인하세요",
+          "tone": "",
+          "claims": [],
+          "headline": "가을 10% 쿠폰",
+          "variant_id": "var_c16ef5d442",
+          "disclosures": [],
+          "carried_fact_ids": []
+        },
+        "mode": "LIVE",
+        "path": "tools",
+        "reason": "citation_missing",
+        "review": null,
+        "status": "hold",
+        "sources": [],
+        "decision": "HUMAN_REVIEW",
+        "revisions": 1,
+        "tool_checks": [
+          {
+            "copy": {
+              "cta": "확인하기",
+              "body": "상품 페이지에서 조건을 확인하세요",
+              "tone": "",
+              "claims": [],
+              "headline": "가을 10% 쿠폰",
+              "variant_id": "var_c16ef5d442",
+              "disclosures": [],
+              "carried_fact_ids": []
+            },
+            "decision": "APPROVE",
+            "findings": [],
+            "tool_call_id": "call_eCPjxFA7N58hisfEGAhhRK8t"
+          }
+        ],
+        "code_decision": "APPROVE",
+        "code_findings": [],
+        "policy_version": "2026.10.7",
+        "prompt_version": "live-rag-tools-1",
+        "original_code_decision": "REVISE"
+      },
+      "review": {
+        "note": "합성 광고 자동 브라우저 검증. 실제 사람 판단이 아닙니다.",
+        "decision": "reject",
+        "actor_kind": "automation"
+      },
+      "calls": [
+        {
+          "model": "gpt-4o-mini-2024-07-18",
+          "stage": "rewrite_tools",
+          "reason": "",
+          "status": "success",
+          "cost_usd": 0.000086,
+          "sequence": 1,
+          "latency_ms": 3536,
+          "started_at": "2026-10-23T16:12:50.420997+00:00",
+          "input_tokens": 411,
+          "output_tokens": 40,
+          "requested_model": "gpt-4o-mini-2024-07-18"
+        },
+        {
+          "model": "gpt-4o-mini-2024-07-18",
+          "stage": "rewrite_tools",
+          "reason": "",
+          "status": "success",
+          "cost_usd": 0.000075,
+          "sequence": 2,
+          "latency_ms": 1492,
+          "started_at": "2026-10-23T16:12:54.033491+00:00",
+          "input_tokens": 473,
+          "output_tokens": 6,
+          "requested_model": "gpt-4o-mini-2024-07-18"
+        },
+        {
+          "model": "gpt-4o-mini-2024-07-18",
+          "stage": "rag",
+          "reason": "",
+          "status": "success",
+          "cost_usd": 0.000394,
+          "sequence": 3,
+          "latency_ms": 2635.8,
+          "started_at": "2026-10-23T16:12:55.618629+00:00",
+          "input_tokens": 1646,
+          "output_tokens": 245,
+          "requested_model": "gpt-4o-mini-2024-07-18"
+        }
+      ]
+    }
+  ]
+}
