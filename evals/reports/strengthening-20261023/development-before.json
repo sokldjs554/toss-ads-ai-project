@@ -1,0 +1,896 @@
+{
+  "input": "evals/reports/remaining-20261021/insights-contrasts-before.json",
+  "input_sha256": "d7556b24ced8f407e3403027a5837091bc3f35afa4fe6843f16e2c2ff34027a7",
+  "engine_fingerprint": "d5f751e9070f40f1",
+  "commit": "d48405926713eada260eb81049d1cc4ba2f65f68",
+  "python": "3.12.14",
+  "execution": "deterministic synthetic; no provider calls; not human-reviewed truth",
+  "summary": {
+    "normal": {
+      "n": 12,
+      "tp": 0,
+      "fn": 0,
+      "fp": 0,
+      "tn": 12,
+      "withheld": 0,
+      "audit_problems": 0
+    },
+    "continuing_trend": {
+      "n": 12,
+      "tp": 0,
+      "fn": 0,
+      "fp": 0,
+      "tn": 12,
+      "withheld": 0,
+      "audit_problems": 0
+    },
+    "persistent_local_drop": {
+      "n": 12,
+      "tp": 5,
+      "fn": 7,
+      "fp": 0,
+      "tn": 0,
+      "withheld": 0,
+      "audit_problems": 0
+    },
+    "recovered_before_window": {
+      "n": 12,
+      "tp": 0,
+      "fn": 0,
+      "fp": 0,
+      "tn": 12,
+      "withheld": 0,
+      "audit_problems": 0
+    }
+  },
+  "cases": [
+    {
+      "id": "transition-contrast-00-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-00-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-00-persistent_local_drop",
+      "family": "persistent_local_drop",
+      "expected": true,
+      "outcome": "fn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-00-recovered_before_window",
+      "family": "recovered_before_window",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-01-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-01-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-01-persistent_local_drop",
+      "family": "persistent_local_drop",
+      "expected": true,
+      "outcome": "fn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-01-recovered_before_window",
+      "family": "recovered_before_window",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-02-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-02-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-02-persistent_local_drop",
+      "family": "persistent_local_drop",
+      "expected": true,
+      "outcome": "tp",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-09-27"
+      ],
+      "incidents": [
+        {
+          "start": "2026-10-05",
+          "end": "2026-10-18",
+          "polarity": "worse",
+          "findings": [
+            {
+              "metric": "cvr",
+              "direction": "down",
+              "pct": -0.5657826952402301,
+              "score": 13.88536288726718,
+              "segment": "광고세트 세트C_40대"
+            }
+          ]
+        }
+      ],
+      "actions": [
+        "check_tracking",
+        "check_landing",
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-02-recovered_before_window",
+      "family": "recovered_before_window",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-03-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-03-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-03-persistent_local_drop",
+      "family": "persistent_local_drop",
+      "expected": true,
+      "outcome": "fn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-03-recovered_before_window",
+      "family": "recovered_before_window",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-04-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-04-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-04-persistent_local_drop",
+      "family": "persistent_local_drop",
+      "expected": true,
+      "outcome": "fn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-04-recovered_before_window",
+      "family": "recovered_before_window",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-05-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-05-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-05-persistent_local_drop",
+      "family": "persistent_local_drop",
+      "expected": true,
+      "outcome": "tp",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-09-25"
+      ],
+      "incidents": [
+        {
+          "start": "2026-10-05",
+          "end": "2026-10-18",
+          "polarity": "worse",
+          "findings": [
+            {
+              "metric": "cvr",
+              "direction": "down",
+              "pct": -0.5027416841737784,
+              "score": 10.36172706227418,
+              "segment": "광고세트 세트C_40대"
+            }
+          ]
+        }
+      ],
+      "actions": [
+        "check_landing",
+        "pause"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-05-recovered_before_window",
+      "family": "recovered_before_window",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-06-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-06-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-06-persistent_local_drop",
+      "family": "persistent_local_drop",
+      "expected": true,
+      "outcome": "fn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-06-recovered_before_window",
+      "family": "recovered_before_window",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-07-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-07-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-07-persistent_local_drop",
+      "family": "persistent_local_drop",
+      "expected": true,
+      "outcome": "tp",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-09-26"
+      ],
+      "incidents": [
+        {
+          "start": "2026-10-05",
+          "end": "2026-10-18",
+          "polarity": "worse",
+          "findings": [
+            {
+              "metric": "cvr",
+              "direction": "down",
+              "pct": -0.50062153072211,
+              "score": 9.482111689931822,
+              "segment": "광고세트 세트B_30대"
+            }
+          ]
+        }
+      ],
+      "actions": [
+        "check_landing",
+        "pause"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-07-recovered_before_window",
+      "family": "recovered_before_window",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-08-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-08-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-08-persistent_local_drop",
+      "family": "persistent_local_drop",
+      "expected": true,
+      "outcome": "tp",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-02"
+      ],
+      "incidents": [
+        {
+          "start": "2026-10-05",
+          "end": "2026-10-18",
+          "polarity": "worse",
+          "findings": [
+            {
+              "metric": "cvr",
+              "direction": "down",
+              "pct": -0.5195655486339463,
+              "score": 7.67932933994368,
+              "segment": "광고세트 세트C_40대"
+            }
+          ]
+        }
+      ],
+      "actions": [
+        "check_landing",
+        "pause"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-08-recovered_before_window",
+      "family": "recovered_before_window",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-09-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-09-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-09-persistent_local_drop",
+      "family": "persistent_local_drop",
+      "expected": true,
+      "outcome": "fn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-09-recovered_before_window",
+      "family": "recovered_before_window",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-10-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-10-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-10-persistent_local_drop",
+      "family": "persistent_local_drop",
+      "expected": true,
+      "outcome": "tp",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-09-24"
+      ],
+      "incidents": [
+        {
+          "start": "2026-10-05",
+          "end": "2026-10-18",
+          "polarity": "worse",
+          "findings": [
+            {
+              "metric": "cvr",
+              "direction": "down",
+              "pct": -0.4950849717572423,
+              "score": 7.180039612309831,
+              "segment": "광고세트 세트B_30대"
+            }
+          ]
+        }
+      ],
+      "actions": [
+        "check_landing"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-10-recovered_before_window",
+      "family": "recovered_before_window",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-11-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-11-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-11-persistent_local_drop",
+      "family": "persistent_local_drop",
+      "expected": true,
+      "outcome": "fn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "transition-contrast-11-recovered_before_window",
+      "family": "recovered_before_window",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    }
+  ]
+}

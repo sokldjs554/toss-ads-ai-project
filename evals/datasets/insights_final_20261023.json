@@ -1,0 +1,3366 @@
+{
+  "purpose": "AI-authored synthetic final-check set, same generator; not independent human truth. Frozen before implementation/results. Do not tune on results. Recovered and continuing trends are no-new-event controls, not proof that performance is healthy.",
+  "scoring": "Any incident overlapping recent window; TP/FN on 24 persistent drops; FP/TN on 72 controls. Report withheld and report audit separately.",
+  "cases": [
+    {
+      "id": "final23-00-normal",
+      "family": "normal",
+      "spec": {
+        "scenario_id": "final23-00-normal",
+        "seed": 932300,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 0.65,
+        "dow_amp": 0.7,
+        "trend_per_day": -0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-00-persistent_drop",
+      "family": "persistent_drop",
+      "spec": {
+        "scenario_id": "final23-00-persistent_drop",
+        "seed": 932300,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 0.65,
+        "dow_amp": 0.7,
+        "trend_per_day": -0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 17,
+            "end": null,
+            "params": {
+              "ad_set_index": 0,
+              "depth": 0.35
+            }
+          }
+        ]
+      },
+      "expect_recent_event": true
+    },
+    {
+      "id": "final23-00-recovered",
+      "family": "recovered",
+      "spec": {
+        "scenario_id": "final23-00-recovered",
+        "seed": 932300,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 0.65,
+        "dow_amp": 0.7,
+        "trend_per_day": -0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 17,
+            "end": 27,
+            "params": {
+              "ad_set_index": 0,
+              "depth": 0.35
+            }
+          }
+        ]
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-00-continuing_trend",
+      "family": "continuing_trend",
+      "spec": {
+        "scenario_id": "final23-00-continuing_trend",
+        "seed": 932300,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 0.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0.009,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-01-normal",
+      "family": "normal",
+      "spec": {
+        "scenario_id": "final23-01-normal",
+        "seed": 932301,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.05,
+        "dow_amp": 1.5,
+        "trend_per_day": 0,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-01-persistent_drop",
+      "family": "persistent_drop",
+      "spec": {
+        "scenario_id": "final23-01-persistent_drop",
+        "seed": 932301,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.05,
+        "dow_amp": 1.5,
+        "trend_per_day": 0,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 19,
+            "end": null,
+            "params": {
+              "ad_set_index": 1,
+              "depth": 0.5
+            }
+          }
+        ]
+      },
+      "expect_recent_event": true
+    },
+    {
+      "id": "final23-01-recovered",
+      "family": "recovered",
+      "spec": {
+        "scenario_id": "final23-01-recovered",
+        "seed": 932301,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.05,
+        "dow_amp": 1.5,
+        "trend_per_day": 0,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 19,
+            "end": 27,
+            "params": {
+              "ad_set_index": 1,
+              "depth": 0.5
+            }
+          }
+        ]
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-01-continuing_trend",
+      "family": "continuing_trend",
+      "spec": {
+        "scenario_id": "final23-01-continuing_trend",
+        "seed": 932301,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.05,
+        "dow_amp": 1.5,
+        "trend_per_day": -0.009,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-02-normal",
+      "family": "normal",
+      "spec": {
+        "scenario_id": "final23-02-normal",
+        "seed": 932302,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-02-persistent_drop",
+      "family": "persistent_drop",
+      "spec": {
+        "scenario_id": "final23-02-persistent_drop",
+        "seed": 932302,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 23,
+            "end": null,
+            "params": {
+              "ad_set_index": 2,
+              "depth": 0.65
+            }
+          }
+        ]
+      },
+      "expect_recent_event": true
+    },
+    {
+      "id": "final23-02-recovered",
+      "family": "recovered",
+      "spec": {
+        "scenario_id": "final23-02-recovered",
+        "seed": 932302,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 23,
+            "end": 27,
+            "params": {
+              "ad_set_index": 2,
+              "depth": 0.65
+            }
+          }
+        ]
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-02-continuing_trend",
+      "family": "continuing_trend",
+      "spec": {
+        "scenario_id": "final23-02-continuing_trend",
+        "seed": 932302,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0.009,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-03-normal",
+      "family": "normal",
+      "spec": {
+        "scenario_id": "final23-03-normal",
+        "seed": 932303,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 2.1,
+        "dow_amp": 1.5,
+        "trend_per_day": -0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-03-persistent_drop",
+      "family": "persistent_drop",
+      "spec": {
+        "scenario_id": "final23-03-persistent_drop",
+        "seed": 932303,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 2.1,
+        "dow_amp": 1.5,
+        "trend_per_day": -0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 17,
+            "end": null,
+            "params": {
+              "ad_set_index": 1,
+              "depth": 0.35
+            }
+          }
+        ]
+      },
+      "expect_recent_event": true
+    },
+    {
+      "id": "final23-03-recovered",
+      "family": "recovered",
+      "spec": {
+        "scenario_id": "final23-03-recovered",
+        "seed": 932303,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 2.1,
+        "dow_amp": 1.5,
+        "trend_per_day": -0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 17,
+            "end": 27,
+            "params": {
+              "ad_set_index": 1,
+              "depth": 0.35
+            }
+          }
+        ]
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-03-continuing_trend",
+      "family": "continuing_trend",
+      "spec": {
+        "scenario_id": "final23-03-continuing_trend",
+        "seed": 932303,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 2.1,
+        "dow_amp": 1.5,
+        "trend_per_day": -0.009,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-04-normal",
+      "family": "normal",
+      "spec": {
+        "scenario_id": "final23-04-normal",
+        "seed": 932304,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 0.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-04-persistent_drop",
+      "family": "persistent_drop",
+      "spec": {
+        "scenario_id": "final23-04-persistent_drop",
+        "seed": 932304,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 0.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 19,
+            "end": null,
+            "params": {
+              "ad_set_index": 1,
+              "depth": 0.5
+            }
+          }
+        ]
+      },
+      "expect_recent_event": true
+    },
+    {
+      "id": "final23-04-recovered",
+      "family": "recovered",
+      "spec": {
+        "scenario_id": "final23-04-recovered",
+        "seed": 932304,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 0.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 19,
+            "end": 27,
+            "params": {
+              "ad_set_index": 1,
+              "depth": 0.5
+            }
+          }
+        ]
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-04-continuing_trend",
+      "family": "continuing_trend",
+      "spec": {
+        "scenario_id": "final23-04-continuing_trend",
+        "seed": 932304,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 0.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0.009,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-05-normal",
+      "family": "normal",
+      "spec": {
+        "scenario_id": "final23-05-normal",
+        "seed": 932305,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.05,
+        "dow_amp": 1.5,
+        "trend_per_day": 0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-05-persistent_drop",
+      "family": "persistent_drop",
+      "spec": {
+        "scenario_id": "final23-05-persistent_drop",
+        "seed": 932305,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.05,
+        "dow_amp": 1.5,
+        "trend_per_day": 0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 23,
+            "end": null,
+            "params": {
+              "ad_set_index": 1,
+              "depth": 0.65
+            }
+          }
+        ]
+      },
+      "expect_recent_event": true
+    },
+    {
+      "id": "final23-05-recovered",
+      "family": "recovered",
+      "spec": {
+        "scenario_id": "final23-05-recovered",
+        "seed": 932305,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.05,
+        "dow_amp": 1.5,
+        "trend_per_day": 0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 23,
+            "end": 27,
+            "params": {
+              "ad_set_index": 1,
+              "depth": 0.65
+            }
+          }
+        ]
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-05-continuing_trend",
+      "family": "continuing_trend",
+      "spec": {
+        "scenario_id": "final23-05-continuing_trend",
+        "seed": 932305,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.05,
+        "dow_amp": 1.5,
+        "trend_per_day": -0.009,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-06-normal",
+      "family": "normal",
+      "spec": {
+        "scenario_id": "final23-06-normal",
+        "seed": 932306,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.65,
+        "dow_amp": 0.7,
+        "trend_per_day": -0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-06-persistent_drop",
+      "family": "persistent_drop",
+      "spec": {
+        "scenario_id": "final23-06-persistent_drop",
+        "seed": 932306,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.65,
+        "dow_amp": 0.7,
+        "trend_per_day": -0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 17,
+            "end": null,
+            "params": {
+              "ad_set_index": 0,
+              "depth": 0.35
+            }
+          }
+        ]
+      },
+      "expect_recent_event": true
+    },
+    {
+      "id": "final23-06-recovered",
+      "family": "recovered",
+      "spec": {
+        "scenario_id": "final23-06-recovered",
+        "seed": 932306,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.65,
+        "dow_amp": 0.7,
+        "trend_per_day": -0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 17,
+            "end": 27,
+            "params": {
+              "ad_set_index": 0,
+              "depth": 0.35
+            }
+          }
+        ]
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-06-continuing_trend",
+      "family": "continuing_trend",
+      "spec": {
+        "scenario_id": "final23-06-continuing_trend",
+        "seed": 932306,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0.009,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-07-normal",
+      "family": "normal",
+      "spec": {
+        "scenario_id": "final23-07-normal",
+        "seed": 932307,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 2.1,
+        "dow_amp": 1.5,
+        "trend_per_day": 0,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-07-persistent_drop",
+      "family": "persistent_drop",
+      "spec": {
+        "scenario_id": "final23-07-persistent_drop",
+        "seed": 932307,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 2.1,
+        "dow_amp": 1.5,
+        "trend_per_day": 0,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 19,
+            "end": null,
+            "params": {
+              "ad_set_index": 1,
+              "depth": 0.5
+            }
+          }
+        ]
+      },
+      "expect_recent_event": true
+    },
+    {
+      "id": "final23-07-recovered",
+      "family": "recovered",
+      "spec": {
+        "scenario_id": "final23-07-recovered",
+        "seed": 932307,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 2.1,
+        "dow_amp": 1.5,
+        "trend_per_day": 0,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 19,
+            "end": 27,
+            "params": {
+              "ad_set_index": 1,
+              "depth": 0.5
+            }
+          }
+        ]
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-07-continuing_trend",
+      "family": "continuing_trend",
+      "spec": {
+        "scenario_id": "final23-07-continuing_trend",
+        "seed": 932307,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 2.1,
+        "dow_amp": 1.5,
+        "trend_per_day": -0.009,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-08-normal",
+      "family": "normal",
+      "spec": {
+        "scenario_id": "final23-08-normal",
+        "seed": 932308,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 0.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-08-persistent_drop",
+      "family": "persistent_drop",
+      "spec": {
+        "scenario_id": "final23-08-persistent_drop",
+        "seed": 932308,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 0.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 23,
+            "end": null,
+            "params": {
+              "ad_set_index": 0,
+              "depth": 0.65
+            }
+          }
+        ]
+      },
+      "expect_recent_event": true
+    },
+    {
+      "id": "final23-08-recovered",
+      "family": "recovered",
+      "spec": {
+        "scenario_id": "final23-08-recovered",
+        "seed": 932308,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 0.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 23,
+            "end": 27,
+            "params": {
+              "ad_set_index": 0,
+              "depth": 0.65
+            }
+          }
+        ]
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-08-continuing_trend",
+      "family": "continuing_trend",
+      "spec": {
+        "scenario_id": "final23-08-continuing_trend",
+        "seed": 932308,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 0.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0.009,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-09-normal",
+      "family": "normal",
+      "spec": {
+        "scenario_id": "final23-09-normal",
+        "seed": 932309,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.05,
+        "dow_amp": 1.5,
+        "trend_per_day": -0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-09-persistent_drop",
+      "family": "persistent_drop",
+      "spec": {
+        "scenario_id": "final23-09-persistent_drop",
+        "seed": 932309,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.05,
+        "dow_amp": 1.5,
+        "trend_per_day": -0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 17,
+            "end": null,
+            "params": {
+              "ad_set_index": 1,
+              "depth": 0.35
+            }
+          }
+        ]
+      },
+      "expect_recent_event": true
+    },
+    {
+      "id": "final23-09-recovered",
+      "family": "recovered",
+      "spec": {
+        "scenario_id": "final23-09-recovered",
+        "seed": 932309,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.05,
+        "dow_amp": 1.5,
+        "trend_per_day": -0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 17,
+            "end": 27,
+            "params": {
+              "ad_set_index": 1,
+              "depth": 0.35
+            }
+          }
+        ]
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-09-continuing_trend",
+      "family": "continuing_trend",
+      "spec": {
+        "scenario_id": "final23-09-continuing_trend",
+        "seed": 932309,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.05,
+        "dow_amp": 1.5,
+        "trend_per_day": -0.009,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-10-normal",
+      "family": "normal",
+      "spec": {
+        "scenario_id": "final23-10-normal",
+        "seed": 932310,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-10-persistent_drop",
+      "family": "persistent_drop",
+      "spec": {
+        "scenario_id": "final23-10-persistent_drop",
+        "seed": 932310,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 19,
+            "end": null,
+            "params": {
+              "ad_set_index": 1,
+              "depth": 0.5
+            }
+          }
+        ]
+      },
+      "expect_recent_event": true
+    },
+    {
+      "id": "final23-10-recovered",
+      "family": "recovered",
+      "spec": {
+        "scenario_id": "final23-10-recovered",
+        "seed": 932310,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 19,
+            "end": 27,
+            "params": {
+              "ad_set_index": 1,
+              "depth": 0.5
+            }
+          }
+        ]
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-10-continuing_trend",
+      "family": "continuing_trend",
+      "spec": {
+        "scenario_id": "final23-10-continuing_trend",
+        "seed": 932310,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0.009,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-11-normal",
+      "family": "normal",
+      "spec": {
+        "scenario_id": "final23-11-normal",
+        "seed": 932311,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 2.1,
+        "dow_amp": 1.5,
+        "trend_per_day": 0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-11-persistent_drop",
+      "family": "persistent_drop",
+      "spec": {
+        "scenario_id": "final23-11-persistent_drop",
+        "seed": 932311,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 2.1,
+        "dow_amp": 1.5,
+        "trend_per_day": 0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 23,
+            "end": null,
+            "params": {
+              "ad_set_index": 3,
+              "depth": 0.65
+            }
+          }
+        ]
+      },
+      "expect_recent_event": true
+    },
+    {
+      "id": "final23-11-recovered",
+      "family": "recovered",
+      "spec": {
+        "scenario_id": "final23-11-recovered",
+        "seed": 932311,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 2.1,
+        "dow_amp": 1.5,
+        "trend_per_day": 0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 23,
+            "end": 27,
+            "params": {
+              "ad_set_index": 3,
+              "depth": 0.65
+            }
+          }
+        ]
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-11-continuing_trend",
+      "family": "continuing_trend",
+      "spec": {
+        "scenario_id": "final23-11-continuing_trend",
+        "seed": 932311,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 2.1,
+        "dow_amp": 1.5,
+        "trend_per_day": -0.009,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-12-normal",
+      "family": "normal",
+      "spec": {
+        "scenario_id": "final23-12-normal",
+        "seed": 932312,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 0.65,
+        "dow_amp": 0.7,
+        "trend_per_day": -0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-12-persistent_drop",
+      "family": "persistent_drop",
+      "spec": {
+        "scenario_id": "final23-12-persistent_drop",
+        "seed": 932312,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 0.65,
+        "dow_amp": 0.7,
+        "trend_per_day": -0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 17,
+            "end": null,
+            "params": {
+              "ad_set_index": 0,
+              "depth": 0.35
+            }
+          }
+        ]
+      },
+      "expect_recent_event": true
+    },
+    {
+      "id": "final23-12-recovered",
+      "family": "recovered",
+      "spec": {
+        "scenario_id": "final23-12-recovered",
+        "seed": 932312,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 0.65,
+        "dow_amp": 0.7,
+        "trend_per_day": -0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 17,
+            "end": 27,
+            "params": {
+              "ad_set_index": 0,
+              "depth": 0.35
+            }
+          }
+        ]
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-12-continuing_trend",
+      "family": "continuing_trend",
+      "spec": {
+        "scenario_id": "final23-12-continuing_trend",
+        "seed": 932312,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 0.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0.009,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-13-normal",
+      "family": "normal",
+      "spec": {
+        "scenario_id": "final23-13-normal",
+        "seed": 932313,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.05,
+        "dow_amp": 1.5,
+        "trend_per_day": 0,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-13-persistent_drop",
+      "family": "persistent_drop",
+      "spec": {
+        "scenario_id": "final23-13-persistent_drop",
+        "seed": 932313,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.05,
+        "dow_amp": 1.5,
+        "trend_per_day": 0,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 19,
+            "end": null,
+            "params": {
+              "ad_set_index": 1,
+              "depth": 0.5
+            }
+          }
+        ]
+      },
+      "expect_recent_event": true
+    },
+    {
+      "id": "final23-13-recovered",
+      "family": "recovered",
+      "spec": {
+        "scenario_id": "final23-13-recovered",
+        "seed": 932313,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.05,
+        "dow_amp": 1.5,
+        "trend_per_day": 0,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 19,
+            "end": 27,
+            "params": {
+              "ad_set_index": 1,
+              "depth": 0.5
+            }
+          }
+        ]
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-13-continuing_trend",
+      "family": "continuing_trend",
+      "spec": {
+        "scenario_id": "final23-13-continuing_trend",
+        "seed": 932313,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.05,
+        "dow_amp": 1.5,
+        "trend_per_day": -0.009,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-14-normal",
+      "family": "normal",
+      "spec": {
+        "scenario_id": "final23-14-normal",
+        "seed": 932314,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-14-persistent_drop",
+      "family": "persistent_drop",
+      "spec": {
+        "scenario_id": "final23-14-persistent_drop",
+        "seed": 932314,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 23,
+            "end": null,
+            "params": {
+              "ad_set_index": 2,
+              "depth": 0.65
+            }
+          }
+        ]
+      },
+      "expect_recent_event": true
+    },
+    {
+      "id": "final23-14-recovered",
+      "family": "recovered",
+      "spec": {
+        "scenario_id": "final23-14-recovered",
+        "seed": 932314,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 23,
+            "end": 27,
+            "params": {
+              "ad_set_index": 2,
+              "depth": 0.65
+            }
+          }
+        ]
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-14-continuing_trend",
+      "family": "continuing_trend",
+      "spec": {
+        "scenario_id": "final23-14-continuing_trend",
+        "seed": 932314,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0.009,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-15-normal",
+      "family": "normal",
+      "spec": {
+        "scenario_id": "final23-15-normal",
+        "seed": 932315,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 2.1,
+        "dow_amp": 1.5,
+        "trend_per_day": -0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-15-persistent_drop",
+      "family": "persistent_drop",
+      "spec": {
+        "scenario_id": "final23-15-persistent_drop",
+        "seed": 932315,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 2.1,
+        "dow_amp": 1.5,
+        "trend_per_day": -0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 17,
+            "end": null,
+            "params": {
+              "ad_set_index": 1,
+              "depth": 0.35
+            }
+          }
+        ]
+      },
+      "expect_recent_event": true
+    },
+    {
+      "id": "final23-15-recovered",
+      "family": "recovered",
+      "spec": {
+        "scenario_id": "final23-15-recovered",
+        "seed": 932315,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 2.1,
+        "dow_amp": 1.5,
+        "trend_per_day": -0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 17,
+            "end": 27,
+            "params": {
+              "ad_set_index": 1,
+              "depth": 0.35
+            }
+          }
+        ]
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-15-continuing_trend",
+      "family": "continuing_trend",
+      "spec": {
+        "scenario_id": "final23-15-continuing_trend",
+        "seed": 932315,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 2.1,
+        "dow_amp": 1.5,
+        "trend_per_day": -0.009,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-16-normal",
+      "family": "normal",
+      "spec": {
+        "scenario_id": "final23-16-normal",
+        "seed": 932316,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 0.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-16-persistent_drop",
+      "family": "persistent_drop",
+      "spec": {
+        "scenario_id": "final23-16-persistent_drop",
+        "seed": 932316,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 0.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 19,
+            "end": null,
+            "params": {
+              "ad_set_index": 1,
+              "depth": 0.5
+            }
+          }
+        ]
+      },
+      "expect_recent_event": true
+    },
+    {
+      "id": "final23-16-recovered",
+      "family": "recovered",
+      "spec": {
+        "scenario_id": "final23-16-recovered",
+        "seed": 932316,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 0.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 19,
+            "end": 27,
+            "params": {
+              "ad_set_index": 1,
+              "depth": 0.5
+            }
+          }
+        ]
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-16-continuing_trend",
+      "family": "continuing_trend",
+      "spec": {
+        "scenario_id": "final23-16-continuing_trend",
+        "seed": 932316,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 0.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0.009,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-17-normal",
+      "family": "normal",
+      "spec": {
+        "scenario_id": "final23-17-normal",
+        "seed": 932317,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.05,
+        "dow_amp": 1.5,
+        "trend_per_day": 0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-17-persistent_drop",
+      "family": "persistent_drop",
+      "spec": {
+        "scenario_id": "final23-17-persistent_drop",
+        "seed": 932317,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.05,
+        "dow_amp": 1.5,
+        "trend_per_day": 0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 23,
+            "end": null,
+            "params": {
+              "ad_set_index": 1,
+              "depth": 0.65
+            }
+          }
+        ]
+      },
+      "expect_recent_event": true
+    },
+    {
+      "id": "final23-17-recovered",
+      "family": "recovered",
+      "spec": {
+        "scenario_id": "final23-17-recovered",
+        "seed": 932317,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.05,
+        "dow_amp": 1.5,
+        "trend_per_day": 0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 23,
+            "end": 27,
+            "params": {
+              "ad_set_index": 1,
+              "depth": 0.65
+            }
+          }
+        ]
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-17-continuing_trend",
+      "family": "continuing_trend",
+      "spec": {
+        "scenario_id": "final23-17-continuing_trend",
+        "seed": 932317,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.05,
+        "dow_amp": 1.5,
+        "trend_per_day": -0.009,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-18-normal",
+      "family": "normal",
+      "spec": {
+        "scenario_id": "final23-18-normal",
+        "seed": 932318,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.65,
+        "dow_amp": 0.7,
+        "trend_per_day": -0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-18-persistent_drop",
+      "family": "persistent_drop",
+      "spec": {
+        "scenario_id": "final23-18-persistent_drop",
+        "seed": 932318,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.65,
+        "dow_amp": 0.7,
+        "trend_per_day": -0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 17,
+            "end": null,
+            "params": {
+              "ad_set_index": 0,
+              "depth": 0.35
+            }
+          }
+        ]
+      },
+      "expect_recent_event": true
+    },
+    {
+      "id": "final23-18-recovered",
+      "family": "recovered",
+      "spec": {
+        "scenario_id": "final23-18-recovered",
+        "seed": 932318,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.65,
+        "dow_amp": 0.7,
+        "trend_per_day": -0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 17,
+            "end": 27,
+            "params": {
+              "ad_set_index": 0,
+              "depth": 0.35
+            }
+          }
+        ]
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-18-continuing_trend",
+      "family": "continuing_trend",
+      "spec": {
+        "scenario_id": "final23-18-continuing_trend",
+        "seed": 932318,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0.009,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-19-normal",
+      "family": "normal",
+      "spec": {
+        "scenario_id": "final23-19-normal",
+        "seed": 932319,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 2.1,
+        "dow_amp": 1.5,
+        "trend_per_day": 0,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-19-persistent_drop",
+      "family": "persistent_drop",
+      "spec": {
+        "scenario_id": "final23-19-persistent_drop",
+        "seed": 932319,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 2.1,
+        "dow_amp": 1.5,
+        "trend_per_day": 0,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 19,
+            "end": null,
+            "params": {
+              "ad_set_index": 1,
+              "depth": 0.5
+            }
+          }
+        ]
+      },
+      "expect_recent_event": true
+    },
+    {
+      "id": "final23-19-recovered",
+      "family": "recovered",
+      "spec": {
+        "scenario_id": "final23-19-recovered",
+        "seed": 932319,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 2.1,
+        "dow_amp": 1.5,
+        "trend_per_day": 0,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 19,
+            "end": 27,
+            "params": {
+              "ad_set_index": 1,
+              "depth": 0.5
+            }
+          }
+        ]
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-19-continuing_trend",
+      "family": "continuing_trend",
+      "spec": {
+        "scenario_id": "final23-19-continuing_trend",
+        "seed": 932319,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 2.1,
+        "dow_amp": 1.5,
+        "trend_per_day": -0.009,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-20-normal",
+      "family": "normal",
+      "spec": {
+        "scenario_id": "final23-20-normal",
+        "seed": 932320,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 0.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-20-persistent_drop",
+      "family": "persistent_drop",
+      "spec": {
+        "scenario_id": "final23-20-persistent_drop",
+        "seed": 932320,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 0.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 23,
+            "end": null,
+            "params": {
+              "ad_set_index": 0,
+              "depth": 0.65
+            }
+          }
+        ]
+      },
+      "expect_recent_event": true
+    },
+    {
+      "id": "final23-20-recovered",
+      "family": "recovered",
+      "spec": {
+        "scenario_id": "final23-20-recovered",
+        "seed": 932320,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 0.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 23,
+            "end": 27,
+            "params": {
+              "ad_set_index": 0,
+              "depth": 0.65
+            }
+          }
+        ]
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-20-continuing_trend",
+      "family": "continuing_trend",
+      "spec": {
+        "scenario_id": "final23-20-continuing_trend",
+        "seed": 932320,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 0.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0.009,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-21-normal",
+      "family": "normal",
+      "spec": {
+        "scenario_id": "final23-21-normal",
+        "seed": 932321,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.05,
+        "dow_amp": 1.5,
+        "trend_per_day": -0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-21-persistent_drop",
+      "family": "persistent_drop",
+      "spec": {
+        "scenario_id": "final23-21-persistent_drop",
+        "seed": 932321,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.05,
+        "dow_amp": 1.5,
+        "trend_per_day": -0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 17,
+            "end": null,
+            "params": {
+              "ad_set_index": 1,
+              "depth": 0.35
+            }
+          }
+        ]
+      },
+      "expect_recent_event": true
+    },
+    {
+      "id": "final23-21-recovered",
+      "family": "recovered",
+      "spec": {
+        "scenario_id": "final23-21-recovered",
+        "seed": 932321,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.05,
+        "dow_amp": 1.5,
+        "trend_per_day": -0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 17,
+            "end": 27,
+            "params": {
+              "ad_set_index": 1,
+              "depth": 0.35
+            }
+          }
+        ]
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-21-continuing_trend",
+      "family": "continuing_trend",
+      "spec": {
+        "scenario_id": "final23-21-continuing_trend",
+        "seed": 932321,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 0.6,
+        "n_ad_sets": 2,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.05,
+        "dow_amp": 1.5,
+        "trend_per_day": -0.009,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-22-normal",
+      "family": "normal",
+      "spec": {
+        "scenario_id": "final23-22-normal",
+        "seed": 932322,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-22-persistent_drop",
+      "family": "persistent_drop",
+      "spec": {
+        "scenario_id": "final23-22-persistent_drop",
+        "seed": 932322,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 19,
+            "end": null,
+            "params": {
+              "ad_set_index": 1,
+              "depth": 0.5
+            }
+          }
+        ]
+      },
+      "expect_recent_event": true
+    },
+    {
+      "id": "final23-22-recovered",
+      "family": "recovered",
+      "spec": {
+        "scenario_id": "final23-22-recovered",
+        "seed": 932322,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 19,
+            "end": 27,
+            "params": {
+              "ad_set_index": 1,
+              "depth": 0.5
+            }
+          }
+        ]
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-22-continuing_trend",
+      "family": "continuing_trend",
+      "spec": {
+        "scenario_id": "final23-22-continuing_trend",
+        "seed": 932322,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 1.7,
+        "n_ad_sets": 3,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 1.65,
+        "dow_amp": 0.7,
+        "trend_per_day": 0.009,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-23-normal",
+      "family": "normal",
+      "spec": {
+        "scenario_id": "final23-23-normal",
+        "seed": 932323,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 2.1,
+        "dow_amp": 1.5,
+        "trend_per_day": 0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-23-persistent_drop",
+      "family": "persistent_drop",
+      "spec": {
+        "scenario_id": "final23-23-persistent_drop",
+        "seed": 932323,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 2.1,
+        "dow_amp": 1.5,
+        "trend_per_day": 0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 23,
+            "end": null,
+            "params": {
+              "ad_set_index": 3,
+              "depth": 0.65
+            }
+          }
+        ]
+      },
+      "expect_recent_event": true
+    },
+    {
+      "id": "final23-23-recovered",
+      "family": "recovered",
+      "spec": {
+        "scenario_id": "final23-23-recovered",
+        "seed": 932323,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 2.1,
+        "dow_amp": 1.5,
+        "trend_per_day": 0.004,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": [
+          {
+            "kind": "landing_issue",
+            "start": 23,
+            "end": 27,
+            "params": {
+              "ad_set_index": 3,
+              "depth": 0.65
+            }
+          }
+        ]
+      },
+      "expect_recent_event": false
+    },
+    {
+      "id": "final23-23-continuing_trend",
+      "family": "continuing_trend",
+      "spec": {
+        "scenario_id": "final23-23-continuing_trend",
+        "seed": 932323,
+        "days": 42,
+        "start_date": "2026-09-07",
+        "scale": 3.1,
+        "n_ad_sets": 4,
+        "creatives_per_set": 2,
+        "devices": [
+          "Android",
+          "iOS"
+        ],
+        "first_device_share": 0.45,
+        "noise": 2.1,
+        "dow_amp": 1.5,
+        "trend_per_day": -0.009,
+        "with_reach": true,
+        "with_hour": true,
+        "collapse": [],
+        "ambiguous": false,
+        "detectable": true,
+        "candidate_causes": [],
+        "note": "",
+        "events": []
+      },
+      "expect_recent_event": false
+    }
+  ]
+}
