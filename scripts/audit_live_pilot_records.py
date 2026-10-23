@@ -54,10 +54,11 @@ for c in cases:
         assert same
         comparisons.append({'case_id':c['id'],'same_ad_product_payload':same,'before':before['status']+':'+before['reason'],'after':after['status']+':'+after['reason'],'before_decision':before['decision'],'after_decision':after['decision']})
 minimum=[r for r in reports if r['case_id']=='structured-holdout-minimum-purchase']
-if len(minimum)==2:
-    before,after=minimum
-    assert before['content_sha256_without_parent']==after['content_sha256_without_parent']
-    comparisons.append({'case_id':'structured-holdout-minimum-purchase','same_ad_product_payload':True,'before':before['status']+':'+before['reason'],'after':after['status']+':'+after['reason'],'before_decision':before['decision'],'after_decision':after['decision'],'split':'v2 heldout became v3 development comparison, not independent v3 evaluation'})
+if len(minimum)>=2:
+    before=minimum[0]
+    for after in minimum[1:]:
+        assert before['content_sha256_without_parent']==after['content_sha256_without_parent']
+        comparisons.append({'case_id':'structured-holdout-minimum-purchase','same_ad_product_payload':True,'before_prompt':before['prompt_version'],'after_prompt':after['prompt_version'],'before':before['status']+':'+before['reason'],'after':after['status']+':'+after['reason'],'before_decision':before['decision'],'after_decision':after['decision'],'split':'v2 heldout became later development comparison, not independent evaluation'})
 summary['paired_development_comparisons']=comparisons
 summary['by_prompt']=[]
 for prompt in sorted({r['result']['prompt_version'] for r in rows}):
