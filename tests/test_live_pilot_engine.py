@@ -102,3 +102,11 @@ def test_unchecked_or_unknown_tool_output_is_held(response):
     copy, product = inputs()
     result = run_workflow("tools", copy, product, lambda **kw: response)
     assert result["status"] == "hold"
+
+
+def test_model_approval_with_its_own_fix_finding_is_held():
+    copy, product = inputs("업계 최저 가을 쿠폰")
+    docs = retrieve(copy, product)
+    response = answer(docs)
+    response["findings"] = [{"rule_id": "TA-SUPERLATIVE-01", "ad_quote": "업계 최저", "reason": "입증 없는 최상급"}]
+    with pytest.raises(ReviewEvidenceError): validate_review(response, docs, copy)

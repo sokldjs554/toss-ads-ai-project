@@ -9,7 +9,7 @@ from uuid import uuid4
 
 import streamlit as st
 
-from agents.live_pilot import MODEL, run_workflow
+from agents.live_pilot import MODEL, run_workflow, validate_input
 from core.config import IN_BROWSER
 from core.schemas import AdCopy, ProductFacts, ProductCategory, Fact
 from llm.live_pilot_gateway import LiveGateway
@@ -54,6 +54,9 @@ def _display(store, token, request_id):
         for citation in review["citations"]:
             st.write(citation["source_id"])
             st.text(citation["quote"])
+        for finding in review["findings"]:
+            st.write(f"모델 지적: {finding['rule_id']} · 위치 {finding['start']}–{finding['end']} · {finding['reason']}")
+            st.text(finding["ad_quote"])
     if result["tool_checks"]:
         with st.expander("실제 모델 도구 호출과 재검사"):
             for index, check in enumerate(result["tool_checks"], 1):
@@ -78,6 +81,7 @@ def _display(store, token, request_id):
         if not row.get("review"):
             store.review(token, request_id, "edit", "직접 수정 후 재검사 요청")
         st.session_state["pilot_loaded"] = {"headline": ad["headline"], "body": ad["body"], "cta": ad["cta"],
+                                              "disclosures": ad.get("disclosures", []),
                                               "facts": [f["text"] for f in row["payload"]["product"]["facts"]]}
         st.session_state["pilot_parent"] = request_id
         st.session_state.pop("pilot_selected", None)
@@ -136,12 +140,14 @@ def render():
             for field in ("headline", "body", "cta"):
                 st.session_state["pilot_" + field] = loaded[field]
             st.session_state["pilot_facts"] = "\n".join(loaded["facts"])
+            st.session_state["pilot_disclosures"] = "\n".join(loaded.get("disclosures", []))
             if "path" in loaded: st.session_state["pilot_path"] = loaded["path"]
         with st.form("pilot_input"):
             path = st.radio("실제 LLM 활용 방식", ["rag", "tools"], format_func=lambda x: "RAG 정책 검토" if x == "rag" else "도구 호출 수정·재검사", key="pilot_path")
             headline = st.text_input("LIVE 제목", key="pilot_headline", max_chars=120)
             body = st.text_area("LIVE 본문", key="pilot_body", max_chars=600)
             cta = st.text_input("LIVE 버튼 문구", key="pilot_cta", max_chars=40)
+            disclosures = st.text_area("LIVE 고지 (한 줄에 한 고지)", key="pilot_disclosures", max_chars=2000)
             facts_text = st.text_area("상품 근거 (한 줄에 한 사실)", key="pilot_facts", max_chars=10000)
             submit = st.form_submit_button("실제 LLM 실행", type="primary")
         st.caption("요청당 최대 4회 호출·수정 2회·예약 $0.08, 사용자 누적 $0.50·전체 $1.00. 서버의 영속 장부로 중복·한도를 확인합니다.")
@@ -149,9 +155,15 @@ def render():
             if not all(x.strip() for x in (headline, body, cta, facts_text)):
                 st.error("제목·본문·버튼·상품 근거를 모두 입력하세요.")
                 return
-            copy = AdCopy(variant_id="live-input", headline=headline.strip(), body=body.strip(), cta=cta.strip())
+            copy = AdCopy(variant_id="live-input", headline=headline.strip(), body=body.strip(), cta=cta.strip(),
+                          disclosures=[d.strip() for d in disclosures.splitlines() if d.strip()])
             product = ProductFacts(name="합성 파일럿", category=ProductCategory.ECOMMERCE,
                                    facts=[Fact(id=f"F{i+1}", text=t.strip()) for i,t in enumerate(facts_text.splitlines()) if t.strip()])
+            try:
+                validate_input(path, copy, product)
+            except ValueError:
+                st.error("입력 한도를 확인하세요: 사실 20개 이하, 각 2,000자 이하, 전체 광고 3,000자 이하입니다. 호출·예약하지 않았습니다.")
+                return
             payload = {"path": path, "copy": copy.model_dump(mode="json"), "product": product.model_dump(mode="json"), "parent": st.session_state.get("pilot_parent")}
             signature = hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
             ids = st.session_state.setdefault("pilot_requests", {})

@@ -78,15 +78,25 @@ class LiveStore:
                     raise PilotDenied("요청 ID와 입력이 일치하지 않습니다.")
                 created = False
             else:
-                reserved = conn.execute("SELECT coalesce(sum(reserved_usd),0), coalesce(sum(reserved_usd) FILTER(WHERE account_id=%s),0), count(*) FILTER(WHERE account_id=%s AND created_at>now()-interval '1 minute') FROM runs", (actor["id"], actor["id"])).fetchone()
-                if float(reserved[0]) + .08 > 1.000001 or float(reserved[1]) + .08 > .500001:
-                    raise PilotDenied("파일럿의 누적 비용 예약 한도에 도달했습니다.")
-                if reserved[2] >= 3:
-                    raise PilotDenied("분당 3개 요청 한도입니다. 잠시 후 시도하세요.")
-                conn.execute("INSERT INTO runs(request_id,account_id,input_hash,payload,build) VALUES(%s,%s,%s,%s,%s)",
-                             (request_id, actor["id"], digest, Jsonb(payload), build[:64]))
-                created = True
+                duplicate = conn.execute("SELECT request_id FROM runs WHERE account_id=%s AND input_hash=%s", (actor["id"], digest)).fetchone()
+                if duplicate:
+                    request_id, created = str(duplicate[0]), False
+                else:
+                    request_id = self._reserve(conn, actor, request_id, digest, payload, build)
+                    created = True
         return self.get(token, request_id), created
+
+    def _reserve(self, conn, actor, request_id, digest, payload, build):
+        from psycopg.types.json import Jsonb
+        # Caller holds the global budget transaction lock.
+        reserved = conn.execute("SELECT coalesce(sum(reserved_usd),0), coalesce(sum(reserved_usd) FILTER(WHERE account_id=%s),0), count(*) FILTER(WHERE account_id=%s AND created_at>now()-interval '1 minute') FROM runs", (actor["id"], actor["id"])).fetchone()
+        if float(reserved[0]) + .08 > 1.000001 or float(reserved[1]) + .08 > .500001:
+            raise PilotDenied("파일럿의 누적 비용 예약 한도에 도달했습니다.")
+        if reserved[2] >= 3:
+            raise PilotDenied("분당 3개 요청 한도입니다. 잠시 후 시도하세요.")
+        conn.execute("INSERT INTO runs(request_id,account_id,input_hash,payload,build) VALUES(%s,%s,%s,%s,%s)",
+                     (request_id, actor["id"], digest, Jsonb(payload), build[:64]))
+        return request_id
 
     def start_call(self, token, request_id, stage):
         if stage not in {"rag", "rewrite_tools"}:

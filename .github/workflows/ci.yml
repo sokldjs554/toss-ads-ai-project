@@ -28,6 +28,8 @@ jobs:
       - run: pip install -r requirements-dev.txt
       - name: PostgreSQL restricted API gate before browser suite
         run: python -m pytest -o addopts='' -q -ra tests/test_team_review_db_api.py tests/test_team_review_db_boundary_review.py tests/test_team_review_db_api_verifier.py
+      - name: LIVE pilot isolated storage, cost and workflow gate (no provider calls)
+        run: python -m pytest -o addopts='' -q -ra tests/test_live_pilot_store.py tests/test_live_pilot_engine.py tests/test_live_pilot_gateway.py
       - name: Install browser for persistent-queue transaction tests
         run: python -m playwright install --with-deps chromium
       - name: unit and isolated PostgreSQL transaction tests (no provider calls)

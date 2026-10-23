@@ -19,5 +19,6 @@ jobs:
           key = os.environ.get('OPENAI_API_KEY', '')
           # Domain-separated opaque app credential; the provider key never enters the browser.
           token = hmac.new(key.encode(), b'preflight-live-pilot-20261023-automation-v1', hashlib.sha256).hexdigest() if key else ''
-          print(json.dumps({'openai_registered': bool(key), 'render_api_registered': bool(os.environ.get('RENDER_API_KEY')), 'automation_token_sha256': hashlib.sha256(token.encode()).hexdigest() if token else None}))
+          other = hmac.new(key.encode(), b'preflight-live-pilot-20261023-secondary-v1', hashlib.sha256).hexdigest() if key else ''
+          print(json.dumps({'openai_registered': bool(key), 'render_api_registered': bool(os.environ.get('RENDER_API_KEY')), 'automation_token_sha256': hashlib.sha256(token.encode()).hexdigest() if token else None, 'secondary_token_sha256': hashlib.sha256(other.encode()).hexdigest() if other else None}))
           PY

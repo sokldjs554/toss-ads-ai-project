@@ -62,6 +62,15 @@ def test_approval_requires_completed_checked_run_and_is_audited_once(store):
 
 
 def test_rate_limit_prevents_new_charge(store):
-    for _ in range(3): store.begin("a" * 64, str(uuid4()), {"path": "rag"}, "build123")
+    for i in range(3): store.begin("a" * 64, str(uuid4()), {"path": "rag", "input": i}, "build123")
     with pytest.raises(PilotDenied): store.begin("a" * 64, str(uuid4()), {"path": "rag"}, "build123")
     assert len(store.list_runs("a" * 64)) == 3
+
+
+def test_reconnect_same_input_reuses_durable_result_without_new_reservation(store):
+    first = str(uuid4())
+    store.begin("a" * 64, first, {"path": "rag", "copy": "same input"}, "build123")
+    store.finish("a" * 64, first, {"status": "hold", "decision": "HUMAN_REVIEW"})
+    row, created = store.begin("a" * 64, str(uuid4()), {"path": "rag", "copy": "same input"}, "build456")
+    assert not created and row["request_id"] == first and row["build"] == "build123"
+    assert len(store.list_runs("a" * 64)) == 1

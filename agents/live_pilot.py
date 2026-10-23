@@ -78,7 +78,7 @@ def retrieve(copy: AdCopy, product: ProductFacts) -> list[dict]:
         overlap = len(query & _grams(text))
         docs.append({"id": rule.id, "kind": "policy", "text": text,
                      "score": overlap + (10000 if rule.id in triggered else 0),
-                     "version": catalog.version})
+                     "version": catalog.version, "section": rule.section})
     docs = sorted(docs, key=lambda d: (-d["score"], d["id"]))[:6]
     facts = [{"id": "fact:" + f.id, "kind": "fact", "text": f.text,
               "score": len(query & _grams(f.text)), "version": "input"} for f in product.facts]
@@ -112,6 +112,8 @@ def validate_review(raw: dict, docs: list[dict], copy: AdCopy) -> dict:
         spans.append({**finding.model_dump(), "start": start, "end": start + len(finding.ad_quote)})
     if parsed.recommendation in {"REVISE", "REJECT"} and not spans:
         raise ReviewEvidenceError("unsupported_model_decision")
+    if parsed.recommendation == "APPROVE" and any(get_catalog().get(f["rule_id"]).severity != Severity.WARN for f in spans):
+        raise ReviewEvidenceError("inconsistent_model_decision")
     return {**parsed.model_dump(), "findings": spans, "citation_membership_verified": True,
             "semantic_entailment": "human_review_required"}
 
@@ -143,13 +145,17 @@ def _rag(copy, product, call):
     return docs, review
 
 
-def run_workflow(path: str, copy: AdCopy, product: ProductFacts, call) -> dict:
+def validate_input(path: str, copy: AdCopy, product: ProductFacts):
     if path not in {"rag", "tools"}:
         raise ValueError("unknown path")
     if (len(copy.full_text()) > 3000 or len(product.facts) > 20
             or any(len(f.text) > 2000 for f in product.facts)
             or len(product.fact_ids()) != len(product.facts)):
         raise ValueError("input_limit")
+
+
+def run_workflow(path: str, copy: AdCopy, product: ProductFacts, call) -> dict:
+    validate_input(path, copy, product)
     original = _code(copy, product)
     result = {"mode": "LIVE", "path": path, "prompt_version": PROMPT_VERSION,
               "policy_version": get_catalog().version, "status": "hold", "decision": "HUMAN_REVIEW",

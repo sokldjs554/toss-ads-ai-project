@@ -1,0 +1,27 @@
+[
+  {
+    "url": "https://render.com/docs/configure-environment-variables.md",
+    "error_type": "URLError",
+    "message": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+  },
+  {
+    "url": "https://render.com/docs/deploys.md",
+    "error_type": "URLError",
+    "message": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+  },
+  {
+    "url": "https://render.com/docs/health-checks.md",
+    "error_type": "URLError",
+    "message": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+  },
+  {
+    "url": "https://sokldjs554.github.io/toss-ads-ai-project/app/",
+    "error_type": "URLError",
+    "message": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+  },
+  {
+    "url": "https://preflight-toss-ads.onrender.com/_stcore/health",
+    "error_type": "URLError",
+    "message": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+  }
+]
