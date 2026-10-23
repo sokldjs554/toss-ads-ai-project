@@ -74,3 +74,34 @@ def test_reconnect_same_input_reuses_durable_result_without_new_reservation(stor
     row, created = store.begin("a" * 64, str(uuid4()), {"path": "rag", "copy": "same input"}, "build456")
     assert not created and row["request_id"] == first and row["build"] == "build123"
     assert len(store.list_runs("a" * 64)) == 1
+
+
+def test_concurrent_identical_inputs_reserve_and_execute_only_once(store):
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        results = list(pool.map(lambda _: store.begin("a"*64, str(uuid4()), {"path":"rag", "concurrent":True}, "build123"), range(4)))
+    assert sum(created for _,created in results) == 1
+    assert len({row["request_id"] for row,_ in results}) == 1
+
+
+def test_expired_account_cannot_read_or_charge(store):
+    import psycopg
+    from psycopg import sql
+    with psycopg.connect(store.database_url) as conn:
+        conn.execute(sql.SQL("UPDATE {}.accounts SET expires_at=now()-interval '1 minute' WHERE id='alice'").format(sql.Identifier(store.schema)))
+    with pytest.raises(PilotDenied): store.list_runs("a"*64)
+    with pytest.raises(PilotDenied): store.begin("a"*64, str(uuid4()), {"path":"rag"}, "build123")
+
+
+def test_durable_user_and_global_reservation_limits(store):
+    import psycopg
+    from psycopg import sql
+    for token in ("a"*64, "b"*64):
+        for i in range(6):
+            store.begin(token, str(uuid4()), {"path":"rag", "sample":i}, "build123")
+            with psycopg.connect(store.database_url) as conn:
+                conn.execute(sql.SQL("UPDATE {}.runs SET created_at=now()-interval '2 minutes'").format(sql.Identifier(store.schema)))
+        with pytest.raises(PilotDenied): store.begin(token, str(uuid4()), {"path":"rag", "sample":7}, "build123")
+    with psycopg.connect(store.database_url) as conn:
+        conn.execute(sql.SQL("INSERT INTO {}.accounts(id,token_hash,kind) VALUES('third',%s,'automation')").format(sql.Identifier(store.schema)), (token_digest("c"*64),))
+    with pytest.raises(PilotDenied): store.begin("c"*64, str(uuid4()), {"path":"rag"}, "build123")
