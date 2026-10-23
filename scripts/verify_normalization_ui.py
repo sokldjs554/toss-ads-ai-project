@@ -147,11 +147,24 @@ def main():
                     check(scope, "synthetic policy limits and human denominator disclosed", "16건 중 4건" in body and "21/28" in body and "AI 정확도가 아닙니다" in body)
                     shot(page, scope, "evidence-strengthening")
                     if scope == "server":
-                        check(scope, "operational export excludes raw text by default", page.get_by_role("button", name="운영 기록 JSON 내보내기 (원문 제외)").count() == 1)
+                        # The evidence heading streams before the later trace panel.
+                        # Wait for the actual control and inspect its downloaded data.
+                        export = page.get_by_role("button", name="운영 기록 JSON 내보내기 (원문 제외)", exact=True)
+                        export.wait_for(timeout=120000)
+                        with page.expect_download(timeout=60000) as received:
+                            export.click()
+                        downloaded = args.out / "server-operational-record.json"
+                        received.value.save_as(str(downloaded))
+                        record = json.loads(downloaded.read_text())
+                        check(scope, "operational export excludes raw text by default",
+                              record.get("schema_version") == 1 and record.get("privacy") == "allowlisted operational metrics; raw content omitted"
+                              and bool(record.get("trace_id")) and bool(record.get("spans"))
+                              and all(key not in downloaded.read_text() for key in ('"prompt_user"', '"response_text"', '"product"', '"message"')))
                     check(scope, "no application exception", page.locator('[data-testid="stException"]').count() == 0)
                     check(scope, "no browser provider request", not blocked)
                 except Exception as exc:
                     report["errors"].append({"scope": scope, "type": type(exc).__name__, "message": str(exc)[:1000]})
+                    print(f"ERROR {scope}: {type(exc).__name__}: {str(exc)[:1000]}", flush=True)
                     shot(page, scope, "failure")
                 finally:
                     ctx.close()
