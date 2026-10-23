@@ -1,0 +1,74 @@
+{
+  "kind": "authenticated-deployed-live-pilot",
+  "expected_sha": "b94aadb0d99736a9a6060012e658d1c925663b0f",
+  "started_at": "2026-10-23T18:09:12.014425+00:00",
+  "mode": "verify_only",
+  "human_participants": 0,
+  "synthetic": true,
+  "checks": [
+    {
+      "check": "Pages build matches requested commit",
+      "ok": true
+    },
+    {
+      "check": "Pages explicitly separates DEMO from authenticated LIVE server",
+      "ok": true
+    },
+    {
+      "check": "server screen build matches requested commit",
+      "ok": true
+    },
+    {
+      "check": "authenticated account explicitly marked automation",
+      "ok": true
+    },
+    {
+      "check": "operational export contains no original ad, prompts or credentials",
+      "ok": true
+    },
+    {
+      "check": "operational export contains no original ad, prompts or credentials",
+      "ok": true
+    }
+  ],
+  "runs": [],
+  "screens": [
+    "pages-version-observed-version.png",
+    "pages-version-observed.png",
+    "pages-live-server-link-version.png",
+    "pages-live-server-link.png",
+    "failure-view-version.png",
+    "failure-view.png"
+  ],
+  "status": "failed",
+  "automation_account": "primary",
+  "browser": "155.0.8059.39",
+  "pages_observed_builds": [
+    "b94aadb"
+  ],
+  "pages_build_history": [
+    {
+      "at": "2026-10-23T18:09:21.498090+00:00",
+      "builds": []
+    },
+    {
+      "at": "2026-10-23T18:09:43.923502+00:00",
+      "builds": [
+        "b94aadb"
+      ]
+    }
+  ],
+  "phase": "select:내 저장 기록",
+  "server_loads": [
+    {
+      "http_status": 200
+    }
+  ],
+  "login_phase": "waiting_for_authenticated_view",
+  "error_type": "Error",
+  "failure_alerts": [
+    "API·자동 브라우저 실행은 사람 사용으로 집계하지 않습니다. 이 파일럿에는 개인정보·실제 광고주 비밀 자료를 입력하지 마세요.",
+    "검토 저장됨 · reject · automation"
+  ],
+  "finished_at": "2026-10-23T18:10:31.588321+00:00"
+}
