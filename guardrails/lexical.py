@@ -76,6 +76,8 @@ def _matches(rule: Rule, norm: Normalized) -> list[Match]:
             for m in pat.finditer(surface.text):
                 if m.end() <= m.start():
                     continue
+                if surface.name == "tight" and norm.is_joined_fragment(m.start(), m.end()):
+                    continue  # 두 정상 단어의 중간 조각이 경계 삭제로 붙은 것만으로는 위반 근거가 아님
                 if _exception_hit(rule, surface, m.start(), m.end(), whole_text):
                     continue
                 o_start, o_end = surface.to_original(m.start(), m.end())
@@ -178,3 +180,4 @@ def strip_spans(text: str, findings: list[Finding]) -> tuple[str, list[str]]:
     out = re.sub(r"\s{2,}", " ", "".join(parts)).strip(" ,.!")
     out = re.sub(r"(,|\.)\s*(,|\.)", r"\1", out)
     return out, removed
+

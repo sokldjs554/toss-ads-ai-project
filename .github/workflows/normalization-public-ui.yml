@@ -1,0 +1,48 @@
+name: normalization-public-ui
+
+on:
+  workflow_run:
+    workflows: [pages]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: Full deployed commit to verify
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  coupon-regression:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      EXPECTED_SHA: ${{ inputs.expected_sha || github.event.workflow_run.head_sha }}
+      PREFLIGHT_FORCE_DEMO: '1'
+      OPENAI_API_KEY: ''
+      ANTHROPIC_API_KEY: ''
+      PREFLIGHT_TEAM_DATABASE_URL: ''
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.EXPECTED_SHA }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install playwright==1.56.0
+      - run: python -m playwright install --with-deps chromium
+      - name: Exercise actual public pages and server without shared-data writes
+        run: python scripts/verify_normalization_ui.py --expected-sha "$EXPECTED_SHA" --out evidence
+      - name: Preserve browser result and real screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: normalization-public-ui-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/
+          retention-days: 30

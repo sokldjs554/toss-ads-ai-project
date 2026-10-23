@@ -52,6 +52,7 @@ class Surface:
     name: str
     text: str
     src: list[int]  # text[i] 가 원문 original[src[i]] 에서 왔다
+    loose_indices: list[int] | None = None  # tight[i]가 loose의 어느 문자였는지 (삭제한 경계 보존)
 
     def to_original(self, start: int, end: int) -> tuple[int, int]:
         """표면 구간 [start, end) → 원문 구간 [o_start, o_end)."""
@@ -72,6 +73,26 @@ class Normalized:
 
     def surfaces(self) -> list[Surface]:
         return [self.loose, self.tight]
+
+    def is_joined_fragment(self, start: int, end: int) -> bool:
+        """tight 일치가 서로 다른 두 단어의 중간 조각을 이어 만든 것인가.
+
+        '쿠[폰! 지]금'처럼 양 끝 모두 loose의 영숫자/한글 덩어리 안이고,
+        그 사이에서 눈에 보이는 구분자를 제거한 경우만 제외한다.
+        한쪽 끝이라도 경계인 '폰 지사기', '신종폰 지'는 보수적으로 유지한다.
+        한국어 조사·합성어 때문에 모든 일치에 정규식 \\b를 요구하지 않는다.
+        제로폭 제거·NFKC·한자 접기는 이미 loose에 반영되어 탐지를 유지한다.
+        """
+        positions = self.tight.loose_indices
+        if positions is None or not (0 <= start < end <= len(positions)):
+            return False
+        a, b = positions[start], positions[end - 1] + 1
+        if b - a == end - start:  # 일치 내부에는 삭제한 구분자가 없음
+            return False
+        text = self.loose.text
+        return (a > 0 and b < len(text)
+                and text[a - 1].isalnum() and text[a].isalnum()
+                and text[b - 1].isalnum() and text[b].isalnum())
 
     def had_evasion_in(self, o_start: int, o_end: int) -> bool:
         """원문 구간 안에 제로폭 문자나 접힌 한자가 있었는가 (= 표기 우회 흔적)."""
@@ -121,12 +142,14 @@ def normalize(original: str) -> Normalized:
     # 덩어리마다 한 번만 판단한다 — 문자마다 덩어리 끝까지 다시 훑으면 '.....' 같은 입력에서 시간이 길이의 제곱으로 는다.
     t_chars: list[str] = []
     t_src: list[int] = []
+    t_loose: list[int] = []
     n = len(l_chars)
     idx = 0
     while idx < n:
         if l_chars[idx] not in _DECOR:
             t_chars.append(l_chars[idx])
             t_src.append(l_src[idx])
+            t_loose.append(idx)
             idx += 1
             continue
         end = idx + 1
@@ -136,10 +159,12 @@ def normalize(original: str) -> Normalized:
         if not (idx > 0 and end < n and _HANGUL.match(l_chars[idx - 1]) and _HANGUL.match(l_chars[end])) or _is_weekday_paren(l_chars, idx, end):
             t_chars.extend(l_chars[idx:end])
             t_src.extend(l_src[idx:end])
+            t_loose.extend(range(idx, end))
         idx = end
-    tight = Surface("tight", "".join(t_chars), t_src)
+    tight = Surface("tight", "".join(t_chars), t_src, t_loose)
     return Normalized(original=original, loose=loose, tight=tight, zero_width_count=zero_width, folded_count=folded)
 
 
 def loose_text(s: str) -> str:
     return normalize(s).loose.text
+

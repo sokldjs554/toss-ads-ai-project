@@ -38,6 +38,14 @@ def test_failed_rewrite_not_shown_on_reject_and_revise_paths(demo_settings, trac
     from ui.presets import PRESETS, build_brief
 
     original = mock_provider.MockProvider._review
+    original_copy = mock_provider.MockProvider._copy
+
+    def copy_with_real_block(self, req):
+        out = original_copy(self, req)
+        # REJECT 경로는 실제 비교 우위 위반으로 만든다. 커머스 예시의
+        # '쿠폰! 지금' → '폰지' 과탐에 의존하면 정규화 수정 시 검증이 사라진다.
+        out["variants"][0]["headline"] = "타사보다 2배 좋은 조건"
+        return out
 
     def bad_review(self, req):
         out = original(self, req)
@@ -46,6 +54,7 @@ def test_failed_rewrite_not_shown_on_reject_and_revise_paths(demo_settings, trac
         return out
 
     monkeypatch.setattr(mock_provider.MockProvider, "_review", bad_review)
+    monkeypatch.setattr(mock_provider.MockProvider, "_copy", copy_with_real_block)
     p = PRESETS["commerce_landing"]
     run = run_pipeline(build_brief(p), demo_settings, options=RunOptions(landing_text=p["landing_text"]), tracer=tracer)
     with_rewrite = [r for r in run.reports if r.verdict.proposed_rewrite is not None]
@@ -131,3 +140,4 @@ def test_rewrite_recheck_runs_semantic_review(demo_settings, tracer):
     for r in verified:
         sp = next(s for s in spans if s.attributes.get("decision") == "APPROVE" and s.attributes.get("semantic_decision"))
         assert sp.attributes["semantic_decision"] == "APPROVE"
+
