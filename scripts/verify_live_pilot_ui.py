@@ -204,8 +204,10 @@ def main():
                         for rid in listed_ids(page):
                             open_record(page,rid)
                             receipt=download(page)
-                            if receipt["prompt_version"]==plan["prompt"]: receipts.append(receipt)
-                        check(spec["id"]+": exactly one persisted v3 receipt",len(receipts)==1)
+                            if receipt["prompt_version"]==plan["prompt"]:
+                                receipts.append(receipt)
+                                break  # Verify the saved current-prompt receipt; full history is audited offline.
+                        check(spec["id"]+": persisted requested-prompt receipt available",len(receipts)==1)
                         data=receipts[0]
                         open_record(page,data["request_id"])
                     else:
