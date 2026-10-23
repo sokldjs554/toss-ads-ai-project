@@ -188,7 +188,12 @@ def main():
                     # The input already exists before Streamlit processes the preset
                     # rerun. Visibility alone can read the previous (empty) value.
                     expect(page.get_by_label("LIVE 제목",exact=True)).to_have_value(case["headline"], timeout=90000)
+                    for label,expected in (("LIVE 본문",case["body"]),("LIVE 버튼 문구",case["cta"]),("상품 근거 (한 줄에 한 사실)","\n".join(case["facts"]))):
+                        expect(page.get_by_label(label,exact=True)).to_have_value(expected,timeout=90000)
+                    path_label="RAG 정책 검토" if case["path"]=="rag" else "도구 호출 수정·재검사"
+                    expect(page.get_by_role("radio",name=path_label,exact=True)).to_be_checked()
                     check(case["id"]+": frozen headline loaded",page.get_by_label("LIVE 제목",exact=True).input_value()==case["headline"])
+                    check(case["id"]+": all frozen fields loaded before provider execution",True)
                     report["phase"] = case["id"] + ":execute"
                     page.get_by_role("button",name="실제 LLM 실행",exact=True).click()
                     page.get_by_role("heading",name="저장된 LIVE 검토",exact=True).wait_for(timeout=240000)
@@ -220,6 +225,8 @@ def main():
                 open_record(page,parent["request_id"])
                 page.get_by_role("button",name="이 문구를 직접 수정하고 재검사",exact=True).click()
                 page.get_by_label("LIVE 제목",exact=True).wait_for()
+                parent_case=next(c for c in cases if c["id"]==manual["parent_case"])
+                expect(page.get_by_label("상품 근거 (한 줄에 한 사실)",exact=True)).to_have_value("\n".join(parent_case["facts"]),timeout=90000)
                 page.get_by_label("LIVE 제목",exact=True).fill(manual["headline"])
                 page.get_by_role("radio",name="RAG 정책 검토",exact=True).check()
                 page.get_by_role("button",name="실제 LLM 실행",exact=True).click()

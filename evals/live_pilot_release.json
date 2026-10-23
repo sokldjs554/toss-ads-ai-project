@@ -4,5 +4,5 @@
   "scope": "Structured v2 same-input comparison plus precommitted heldout; separate automation account; no human participation",
   "secondary_account": true,
   "expected_prompt": "live-rag-tools-2",
-  "verification_attempt": 12
+  "verification_attempt": 13
 }
