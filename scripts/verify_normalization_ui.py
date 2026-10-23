@@ -168,6 +168,19 @@ def main():
                     shot(page, scope, "failure")
                 finally:
                     ctx.close()
+            ctx = browser.new_context(viewport={"width": 1440, "height": 1100})
+            page = ctx.new_page()
+            page.goto(PAGES.replace("/app/", "/replay/") + "?verify=" + args.expected_sha,
+                      wait_until="networkidle", timeout=90000)
+            notice = page.locator(".notice").inner_text()
+            check("replay", "historical execution clearly labeled without new model calls",
+                  "이 페이지는 재생입니다" in notice and "새 모델 호출은 하지 않습니다" in notice)
+            recorded = json.loads(page.locator("#data").text_content())
+            check("replay", "recorded and current policy versions remain separate",
+                  bool(recorded["meta"]["recorded_policy_version"]) and bool(recorded["meta"]["policy_version"])
+                  and all(s.get("recorded", {}).get("policy_version") for s in recorded["scenarios"]))
+            shot(page, "replay", "historical-mode")
+            ctx.close()
             browser.close()
         report["status"] = "passed" if not report["errors"] and all(c["ok"] for c in report["checks"]) else "failed"
     except Exception as exc:

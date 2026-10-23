@@ -245,7 +245,14 @@ class Router:
         try:
             response = provider.complete(req)
             if reservation is not None:
-                self.spending.settle(reservation, req, provider.model, response)
+                try:
+                    self.spending.settle(reservation, req, provider.model, response)
+                except BudgetExceeded:
+                    # A request was sent, unlike a pre-request reservation denial.
+                    # Keep both the reservation and the unknown-cost indicator.
+                    self.budget.failed()
+                    span.event("usage_unverified", provider=provider.name, type="BudgetExceeded")
+                    raise
             return response
         finally:
             if reservation is not None:

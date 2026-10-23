@@ -19,6 +19,7 @@ def test_default_provider_is_never_called_if_worst_case_request_exceeds_cap(monk
     with pytest.raises(BudgetExceeded):
         router.complete(LLMRequest(task=Task.REVIEW,system="",user="",max_tokens=200))
     assert provider.calls == 0
+    assert not router.budget.estimated and router.budget.failed_attempts == 0
 
 
 def test_failed_default_provider_keeps_reservation_before_retry(monkeypatch):
@@ -57,6 +58,7 @@ def test_missing_usage_is_not_treated_as_free(monkeypatch):
         with pytest.raises(BudgetExceeded):
             router.complete(req)
     assert provider.calls == 1
+    assert router.budget.estimated and router.budget.failed_attempts == 1
 
 
 def test_unpriced_model_is_withheld_before_any_request(monkeypatch):
