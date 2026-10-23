@@ -1,0 +1,11 @@
+..................ssssssss...............                                [100%]
+=========================== short test summary info ============================
+SKIPPED [1] tests/test_live_pilot_store.py:25: isolated PostgreSQL required
+SKIPPED [1] tests/test_live_pilot_store.py:39: isolated PostgreSQL required
+SKIPPED [1] tests/test_live_pilot_store.py:51: isolated PostgreSQL required
+SKIPPED [1] tests/test_live_pilot_store.py:64: isolated PostgreSQL required
+SKIPPED [1] tests/test_live_pilot_store.py:70: isolated PostgreSQL required
+SKIPPED [1] tests/test_live_pilot_store.py:79: isolated PostgreSQL required
+SKIPPED [1] tests/test_live_pilot_store.py:87: isolated PostgreSQL required
+SKIPPED [1] tests/test_live_pilot_store.py:96: isolated PostgreSQL required
+33 passed, 8 skipped in 6.02s

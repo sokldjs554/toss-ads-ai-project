@@ -47,9 +47,9 @@ def main():
     def shot(page, name):
         # Never capture a password input, even masked.
         if page.get_by_label("LIVE 검토 접근키", exact=True).count(): return
-        page.screenshot(path=str(args.out / (name+".png")), full_page=False)
         text = page.inner_text("body")
         if any(s in text for s in (key, token, other)): raise AssertionError("secret visible")
+        page.screenshot(path=str(args.out / (name+".png")), full_page=False)
         (args.out / (name+".txt")).write_text(text)
         report["screens"].append(name+".png")
         save()

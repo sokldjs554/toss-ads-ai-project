@@ -1,5 +1,6 @@
 """Exact-model SDK boundary with preflight reservations and no automatic retries."""
 import json
+import re
 import time
 
 from agents.live_pilot import MODEL
@@ -22,9 +23,11 @@ class LiveGateway:
             self.client = OpenAI(api_key=self.api_key, timeout=30.0, max_retries=0)
         sequence = self.store.start_call(self.token, self.request_id, stage)
         started = time.perf_counter()
-        record = {"status": "failed", "reason": "provider_failure", "model": MODEL, "cost_usd": None}
+        record = {"status": "failed", "reason": "provider_failure", "requested_model": MODEL, "model": None, "cost_usd": None}
         try:
             response = self.client.chat.completions.create(model=MODEL, max_completion_tokens=1200, temperature=0, **kwargs)
+            if isinstance(response.model, str) and re.fullmatch(r"[A-Za-z0-9._-]{1,80}", response.model):
+                record["model"] = response.model
             usage = response.usage
             itok, otok = getattr(usage, "prompt_tokens", None), getattr(usage, "completion_tokens", None)
             if (response.model != MODEL or type(itok) is not int or type(otok) is not int

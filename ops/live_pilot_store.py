@@ -114,7 +114,7 @@ class LiveStore:
     def finish_call(self, token, request_id, sequence, record):
         from psycopg.types.json import Jsonb
         # Strict operational allowlist. No prompts, response bodies or SDK error text.
-        allowed = {"status", "reason", "model", "input_tokens", "output_tokens", "cost_usd", "latency_ms"}
+        allowed = {"status", "reason", "model", "requested_model", "input_tokens", "output_tokens", "cost_usd", "latency_ms"}
         if set(record) - allowed:
             raise PilotDenied("invalid metric")
         with self._transaction(token) as (conn, actor):

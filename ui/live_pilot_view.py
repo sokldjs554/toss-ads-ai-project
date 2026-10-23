@@ -29,6 +29,7 @@ def _display(store, token, request_id):
     row = store.get(token, request_id)
     st.subheader("저장된 LIVE 검토")
     st.caption(f"실행 빌드 {row['build'][:7]} · 요청 {row['request_id']} · {row['created_at']}")
+    st.caption("저장된 LIVE 실행 기록입니다. 기록 조회는 새 모델 호출을 만들지 않습니다.")
     result = row.get("result")
     if not result:
         st.warning("실행 결과를 아직 확인할 수 없습니다. 중복 호출 없이 기록을 조회하세요. 중단된 요청은 보류합니다.")
@@ -42,6 +43,11 @@ def _display(store, token, request_id):
     st.markdown("**검토할 문구**")
     ad = result["copy"]
     st.text("\n".join([ad["headline"], ad["body"], ad["cta"], *ad.get("disclosures", [])]))
+    with st.expander("처음 입력과 수정 이력"):
+        original = row["payload"]["copy"]
+        st.text("\n".join([original["headline"], original["body"], original["cta"], *original.get("disclosures", [])]))
+        if row["payload"].get("parent"):
+            st.caption("직접 수정한 이전 요청: " + row["payload"]["parent"])
     if result.get("sources"):
         with st.expander("검색한 정책·상품 근거", expanded=True):
             for source in result["sources"]:
