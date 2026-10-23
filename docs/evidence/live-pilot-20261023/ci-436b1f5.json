@@ -1,0 +1,10 @@
+{
+  "commit": "436b1f5b0ba48c3194f5b6539ddb197d6c6a75ac",
+  "run_id": 39960711053,
+  "job_id": 120437692533,
+  "url": "https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39960711053",
+  "conclusion": "success",
+  "full_suite": {"passed": 4487, "failed": 0, "skipped": 0, "errors": 0, "duration_seconds": 233.58},
+  "separate_prerequisite_gates": {"existing_postgres": 54, "live_pilot": 26},
+  "note": "Prerequisite gates overlap the full suite; do not add their counts. No provider calls."
+}

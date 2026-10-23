@@ -2,6 +2,8 @@
 
 기준: `7767dcbe288fd9ceaf6b9fdc021f7ac4450ad388`. 사용자 요구·유료 API 승인은 2026-10-23 대화에 있다. 구현 선택과 실행은 AI 지원 작업이며 사용자 직접 코딩으로 주장하지 않는다.
 
+**2026-10-23 13:35 UTC 상태:** 두 LLM 방식은 구현·배포됐지만 실제 서버 실행은 미완료다. 새 Render 프로세스에서 `OPENAI_API_KEY`가 없거나 공백인 것으로 화면 진단했다. 저장소 설정은 존재하며 DB 제한 역할의 읽기 권한은 별도 연결로 확인했다. 파일럿 요청·호출·예약 0, 사람 사용 0명/0건. 사용자의 등록 완료 통지와 런타임 상태가 달라 정확한 서비스에서 저장 상태 확인을 요청했다. 키 값을 요청하거나 출력하지 않았다. [실측 원장](evidence/live-pilot-20261023/runtime-blocker-1335.json).
+
 ## 구현 선택
 
 - 기존 Python/Streamlit, 정책 카탈로그, 결정론 검사, PostgreSQL을 재사용한다. 별도 프로젝트·벡터 서비스·외부 에이전트 플랫폼은 만들지 않는다.
@@ -25,6 +27,8 @@
 
 ## 실행 상태
 
+진단 보완 커밋 `436b1f5b0ba48c3194f5b6539ddb197d6c6a75ac`: 전체 CI **4,487 통과 / 실패 0 / skip 0 / error 0**, 233.58초. [CI](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39960711053), [집계](evidence/live-pilot-20261023/ci-436b1f5.json). Render `dep-dbdm25rm8hqs73eg8tr0`은 13:29:58 UTC live, [Pages](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39961553425)도 같은 커밋 배포 성공. [공개 Chrome 확인](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39962019444)은 두 사이트 버전·Pages의 DEMO/LIVE 구분을 확인한 뒤 모델 설정 부족으로 중단했다. 실제 호출 성공으로 계산하지 않는다.
+
 `5c7abb8f1b1ffce9d03150bd8528543f9f8e0170`에서 전체 CI **4,484 통과 / 실패 0 / skip 0 / error 0**, 345.68초. [CI](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39956938807), [집계 원장](evidence/live-pilot-20261023/ci-5c7abb8.json). 별도 PostgreSQL 54개·LIVE 26개 선행 게이트는 전체와 중복되므로 더하지 않는다. 기존 4,453 테스트·47 브라우저 항목을 새 결과로 재사용하지 않았다.
 
 같은 커밋을 main에 반영했고 Render `dep-dbdlm8e417fc738pdu40`은 2026-10-23 13:04:30 UTC에 live, [Pages 배포](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39958086822)도 성공했다. 실제 LLM 호출·브라우저 최종 결과는 아래 실행 원장으로 별도 확정한다. 배포 성공만으로 기능 검증을 완료 처리하지 않는다.
@@ -34,6 +38,14 @@
 두 번째 [공개 검증](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39958530485)은 두 사이트 버전과 Pages의 LIVE 서버 안내는 통과했지만 로그인 입력 대기에서 timeout으로 중단됐다. [별도 읽기 진단](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39960208301)으로 인증 거부가 아닌 서버 설정 부족 화면을 확인했다. 모델 연결/저장소 연결 중 누락된 구성을 값 없이 구분하는 표시를 추가했다(수정 전 관련 2 테스트 실패, 수정 후 엔진·게이트웨이·UI 23 통과). 접근키를 진단 로그나 캡처에 노출하지 않는다.
 
 무료 공개 회귀의 서버 금지 업종 재검사 실패 캡처는 이전 쿠폰 결과를 보여 주고 있었다. 기존 결과 제목만 기다리던 검증을 실제 편집 반영과 새 문구 결과까지 기다리도록 보완했다. 지연된 OS 패키지 설치는 모델 호출 전 단계였으며, 실제 LIVE 브라우저 검증은 러너에 설치된 Chrome을 사용하도록 바꿨다. CI는 같은 Playwright Chromium을 설치하되 러너에 이미 있는 OS 의존성의 불필요한 apt 재설치를 생략한다.
+
+후속 무료 검증에서는 ‘이전에 검사한 문구’가 경고와 결과 카드 두 곳에 있어 Playwright의 단일 선택 조건을 위반했다. `.pf-ad .t` 결과 카드 제목으로 범위를 좁혔다. 검사 코드·입력·정답을 바꾸지 않았다. Chrome 러너의 한글 글꼴 부재도 실제 캡처를 열어 확인했으며 고정 커밋의 Noto CJK 폰트를 설치해 다시 촬영한다. 깨진 캡처와 실패 원본은 삭제하지 않는다.
+
+`436b1f5`의 최종 무료 공개 회귀는 **51항목 통과 / 실패 0**, [원본](evidence/live-pilot-20261023/public-39962633033/free-current/result.json). Pages 번들의 16개 관련 소스 파일과 체크아웃 일치, 두 사이트 버전·커머스 쿠폰·다른 위반 유지·직접 수정·우회 금지어 반려·기존 한계 표시·재생 구분을 확인했다. 새 [LIVE 공개 확인](evidence/live-pilot-20261023/public-39962633033/result.json)은 버전/구분 3항목 확인 후 모델 연결 미등록으로 중단됐다. 따라서 [전체 Actions 실행](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39962633033)은 **실패**이며 무료 회귀 성공을 LIVE 실행 성공으로 합치지 않는다.
+
+실제 화면: [버전과 모델 설정 부족](evidence/live-pilot-20261023/public-39962633033/live-configuration-missing.png), [Pages의 DEMO/서버 구분](evidence/live-pilot-20261023/public-39962633033/pages-live-server-link.png), [서버 우회 표기 재검사 반려](evidence/live-pilot-20261023/public-39962633033/free-current/server-restricted-recheck.png), [서버 쿠폰 직접 수정 통과](evidence/live-pilot-20261023/public-39962633033/free-current/server-coupon-recheck.png). Chrome 155.0.8059.39, 한글 폰트 설치 후 촬영한 원본이며 합성·이미지 편집으로 만든 화면이 아니다.
+
+직접 수정 후 자동 검토 저장은 첫 유료 호출 전 `expected_automation_review=edit`으로 고정했다. 기존 입력 문구·정책 기대값은 유지하고 승인/반려 외 ‘수정 필요’ 감사 경로도 확인하려는 자동 동작이다. 이를 실제 사람의 수정 판단으로 집계하지 않는다.
 
 ## 사용자 절차와 범위
 
@@ -54,6 +66,17 @@
 로컬 전체 첫 실행: **4,408 통과 / 1 실패 / 55 skip / 11 error** (489.82초). 실패는 기존 다섯 화면 기대값으로 새 LIVE 화면을 누락한 테스트이고 수정 후 해당 테스트는 통과했다. 오류는 Chromium 미설치·소켓 권한 제한이며, skip에는 격리 PostgreSQL 부재가 포함된다. 최종 전체 수치는 필요한 환경을 갖춘 CI의 새 결과로 기록한다.
 
 ## 아직 입증하지 않은 것
+
+| 검증 대상 | 확인한 범위 | 남은 확인 |
+|---|---|---|
+| 검색 ID·정확한 인용·광고 위치 검증 | 실제 검색/검증 코드 + 합성 모델 응답 테스트 | 배포 서비스의 실제 모델 인용, 사람의 의미적 함의 판단 |
+| function tool 호출·수정 상한·종료 | SDK 경계 대역으로 실제 검사 함수를 호출하는 회귀 | 실제 제공자의 tool_calls 응답·서버 실행 |
+| 시간 초과·실패·잘못된 구조·근거 불일치 | 모의 응답에서 보류, DEMO 대체 없음 | 실제 제공자 장애를 재현한 실험은 하지 않음 |
+| 사용자별 조회/저장/검토 권한·중복·비용 한도 | 격리 PostgreSQL의 실제 트랜잭션 테스트·새 런타임 역할 권한 확인 | 배포 UI의 저장·재접속·재배포 보존은 실제 요청 생성 후 확인 필요 |
+| Pages/Render 배포 버전·LIVE 구분 | 공개 실제 브라우저에서 버전과 설정 부족 보류 확인 | 설정 복구 후 인증된 전 과정 |
+| 사람 승인·반려·수정 감사 | 저장 로직과 자동 검증 준비 | 실제 사람 직접 사용·정책 판단 |
+
+후속 환경에서의 재개: `feat/live-rag-tools-20261023`의 최신 커밋과 `evals/live_pilot_release.json`을 확인한다. 테스트는 `python -m pytest -o addopts='' -q`(전체 CI는 격리 PostgreSQL·Playwright 사용), 실제 공개 확인은 `.github/workflows/live-pilot-public.yml`의 제한된 브랜치/파일 트리거를 사용한다. 모델 설정 복구 후 서버 빌드와 release의 full SHA를 맞추고 고정 5개 입력을 실행한다. 기존 요청이 생겼다면 DB 중복 방지로 재사용하며 입력을 임의로 바꿔 다시 과금하지 않는다. 실제 수행 후 원장·스크린샷·인용 검증 결과를 갱신하고, 마지막 배포 뒤에는 `verify_only=true`로 호출 없이 기록 보존을 확인한다.
 
 - 한글 bigram 검색의 독립 검색 recall, 의미적 인용 함의, 일반 광고 정책 정확도.
 - 제공자 최종 청구액·계정 전체 과금 상한. 여기의 수치는 고정 모델 단가에 따른 이 경로의 보수적 예약/토큰 비용이다.

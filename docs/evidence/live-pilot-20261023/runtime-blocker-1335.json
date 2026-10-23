@@ -1,0 +1,18 @@
+{
+  "observed_at": "2026-10-23T13:35:04Z",
+  "deployment_commit": "436b1f5b0ba48c3194f5b6539ddb197d6c6a75ac",
+  "render_deploy": "dep-dbdm25rm8hqs73eg8tr0",
+  "scope": "new isolated preflight_live_pilot schema and deployed LIVE view only",
+  "browser_run_id": 39962019444,
+  "database_config_present": true,
+  "openai_config_present": false,
+  "runs": 0,
+  "provider_attempts": 0,
+  "reserved_usd": 0,
+  "actual_model_ids": [],
+  "planned_model": "gpt-4o-mini-2024-07-18",
+  "human_participants": 0,
+  "human_tasks": 0,
+  "status": "blocked_before_provider_call",
+  "reason": "OPENAI_API_KEY absent or blank in deployed process; user asked to verify saved setting on exact service; key value not requested"
+}

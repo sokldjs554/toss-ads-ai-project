@@ -4,6 +4,9 @@
 
 | 지원서에 쓸 수 있는 사실 | 정확한 수치·분모 | 검증 조건 | 근거 | 쓰면 안 되는 확대 해석 |
 |---|---|---|---|---|
+| 진단 보완 커밋의 전체 회귀 통과 | `436b1f5`: 4,487 통과·실패/skip 0 | 실제 CI, 모델 호출 없음 | [CI 집계](evidence/live-pilot-20261023/ci-436b1f5.json) | 정책 정확도 100% / 실제 모델 4,487회 검증 |
+| 배포된 Pages·Render의 기존 기능 공개 회귀 | `436b1f5`: 무료 51항목 통과 | 실제 Chrome, 합성 광고·DEMO 재검사 | [원본](evidence/live-pilot-20261023/public-39962633033/free-current/result.json) | 두 LIVE 경로 실제 실행 성공 |
+| LIVE 설정 부족 시 실제 호출을 보류한 공개 화면 | 2026-10-23 13:35 UTC 기준 요청·호출·예약 0 | 서버 모델 연결 미등록, DB 설정 존재 | [상태](evidence/live-pilot-20261023/runtime-blocker-1335.json) | API 성공·토큰/비용 측정 완료 / 실사용 운영 완료 |
 | 기존 정책 엔진을 재사용해 검색 근거 기반 의미 검토를 구현 | 업종 필터 후 정책 최대 6개·상품 사실 최대 4개 검색 | 한글 문자 bigram 겹침 순위, 결정론 위반 정책 우선 | `agents/live_pilot.py::retrieve`, `validate_review` | 벡터 검색·검색 recall 검증·인용 의미의 자동 입증 |
 | 모델의 실제 function-call 응답을 정책 검사 도구로 실행하는 수정 워크플로 구현 | 요청당 호출 최대 4회·수정안 최대 2개 | tool 메시지로 코드 검사 결과 반환, 종료 후 별도 RAG 의미 검토 | `agents/live_pilot.py::run_workflow` | 같은 프롬프트 두 번 실행을 두 방식이라고 주장 / 무제한 자율 에이전트 |
 | 모델과 코드 판정의 책임을 구분 | 코드 block은 모델 APPROVE로 해제되지 않음 | 구조·근거 검증 실패는 보류, 성공도 사람 검토 대기 | `tests/test_live_pilot_engine.py` | 모델만으로 최종 광고 집행 승인 |
