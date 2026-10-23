@@ -1,10 +1,10 @@
 {
-  "expected_sha": "b94aadb0d99736a9a6060012e658d1c925663b0f",
+  "expected_sha": "3a79aaed2b042d3b2d14bf8c3b1e2515f33c2d96",
   "verify_only": true,
   "passage_v3": true,
   "passage_plan": "evals/live_pilot_control_plan.json",
   "secondary_account": false,
   "expected_prompt": "live-rag-tools-4",
   "scope": "Read-only final redeploy verification; no model Run pressed; preserve all prior automatic records",
-  "verification_attempt": 18
+  "verification_attempt": 19
 }
