@@ -196,9 +196,20 @@ def test_form_survives_switching_views(app):
     assert "이전 입력" not in _all_text(at)  # 입력을 바꾸지 않았으니 '이전 입력' 경고가 없다
 
 
-def test_recheck_does_not_treat_own_text_as_rejected_duplicate(app):
+def test_recheck_does_not_treat_own_text_as_rejected_duplicate(app, monkeypatch):
     """게재 불가 광고를 조금만 고쳐 다시 검사할 때, 방금 반려된 '자기 자신' 과 비슷하다는 이유(TA-DUP-01)로 또 걸리면 안 된다."""
     from guardrails.duplicate import similarity
+    from llm.mock_provider import MockProvider
+
+    original_copy = MockProvider._copy
+
+    def copy_with_real_block(self, req):
+        out = original_copy(self, req)
+        # 실제 block 근거로 반려 이력을 만든다. 정상 '쿠폰! 지금' 과탐에 의존하지 않는다.
+        out["variants"][2]["headline"] = "업계 최저 타사보다 2배 좋은 조건"
+        return out
+
+    monkeypatch.setattr(MockProvider, "_copy", copy_with_real_block)
 
     at = app.run()
     at.session_state["pending_load"] = "commerce_landing"  # 사례 화면의 '이 사례로 광고 만들기' 와 같은 경로
@@ -206,8 +217,9 @@ def test_recheck_does_not_treat_own_text_as_rejected_duplicate(app):
     at.button(key="run_button").click().run()
     run = at.session_state["runs"][-1]["run"]
     rejected = [r for r in run.reports if r.final_decision.value == "REJECT"]
-    assert rejected, "커머스 예시의 세 번째 광고안은 게재 불가여야 한다"
+    assert rejected, "통제된 비교 우위 위반 광고안은 게재 불가여야 한다"
     rep = rejected[0]
+    assert "TA-COMPARE-01" in {f.rule_id for f in rep.verdict.findings}
     vid = rep.variant_id
     assert rep.ad_copy.core_text() in at.session_state["rejected_history"]
     new_head = rep.ad_copy.headline.replace("업계 최저 ", "")  # 최소 수정 — 원문과 여전히 매우 비슷하다
@@ -435,3 +447,4 @@ def test_mock_rate_disclosure_keeps_the_whole_rate_phrase():
     first = _mock_disclosure("loan", [{"text": "금리 연 4.5%~15.0% (심사 결과에 따라 다름)"}])[0]
     assert first == "연 4.5%~15.0% (심사 결과에 따라 다름)"
     assert _mock_disclosure("loan", [{"text": "연 7.9% 고정"}])[0] == "연 7.9%"
+

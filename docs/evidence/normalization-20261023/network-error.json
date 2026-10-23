@@ -1,0 +1,7 @@
+{
+  "time_utc": "2026-10-23T06:07:34.736689+00:00",
+  "command": "git ls-remote https://github.com/sokldjs554/toss-ads-ai-project.git HEAD",
+  "exit_code": 128,
+  "stderr": "fatal: unable to access 'https://github.com/sokldjs554/toss-ads-ai-project.git/': Failed to connect to proxy port 8080 after 0 ms: Could not connect to server\n",
+  "interpretation": "Proxy TCP connection refused before destination HTTP policy response. No observed domain-denial response; proxy settings unchanged."
+}

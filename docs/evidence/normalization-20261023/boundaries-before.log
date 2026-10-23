@@ -1,0 +1,193 @@
+FFF.FFFFF.....................FFFF.                                      [100%]
+=================================== FAILURES ===================================
+_ test_normal_words_do_not_manufacture_a_restricted_term[\ucfe0\ud3f0! \uc9c0\uae08 \ud655\uc778\ud558\uc138\uc694] _
+
+text = '쿠폰! 지금 확인하세요'
+
+    @pytest.mark.parametrize("text", [
+        "쿠폰! 지금 확인하세요", "쿠폰 지금 확인하세요", "쿠폰. 지금 확인하세요",
+        "쿠폰을 지금 확인하세요", "쿠폰\n지금 확인하세요", "쿠폰\u00a0지금 확인하세요",
+        "쿠폰!\u200b 지금 확인하세요", "최다 단계별 안내", "매일 수령하세요",
+    ])
+    def test_normal_words_do_not_manufacture_a_restricted_term(text):
+>       assert RESTRICTED not in {f.rule_id for f in scan(text, {"ecommerce"})}
+E       AssertionError: assert 'TA-RESTRICTED-01' not in {'TA-RESTRICTED-01'}
+
+tests/test_normalization_boundaries.py:31: AssertionError
+_ test_normal_words_do_not_manufacture_a_restricted_term[\ucfe0\ud3f0 \uc9c0\uae08 \ud655\uc778\ud558\uc138\uc694] _
+
+text = '쿠폰 지금 확인하세요'
+
+    @pytest.mark.parametrize("text", [
+        "쿠폰! 지금 확인하세요", "쿠폰 지금 확인하세요", "쿠폰. 지금 확인하세요",
+        "쿠폰을 지금 확인하세요", "쿠폰\n지금 확인하세요", "쿠폰\u00a0지금 확인하세요",
+        "쿠폰!\u200b 지금 확인하세요", "최다 단계별 안내", "매일 수령하세요",
+    ])
+    def test_normal_words_do_not_manufacture_a_restricted_term(text):
+>       assert RESTRICTED not in {f.rule_id for f in scan(text, {"ecommerce"})}
+E       AssertionError: assert 'TA-RESTRICTED-01' not in {'TA-RESTRICTED-01'}
+
+tests/test_normalization_boundaries.py:31: AssertionError
+_ test_normal_words_do_not_manufacture_a_restricted_term[\ucfe0\ud3f0. \uc9c0\uae08 \ud655\uc778\ud558\uc138\uc694] _
+
+text = '쿠폰. 지금 확인하세요'
+
+    @pytest.mark.parametrize("text", [
+        "쿠폰! 지금 확인하세요", "쿠폰 지금 확인하세요", "쿠폰. 지금 확인하세요",
+        "쿠폰을 지금 확인하세요", "쿠폰\n지금 확인하세요", "쿠폰\u00a0지금 확인하세요",
+        "쿠폰!\u200b 지금 확인하세요", "최다 단계별 안내", "매일 수령하세요",
+    ])
+    def test_normal_words_do_not_manufacture_a_restricted_term(text):
+>       assert RESTRICTED not in {f.rule_id for f in scan(text, {"ecommerce"})}
+E       AssertionError: assert 'TA-RESTRICTED-01' not in {'TA-RESTRICTED-01'}
+
+tests/test_normalization_boundaries.py:31: AssertionError
+_ test_normal_words_do_not_manufacture_a_restricted_term[\ucfe0\ud3f0\n\uc9c0\uae08 \ud655\uc778\ud558\uc138\uc694] _
+
+text = '쿠폰\n지금 확인하세요'
+
+    @pytest.mark.parametrize("text", [
+        "쿠폰! 지금 확인하세요", "쿠폰 지금 확인하세요", "쿠폰. 지금 확인하세요",
+        "쿠폰을 지금 확인하세요", "쿠폰\n지금 확인하세요", "쿠폰\u00a0지금 확인하세요",
+        "쿠폰!\u200b 지금 확인하세요", "최다 단계별 안내", "매일 수령하세요",
+    ])
+    def test_normal_words_do_not_manufacture_a_restricted_term(text):
+>       assert RESTRICTED not in {f.rule_id for f in scan(text, {"ecommerce"})}
+E       AssertionError: assert 'TA-RESTRICTED-01' not in {'TA-RESTRICTED-01'}
+
+tests/test_normalization_boundaries.py:31: AssertionError
+_ test_normal_words_do_not_manufacture_a_restricted_term[\ucfe0\ud3f0\xa0\uc9c0\uae08 \ud655\uc778\ud558\uc138\uc694] _
+
+text = '쿠폰\xa0지금 확인하세요'
+
+    @pytest.mark.parametrize("text", [
+        "쿠폰! 지금 확인하세요", "쿠폰 지금 확인하세요", "쿠폰. 지금 확인하세요",
+        "쿠폰을 지금 확인하세요", "쿠폰\n지금 확인하세요", "쿠폰\u00a0지금 확인하세요",
+        "쿠폰!\u200b 지금 확인하세요", "최다 단계별 안내", "매일 수령하세요",
+    ])
+    def test_normal_words_do_not_manufacture_a_restricted_term(text):
+>       assert RESTRICTED not in {f.rule_id for f in scan(text, {"ecommerce"})}
+E       AssertionError: assert 'TA-RESTRICTED-01' not in {'TA-RESTRICTED-01'}
+
+tests/test_normalization_boundaries.py:31: AssertionError
+_ test_normal_words_do_not_manufacture_a_restricted_term[\ucfe0\ud3f0!\u200b \uc9c0\uae08 \ud655\uc778\ud558\uc138\uc694] _
+
+text = '쿠폰!\u200b 지금 확인하세요'
+
+    @pytest.mark.parametrize("text", [
+        "쿠폰! 지금 확인하세요", "쿠폰 지금 확인하세요", "쿠폰. 지금 확인하세요",
+        "쿠폰을 지금 확인하세요", "쿠폰\n지금 확인하세요", "쿠폰\u00a0지금 확인하세요",
+        "쿠폰!\u200b 지금 확인하세요", "최다 단계별 안내", "매일 수령하세요",
+    ])
+    def test_normal_words_do_not_manufacture_a_restricted_term(text):
+>       assert RESTRICTED not in {f.rule_id for f in scan(text, {"ecommerce"})}
+E       AssertionError: assert 'TA-RESTRICTED-01' not in {'TA-RESTRICTED-01'}
+
+tests/test_normalization_boundaries.py:31: AssertionError
+_ test_normal_words_do_not_manufacture_a_restricted_term[\ucd5c\ub2e4 \ub2e8\uacc4\ubcc4 \uc548\ub0b4] _
+
+text = '최다 단계별 안내'
+
+    @pytest.mark.parametrize("text", [
+        "쿠폰! 지금 확인하세요", "쿠폰 지금 확인하세요", "쿠폰. 지금 확인하세요",
+        "쿠폰을 지금 확인하세요", "쿠폰\n지금 확인하세요", "쿠폰\u00a0지금 확인하세요",
+        "쿠폰!\u200b 지금 확인하세요", "최다 단계별 안내", "매일 수령하세요",
+    ])
+    def test_normal_words_do_not_manufacture_a_restricted_term(text):
+>       assert RESTRICTED not in {f.rule_id for f in scan(text, {"ecommerce"})}
+E       AssertionError: assert 'TA-RESTRICTED-01' not in {'TA-RESTRICTED-01'}
+
+tests/test_normalization_boundaries.py:31: AssertionError
+_ test_normal_words_do_not_manufacture_a_restricted_term[\ub9e4\uc77c \uc218\ub839\ud558\uc138\uc694] _
+
+text = '매일 수령하세요'
+
+    @pytest.mark.parametrize("text", [
+        "쿠폰! 지금 확인하세요", "쿠폰 지금 확인하세요", "쿠폰. 지금 확인하세요",
+        "쿠폰을 지금 확인하세요", "쿠폰\n지금 확인하세요", "쿠폰\u00a0지금 확인하세요",
+        "쿠폰!\u200b 지금 확인하세요", "최다 단계별 안내", "매일 수령하세요",
+    ])
+    def test_normal_words_do_not_manufacture_a_restricted_term(text):
+>       assert RESTRICTED not in {f.rule_id for f in scan(text, {"ecommerce"})}
+E       AssertionError: assert 'TA-RESTRICTED-01' not in {'TA-RESTRICTED-01'}
+
+tests/test_normalization_boundaries.py:31: AssertionError
+_____________ test_false_fragment_does_not_hide_a_later_real_match _____________
+
+    def test_false_fragment_does_not_hide_a_later_real_match():
+        text = "쿠폰! 지금 확인. 폰 . 지 사기"
+        findings = [f for f in scan(text, {"ecommerce"}) if f.rule_id == RESTRICTED]
+>       assert [(f.quote, f.start, f.end) for f in findings] == [("폰 . 지", 11, 16)]
+E       AssertionError: assert [('폰! 지', 1, .... 지', 11, 16)] == [('폰 . 지', 11, 16)]
+E         
+E         At index 0 diff: ('폰! 지', 1, 5) != ('폰 . 지', 11, 16)
+E         Left contains one more item: ('폰 . 지', 11, 16)
+E         Use -v to get more diff
+
+tests/test_normalization_boundaries.py:74: AssertionError
+________ test_original_keeps_other_violations_and_fail_closed_decision _________
+
+    def test_original_keeps_other_violations_and_fail_closed_decision():
+        product = build_brief(PRESETS["commerce_landing"]).product
+        copy = AdCopy(headline=ORIGINAL, body="", cta="")
+        det = output_guard.check(copy, product, {"ecommerce"})
+        ids = {f.rule_id for f in det.findings}
+>       assert RESTRICTED not in ids
+E       AssertionError: assert 'TA-RESTRICTED-01' not in {'TA-LENGTH-01', 'TA-RESTRICTED-01', 'TA-SUPERLATIVE-01', 'TA-URGENCY-01'}
+
+tests/test_normalization_boundaries.py:82: AssertionError
+___________ test_commerce_preset_pipeline_preserves_remaining_revise ___________
+
+demo_settings = Settings(openai_api_key='', anthropic_api_key='', openai_model='gpt-4o', anthropic_model='claude-sonnet-5-5', request_timeout_s=45.0, max_retries=2, run_budget_usd=0.5, auto_decision_confidence=0.8, force_demo=True)
+tracer = <observability.tracer.Tracer object at 0x7fecd58eebd0>
+
+    def test_commerce_preset_pipeline_preserves_remaining_revise(demo_settings, tracer):
+        preset = PRESETS["commerce_landing"]
+        run = run_pipeline(build_brief(preset), demo_settings,
+                           options=RunOptions(landing_text=preset["landing_text"]), tracer=tracer)
+        reports = [r for r in run.reports if r.ad_copy.headline == ORIGINAL]
+        assert len(reports) == 1
+        report = reports[0]
+>       assert RESTRICTED not in {f.rule_id for f in report.verdict.findings}
+E       AssertionError: assert 'TA-RESTRICTED-01' not in {'GRND-CLAIM-01', 'GRND-COND-01', 'TA-LANDING-01', 'TA-LENGTH-01', 'TA-RESTRICTED-01', 'TA-SUPERLATIVE-01', ...}
+
+tests/test_normalization_boundaries.py:95: AssertionError
+_ test_manual_edit_and_proposed_rewrite_use_same_policy[\ucfe0\ud3f0! \uc9c0\uae08 \ud655\uc778\ud558\uc138\uc694-APPROVE] _
+
+text = '쿠폰! 지금 확인하세요', expected = <Decision.APPROVE: 'APPROVE'>
+demo_settings = Settings(openai_api_key='', anthropic_api_key='', openai_model='gpt-4o', anthropic_model='claude-sonnet-5-5', request_timeout_s=45.0, max_retries=2, run_budget_usd=0.5, auto_decision_confidence=0.8, force_demo=True)
+tracer = <observability.tracer.Tracer object at 0x7fecd58c34a0>
+
+    @pytest.mark.parametrize("text,expected", [
+        ("쿠폰! 지금 확인하세요", Decision.APPROVE),
+        ("폰! 지 사기", Decision.REJECT),
+    ])
+    def test_manual_edit_and_proposed_rewrite_use_same_policy(text, expected, demo_settings, tracer):
+        product = build_brief(PRESETS["commerce_landing"]).product
+        original = AdCopy(headline=ORIGINAL, body="", cta="")
+        edited = build_edited_copy(original, text, "", "", [])
+        result = recheck(edited, product, {"ecommerce"}, demo_settings, tracer=tracer)
+        rewrite = check_rewrite(edited, product, {"ecommerce"}, "", [], get_catalog(),
+                                Router(demo_settings, tracer=tracer), "", tracer,
+                                demo_settings.auto_decision_confidence)
+>       assert result.report.final_decision == rewrite.decision == expected
+E       AssertionError: assert <Decision.REJECT: 'REJECT'> == <Decision.APPROVE: 'APPROVE'>
+E         
+E         - APPROVE
+E         + REJECT
+
+tests/test_normalization_boundaries.py:113: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_normalization_boundaries.py::test_normal_words_do_not_manufacture_a_restricted_term[\ucfe0\ud3f0! \uc9c0\uae08 \ud655\uc778\ud558\uc138\uc694]
+FAILED tests/test_normalization_boundaries.py::test_normal_words_do_not_manufacture_a_restricted_term[\ucfe0\ud3f0 \uc9c0\uae08 \ud655\uc778\ud558\uc138\uc694]
+FAILED tests/test_normalization_boundaries.py::test_normal_words_do_not_manufacture_a_restricted_term[\ucfe0\ud3f0. \uc9c0\uae08 \ud655\uc778\ud558\uc138\uc694]
+FAILED tests/test_normalization_boundaries.py::test_normal_words_do_not_manufacture_a_restricted_term[\ucfe0\ud3f0\n\uc9c0\uae08 \ud655\uc778\ud558\uc138\uc694]
+FAILED tests/test_normalization_boundaries.py::test_normal_words_do_not_manufacture_a_restricted_term[\ucfe0\ud3f0\xa0\uc9c0\uae08 \ud655\uc778\ud558\uc138\uc694]
+FAILED tests/test_normalization_boundaries.py::test_normal_words_do_not_manufacture_a_restricted_term[\ucfe0\ud3f0!\u200b \uc9c0\uae08 \ud655\uc778\ud558\uc138\uc694]
+FAILED tests/test_normalization_boundaries.py::test_normal_words_do_not_manufacture_a_restricted_term[\ucd5c\ub2e4 \ub2e8\uacc4\ubcc4 \uc548\ub0b4]
+FAILED tests/test_normalization_boundaries.py::test_normal_words_do_not_manufacture_a_restricted_term[\ub9e4\uc77c \uc218\ub839\ud558\uc138\uc694]
+FAILED tests/test_normalization_boundaries.py::test_false_fragment_does_not_hide_a_later_real_match
+FAILED tests/test_normalization_boundaries.py::test_original_keeps_other_violations_and_fail_closed_decision
+FAILED tests/test_normalization_boundaries.py::test_commerce_preset_pipeline_preserves_remaining_revise
+FAILED tests/test_normalization_boundaries.py::test_manual_edit_and_proposed_rewrite_use_same_policy[\ucfe0\ud3f0! \uc9c0\uae08 \ud655\uc778\ud558\uc138\uc694-APPROVE]
+12 failed, 23 passed in 0.64s
