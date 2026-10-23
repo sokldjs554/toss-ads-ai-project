@@ -1,19 +1,43 @@
-# 최신 상태 안내
+# LIVE 보완 결과 — 실제 모델 실행 확인, 사람 사용은 별도 확인
 
-아래는 모델 키 등록을 확인하기 전 보존한 과거 상태다. 이후 실제 호출은 이뤄졌으며 최신 결과는 [구조 보완 장부](live-pilot-structured-20261023.md)를 우선한다. v3 실제 실행·최종 배포 검증은 진행 중이다.
+기준 커밋 `7767dcbe288fd9ceaf6b9fdc021f7ac4450ad388`. 실제 두 경로 검증 코드/배포: **`b0f110cc48fb3b522f4b6545145b1c34209a5b4a`**, 프롬프트 `live-rag-tools-4`, 정책 `2026.10.7`. 문서 갱신 뒤의 최종 화면 버전·재배포 보존 증거는 [작업 브랜치의 후속 증거](https://github.com/sokldjs554/toss-ads-ai-project/tree/feat/live-rag-tools-20261023/docs/evidence/live-pilot-20261023)와 최종 인계문에서 확인한다. 실행 빌드와 이후 조회 화면 빌드는 구분한다.
 
-# 2026-10-23 14:02 UTC 당시 기술 상태 — 과거 기록
+## 실제로 확인한 두 방식
 
-배포 main: `da250e7769379ee3840678af6ca39f7bbf1d6eab`. 기준: `7767dcbe288fd9ceaf6b9fdc021f7ac4450ad388`. 후속 공개 검증 근거는 `feat/live-rag-tools-20261023`에 보존한다.
+| 경로 | 배포 서버 실제 실행 | 결과 | API 사용 |
+|---|---|---|---|
+| RAG 정책 검토 | `fc4cca3e-a635-4d35-9aa8-602979de7146`, 2026-10-23 17:58:12.777–17:58:15.510 UTC | 정책·상품 사실 검색→모델 의견/인용→출처·구절 검사→사람 검토 대기. 코드/모델 APPROVE, 자동 시험 계정의 approve 감사 저장 | 1회 |
+| 도구 호출 수정·재검사 | `548b397b-a695-43e9-9fae-beb779b126d1`, 17:57:05.081–17:57:22.658 UTC | 5,000원 조건을 사실의 50,000원으로 수정→모델의 실제 `check_policy` 호출→코드 재검사→RAG 검토→사람 검토 대기. 수정 1회, 자동 approve 감사 저장 | 3회 |
 
-- 최종 main [CI 39966038678](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39966038678): **4,487 통과 / 실패 0 / skip 0 / error 0**, 244.97초. 별도 DB 54개·LIVE 26개 게이트는 전체와 중복되며 합산하지 않는다. 모든 평가 게이트 통과. 제공자 호출 없음.
-- [Pages 배포](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39966038780) 성공. Render `dep-dbdmh7lg1s2s73ds3oh0`은 14:02:10 UTC에 같은 커밋으로 live.
-- [최종 공개 Chrome 실행](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39966158608): [무료 회귀 51/51 통과](evidence/live-pilot-20261023/public-39966158608/free-current/result.json). 두 사이트 버전·Pages 번들 16개 관련 파일 일치·쿠폰 과탐 제거·다른 위반 유지·직접 수정·금지 업종 우회 표기 반려·기존 평가 한계·재생 구분 확인.
-- [LIVE 확인](evidence/live-pilot-20261023/public-39966158608/result.json)은 버전/구분 3항목 확인 후 모델 설정 부족으로 중단. 전체 공개 작업은 **실패**다. 무료 회귀 성공을 실제 모델 성공으로 대체하지 않는다.
-- [최종 서버 실제 캡처](evidence/live-pilot-20261023/public-39966158608/live-configuration-missing.png)에 `빌드 da250e7`과 `미등록: 모델 연결`이 함께 보인다. [Pages 캡처](evidence/live-pilot-20261023/public-39966158608/pages-live-server-link.png)도 같은 빌드다. Chrome 155.0.8059.39, 한글 폰트 설치 후 촬영 원본.
+모델은 **`gpt-4o-mini-2024-07-18`**. 위 두 요청에서 입력 **10,387**·출력 **444**토큰, 추정 **$0.001824**. 동일 프롬프트의 입력만 바꾼 분류가 아니다. RAG는 검색 문서로 의미 의견을 생성하고, 도구 경로는 모델이 함수 호출/수정안/종료를 선택하고 코드의 tool 응답을 받는 제어 흐름이다. 도구 경로 마지막에 RAG 검토를 재사용한다. 독립 서비스 두 개·무제한 자율 에이전트·벡터 검색이라고 주장하지 않는다.
 
-현재 새 파일럿 **요청 0 / 제공자 호출 0 / 비용 예약 $0 / 실제 사람 0명·0건**. 실제 모델 ID·토큰·비용 측정 결과는 아직 없다. `gpt-4o-mini-2024-07-18`은 예정 모델이다. 저장·권한·중복·상한은 격리 PostgreSQL과 모의 모델 테스트에서 확인했고, 배포 UI의 실제 기록 저장·재접속·재배포 보존은 미완료다. 기존 공동 검수 데이터는 변경하지 않았다.
+## 누적 원장과 개선 범위
 
-사용자가 Render 등록 완료를 알렸지만 최종 프로세스에는 `OPENAI_API_KEY`가 없거나 공백이다. 저장소 설정은 존재한다. my2 workspace의 정확한 `preflight-toss-ads` 서비스 Environment에서 저장 상태 확인을 요청했다. 키 값이나 유료 호출 재승인을 요청한 것은 아니다. 설정 복구 후 이미 승인된 범위에서 고정 5개 입력을 실행하고, 마지막 재배포 후에는 조회 전용 모드로 기록 보존을 확인해야 한다.
+자동 시험 계정 2개, **합성 요청 13건(재검증 포함, 서로 다른 광고·상품 입력 7개)**, 서버 제공자 시도 **27회: 응답 성공 26·실패 1**. 별도 Actions 스키마 진단 1회가 실패했으므로 전체 시도는 **28회: 성공 26·실패 2**다. 서버 성공 응답의 입력 **34,290**·출력 **2,232**토큰, 알려진 사용량 기준 추정 비용 합계 **$0.006483**. **실패 2회의 사용량·비용은 미확인**이며 0으로 처리하지 않는다. 제공자 청구서 확정액이 아니다. 서버 누적 예약 **$1.04**는 비용과 다른 보수적 한도 장부다(전역 $1.50, 사용자 $0.60, 요청 $0.08).
 
-RAG/실제 function-tool 기반 수정 워크플로의 구조·한계·중간 실패는 [기술 장부](live-pilot-20261023.md), 사람 수행 절차는 [런북](live-pilot-human-runbook.md), ChatGPT Work 사실 표와 기여 구분은 [주장 검증표](live-pilot-claims.md)에 있다. 자기소개서·이력서·포트폴리오는 수정하지 않았다. 기존 지속 하락 미탐 7/12·13/24, 정책 위험한 통과 4/16의 AI 초안 정답 조건, 56응답=28쌍×2명·21/28 일치(공동 보류 포함)는 유지한다. 배포·자동 실행을 실사용 운영 또는 사람 시간 절감으로 표현하지 않는다.
+| 프롬프트 | 서버 요청/호출 | 사람 검토 대기/보류 | 관측과 한계 |
+|---|---:|---:|---|
+| v1 | 4 / 8 | 1 / 3 | 필수 인용 누락 3건 |
+| v2 | 6 / 12 | 3 / 3 | 원래 네 입력의 인용 누락 3/4→0/4. 최종 판정은 네 건 모두 동일. 도구 두 건의 모델 HOLD와 별도 사례의 인용 불일치 보류가 남음 |
+| v3 | 1 / 3 | 0 / 1 | 최종 제공자 호출 실패. 별도 진단에서 strict enum의 줄바꿈 거부 재현 |
+| v4 | 2 / 4 | 2 / 0 | 동일 조건 도구 사례 1건과 고정 RAG 사례 1건의 완료 확인. 독립 정책 정확도 실험 아님 |
+
+최소 구매 조건 사례의 광고/상품 payload hash가 v2·v3·v4에서 동일함을 대조했다. v2 `citation_mismatch`→v3 제공자 실패→v4 검사 APPROVE/사람 검토 대기로 바뀌었다. v2의 별도 평가 자료는 이후 개발 비교에 사용했으므로 독립 holdout으로 부르지 않는다. 기존 쿠폰 도구 두 사례의 모델 HOLD가 v4에서 해결됐다고 쓰지 않는다(재실행 안 함).
+
+v4는 원문 안의 제어문자 없는 연속 구절을 source ID에 묶은 구조화 선택지로 제공한다. 원문을 합치거나 실패한 인용을 사후 교체하지 않는다. 검색 원문·해시·정책 버전은 유지한다. **인용의 존재는 결론의 의미적 타당성·정책 정확도·검색 recall의 증명이 아니다.** [원장/실패 과정](live-pilot-structured-20261023.md), [기술 판단](live-pilot-decisions-20261023.md).
+
+## 테스트·배포·공개 브라우저
+
+- `b0f110c` [CI 39997476845](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39997476845): **4,496 통과 / 실패 0 / skip 0 / error 0**, 440.58초. DB 54개·LIVE 34개 선행 게이트는 전체와 중복이므로 더하지 않는다. CI 모델 호출 0.
+- [Pages 39998888812](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39998888812) 성공. Render `dep-dbdpuhe1egvs73f3ssi0`, 17:55:08.809381 UTC live, 같은 코드 커밋.
+- [실제 Chrome 39999144241](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39999144241): **인증된 LIVE 35/35 + 별도 무료 공개 회귀 51/51** 통과. LIVE 실호출·인용 확인·수정/재검사·자동 감사 저장·새 세션 재접속·타 계정 목록 분리·양쪽 화면 버전 확인. 무료 회귀는 기존 쿠폰 과탐/다른 정책 위반/직접 재검사/금지 업종 처리/정적 번들 코드 일치/과거 재생 구분을 확인한다.
+- [도구 실제 화면](evidence/live-pilot-20261023/public-39999144241-attempt-1/control-tools-comparison-reconnected.png), [RAG 실제 화면](evidence/live-pilot-20261023/public-39999144241-attempt-1/control-rag-probe-reconnected.png), [Pages 화면](evidence/live-pilot-20261023/public-39999144241-attempt-1/pages-live-server-link.png). 캡처를 편집하거나 버전을 합성하지 않았다.
+- 기존 공동 검수 계정/자료는 이 실험에서 조회·변경하지 않았다. 별도 시험 스키마와 제한 DB 역할을 사용했다. 직접 타 계정 읽기/쓰기 거부·동시성·비용 상한은 격리 DB에서, 배포 화면의 계정 분리/저장/재접속은 실제 브라우저에서 확인했다. DB 관리자까지 격리된다는 주장은 하지 않는다.
+
+## 원자료와 사람 단계
+
+[합성 요청·결과·호출·감사 원장](evidence/live-pilot-20261023/final-synthetic-records.json), [오프라인 대조](evidence/live-pilot-20261023/final-audit/offline-audit.json), [사람 의미 검수표](evidence/live-pilot-20261023/final-audit/human-semantic-review.csv), [별도 제공자 진단](evidence/live-pilot-20261023/schema-diagnostic-39996868624.json). 재현: `python scripts/audit_live_pilot_records.py docs/evidence/live-pilot-20261023/final-synthetic-records.json /tmp/live-audit`. 운영 export에는 광고 원문·프롬프트·키가 없으며 위의 전체 원장은 명시적으로 합성인 자동 계정 자료만 공개한다.
+
+기술 기록에서 확인된 **실제 사람 사용자 0명·작업 0건**. 자동 approve/reject/edit는 사람 판단이 아니다. 발급된 사람 계정도 사용 증거가 아니다. 사용자가 직접 수행하고 응답/감사를 대조하기 전까지 미확인이다. [실제 수행 절차](live-pilot-human-runbook.md), [피드백 CSV](live-pilot-human-feedback.csv)를 전달했다. 사용 기간·고객 운영·협업 효과·시간 절감·공고의 production 경험 충족은 주장하지 않는다.
+
+지속 하락 미탐 개발 **7/12**, 새 자료 **13/24**는 미해결(악화한 후보 철회). 새 정책 위험한 통과 **4/16**은 사람 검수 전 AI 초안 정답 기준. 기존 **56응답=28쌍×2명**, 선택 일치 **21/28**에는 공동 보류 1쌍 포함, AI 정확도가 아니다. 삭제 요청된 금지어는 복원하지 않았다. 정규화 경계 수정과 금지어 삭제는 별개 변경이다. 자기소개서·이력서·제출용 포트폴리오는 편집하지 않았다.

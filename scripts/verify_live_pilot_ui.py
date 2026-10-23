@@ -55,12 +55,23 @@ def main():
         if page.get_by_label("LIVE 검토 접근키", exact=True).count(): return
         text = page.inner_text("body")
         if any(s in text for s in (key, token, other)): raise AssertionError("secret visible")
+        # Streamlit scrolls an inner container, so full_page alone does not
+        # include the header. Capture the actual header separately, unedited.
+        page.locator(".pf-topbar").scroll_into_view_if_needed()
+        page.screenshot(path=str(args.out / (name+"-version.png")))
+        report["screens"].append(name+"-version.png")
         if page.get_by_role("heading",name="저장된 LIVE 검토",exact=True).count():
             page.get_by_role("heading",name="저장된 LIVE 검토",exact=True).scroll_into_view_if_needed()
         if name.endswith("-saved"):
             details=page.get_by_text("실제 모델 도구 호출과 재검사",exact=True).locator("xpath=ancestor::details")
             if details.count() and details.get_attribute("open") is None:
                 details.locator("summary").click()
+            if details.count():
+                tool_text=details.get_by_text(re.compile(r"수정 \d+ · check_policy"))
+                tool_text.first.wait_for(state="visible")
+                tool_text.first.scroll_into_view_if_needed()
+                page.screenshot(path=str(args.out / (name+"-tool.png")))
+                report["screens"].append(name+"-tool.png")
         page.screenshot(path=str(args.out / (name+".png")), full_page=name.endswith("-saved"))
         (args.out / (name+".txt")).write_text(text)
         report["screens"].append(name+".png")

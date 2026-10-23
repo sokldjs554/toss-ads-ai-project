@@ -60,6 +60,9 @@ if len(minimum)>=2:
         assert before['content_sha256_without_parent']==after['content_sha256_without_parent']
         comparisons.append({'case_id':'structured-holdout-minimum-purchase','same_ad_product_payload':True,'before_prompt':before['prompt_version'],'after_prompt':after['prompt_version'],'before':before['status']+':'+before['reason'],'after':after['status']+':'+after['reason'],'before_decision':before['decision'],'after_decision':after['decision'],'split':'v2 heldout became later development comparison, not independent evaluation'})
 summary['paired_development_comparisons']=comparisons
+summary['unique_ad_product_inputs']=len({json.dumps({k:r['payload'][k] for k in ('copy','product')},sort_keys=True,ensure_ascii=False) for r in rows})
+summary['automation_accounts']=sorted({r['account_id'] for r in rows})
+summary['automation_request_window_utc']={'first_created':min(r['created_at'] for r in rows),'last_finished':max(r['finished_at'] for r in rows)}
 summary['by_prompt']=[]
 for prompt in sorted({r['result']['prompt_version'] for r in rows}):
     group=[r for r in rows if r['result']['prompt_version']==prompt]

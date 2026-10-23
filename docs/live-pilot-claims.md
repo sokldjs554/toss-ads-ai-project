@@ -1,21 +1,21 @@
-# ChatGPT Work용 사실 검증표
+# ChatGPT Work용 주장 검증표
 
-지원서 문안이 아닌 기술 인계 자료다. 실제 실행의 최신 상태·수치는 [실제 호출·구조 보완 장부](live-pilot-structured-20261023.md) 및 연결된 원본 JSON을 우선한다. 아래의 구현 사실만으로 실제 사용 완료를 주장하지 않는다.
+지원서 문안이 아니라 사실 중심의 기술 인계다. 아래 실측은 `b0f110c`, 프롬프트 `live-rag-tools-4`, 정책 `2026.10.7`에 대한 기록이다. 문서 재배포의 최종 SHA/CI/조회 화면은 최종 인계문의 후속 증거와 대조한다. [상태·원자료](live-pilot-final-status-20261023.md), [선택 이유·실패·코드](live-pilot-decisions-20261023.md).
 
-| 지원서에 쓸 수 있는 사실 | 정확한 수치·분모 | 검증 조건 | 근거 | 쓰면 안 되는 확대 해석 |
+| 지원서에 쓸 수 있는 사실 | 정확한 수치·분모 | 검증 조건 | 근거 링크 | 쓰면 안 되는 확대 해석 |
 |---|---|---|---|---|
-| 진단 보완 커밋의 전체 회귀 통과 | `436b1f5`: 4,487 통과·실패/skip 0 | 실제 CI, 모델 호출 없음 | [CI 집계](evidence/live-pilot-20261023/ci-436b1f5.json) | 정책 정확도 100% / 실제 모델 4,487회 검증 |
-| 배포된 Pages·Render의 기존 기능 공개 회귀 | `436b1f5`: 무료 51항목 통과 | 실제 Chrome, 합성 광고·DEMO 재검사 | [원본](evidence/live-pilot-20261023/public-39962633033/free-current/result.json) | 두 LIVE 경로 실제 실행 성공 |
-| 배포 서버의 실제 모델 실행과 인용 누락 한계 | v1: 4건·8회, 인용 누락 보류 3/4, 추정 $0.001722 | 합성 광고·자동 계정, 모델 gpt-4o-mini-2024-07-18 | [실제 원장](evidence/live-pilot-20261023/public-39984467627-attempt-1/result.json) | 모든 워크플로 완료 / 사람 정책 정답 / 실사용 운영 완료 |
-| 기존 정책 엔진을 재사용해 검색 근거 기반 의미 검토를 구현 | 업종 필터 후 정책 최대 6개·상품 사실 최대 4개 검색 | 한글 문자 bigram 겹침 순위, 결정론 위반 정책 우선 | `agents/live_pilot.py::retrieve`, `validate_review` | 벡터 검색·검색 recall 검증·인용 의미의 자동 입증 |
-| 모델의 실제 function-call 응답을 정책 검사 도구로 실행하는 수정 워크플로 구현 | 요청당 호출 최대 4회·수정안 최대 2개 | tool 메시지로 코드 검사 결과 반환, 종료 후 별도 RAG 의미 검토 | `agents/live_pilot.py::run_workflow` | 같은 프롬프트 두 번 실행을 두 방식이라고 주장 / 무제한 자율 에이전트 |
-| 모델과 코드 판정의 책임을 구분 | 코드 block은 모델 APPROVE로 해제되지 않음 | 구조·근거 검증 실패는 보류, 성공도 사람 검토 대기 | `tests/test_live_pilot_engine.py` | 모델만으로 최종 광고 집행 승인 |
-| 서버 측 누적 예약·중복 방지·본인 기록 접근을 구현 | 요청 $0.08 예약·계정 $0.50·전체 $1.00, 분당 신규 3개 | 별도 PostgreSQL 스키마, 동시성·재접속 중복 테스트 | `ops/live_pilot_store.py`, `tests/test_live_pilot_store.py` | 제공자 계정 전체의 청구 상한 / SSO·MFA·DB 관리자에 대한 격리 |
-| 실제 모델과 DEMO 및 재생 화면을 구분 | API 호출 원장·실행 빌드·자동/사람 미확인 계정 유형 분리 | 실제 호출 완료 여부는 실행 장부 확인 | `ui/live_pilot_view.py`, 공개 브라우저 JSON | 배포·합성 자동 실행을 고객 운영 경험으로 표현 |
-| 기존 사람 평가의 응답과 선택 일치 기록 | 56응답 = 28쌍×2명, 21/28 일치에 공동 보류 1쌍 포함 | 기존 사람 비교, 새 실험 아님 | 기존 평가 문서와 본 실행 장부의 보존 조건 | AI 정확도 75% / 독립 실험 추가 56건 |
-| 지속 하락 탐지 후보의 악화를 확인해 철회 | 개발 미탐 7/12·새 자료 미탐 13/24 유지 | 기존 고정 자료, 이번 LIVE 연결과 별개 | 기존 성과 인사이트 평가 문서 | 이번 변경으로 미탐 해결 |
-| 새 정책 평가의 위험한 통과 한계 유지 | 4/16 | 사람 검수 전 AI 초안 정답 | 기존 고정 정책 평가 | 독립 사람 정답 기준 정확도 |
-| 실제 사람 파일럿의 절차·피드백 표를 준비 | 실제 수행 확인 전 사람 사용자 0명·작업 0건 | 합성 광고, 계정 발급과 자동 감사 기록 제외 | [사람 사용 절차](live-pilot-human-runbook.md) | 운영 기간·팀 협업 효과·업무 시간 절감 확보 |
+| 배포 서버에서 검색 근거 검토와 실제 도구 호출 워크플로를 실행 | 두 경로 각 1요청, 합계 API 4회 | 합성 입력·자동 계정, gpt-4o-mini-2024-07-18, 사람 검토 대기까지 | [Chrome 원장](evidence/live-pilot-20261023/public-39999144241-attempt-1/result.json) | 상용 고객 production 경력 충족 / 실제 사람 승인 / 독립 서비스 두 개 |
+| RAG는 정책·상품 근거를 검색하고 모델이 출처/구절과 검토 의견을 선택·생성 | 정책 최대6·상품 사실 최대4, 실제 v4 응답2건의 출처/구절 검사 통과 | 문자 bigram 검색·업종 필터·결정론 위반 우선, 원문 span 대조 | [구현](../agents/live_pilot.py), [오프라인 감사](evidence/live-pilot-20261023/final-audit/offline-audit.json) | 벡터 검색 / 검색 recall 검증 / 인용 의미·정책 정확도 입증 |
+| 모델의 실제 check_policy 함수 호출로 수정·재검사를 수행 | 최종 도구 사례: 수정1회·API3회 | 5,000원→50,000원 조건 수정, 코드/모델 APPROVE 뒤 사람 검토 대기 | [실제 화면](evidence/live-pilot-20261023/public-39999144241-attempt-1/control-tools-comparison-reconnected.png), [원본](evidence/live-pilot-20261023/final-synthetic-records.json) | 무제한 자율 에이전트 / 광고 자동 집행 |
+| 인용 실패를 실제 호출에서 발견하고 원문 구절을 보존하는 계약으로 보완 | 동일 도구 입력1건: v2 인용 불일치→v3 제공자 실패→v4 검토 대기 | 광고·상품 payload hash 동일. v2 holdout을 후속 개발 자료로 전환했다고 명시 | [같은 입력 대조](evidence/live-pilot-20261023/final-audit/offline-audit.json), [HTTP400 진단](evidence/live-pilot-20261023/schema-diagnostic-39996868624.json) | 일반 정확도 개선 / 독립 holdout 성능 / 실패 사례 삭제 |
+| 누적 실제 호출과 실패·비용 미확인을 기록 | 서버13요청/27시도 + 별도 진단1시도; 성공26·실패2, 알려진 비용 추정 $0.006483 | 자동 계정2, 서로 다른 입력7개·반복 검증 포함; 실패2회 사용량/비용 미확인 | [원장](evidence/live-pilot-20261023/final-synthetic-records.json), [별도 진단](evidence/live-pilot-20261023/schema-diagnostic-39996868624.json) | 13개 독립 평가 사례 / 실제 청구액 확정 / 실패 비용0 |
+| 배포 코드의 전체 회귀와 별도 실제 브라우저 조작 검증 | CI4496통과·실패/skip/error0; LIVE35/35, 무료 회귀51/51 | CI는 유료 호출0. 브라우저 수치는 체크 항목 수 | [CI](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39997476845), [LIVE](evidence/live-pilot-20261023/public-39999144241-attempt-1/result.json), [무료](evidence/live-pilot-20261023/public-39999144241-attempt-1/free-current/result.json) | 정책 정확도100% / 테스트4496개=실제 모델4496건 |
+| 저장·새 세션 재접속·타 계정 목록 분리 확인, 이전 기록의 배포 후 보존 확인 | 최신 두 결과 재접속·감사 동일, 기존 자동 기록11/11 전체 export 필드 동일 | 실제 Chrome + 배포 전후 SQL 대조; 읽기/쓰기 권한 경계는 격리 DB 테스트 | [보존 대조](evidence/live-pilot-20261023/persistence-through-v4.json), [권한 테스트](../tests/test_live_pilot_store.py) | DB 관리자까지 격리 / 장기 보존 SLA / 실제 고객 다중 사용자 검증 |
+| 중복·비용·실패 시 처리의 경계를 구현 | 요청 예약$0.08·사용자$0.60·전체$1.50, 최대4호출·2수정, 분당 신규3 | 서버 영속 예약, SDK retry0·30초 timeout, 불명 비용 환급 없음, 실패 시 보류 | [장부](../ops/live_pilot_store.py), [SDK 경계](../llm/live_pilot_gateway.py) | 제공자 계정 전체 청구 상한 / 모든 실패 유형의 실서비스 발생 검증 |
+| 실제 사람 파일럿 절차·피드백·비교 측정 준비 | 확인된 사람0명·작업0건; 자동 approve/reject/edit 제외 | 발급 계정≠사용 증거. 직접 수행 응답과 저장 감사를 함께 확인해야 함 | [절차](live-pilot-human-runbook.md), [빈 CSV](live-pilot-human-feedback.csv), [의미 검수표](evidence/live-pilot-20261023/final-audit/human-semantic-review.csv) | 실사용 운영 완료 / 업무 시간 절감 / 팀 협업 효과 |
+| 지속 하락 후보가 새 자료에서 악화해 철회 | 개발 미탐7/12·새 자료 미탐13/24 유지 | 이전 고정 자료, 이번 LIVE 연결과 별개 | [기존 평가](strengthening-20261023.md) | 이번 변경으로 지속 하락 미탐 해결 |
+| 새 정책 평가의 위험한 통과 한계 유지 | 4/16 | 사람 검수 전 AI 초안 정답 | [기존 평가](strengthening-20261023.md) | 독립 사람 정답 기준 정확도 |
+| 기존 사람 응답·선택 일치의 정확한 분모 유지 | 56응답=28쌍×2명, 21/28 일치에 공동 보류1쌍 | 기존 사람 비교·사후 대조이며 새 독립 실험 아님 | 기존 평가 및 [보존 조건](live-pilot-final-status-20261023.md) | AI 정확도75% / 신규 사람 실험56건 |
 
 ## 기여·판단의 출처
 

@@ -1,0 +1,66 @@
+{
+  "scope": "Synthetic automation accounts only; before v4 deployment versus after actual v4 executions",
+  "deployment_commit": "b0f110cc48fb3b522f4b6545145b1c34209a5b4a",
+  "existing_records_compared": 11,
+  "unchanged": 11,
+  "new_records": 2,
+  "fields_compared": "All exported fields including payload, result, review, calls and audit timestamps",
+  "human_or_team_data_read": false,
+  "records": [
+    {
+      "request_id": "2acef965-700d-4e32-b2fe-a38b6e5befad",
+      "before_sha256": "c8640cec68bbff9b11f6aba3dc96f227adc2a968246f6f1319a307ec56ee6844",
+      "unchanged": true
+    },
+    {
+      "request_id": "63bf14a0-ebba-44fc-8e37-3e3394d06880",
+      "before_sha256": "c5306d2a9190d0268ca68ae10888a3089fe714f3f4e7c7388414eae234f20e91",
+      "unchanged": true
+    },
+    {
+      "request_id": "7c255504-d9a3-4b5b-a3df-fe380c045062",
+      "before_sha256": "4d646f2f2d3b98eaf8d7a5f0fdffda1d0ba5cf11e0b66c8b861f364c2bfff9ec",
+      "unchanged": true
+    },
+    {
+      "request_id": "4045790f-c8c9-4e7d-8af7-0f941e2a705b",
+      "before_sha256": "29caac6cc1114aab8f442f3eb73a8b2fcf9188e65700661fc48e2081e851456d",
+      "unchanged": true
+    },
+    {
+      "request_id": "d82cab84-1655-46dd-b734-de448b28b7f7",
+      "before_sha256": "7e87852753e7cb4b8764b4dccc70b2bc29f164c33357dbc06c10484a36de5171",
+      "unchanged": true
+    },
+    {
+      "request_id": "bfe1e5a2-657c-45c8-aa01-55a44bc40156",
+      "before_sha256": "2bb1d51b6fc3e6594612de0c32902953e2c00fe2e8b3280009e28187a0b6a5b9",
+      "unchanged": true
+    },
+    {
+      "request_id": "f5f10149-6be7-4834-a9fd-dea340c5a22c",
+      "before_sha256": "977a2e8e7a594071b8228c59a4e82e18ddd5b279086bb67f0da605d0b16662a9",
+      "unchanged": true
+    },
+    {
+      "request_id": "67e2ca8f-29b2-40d5-89c5-5bd5246978e5",
+      "before_sha256": "040a47c6eb6d058aac28f3be6e746c2bf53f0cea5d84ee03d41d92f06f479e16",
+      "unchanged": true
+    },
+    {
+      "request_id": "48f6c694-6d25-40d5-a4ec-7210fcc1e3b8",
+      "before_sha256": "0328acdab84a212d5d5e9b02082bd429da4526f816d82d41a8218c6f9a0bb584",
+      "unchanged": true
+    },
+    {
+      "request_id": "f0db3262-93ff-45d6-ba37-df3a675e807e",
+      "before_sha256": "dc2932a33faefd8f9117cb3ef2d2738cd1550791a96dc3014d5bdeb24d4e5638",
+      "unchanged": true
+    },
+    {
+      "request_id": "3430a842-00b9-4678-a8ea-c0587d97e737",
+      "before_sha256": "1645855886f9283c5e6cba33be87a59feb315887f70ff6aaefed6e746d32641f",
+      "unchanged": true
+    }
+  ]
+}
