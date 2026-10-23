@@ -43,7 +43,7 @@ def test_failed_rewrite_not_shown_on_reject_and_revise_paths(demo_settings, trac
     def copy_with_real_block(self, req):
         out = original_copy(self, req)
         # REJECT 경로는 실제 비교 우위 위반으로 만든다. 커머스 예시의
-        # '쿠폰! 지금' → '폰지' 과탐에 의존하면 정규화 수정 시 검증이 사라진다.
+        # 정상 쿠폰 문구의 금지 업종 과탐에 의존하면 정규화 수정 시 검증이 사라진다.
         out["variants"][0]["headline"] = "타사보다 2배 좋은 조건"
         return out
 

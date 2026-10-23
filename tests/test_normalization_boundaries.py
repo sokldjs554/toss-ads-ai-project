@@ -25,6 +25,13 @@ ORIGINAL = "업계 최저 OO몰 가을 쿠폰! 지금 아니면 못 받는 조�
 
 
 @pytest.mark.parametrize("text", [
+    "폰지", "폰지 사기", "폰 지 사기", "폰! 지 사기", "폰\u200b지 사기", "폰\x00지 사기",
+])
+def test_user_removed_keyword_is_not_a_restricted_lexical_trigger(text):
+    assert RESTRICTED not in {f.rule_id for f in scan(text, {"ecommerce"})}
+
+
+@pytest.mark.parametrize("text", [
     "쿠폰! 지금 확인하세요", "쿠폰 지금 확인하세요", "쿠폰. 지금 확인하세요",
     "쿠폰을 지금 확인하세요", "쿠폰\n지금 확인하세요", "쿠폰\u00a0지금 확인하세요",
     "쿠폰!\u200b 지금 확인하세요", "최다 단계별 안내", "매일 수령하세요",
@@ -34,8 +41,8 @@ def test_normal_words_do_not_manufacture_a_restricted_term(text):
 
 
 @pytest.mark.parametrize("term", [
-    "폰지", "폰 지", "폰.지", "폰! 지", "폰 . - * 지", "폰\n지",
-    "폰\u00a0지", "폰\u200b지", "폰\x00지", "다 단 계", "다.단계",
+    "다단계", "다 단 계", "다.단계", "다! 단 계", "다 . - * 단 계", "다\n단계",
+    "다\u00a0단계", "다\u200b단계", "다\x00단계", "피 라 미 드", "피.라미드",
 ])
 def test_restricted_terms_and_evasions_keep_exact_original_spans(term):
     text = "안내: " + term + " 사기"
@@ -48,9 +55,9 @@ def test_restricted_terms_and_evasions_keep_exact_original_spans(term):
 
 
 @pytest.mark.parametrize("text,quote", [
-    ("폰 지사기를 홍보", "폰 지"), ("폰 지는 위험", "폰 지"),
-    ("신종폰지사기", "폰지"), ("신종폰 지 사기", "폰 지"),
-    ("쿠폰 지", "폰 지"),  # ambiguous: one whole endpoint, retain conservative block
+    ("다 단계를 홍보", "다 단계"), ("다 단계는 위험", "다 단계"),
+    ("불법다단계영업", "다단계"), ("불법다 단계 영업", "다 단계"),
+    ("최다 단계", "다 단계"),  # ambiguous: one whole endpoint, retain conservative block
 ])
 def test_korean_suffixes_and_one_sided_ambiguous_fragments_remain_blocked(text, quote):
     findings = [f for f in scan(text, {"ecommerce"}) if f.rule_id == RESTRICTED]
@@ -62,14 +69,14 @@ def test_korean_suffixes_and_one_sided_ambiguous_fragments_remain_blocked(text, 
 def test_two_sided_embedded_evasion_is_an_explicit_lexical_limit():
     # This is a known miss, not an assertion that this advertisement is safe.
     # Morphological/semantic interpretation is outside this lexical heuristic.
-    assert RESTRICTED not in {f.rule_id for f in scan("신종폰 지사기", {"ecommerce"})}
+    assert RESTRICTED not in {f.rule_id for f in scan("불법다 단계영업", {"ecommerce"})}
 
 
 def test_old_policy_recheck_key_cannot_reuse_the_false_rejection(demo_settings):
     product = build_brief(PRESETS["commerce_landing"]).product
     copy = AdCopy(headline="쿠폰! 지금 확인하세요", body="", cta="")
     current = get_catalog()
-    previous = replace(current, version="2026.10.5")
+    previous = replace(current, version="2026.10.6")
     assert recheck_key(copy, product, "", demo_settings, current) != recheck_key(copy, product, "", demo_settings, previous)
 
 
@@ -85,9 +92,9 @@ def test_shared_matcher_keeps_other_policy_evasions(text, rule):
 
 
 def test_false_fragment_does_not_hide_a_later_real_match():
-    text = "쿠폰! 지금 확인. 폰 . 지 사기"
+    text = "최다 단계별 안내. 다 . 단 계 영업"
     findings = [f for f in scan(text, {"ecommerce"}) if f.rule_id == RESTRICTED]
-    assert [(f.quote, f.start, f.end) for f in findings] == [("폰 . 지", 11, 16)]
+    assert [(f.quote, f.start, f.end) for f in findings] == [("다 . 단 계", 11, 18)]
 
 
 def test_original_keeps_other_violations_and_fail_closed_decision():
@@ -116,7 +123,8 @@ def test_commerce_preset_pipeline_preserves_remaining_revise(demo_settings, trac
 
 @pytest.mark.parametrize("text,expected", [
     ("쿠폰! 지금 확인하세요", Decision.APPROVE),
-    ("폰! 지 사기", Decision.REJECT),
+    ("폰지 사기", Decision.APPROVE),
+    ("다! 단 계 영업", Decision.REJECT),
 ])
 def test_manual_edit_and_proposed_rewrite_use_same_policy(text, expected, demo_settings, tracer):
     product = build_brief(PRESETS["commerce_landing"]).product

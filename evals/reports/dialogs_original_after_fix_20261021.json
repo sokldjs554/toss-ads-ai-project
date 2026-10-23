@@ -24,7 +24,7 @@
   "code": {
     "extractor_sha256": "6ffa2ea90682fe709eb550210e2a127b39ff13702b66ef56fefdab680733e71a",
     "conversation_sha256": "78d001b939053a6ae1271bb8662f3604091b8475bc0ed8e1b7187b1bdccf4a64",
-    "injection_sha256": "7abfee4e9c2a7d6f3d5295214c53240dc632461fd7dfe7e3ca60ff0ec3c3683c"
+    "injection_sha256": "0893c746d9c12f97d2dd15ec253534d2884d82bc48d85af37affebbac5e26300"
   },
   "holdout": {
     "frozen": {
