@@ -1,0 +1,423 @@
+{
+  "kind": "authenticated-deployed-live-pilot",
+  "expected_sha": "da250e7769379ee3840678af6ca39f7bbf1d6eab",
+  "started_at": "2026-10-23T16:10:08.016429+00:00",
+  "mode": "execute_frozen_inputs",
+  "human_participants": 0,
+  "synthetic": true,
+  "checks": [
+    {
+      "check": "Pages build matches requested commit",
+      "ok": true
+    },
+    {
+      "check": "Pages explicitly separates DEMO from authenticated LIVE server",
+      "ok": true
+    },
+    {
+      "check": "server screen build matches requested commit",
+      "ok": true
+    },
+    {
+      "check": "authenticated account explicitly marked automation",
+      "ok": true
+    },
+    {
+      "check": "rag-normal: frozen headline loaded",
+      "ok": true
+    },
+    {
+      "check": "operational export contains no original ad, prompts or credentials",
+      "ok": true
+    },
+    {
+      "check": "rag-normal: actual server calls recorded",
+      "ok": true
+    },
+    {
+      "check": "rag-normal: original code outcome matches frozen expectation",
+      "ok": true
+    },
+    {
+      "check": "rag-normal: bounded calls",
+      "ok": true
+    },
+    {
+      "check": "rag-normal: actual model id and usage ledger",
+      "ok": true
+    },
+    {
+      "check": "operational export contains no original ad, prompts or credentials",
+      "ok": true
+    },
+    {
+      "check": "rag-normal: automated audit saved once",
+      "ok": true
+    },
+    {
+      "check": "rag-restricted: frozen headline loaded",
+      "ok": true
+    },
+    {
+      "check": "operational export contains no original ad, prompts or credentials",
+      "ok": true
+    },
+    {
+      "check": "rag-restricted: actual server calls recorded",
+      "ok": true
+    },
+    {
+      "check": "rag-restricted: original code outcome matches frozen expectation",
+      "ok": true
+    },
+    {
+      "check": "rag-restricted: bounded calls",
+      "ok": true
+    },
+    {
+      "check": "rag-restricted: actual model id and usage ledger",
+      "ok": true
+    },
+    {
+      "check": "operational export contains no original ad, prompts or credentials",
+      "ok": true
+    },
+    {
+      "check": "rag-restricted: automated audit saved once",
+      "ok": true
+    },
+    {
+      "check": "tools-superlative: frozen headline loaded",
+      "ok": true
+    },
+    {
+      "check": "operational export contains no original ad, prompts or credentials",
+      "ok": true
+    },
+    {
+      "check": "tools-superlative: actual server calls recorded",
+      "ok": true
+    },
+    {
+      "check": "tools-superlative: original code outcome matches frozen expectation",
+      "ok": true
+    },
+    {
+      "check": "tools-superlative: bounded calls",
+      "ok": true
+    },
+    {
+      "check": "tools-superlative: actual model id and usage ledger",
+      "ok": true
+    },
+    {
+      "check": "operational export contains no original ad, prompts or credentials",
+      "ok": true
+    },
+    {
+      "check": "tools-superlative: automated audit saved once",
+      "ok": true
+    },
+    {
+      "check": "tools-number: frozen headline loaded",
+      "ok": true
+    },
+    {
+      "check": "operational export contains no original ad, prompts or credentials",
+      "ok": true
+    },
+    {
+      "check": "tools-number: actual server calls recorded",
+      "ok": true
+    },
+    {
+      "check": "tools-number: original code outcome matches frozen expectation",
+      "ok": true
+    },
+    {
+      "check": "tools-number: bounded calls",
+      "ok": true
+    },
+    {
+      "check": "tools-number: actual model id and usage ledger",
+      "ok": true
+    },
+    {
+      "check": "operational export contains no original ad, prompts or credentials",
+      "ok": true
+    },
+    {
+      "check": "tools-number: automated audit saved once",
+      "ok": true
+    },
+    {
+      "check": "RAG path actually completed with verified source membership",
+      "ok": true
+    },
+    {
+      "check": "tool path actually revised, rechecked and reached human handoff",
+      "ok": false
+    }
+  ],
+  "runs": [
+    {
+      "case_id": "rag-normal",
+      "request_id": "2acef965-700d-4e32-b2fe-a38b6e5befad",
+      "created_at": "2026-10-23T16:03:10.610367+00:00",
+      "finished_at": "2026-10-23T16:03:18.507633+00:00",
+      "build": "da250e7769379ee3840678af6ca39f7bbf1d6eab",
+      "reserved_usd": 0.08,
+      "call_count": 1,
+      "calls": [
+        {
+          "sequence": 1,
+          "started_at": "2026-10-23T16:03:14.109224+00:00",
+          "stage": "rag",
+          "model": "gpt-4o-mini-2024-07-18",
+          "reason": "",
+          "status": "success",
+          "cost_usd": 0.000364,
+          "latency_ms": 4080.2,
+          "input_tokens": 1649,
+          "output_tokens": 195,
+          "requested_model": "gpt-4o-mini-2024-07-18"
+        }
+      ],
+      "actor_kind": "automation",
+      "mode": "LIVE",
+      "path": "rag",
+      "status": "human_review",
+      "decision": "REVISE",
+      "reason": "person_review_required",
+      "code_decision": "APPROVE",
+      "original_code_decision": "APPROVE",
+      "prompt_version": "live-rag-tools-1",
+      "policy_version": "2026.10.7",
+      "revisions": 0,
+      "review_decision": "reject",
+      "audit": [
+        {
+          "at": "2026-10-23T16:11:01.117528+00:00",
+          "decision": "reject",
+          "actor_kind": "automation"
+        }
+      ]
+    },
+    {
+      "case_id": "rag-restricted",
+      "request_id": "63bf14a0-ebba-44fc-8e37-3e3394d06880",
+      "created_at": "2026-10-23T16:11:11.623559+00:00",
+      "finished_at": "2026-10-23T16:11:15.208522+00:00",
+      "build": "da250e7769379ee3840678af6ca39f7bbf1d6eab",
+      "reserved_usd": 0.08,
+      "call_count": 1,
+      "calls": [
+        {
+          "sequence": 1,
+          "started_at": "2026-10-23T16:11:11.899480+00:00",
+          "stage": "rag",
+          "model": "gpt-4o-mini-2024-07-18",
+          "reason": "",
+          "status": "success",
+          "cost_usd": 0.000316,
+          "latency_ms": 3202.3,
+          "input_tokens": 1513,
+          "output_tokens": 148,
+          "requested_model": "gpt-4o-mini-2024-07-18"
+        }
+      ],
+      "actor_kind": "automation",
+      "mode": "LIVE",
+      "path": "rag",
+      "status": "hold",
+      "decision": "REJECT",
+      "reason": "citation_missing",
+      "code_decision": "REJECT",
+      "original_code_decision": "REJECT",
+      "prompt_version": "live-rag-tools-1",
+      "policy_version": "2026.10.7",
+      "revisions": 0,
+      "review_decision": "reject",
+      "audit": [
+        {
+          "at": "2026-10-23T16:11:19.510933+00:00",
+          "decision": "reject",
+          "actor_kind": "automation"
+        }
+      ]
+    },
+    {
+      "case_id": "tools-superlative",
+      "request_id": "7c255504-d9a3-4b5b-a3df-fe380c045062",
+      "created_at": "2026-10-23T16:11:30.012776+00:00",
+      "finished_at": "2026-10-23T16:11:35.715033+00:00",
+      "build": "da250e7769379ee3840678af6ca39f7bbf1d6eab",
+      "reserved_usd": 0.08,
+      "call_count": 3,
+      "calls": [
+        {
+          "sequence": 1,
+          "started_at": "2026-10-23T16:11:30.223766+00:00",
+          "stage": "rewrite_tools",
+          "model": "gpt-4o-mini-2024-07-18",
+          "reason": "",
+          "status": "success",
+          "cost_usd": 9.5e-05,
+          "latency_ms": 1585.5,
+          "input_tokens": 441,
+          "output_tokens": 48,
+          "requested_model": "gpt-4o-mini-2024-07-18"
+        },
+        {
+          "sequence": 2,
+          "started_at": "2026-10-23T16:11:31.906860+00:00",
+          "stage": "rewrite_tools",
+          "model": "gpt-4o-mini-2024-07-18",
+          "reason": "",
+          "status": "success",
+          "cost_usd": 8e-05,
+          "latency_ms": 1328.4,
+          "input_tokens": 511,
+          "output_tokens": 6,
+          "requested_model": "gpt-4o-mini-2024-07-18"
+        },
+        {
+          "sequence": 3,
+          "started_at": "2026-10-23T16:11:33.312643+00:00",
+          "stage": "rag",
+          "model": "gpt-4o-mini-2024-07-18",
+          "reason": "",
+          "status": "success",
+          "cost_usd": 0.000312,
+          "latency_ms": 2286.2,
+          "input_tokens": 1650,
+          "output_tokens": 108,
+          "requested_model": "gpt-4o-mini-2024-07-18"
+        }
+      ],
+      "actor_kind": "automation",
+      "mode": "LIVE",
+      "path": "tools",
+      "status": "hold",
+      "decision": "HUMAN_REVIEW",
+      "reason": "citation_missing",
+      "code_decision": "APPROVE",
+      "original_code_decision": "REVISE",
+      "prompt_version": "live-rag-tools-1",
+      "policy_version": "2026.10.7",
+      "revisions": 1,
+      "review_decision": "reject",
+      "audit": [
+        {
+          "at": "2026-10-23T16:11:40.136391+00:00",
+          "decision": "reject",
+          "actor_kind": "automation"
+        }
+      ]
+    },
+    {
+      "case_id": "tools-number",
+      "request_id": "4045790f-c8c9-4e7d-8af7-0f941e2a705b",
+      "created_at": "2026-10-23T16:12:50.215970+00:00",
+      "finished_at": "2026-10-23T16:12:58.328382+00:00",
+      "build": "da250e7769379ee3840678af6ca39f7bbf1d6eab",
+      "reserved_usd": 0.08,
+      "call_count": 3,
+      "calls": [
+        {
+          "sequence": 1,
+          "started_at": "2026-10-23T16:12:50.420997+00:00",
+          "stage": "rewrite_tools",
+          "model": "gpt-4o-mini-2024-07-18",
+          "reason": "",
+          "status": "success",
+          "cost_usd": 8.6e-05,
+          "latency_ms": 3536.0,
+          "input_tokens": 411,
+          "output_tokens": 40,
+          "requested_model": "gpt-4o-mini-2024-07-18"
+        },
+        {
+          "sequence": 2,
+          "started_at": "2026-10-23T16:12:54.033491+00:00",
+          "stage": "rewrite_tools",
+          "model": "gpt-4o-mini-2024-07-18",
+          "reason": "",
+          "status": "success",
+          "cost_usd": 7.5e-05,
+          "latency_ms": 1492.0,
+          "input_tokens": 473,
+          "output_tokens": 6,
+          "requested_model": "gpt-4o-mini-2024-07-18"
+        },
+        {
+          "sequence": 3,
+          "started_at": "2026-10-23T16:12:55.618629+00:00",
+          "stage": "rag",
+          "model": "gpt-4o-mini-2024-07-18",
+          "reason": "",
+          "status": "success",
+          "cost_usd": 0.000394,
+          "latency_ms": 2635.8,
+          "input_tokens": 1646,
+          "output_tokens": 245,
+          "requested_model": "gpt-4o-mini-2024-07-18"
+        }
+      ],
+      "actor_kind": "automation",
+      "mode": "LIVE",
+      "path": "tools",
+      "status": "hold",
+      "decision": "HUMAN_REVIEW",
+      "reason": "citation_missing",
+      "code_decision": "APPROVE",
+      "original_code_decision": "REVISE",
+      "prompt_version": "live-rag-tools-1",
+      "policy_version": "2026.10.7",
+      "revisions": 1,
+      "review_decision": "reject",
+      "audit": [
+        {
+          "at": "2026-10-23T16:13:02.105941+00:00",
+          "decision": "reject",
+          "actor_kind": "automation"
+        }
+      ]
+    }
+  ],
+  "screens": [
+    "pages-version-observed.png",
+    "pages-live-server-link.png",
+    "authenticated-home.png",
+    "rag-normal-result.png",
+    "rag-normal-saved.png",
+    "rag-restricted-result.png",
+    "rag-restricted-saved.png",
+    "tools-superlative-result.png",
+    "tools-superlative-saved.png",
+    "tools-number-result.png",
+    "tools-number-saved.png",
+    "failure-view.png"
+  ],
+  "status": "failed",
+  "browser": "155.0.8059.39",
+  "pages_observed_builds": [
+    "da250e7"
+  ],
+  "phase": "tools-number:save_review",
+  "server_loads": [
+    {
+      "http_status": 200
+    },
+    {
+      "http_status": 200
+    }
+  ],
+  "login_phase": "waiting_for_authenticated_view",
+  "error_type": "AssertionError",
+  "failure_alerts": [
+    "API·자동 브라우저 실행은 사람 사용으로 집계하지 않습니다. 이 파일럿에는 개인정보·실제 광고주 비밀 자료를 입력하지 마세요.",
+    "검토 저장됨 · reject · automation"
+  ],
+  "finished_at": "2026-10-23T16:13:05.016780+00:00"
+}
