@@ -1,6 +1,6 @@
 {
-  "expected_sha": "436b1f5b0ba48c3194f5b6539ddb197d6c6a75ac",
+  "expected_sha": "b2ae660e0c7faf4641e4d7ad8d0999ae98c07445",
   "verify_only": false,
   "scope": "Five precommitted synthetic inputs; authenticated Render model calls; no human participation",
-  "verification_attempt": 5
+  "verification_attempt": 6
 }
