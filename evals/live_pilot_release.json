@@ -1,8 +1,9 @@
 {
-  "expected_sha": "1fe85eb1260cf3fa7cb19a986cbfdee22711e3f2",
+  "expected_sha": "4cdf6c59543b11c7101e832f10e5f6a726f4778d",
   "verify_only": false,
-  "scope": "Structured v2 same-input comparison plus precommitted heldout; separate automation account; no human participation",
-  "secondary_account": true,
-  "expected_prompt": "live-rag-tools-2",
-  "verification_attempt": 14
+  "passage_v3": true,
+  "secondary_account": false,
+  "expected_prompt": "live-rag-tools-3",
+  "scope": "Two precommitted bounded v3 probes; original failures retained; no human participation",
+  "verification_attempt": 15
 }

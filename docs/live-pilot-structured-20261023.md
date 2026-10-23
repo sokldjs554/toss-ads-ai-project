@@ -44,3 +44,7 @@ v2 실제 실행에서 원래 네 입력의 `citation_missing`은 3/4에서 0/4�
 v3는 검색 결과 각각의 ID와 전체 인용문을 JSON Schema의 한 선택지로 묶는다. 모델이 그 짝을 선택해 출력하며 사후에 인용문을 원문으로 교체하지 않는다. Python의 원문·구절·규칙 검사도 유지한다. 의미적 지지 여부는 여전히 사람 확인 대상이다. 회귀 테스트는 수정 전 1개 실패·17개 통과였으며 `passages-red.txt`에 기록했다.
 
 [실행 전 고정 계획](../evals/live_pilot_passage_plan.json): 동일 조건의 도구 사례 1개(이제 개발 비교 자료)와 새로운 합성 RAG 사례 1개. 최대 신규 요청 2개·API 8회, 예상 실제 비용 $0.02 미만. 실제 청구액과 별개인 전역 누적 예약 한도는 $1.00에서 $1.50으로 변경해 추가 검증과 이후 사람 두 경로 사용 여유를 확보한다. 사용자별 $0.50·요청 $0.08·최대 4회 호출은 유지하며 기존 예약·기록을 환급하거나 삭제하지 않는다. 유료 호출은 사용자가 승인한 이번 작업 범위다. v3 결과는 아직 실행 전이며 이 문서의 계획을 성과로 읽으면 안 된다.
+
+### v3 이전 원장 대조
+
+[보존한 합성 입력·결과·호출 원장](evidence/live-pilot-20261023/pre-v3-synthetic-records.json), [오프라인 감사](evidence/live-pilot-20261023/pre-v3-audit/offline-audit.json), [사람 의미 검수표](evidence/live-pilot-20261023/pre-v3-audit/human-semantic-review.csv). 총 10요청·20 API 응답 성공·입력 22,898/출력 1,735 tokens·추정 $0.004477·누적 예약 $0.80. 응답 성공과 검토 완료는 다르다. 모든 원래 네 입력의 v1/v2 상품·광고 payload hash가 같으며 최종 판정은 4건 모두 동일했다. 사람 검수 칸은 전부 PENDING이다. 재현: `python scripts/audit_live_pilot_records.py docs/evidence/live-pilot-20261023/pre-v3-synthetic-records.json /tmp/live-audit`.
