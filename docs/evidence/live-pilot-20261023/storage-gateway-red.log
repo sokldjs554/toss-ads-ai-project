@@ -1,0 +1,27 @@
+
+==================================== ERRORS ====================================
+_______________ ERROR collecting tests/test_live_pilot_store.py ________________
+ImportError while importing test module '/workspace/work/verified-checkout/tests/test_live_pilot_store.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_live_pilot_store.py:5: in <module>
+    from ops.live_pilot_store import LiveStore, PilotDenied, token_digest
+E   ModuleNotFoundError: No module named 'ops.live_pilot_store'
+______________ ERROR collecting tests/test_live_pilot_gateway.py _______________
+ImportError while importing test module '/workspace/work/verified-checkout/tests/test_live_pilot_gateway.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_live_pilot_gateway.py:3: in <module>
+    from llm.live_pilot_gateway import LiveGateway
+E   ModuleNotFoundError: No module named 'llm.live_pilot_gateway'
+=========================== short test summary info ============================
+ERROR tests/test_live_pilot_store.py
+ERROR tests/test_live_pilot_gateway.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+2 errors in 0.35s

@@ -58,7 +58,7 @@ if "tracer" not in st.session_state:
     st.session_state.tracer = Tracer(max_traces=30)
 
 # --- 상단: 이름 · 개인 프로젝트 표시 · 화면 전환 --------------------------------------------
-VIEWS = ["광고 작업", "성과 리포트", "검사 사례", "품질 확인", "운영"]
+VIEWS = ["광고 작업", "성과 리포트", "검사 사례", "품질 확인", "운영", "LIVE 검토"]
 req = st.session_state.pop("nav_request", None)
 if "_nav_reset" in st.session_state:   # 같은 탭을 다시 눌러 선택이 풀렸을 때, 위젯을 만들기 전에 마지막으로 보던 화면을 되돌려 놓는다
     st.session_state["nav"] = st.session_state.pop("_nav_reset")
@@ -106,6 +106,9 @@ elif nav == "검사 사례":
     cases.render()
 elif nav == "품질 확인":
     quality.render(make_settings, clean_router_factory, st.session_state.tracer, SERVER_STATUS)
+elif nav == "LIVE 검토":
+    from ui.live_pilot_view import render as render_live_pilot
+    render_live_pilot()
 else:
     ops_hub.render(st.session_state.tracer, SERVER_STATUS)
 

@@ -1,0 +1,15 @@
+
+==================================== ERRORS ====================================
+_______________ ERROR collecting tests/test_live_pilot_engine.py _______________
+ImportError while importing test module '/workspace/work/verified-checkout/tests/test_live_pilot_engine.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_live_pilot_engine.py:5: in <module>
+    from agents.live_pilot import retrieve, validate_review, run_workflow, ReviewEvidenceError
+E   ModuleNotFoundError: No module named 'agents.live_pilot'
+=========================== short test summary info ============================
+ERROR tests/test_live_pilot_engine.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
