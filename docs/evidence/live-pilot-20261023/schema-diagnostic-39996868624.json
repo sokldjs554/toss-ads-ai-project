@@ -1,0 +1,20 @@
+{
+  "mode": "provider-schema-diagnostic-on-Actions",
+  "synthetic": true,
+  "human_participants": 0,
+  "requested_model": "gpt-4o-mini-2024-07-18",
+  "started_at": "2026-10-23T17:39:56.650399+00:00",
+  "maximum_calls": 1,
+  "calls": 1,
+  "status": "failed",
+  "cost_usd": null,
+  "exception_type": "BadRequestError",
+  "http_status": 400,
+  "provider_param": "response_format",
+  "provider_type": "invalid_request_error",
+  "schema_diagnostic": "Invalid schema for response_format 'source_bound_review': In context=('properties', 'quote'), \n is not allowed in string literals for structured outputs (strict=true).",
+  "latency_ms": 1486.2,
+  "workflow_status": "hold",
+  "workflow_reason": "provider_or_storage_failure",
+  "finished_at": "2026-10-23T17:39:58.208155+00:00"
+}
