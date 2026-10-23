@@ -95,6 +95,14 @@ def main():
             return data
 
         try:
+            public = browser.new_context(viewport={"width":1440,"height":1100})
+            demo = public.new_page()
+            demo.goto("https://sokldjs554.github.io/toss-ads-ai-project/app/?view=LIVE%20검토", wait_until="domcontentloaded", timeout=90000)
+            demo.get_by_role("heading", name="LIVE 검토", exact=True).wait_for(timeout=240000)
+            check("Pages build matches requested commit", "빌드 "+args.expected_sha[:7] in demo.inner_text("body"))
+            check("Pages explicitly separates DEMO from authenticated LIVE server", "DEMO 브라우저 실행판" in demo.inner_text("body") and demo.get_by_role("link", name="인증된 LIVE 검토 열기", exact=True).get_attribute("href")==URL)
+            shot(demo,"pages-live-server-link")
+            public.close()
             ctx,page=login(token)
             shot(page,"authenticated-home")
             cases=json.loads((ROOT/"evals/datasets/live_pilot_20261023.json").read_text())["cases"]

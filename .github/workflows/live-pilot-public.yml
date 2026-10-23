@@ -4,7 +4,7 @@ on:
     branches: [feat/live-rag-tools-20261023]
     paths: [evals/live_pilot_release.json]
 permissions:
-  contents: read
+  contents: write
 concurrency:
   group: preflight-live-pilot-public
   cancel-in-progress: false
@@ -36,3 +36,21 @@ jobs:
           name: live-pilot-public-${{ github.run_id }}
           path: live-pilot-evidence/
           retention-days: 30
+      - name: Preserve redacted synthetic evidence on the work branch
+        if: always()
+        env:
+          EVIDENCE_BRANCH: ${{ github.ref_name }}
+        run: |
+          if [ ! -f live-pilot-evidence/result.json ]; then exit 0; fi
+          target="docs/evidence/live-pilot-20261023/public-${{ github.run_id }}"
+          mkdir -p "$target"
+          cp live-pilot-evidence/*.json "$target/"
+          for file in live-pilot-evidence/*.png live-pilot-evidence/*.txt; do
+            if [ -f "$file" ]; then cp "$file" "$target/"; fi
+          done
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add "$target"
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "evidence: preserve isolated live browser run ${{ github.run_id }}"
+          git push origin "HEAD:refs/heads/$EVIDENCE_BRANCH"

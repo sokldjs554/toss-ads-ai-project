@@ -1,0 +1,5 @@
+{
+  "expected_sha": "5c7abb8f1b1ffce9d03150bd8528543f9f8e0170",
+  "verify_only": false,
+  "scope": "Five precommitted synthetic inputs; authenticated Render model calls; no human participation"
+}
