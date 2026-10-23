@@ -32,7 +32,9 @@ def main():
     args.out.mkdir(parents=True, exist_ok=True)
     report = {"expected_sha": args.expected_sha, "started_at": datetime.now(timezone.utc).isoformat(),
               "status": "running", "checks": [], "screens": [], "errors": [],
-              "shared_database_writes": 0, "paid_model_calls": 0, "tls_verification": True}
+              "shared_review_actions": "not attempted", "execution_constraint": "free example and its DEMO rechecks only",
+              "server_call_and_database_counters": "not observed; no credentials or server telemetry used",
+              "tls_verification": True}
 
     def save():
         (args.out / "result.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")

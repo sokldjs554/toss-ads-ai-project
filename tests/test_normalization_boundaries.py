@@ -4,11 +4,13 @@ Policy: keep literal/hidden-character matches and separated terms anchored at
 either end of a source token. Both-end fragments created only by tight joining
 are not sufficient deterministic evidence. This is not semantic segmentation.
 """
+from dataclasses import replace
+
 import pytest
 
 from agents import adjudicator
 from agents.pipeline import RunOptions, run_pipeline
-from agents.recheck import build_edited_copy, recheck
+from agents.recheck import build_edited_copy, recheck, recheck_key
 from agents.rewrite_check import check_rewrite
 from core.schemas import AdCopy, Decision, Severity
 from guardrails import output_guard
@@ -55,6 +57,20 @@ def test_korean_suffixes_and_one_sided_ambiguous_fragments_remain_blocked(text, 
     assert len(findings) == 1
     assert findings[0].quote == quote
     assert findings[0].severity == Severity.BLOCK
+
+
+def test_two_sided_embedded_evasion_is_an_explicit_lexical_limit():
+    # This is a known miss, not an assertion that this advertisement is safe.
+    # Morphological/semantic interpretation is outside this lexical heuristic.
+    assert RESTRICTED not in {f.rule_id for f in scan("신종폰 지사기", {"ecommerce"})}
+
+
+def test_old_policy_recheck_key_cannot_reuse_the_false_rejection(demo_settings):
+    product = build_brief(PRESETS["commerce_landing"]).product
+    copy = AdCopy(headline="쿠폰! 지금 확인하세요", body="", cta="")
+    current = get_catalog()
+    previous = replace(current, version="2026.10.5")
+    assert recheck_key(copy, product, "", demo_settings, current) != recheck_key(copy, product, "", demo_settings, previous)
 
 
 @pytest.mark.parametrize("text,rule", [
