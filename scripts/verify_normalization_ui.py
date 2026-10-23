@@ -64,7 +64,8 @@ def main():
             check("pages", "archive build matches commit", archive.read("build_info.txt").decode().strip() == args.expected_sha[:7])
             for name in ("guardrails/normalize.py", "guardrails/lexical.py", "guardrails/policy.yaml",
                          "agents/adjudicator.py", "agents/recheck.py", "agents/rewrite_check.py", "core/insight_engine.py",
-                         "llm/router.py", "llm/spending.py", "core/live_access.py", "observability/tracer.py", "ui/new_evals.py"):
+                         "llm/router.py", "llm/spending.py", "core/live_access.py", "observability/tracer.py", "ui/new_evals.py",
+                         "agents/live_pilot.py", "llm/live_pilot_gateway.py", "ops/live_pilot_store.py", "ui/live_pilot_view.py"):
                 deployed = archive.read(name)
                 check("pages", "published source matches checkout: " + name,
                       deployed == (ROOT / name).read_bytes(), hashlib.sha256(deployed).hexdigest())

@@ -172,6 +172,7 @@ def operational_summary(row):
     return {k: row[k] for k in ("request_id", "created_at", "finished_at", "build", "reserved_usd", "call_count", "calls", "actor_kind")} | {
         "mode": "LIVE", "path": row["payload"]["path"], "status": result.get("status", "outcome_unknown"),
         "decision": result.get("decision"), "reason": result.get("reason"),
+        "code_decision": result.get("code_decision"), "original_code_decision": result.get("original_code_decision"),
         "prompt_version": result.get("prompt_version"), "policy_version": result.get("policy_version"),
         "revisions": result.get("revisions", 0), "review_decision": (row.get("review") or {}).get("decision"),
         "audit": [{"at": a["at"], "decision": a["decision"], "actor_kind": a["actor_kind"]} for a in row["audit"]]}

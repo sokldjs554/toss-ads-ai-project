@@ -1,0 +1,38 @@
+name: live-pilot-public
+on:
+  push:
+    branches: [feat/live-rag-tools-20261023]
+    paths: [evals/live_pilot_release.json]
+permissions:
+  contents: read
+concurrency:
+  group: preflight-live-pilot-public
+  cancel-in-progress: false
+jobs:
+  deployed-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install playwright==1.56.0
+      - run: python -m playwright install --with-deps chromium
+      - name: Real authenticated server workflow or read-only redeploy verification
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || secrets.OPEN_API_KEY }}
+        run: |
+          python - <<'PY'
+          import json,subprocess
+          release=json.load(open('evals/live_pilot_release.json'))
+          args=['python','scripts/verify_live_pilot_ui.py','--expected-sha',release['expected_sha'],'--out','live-pilot-evidence']
+          if release['verify_only']: args.append('--verify-only')
+          subprocess.run(args,check=True)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-pilot-public-${{ github.run_id }}
+          path: live-pilot-evidence/
+          retention-days: 30

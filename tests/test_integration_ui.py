@@ -1,11 +1,11 @@
-"""새 기능이 앱에 제대로 이어졌는지: 다섯 화면이 열리고, 광고 작업의 세 가지 시작 방법이 입력 칸을 채우고,
+"""새 기능이 앱에 제대로 이어졌는지: 여섯 화면이 열리고, 광고 작업의 세 가지 시작 방법이 입력 칸을 채우고,
 광고안마다 소재 퀄리티·배너·이미지 검사가 붙는다. 실제 모델·네트워크 호출 없이 예시 실행(DEMO)으로 본다."""
 import os
 
 import pytest
 from streamlit.testing.v1 import AppTest
 
-VIEWS = ("광고 작업", "성과 리포트", "검사 사례", "품질 확인", "운영")
+VIEWS = ("광고 작업", "성과 리포트", "검사 사례", "품질 확인", "운영", "LIVE 검토")
 
 
 @pytest.fixture
@@ -32,7 +32,7 @@ def test_every_view_opens_without_an_exception(app, view):
     assert app.session_state["nav"] == view
 
 
-def test_the_five_views_are_the_navigation(app):
+def test_all_views_include_the_explicit_live_workflow(app):
     seg = list(app.get("segmented_control"))
     assert seg and tuple(seg[0].options) == VIEWS
 
