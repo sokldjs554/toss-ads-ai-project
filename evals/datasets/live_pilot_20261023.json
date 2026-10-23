@@ -1,0 +1,12 @@
+{
+  "id": "live-pilot-20261023-v1",
+  "provenance": "AI-authored synthetic operational cases, not independent human labels",
+  "model": "gpt-4o-mini-2024-07-18",
+  "global_reservation_cap_usd": 1.0,
+  "cases": [
+    {"id": "rag-normal", "path": "rag", "headline": "가을 쿠폰 안내", "body": "쿠폰! 지금 이용 조건을 확인하세요", "cta": "확인하기", "facts": ["가을 쿠폰을 제공합니다. 이용 조건은 상품 페이지에서 확인할 수 있습니다."], "expected_code": "APPROVE", "expected_workflow": "human_review"},
+    {"id": "rag-restricted", "path": "rag", "headline": "다! 단 계 영업", "body": "지금 참여하세요", "cta": "확인하기", "facts": ["모집을 안내합니다."], "expected_code": "REJECT", "expected_workflow": "human_review_or_hold"},
+    {"id": "tools-superlative", "path": "tools", "headline": "업계 최저 가을 쿠폰", "body": "쿠폰 이용 조건을 확인하세요", "cta": "확인하기", "facts": ["가을 쿠폰을 제공합니다. 이용 조건은 상품 페이지에서 확인할 수 있습니다."], "expected_code": "REVISE", "expected_workflow": "checked_revision_or_hold"},
+    {"id": "tools-number", "path": "tools", "headline": "가을 30% 쿠폰", "body": "상품 페이지에서 조건을 확인하세요", "cta": "확인하기", "facts": ["가을 쿠폰 할인율은 10%입니다."], "expected_code": "REVISE", "expected_workflow": "checked_revision_or_hold"}
+  ]
+}

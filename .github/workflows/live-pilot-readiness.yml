@@ -1,0 +1,23 @@
+name: live-pilot-readiness
+on:
+  push:
+    branches: [feat/live-rag-tools-20261023]
+    paths: [.github/workflows/live-pilot-readiness.yml]
+permissions:
+  contents: read
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report bindings only, never credential values
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || secrets.OPEN_API_KEY }}
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+        run: |
+          python - <<'PY'
+          import os, hashlib, hmac, json
+          key = os.environ.get('OPENAI_API_KEY', '')
+          # Domain-separated opaque app credential; the provider key never enters the browser.
+          token = hmac.new(key.encode(), b'preflight-live-pilot-20261023-automation-v1', hashlib.sha256).hexdigest() if key else ''
+          print(json.dumps({'openai_registered': bool(key), 'render_api_registered': bool(os.environ.get('RENDER_API_KEY')), 'automation_token_sha256': hashlib.sha256(token.encode()).hexdigest() if token else None}))
+          PY
