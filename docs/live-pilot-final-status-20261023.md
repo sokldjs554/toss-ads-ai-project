@@ -1,4 +1,4 @@
-# LIVE 보완 결과 — 실제 모델 실행 확인, 사람 사용은 별도 확인
+# LIVE 보완 결과 — 실제 두 경로와 본인 1명의 제한적 사용 확인
 
 기준 커밋 `7767dcbe288fd9ceaf6b9fdc021f7ac4450ad388`. 실제 두 경로 검증 코드/배포: **`b0f110cc48fb3b522f4b6545145b1c34209a5b4a`**, 프롬프트 `live-rag-tools-4`, 정책 `2026.10.7`. 문서 갱신 뒤의 최종 화면 버전·재배포 보존 증거는 [작업 브랜치의 후속 증거](https://github.com/sokldjs554/toss-ads-ai-project/tree/feat/live-rag-tools-20261023/docs/evidence/live-pilot-20261023)와 최종 인계문에서 확인한다. 실행 빌드와 이후 조회 화면 빌드는 구분한다.
 
@@ -38,6 +38,8 @@ v4는 원문 안의 제어문자 없는 연속 구절을 source ID에 묶은 구
 
 [합성 요청·결과·호출·감사 원장](evidence/live-pilot-20261023/final-synthetic-records.json), [오프라인 대조](evidence/live-pilot-20261023/final-audit/offline-audit.json), [사람 의미 검수표](evidence/live-pilot-20261023/final-audit/human-semantic-review.csv), [별도 제공자 진단](evidence/live-pilot-20261023/schema-diagnostic-39996868624.json). 재현: `python scripts/audit_live_pilot_records.py docs/evidence/live-pilot-20261023/final-synthetic-records.json /tmp/live-audit`. 운영 export에는 광고 원문·프롬프트·키가 없으며 위의 전체 원장은 명시적으로 합성인 자동 계정 자료만 공개한다.
 
-기술 기록에서 확인된 **실제 사람 사용자 0명·작업 0건**. 자동 approve/reject/edit는 사람 판단이 아니다. 발급된 사람 계정도 사용 증거가 아니다. 사용자가 직접 수행하고 응답/감사를 대조하기 전까지 미확인이다. [실제 수행 절차](live-pilot-human-runbook.md), [피드백 CSV](live-pilot-human-feedback.csv)를 전달했다. 사용 기간·고객 운영·협업 효과·시간 절감·공고의 production 경험 충족은 주장하지 않는다.
+자동 기록과 별도로 **사용자 본인 1명·합성 광고 검토 2건**의 직접 실행·근거/수정안 확인 자기보고와 서버 승인 감사를 대조했다. 두 건은 `b94aadb`에서 RAG 1 API 호출·도구 경로 3회 호출로 실행됐으며 입력 10,611·출력 439토큰, 추정 $0.001855다. 업로드된 초기 JSON은 사람 판단 저장 전이어서 감사가 비어 있었고, 안내 후 각각 승인/사유가 서버에 저장된 시각을 확인했다. 자동 approve/reject/edit는 이 수치에서 제외한다. [사람 사용 근거와 확인 범위](live-pilot-human-result-20261023.md).
+
+서버 전체는 자동 13요청+사람 2요청=15요청, API 31시도(성공30·실패1)이며 별도 실패 진단1을 포함하면 32시도(성공30·실패2)다. 알려진 사용량 합계 입력44,901·출력2,671토큰, 추정 $0.008338. 실패2회의 비용은 여전히 미확인이다. 자동 코호트의 이전 수치를 덮어쓰지 않는다. 제한된 당일 본인 파일럿이며 독립 사람 정책 평가·상용 고객·장기 운영·팀 협업 효과·시간 절감·공고의 production 경험 충족을 주장하지 않는다.
 
 지속 하락 미탐 개발 **7/12**, 새 자료 **13/24**는 미해결(악화한 후보 철회). 새 정책 위험한 통과 **4/16**은 사람 검수 전 AI 초안 정답 기준. 기존 **56응답=28쌍×2명**, 선택 일치 **21/28**에는 공동 보류 1쌍 포함, AI 정확도가 아니다. 삭제 요청된 금지어는 복원하지 않았다. 정규화 경계 수정과 금지어 삭제는 별개 변경이다. 자기소개서·이력서·제출용 포트폴리오는 편집하지 않았다.

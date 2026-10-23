@@ -1,0 +1,75 @@
+{
+  "scope": "One user personally performed the two guided synthetic examples. Operational exports matched server call metadata. Not an independent policy evaluation.",
+  "person_participants_confirmed_by_self_report": 1,
+  "person_execution_requests": 2,
+  "person_saved_reviews_server_verified": 2,
+  "judgment_state": "Both approve reviews and nonempty reasons verified in server audit after user explicitly saved each record. Actor kind remains person_unverified; direct-use confirmation is external evidence, not a DB identity claim.",
+  "reconnect_user_reported": true,
+  "execution_build": "b94aadb0d99736a9a6060012e658d1c925663b0f",
+  "queried_after_deploy": "3a79aaed2b042d3b2d14bf8c3b1e2515f33c2d96",
+  "provider_calls": 4,
+  "provider_success": 4,
+  "input_tokens": 10611,
+  "output_tokens": 439,
+  "estimated_usd": "0.001855",
+  "records": [
+    {
+      "request_id": "4e82d044-ea6c-49a3-97be-f9158b5a221f",
+      "path": "rag",
+      "created_at": "2026-10-23T18:18:39.840671+00:00",
+      "finished_at": "2026-10-23T18:18:55.447570+00:00",
+      "prompt_version": "live-rag-tools-4",
+      "policy_version": "2026.10.7",
+      "call_count": 1,
+      "revisions": 0,
+      "original_code_decision": "APPROVE",
+      "code_decision": "APPROVE",
+      "decision": "APPROVE",
+      "status": "human_review",
+      "review_decision": "approve",
+      "audit": [
+        {
+          "at": "2026-10-23T18:34:41.950403+00:00",
+          "decision": "approve",
+          "actor_kind": "person_unverified"
+        }
+      ],
+      "review_note_characters": 2
+    },
+    {
+      "request_id": "aa35a1e1-544f-4dde-9fc0-cb432936ecbb",
+      "path": "tools",
+      "created_at": "2026-10-23T18:20:49.747184+00:00",
+      "finished_at": "2026-10-23T18:20:57.664014+00:00",
+      "prompt_version": "live-rag-tools-4",
+      "policy_version": "2026.10.7",
+      "call_count": 3,
+      "revisions": 1,
+      "original_code_decision": "REVISE",
+      "code_decision": "APPROVE",
+      "decision": "APPROVE",
+      "status": "human_review",
+      "review_decision": "approve",
+      "audit": [
+        {
+          "at": "2026-10-23T18:31:23.746071+00:00",
+          "decision": "approve",
+          "actor_kind": "person_unverified"
+        }
+      ],
+      "review_note_characters": 2
+    }
+  ],
+  "uploaded_files": [
+    {
+      "name": "live-4e82d044-ea6c-49a3-97be-f9158b5a221f.json",
+      "sha256": "69173ee8cd5da00634c3afbd8096936746e2cb522adeb7dc23a982427da8ec2f"
+    },
+    {
+      "name": "live-aa35a1e1-544f-4dde-9fc0-cb432936ecbb.json",
+      "sha256": "69cac16f0d8637bf948071a1fb33237fcc04265a85b56ef0f6d36f99e12770ba"
+    }
+  ],
+  "uploaded_exports_preceded_review_save": true,
+  "observed_issue": "Initial downloaded exports and server were missing human reviews despite user reporting save; explicit record-open and review-save instructions were needed. Only server-confirmed audits count."
+}

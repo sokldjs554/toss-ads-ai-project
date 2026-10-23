@@ -36,6 +36,8 @@ def _display(store, token, request_id):
         if st.button("저장 기록 다시 조회", key="pilot_refresh"): st.rerun()
         return
     st.write(f"경로: {result['path']} · 상태: {result['status']} · 최종 검사: {result['decision']}")
+    if not row.get("review"):
+        st.info("실행 결과는 자동 저장됐지만 사람 판단은 아직 저장되지 않았습니다. 근거·수정안을 읽고 아래에서 검토 결과와 사유를 입력한 뒤 ‘검토 결과 저장’을 눌러 주세요.")
     st.caption("코드 검사는 반려 근거를 강제합니다. 모델 의견과 인용 존재 검증은 의미적 타당성의 증명이 아니며, 사람 검토가 필요합니다.")
     st.write(f"코드 검사 {result['code_decision']} · 수정 {result['revisions']}회 · 사유 {result['reason']}")
     for finding in result["code_findings"]:
@@ -128,6 +130,7 @@ def render():
         rows = store.list_runs(token)
         if rows:
             selected = st.selectbox("내 저장 기록", [r["request_id"] for r in rows], key="pilot_history")
+            st.caption("기록을 선택한 뒤 ‘선택한 기록 열기’를 누르세요. 선택만 바꾸면 현재 열려 있는 결과는 바뀌지 않습니다.")
             if st.button("선택한 기록 열기"):
                 st.session_state["pilot_selected"] = selected
         if st.session_state.get("pilot_selected"):

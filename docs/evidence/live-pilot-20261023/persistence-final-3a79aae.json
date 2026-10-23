@@ -1,0 +1,8 @@
+{
+  "deployment_commit": "3a79aaed2b042d3b2d14bf8c3b1e2515f33c2d96",
+  "before_count": 13,
+  "after_count": 13,
+  "exactly_unchanged": 13,
+  "provider_attempts": 27,
+  "scope": "Only isolated automation accounts; full payload/result/calls/review/audit equality. No human input exported."
+}

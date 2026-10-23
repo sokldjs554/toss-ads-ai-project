@@ -1,0 +1,77 @@
+{
+  "baseline_commit": "7767dcbe288fd9ceaf6b9fdc021f7ac4450ad388",
+  "final_main_commit": "3a79aaed2b042d3b2d14bf8c3b1e2515f33c2d96",
+  "actual_execution_commit": "b0f110cc48fb3b522f4b6545145b1c34209a5b4a",
+  "ci": {
+    "commit": "3a79aaed2b042d3b2d14bf8c3b1e2515f33c2d96",
+    "run_id": 40002499596,
+    "job_id": 120581930225,
+    "conclusion": "success",
+    "passed": 4496,
+    "failed": 0,
+    "skipped": 0,
+    "errors": 0,
+    "seconds": 402.58,
+    "overlapping_gates_not_additive": {
+      "postgres": 54,
+      "live": 34
+    },
+    "provider_calls": 0
+  },
+  "pages": {
+    "run_id": 40002499574,
+    "status": "success",
+    "url": "https://sokldjs554.github.io/toss-ads-ai-project/app/"
+  },
+  "render": {
+    "deploy_id": "dep-dbdqasgu01pc73dpj4fg",
+    "status": "live",
+    "finished_at": "2026-10-23T18:21:37.298886Z",
+    "url": "https://preflight-toss-ads.onrender.com/"
+  },
+  "final_browser": {
+    "run_id": 40002795998,
+    "mode": "verify_only",
+    "conclusion": "success",
+    "live_checks": {
+      "passed": 33,
+      "failed": 0
+    },
+    "free_checks": {
+      "passed": 51,
+      "failed": 0
+    },
+    "new_provider_calls": 0,
+    "screen_versions_match": true
+  },
+  "actual_browser": {
+    "run_id": 39999144241,
+    "conclusion": "success",
+    "live_checks": {
+      "passed": 35,
+      "failed": 0
+    },
+    "free_checks": {
+      "passed": 51,
+      "failed": 0
+    },
+    "provider_calls": 4
+  },
+  "persistence": {
+    "deployment_commit": "3a79aaed2b042d3b2d14bf8c3b1e2515f33c2d96",
+    "before_count": 13,
+    "after_count": 13,
+    "exactly_unchanged": 13,
+    "provider_attempts": 27,
+    "scope": "Only isolated automation accounts; full payload/result/calls/review/audit equality. No human input exported."
+  },
+  "provider_scope": "Automation cohort only: 27 server attempts and 1 failed schema diagnostic; 26 successes, 2 failures with unknown cost. Human data excluded.",
+  "known_usage": {
+    "input_tokens": 34290,
+    "output_tokens": 2232,
+    "estimated_usd": "0.006483",
+    "unknown_cost_attempts": 2
+  },
+  "human_status": "Later updated: user personally executed both paths and two approve audits were verified. See human-pilot-summary.json; this release file describes 3a79aae browser/CI snapshot.",
+  "screens_base": "https://github.com/sokldjs554/toss-ads-ai-project/tree/feat/live-rag-tools-20261023/docs/evidence/live-pilot-20261023/public-40002795998-attempt-1"
+}
