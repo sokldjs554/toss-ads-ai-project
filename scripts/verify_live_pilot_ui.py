@@ -49,7 +49,9 @@ def main():
         if page.get_by_label("LIVE 검토 접근키", exact=True).count(): return
         text = page.inner_text("body")
         if any(s in text for s in (key, token, other)): raise AssertionError("secret visible")
-        page.screenshot(path=str(args.out / (name+".png")), full_page=False)
+        if page.get_by_role("heading",name="저장된 LIVE 검토",exact=True).count():
+            page.get_by_role("heading",name="저장된 LIVE 검토",exact=True).scroll_into_view_if_needed()
+        page.screenshot(path=str(args.out / (name+".png")), full_page=name.endswith("-saved"))
         (args.out / (name+".txt")).write_text(text)
         report["screens"].append(name+".png")
         save()
@@ -77,6 +79,7 @@ def main():
                 report["login_phase"]="waiting_for_access_key_input"
                 page.get_by_label("LIVE 검토 접근키", exact=True).or_(page.get_by_text("LIVE 설정 대기", exact=False)).first.wait_for()
                 if page.get_by_text("LIVE 설정 대기", exact=False).count():
+                    shot(page,"live-configuration-missing")
                     raise RuntimeError("live_configuration_missing")
                 page.get_by_label("LIVE 검토 접근키", exact=True).fill(credential)
                 report["login_phase"]="submitting_access_key"
@@ -173,11 +176,12 @@ def main():
                 data=download(page)
                 check("direct edit creates checked result",data["original_code_decision"]==manual["expected_code"] and data["path"]=="rag")
                 if not page.get_by_text("검토 저장됨",exact=False).count():
-                    select(page,"사람 검토 결과","승인" if data["decision"]=="APPROVE" and data["status"]=="human_review" else "수정 필요")
+                    select(page,"사람 검토 결과","수정 필요")
                     page.get_by_label("검토 사유",exact=True).fill("합성 직접 수정·재검사 자동 확인. 실제 사람 검토가 아닙니다.")
                     page.get_by_role("button",name="검토 결과 저장",exact=True).click()
                     page.get_by_text("검토 저장됨",exact=False).wait_for()
                 data=download(page)
+                check("manual probe exercises edit audit without claiming human judgment",data["review_decision"]=="edit" and data["audit"][0]["actor_kind"]=="automation")
                 report["runs"].append({"case_id":manual["id"],**data})
                 shot(page,"manual-edit-rechecked-saved")
             else:
