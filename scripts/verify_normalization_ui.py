@@ -118,15 +118,18 @@ def main():
                     shot(page, scope, "coupon")
 
                     def edit(text):
+                        previous = editor.get_by_text("검사한 문구", exact=True).count() > 0
                         for label, value, multiline in (("제목", text, False), ("본문", "", True),
                                                         ("버튼 문구", "", False), ("안내 문구 (한 줄에 하나)", "", True)):
                             field = editor.get_by_label(label, exact=True)
                             field.fill(value)
                             field.press("Control+Enter" if multiline else "Enter")
-                            page.wait_for_timeout(800)
+                            if label == "제목" and previous:
+                                editor.get_by_text("이전에 검사한 문구", exact=True).wait_for(timeout=90000)
+                            page.wait_for_timeout(1000)
                         editor.get_by_role("button", name="수정한 문구 다시 검사", exact=True).click()
                         editor.get_by_text("검사한 문구", exact=True).wait_for(timeout=120000)
-                        page.wait_for_timeout(1000)
+                        editor.locator(".pf-ad .h").filter(has_text=text).wait_for(timeout=120000)
 
                     edit("쿠폰! 지금 확인하세요")
                     check(scope, "manual coupon recheck passes", "이 문구는 검사 기준을 통과했습니다" in editor.inner_text())

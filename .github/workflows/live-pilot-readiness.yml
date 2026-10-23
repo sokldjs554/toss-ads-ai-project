@@ -5,11 +5,15 @@ on:
     paths: [.github/workflows/live-pilot-readiness.yml]
 permissions:
   contents: read
-  actions: read
+  actions: write
 jobs:
   readiness:
     runs-on: ubuntu-latest
     steps:
+      - name: Cancel superseded pilot browser job stalled before any model calls
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method POST repos/sokldjs554/toss-ads-ai-project/actions/runs/39959335588/cancel || true
       - name: Report bindings only, never credential values
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || secrets.OPEN_API_KEY }}

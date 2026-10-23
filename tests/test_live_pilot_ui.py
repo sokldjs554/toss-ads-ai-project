@@ -1,5 +1,6 @@
 from streamlit.testing.v1 import AppTest
 from ui import live_pilot_view
+import pytest
 
 
 class Store:
@@ -15,6 +16,31 @@ class Store:
 def app():
     from ui.live_pilot_view import render
     render()
+
+
+@pytest.mark.parametrize("missing,expected", [("OPENAI_API_KEY","모델 연결"), ("PREFLIGHT_LIVE_DATABASE_URL","저장소 연결")])
+def test_missing_configuration_identifies_only_missing_component(monkeypatch, missing, expected):
+    monkeypatch.setenv("PREFLIGHT_LIVE_DATABASE_URL", "test-not-a-real-url")
+    monkeypatch.setenv("OPENAI_API_KEY", "fake")
+    monkeypatch.delenv(missing)
+    at = AppTest.from_function(app).run()
+    assert any("미등록: " + expected in x.value for x in at.warning)
+    assert not at.text_input and not at.exception
+
+
+def test_login_form_reaches_authenticated_view_and_logout_clears_credential(monkeypatch):
+    monkeypatch.setenv("PREFLIGHT_LIVE_DATABASE_URL", "test-not-a-real-url")
+    monkeypatch.setenv("OPENAI_API_KEY", "fake")
+    monkeypatch.setattr(live_pilot_view, "LiveStore", Store)
+    at = AppTest.from_function(app).run()
+    next(w for w in at.text_input if w.label == "LIVE 검토 접근키").set_value("a" * 64)
+    next(b for b in at.button if b.label == "LIVE 검토 접속").click().run()
+    assert at.session_state["pilot_token"] == "a" * 64
+    assert any(b.label == "LIVE 로그아웃" for b in at.button)
+    assert not at.exception and not at.error
+    next(b for b in at.button if b.label == "LIVE 로그아웃").click().run()
+    assert "pilot_token" not in at.session_state
+    assert any(w.label == "LIVE 검토 접근키" for w in at.text_input)
 
 
 def test_invalid_fact_count_does_not_reserve_or_invoke_provider(monkeypatch):

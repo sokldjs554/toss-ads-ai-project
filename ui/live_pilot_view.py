@@ -104,7 +104,8 @@ def render():
     db = os.environ.get("PREFLIGHT_LIVE_DATABASE_URL", "").strip()
     key = os.environ.get("OPENAI_API_KEY", "").strip()
     if not db or not key:
-        st.warning("LIVE 설정 대기 · 실제 모델이나 저장소를 사용할 수 없어 보류합니다. DEMO 결과로 대체하지 않습니다.")
+        missing = [label for present, label in ((key, "모델 연결"), (db, "저장소 연결")) if not present]
+        st.warning("LIVE 설정 대기 · 미등록: " + ", ".join(missing) + ". 실제 실행은 보류합니다. DEMO 결과로 대체하지 않습니다.")
         return
     store = LiveStore(db)
     try:

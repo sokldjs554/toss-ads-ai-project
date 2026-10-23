@@ -1,0 +1,19 @@
+{
+  "commit": "5c7abb8f1b1ffce9d03150bd8528543f9f8e0170",
+  "run_id": 39956938807,
+  "job_id": 120425002751,
+  "url": "https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39956938807",
+  "conclusion": "success",
+  "full_suite": {
+    "passed": 4484,
+    "failed": 0,
+    "skipped": 0,
+    "errors": 0,
+    "duration_seconds": 345.68
+  },
+  "separate_prerequisite_gates": {
+    "existing_postgres": 54,
+    "live_pilot": 26
+  },
+  "note": "Prerequisite gate counts overlap the full suite; do not add them. No provider calls. CI log retrieval contains expected DB authorization-denial test messages; these are not test failures."
+}

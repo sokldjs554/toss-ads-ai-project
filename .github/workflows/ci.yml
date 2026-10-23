@@ -31,7 +31,7 @@ jobs:
       - name: LIVE pilot isolated storage, cost and workflow gate (no provider calls)
         run: python -m pytest -o addopts='' -q -ra tests/test_live_pilot_store.py tests/test_live_pilot_engine.py tests/test_live_pilot_gateway.py
       - name: Install browser for persistent-queue transaction tests
-        run: python -m playwright install --with-deps chromium
+        run: python -m playwright install chromium
       - name: unit and isolated PostgreSQL transaction tests (no provider calls)
         run: python -m pytest -o addopts='' -q -ra
       - name: regression gate — deterministic layer vs committed baseline

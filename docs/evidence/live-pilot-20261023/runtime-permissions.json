@@ -1,0 +1,23 @@
+{
+  "checked_at": "2026-10-23T13:10:00Z",
+  "scope": "new isolated schema only; existing team rows neither read nor changed",
+  "permissions": [
+    {
+      "rolname": "preflight_live_app",
+      "rolsuper": false,
+      "rolcreatedb": false,
+      "rolcreaterole": false,
+      "rolinherit": false,
+      "rolreplication": false,
+      "rolbypassrls": false,
+      "pilot_schema_usage": true,
+      "can_modify_accounts": false,
+      "can_insert_pilot_runs": true,
+      "can_read_team_workspace": false,
+      "can_modify_team_workspace": false
+    }
+  ],
+  "unused_role_deleted": true,
+  "destructive_action": "Only unused new role preflight_live_runtime removed after user approval; zero owned objects",
+  "transport": "Restricted pilot DSN added to existing Render service env after explicit user approval; never in repo/browser"
+}
