@@ -1,0 +1,39 @@
+{
+  "kind": "authenticated-deployed-live-pilot",
+  "expected_sha": "b2ae660e0c7faf4641e4d7ad8d0999ae98c07445",
+  "started_at": "2026-10-23T13:45:49.663696+00:00",
+  "mode": "execute_frozen_inputs",
+  "human_participants": 0,
+  "synthetic": true,
+  "checks": [
+    {
+      "check": "Pages build matches requested commit",
+      "ok": true
+    },
+    {
+      "check": "Pages explicitly separates DEMO from authenticated LIVE server",
+      "ok": true
+    },
+    {
+      "check": "server screen build matches requested commit",
+      "ok": true
+    }
+  ],
+  "runs": [],
+  "screens": [
+    "pages-version-observed.png",
+    "pages-live-server-link.png",
+    "live-configuration-missing.png"
+  ],
+  "status": "failed",
+  "browser": "155.0.8059.39",
+  "pages_observed_builds": [
+    "b2ae660"
+  ],
+  "login_phase": "waiting_for_access_key_input",
+  "login_alerts": [
+    "LIVE 설정 대기 · 미등록: 모델 연결. 실제 실행은 보류합니다. DEMO 결과로 대체하지 않습니다."
+  ],
+  "error_type": "RuntimeError",
+  "finished_at": "2026-10-23T13:48:48.842172+00:00"
+}

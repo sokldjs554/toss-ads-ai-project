@@ -1,0 +1,349 @@
+{
+  "expected_sha": "b2ae660e0c7faf4641e4d7ad8d0999ae98c07445",
+  "started_at": "2026-10-23T13:48:49.049687+00:00",
+  "status": "passed",
+  "checks": [
+    {
+      "scope": "pages",
+      "check": "published source archive within limit",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages",
+      "check": "archive build matches commit",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages",
+      "check": "published source matches checkout: guardrails/normalize.py",
+      "ok": true,
+      "detail": "e2be6fbede4b712ca163c4f0acf72d3955df90def07386a0e7797daac99d1831"
+    },
+    {
+      "scope": "pages",
+      "check": "published source matches checkout: guardrails/lexical.py",
+      "ok": true,
+      "detail": "eb91c1f80d9b3cc7118f796ce9f5674755f45805ed99c7317bc38d130958fde9"
+    },
+    {
+      "scope": "pages",
+      "check": "published source matches checkout: guardrails/policy.yaml",
+      "ok": true,
+      "detail": "c0968f5e4f0681b5b7d8352dce86a10e54f8b1b30fb78904b927d29f64847bab"
+    },
+    {
+      "scope": "pages",
+      "check": "published source matches checkout: agents/adjudicator.py",
+      "ok": true,
+      "detail": "ddd1c1fbe4259fff483d98c83ce4eea20a7f59628065d22249451bd651f0584a"
+    },
+    {
+      "scope": "pages",
+      "check": "published source matches checkout: agents/recheck.py",
+      "ok": true,
+      "detail": "4e1ad1f9c3bb439b732f3fd7591ba1c8c62c93eb701155f2f6b9aee333a2a54e"
+    },
+    {
+      "scope": "pages",
+      "check": "published source matches checkout: agents/rewrite_check.py",
+      "ok": true,
+      "detail": "9068922147956a341f79ec0dab0cc26a6bc7e002c492ebfe97e9a19ed2ce72e6"
+    },
+    {
+      "scope": "pages",
+      "check": "published source matches checkout: core/insight_engine.py",
+      "ok": true,
+      "detail": "e6ce2e671c34a60353f4147a59a64d0daac408cec81ca2bd2b19e466880f8dfc"
+    },
+    {
+      "scope": "pages",
+      "check": "published source matches checkout: llm/router.py",
+      "ok": true,
+      "detail": "306c777b68bb34dab33e2a17c1caeda9a8805cc306cb91e6cf9334c591dd6263"
+    },
+    {
+      "scope": "pages",
+      "check": "published source matches checkout: llm/spending.py",
+      "ok": true,
+      "detail": "8ddd275a1caa72101d7897d9c7294a0e339e36b8388bc35d8f2f0f7555cd1c33"
+    },
+    {
+      "scope": "pages",
+      "check": "published source matches checkout: core/live_access.py",
+      "ok": true,
+      "detail": "0aa785775b7f59564db31ed2ca55eab383981daa43c35ff55bf17d6efedb9efc"
+    },
+    {
+      "scope": "pages",
+      "check": "published source matches checkout: observability/tracer.py",
+      "ok": true,
+      "detail": "fb7d9eda446ebf23c9990ac66379c286f1fb9573f794d0e3589f54ddb70c7999"
+    },
+    {
+      "scope": "pages",
+      "check": "published source matches checkout: ui/new_evals.py",
+      "ok": true,
+      "detail": "e32bddd9ba8953fab652c5175072d94569fa98968f471a91184aaad2e5c0832e"
+    },
+    {
+      "scope": "pages",
+      "check": "published source matches checkout: agents/live_pilot.py",
+      "ok": true,
+      "detail": "315083b95da0411feb8bf3c08434a36d8f1b772aab83f04607dbf4095c556b78"
+    },
+    {
+      "scope": "pages",
+      "check": "published source matches checkout: llm/live_pilot_gateway.py",
+      "ok": true,
+      "detail": "1c8a65766caf215bdb73e1cc1bdd21364df09493f15f194458ad34cdd929c606"
+    },
+    {
+      "scope": "pages",
+      "check": "published source matches checkout: ops/live_pilot_store.py",
+      "ok": true,
+      "detail": "99532120db0e153aff96fc25f8e75583e2c08ead0e17bcea168e8c5bf8699ac1"
+    },
+    {
+      "scope": "pages",
+      "check": "published source matches checkout: ui/live_pilot_view.py",
+      "ok": true,
+      "detail": "1161468f3cf270ef8d61721860f1e6dda9e06b4b1a0924ce640dea1c913f33c7"
+    },
+    {
+      "scope": "pages",
+      "check": "screen build matches deployed commit",
+      "ok": true,
+      "detail": [
+        "b2ae660"
+      ]
+    },
+    {
+      "scope": "pages",
+      "check": "commerce coupon original rendered",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages",
+      "check": "false restricted quote removed",
+      "ok": true,
+      "detail": [
+        "업계 최저",
+        "지금 아니면",
+        "10%",
+        "10월 31일",
+        "오늘만"
+      ]
+    },
+    {
+      "scope": "pages",
+      "check": "other policy findings retained",
+      "ok": true,
+      "detail": "확인이 필요한 구절 5가지 — 구절별 이유는 아래 ‘수정할 문구’ 에 있습니다.\n수정 필요 “10%” · 소재↔랜딩 페이지 표현 불일치 — '10%' 가 랜딩 페이지 텍스트에서 확인되지 않음\n수정 필요 “5만원” · 소재↔랜딩 페이지 표현 불일치 — '5만원' 가 랜딩 페이지 텍스트에서 확인되지 않음\n수정 필요 “10%” · 상품 정보의 조건이 빠짐 — 근거 F1('전 상품 10% 할인 쿠폰 (10월 31일까지, 1인 1회)')의 조건 '10월 31일까지'(기간 한정)이 광고 문구·고지 어디에도 같은 값으로 없음\n수정 필요 “10%” · 상품 정보의 조건이 빠짐 — 근거 F1('전 상품 10% 할인 쿠폰 (10월 31일까지, 1인 1회)')의 조건 '1인 1회'(1인 1회)이 광고 문구·고지 어디에도 같은 값으로 없음\n참고 “전 상품 10% 할인 쿠폰 (10월 31일까지, …” · 소재↔랜딩 페이지 표현 불일치 — 주장 '전 상품 10% 할인 쿠폰 (10월 31일까지, …' 의 핵심 어휘가 랜딩에서 확인되지 않음 (겹침 0%)\n확인이 필요한 구절 5가지 — 구절별 이유는 아래 ‘수정할 문구’ 에 있습니다.\n수정 필요 “5만원” · 소재↔랜딩 페이지 표현 불일치 — '5만원' 가 랜딩 페이지 텍스트에서 확인되지 않음\n수정 필요 “10%” · 소재↔랜딩 페이지 표현 불일치 — '10%' 가 랜딩 페이지 텍스트에서 확인되지 않음\n수정 필요 “10월 31일” · 소재↔랜딩 페이지 표현 불일치 — '10월 31일' 가 랜딩 페이지 텍스트에서 확인되지 않음\n수정 필요 “1회” · 소재↔랜딩 페이지 표현 불일치 — '1회' 가 랜딩 페이지 텍스트에서 확인되지 않음\n참고 “전 상품 10% 할인 쿠폰 (10월 31일까지, …” · 소재↔랜딩 페이지 표현 불일치 — 주장 '전 상품 10% 할인 쿠폰 (10월 31일까지, …' 의 핵심 어휘가 랜딩에서 확인되지 않음 (겹침 0%)\n확인이 필요한 구절 10가지 — 구절별 이유는 아래 ‘수정할 문구’ 에 있습니다.\n수정 필요 “업계 최저” · 근거 없는 최상급·절대 표현 — 비교 대상·근거가 없는 최상급 표현. 증빙 자료가 있으면 사용 가능하므로 반려가 아니라 수정 요청.\n수정 필요 “지금 아니면” · 허위 긴급성·기간 한정 암시 — 집행 기간 이후에도 제공되는 조건을 한정된 것처럼 보이게 하는 표현. 실제 종료일이 사실 목록에 있으면 그 날짜를 명시해야 한다.\n수정 필요 “오늘만” · 허위 긴급성·기간 한정 암시 — 집행 기간 이후에도 제공되는 조건을 한정된 것처럼 보이게 하는 표현. 실제 종료일이 사실 목록에 있으면 그 날짜를 명시해야 한다.\n수정 필요 “10%” · 소재↔랜딩 페이지 표현 불일치 — '10%' 가 랜딩 페이지 텍스트에서 확인되지 않음\n수정 필요 “10월 31일” · 소재↔랜딩 페이지 표현 불일치 — '10월 31일' 가 랜딩 페이지 텍스트에서 확인되지 않음\n수정 필요 “업계 최저” · 상품 정보에서 근거를 찾을 수 없는 주장 — 상품 정보의 어느 항목을 근거로 하는지 표시되지 않은 주장\n수정 필요 “누구나 신청 가능” · 상품 정보에서 근거를 찾을 수 없는 주장 — 상품 정보의 어느 항목을 근거로 하는지 표시되지 않은 주장\n수정 필요 “10%” · 상품 정보의 조건이 빠짐 — 근거 F1('전 상품 10% 할인 쿠폰 (10월 31일까지, 1인 1회)')의 조건 '1인 1회'(1인 1회)이 광고 문구·고지 어디에도 같은 값으로 없음\n참고 “업계 최저” · 소재↔랜딩 페이지 표현 불일치 — 주장 '업계 최저' 의 핵심 어휘가 랜딩에서 확인되지 않음 (겹침 0%)\n수정 필요 “업계 최저 OO몰 가을 쿠폰! 지금 아니면 못 받는 조건” · 글자 수 초과 — headline 31자 > 제한 30자"
+    },
+    {
+      "scope": "pages",
+      "check": "original remains revise, not approve",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages",
+      "check": "free demo mode visible",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages",
+      "check": "manual coupon recheck passes",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages",
+      "check": "manual recheck has no restricted finding",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages",
+      "check": "real evasion remains rejected",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages",
+      "check": "real evasion quote preserved",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages",
+      "check": "rejected candidate and remaining misses disclosed",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages",
+      "check": "frozen before and candidate detection displayed",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages",
+      "check": "synthetic policy limits and human denominator disclosed",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages",
+      "check": "no application exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "pages",
+      "check": "no browser provider request",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "server",
+      "check": "screen build matches deployed commit",
+      "ok": true,
+      "detail": [
+        "b2ae660"
+      ]
+    },
+    {
+      "scope": "server",
+      "check": "commerce coupon original rendered",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "server",
+      "check": "false restricted quote removed",
+      "ok": true,
+      "detail": [
+        "업계 최저",
+        "지금 아니면",
+        "10%",
+        "10월 31일",
+        "오늘만"
+      ]
+    },
+    {
+      "scope": "server",
+      "check": "other policy findings retained",
+      "ok": true,
+      "detail": "확인이 필요한 구절 5가지 — 구절별 이유는 아래 ‘수정할 문구’ 에 있습니다.\n수정 필요 “10%” · 소재↔랜딩 페이지 표현 불일치 — '10%' 가 랜딩 페이지 텍스트에서 확인되지 않음\n수정 필요 “5만원” · 소재↔랜딩 페이지 표현 불일치 — '5만원' 가 랜딩 페이지 텍스트에서 확인되지 않음\n수정 필요 “10%” · 상품 정보의 조건이 빠짐 — 근거 F1('전 상품 10% 할인 쿠폰 (10월 31일까지, 1인 1회)')의 조건 '10월 31일까지'(기간 한정)이 광고 문구·고지 어디에도 같은 값으로 없음\n수정 필요 “10%” · 상품 정보의 조건이 빠짐 — 근거 F1('전 상품 10% 할인 쿠폰 (10월 31일까지, 1인 1회)')의 조건 '1인 1회'(1인 1회)이 광고 문구·고지 어디에도 같은 값으로 없음\n참고 “전 상품 10% 할인 쿠폰 (10월 31일까지, …” · 소재↔랜딩 페이지 표현 불일치 — 주장 '전 상품 10% 할인 쿠폰 (10월 31일까지, …' 의 핵심 어휘가 랜딩에서 확인되지 않음 (겹침 0%)\n확인이 필요한 구절 5가지 — 구절별 이유는 아래 ‘수정할 문구’ 에 있습니다.\n수정 필요 “5만원” · 소재↔랜딩 페이지 표현 불일치 — '5만원' 가 랜딩 페이지 텍스트에서 확인되지 않음\n수정 필요 “10%” · 소재↔랜딩 페이지 표현 불일치 — '10%' 가 랜딩 페이지 텍스트에서 확인되지 않음\n수정 필요 “10월 31일” · 소재↔랜딩 페이지 표현 불일치 — '10월 31일' 가 랜딩 페이지 텍스트에서 확인되지 않음\n수정 필요 “1회” · 소재↔랜딩 페이지 표현 불일치 — '1회' 가 랜딩 페이지 텍스트에서 확인되지 않음\n참고 “전 상품 10% 할인 쿠폰 (10월 31일까지, …” · 소재↔랜딩 페이지 표현 불일치 — 주장 '전 상품 10% 할인 쿠폰 (10월 31일까지, …' 의 핵심 어휘가 랜딩에서 확인되지 않음 (겹침 0%)\n확인이 필요한 구절 10가지 — 구절별 이유는 아래 ‘수정할 문구’ 에 있습니다.\n수정 필요 “업계 최저” · 근거 없는 최상급·절대 표현 — 비교 대상·근거가 없는 최상급 표현. 증빙 자료가 있으면 사용 가능하므로 반려가 아니라 수정 요청.\n수정 필요 “지금 아니면” · 허위 긴급성·기간 한정 암시 — 집행 기간 이후에도 제공되는 조건을 한정된 것처럼 보이게 하는 표현. 실제 종료일이 사실 목록에 있으면 그 날짜를 명시해야 한다.\n수정 필요 “오늘만” · 허위 긴급성·기간 한정 암시 — 집행 기간 이후에도 제공되는 조건을 한정된 것처럼 보이게 하는 표현. 실제 종료일이 사실 목록에 있으면 그 날짜를 명시해야 한다.\n수정 필요 “10%” · 소재↔랜딩 페이지 표현 불일치 — '10%' 가 랜딩 페이지 텍스트에서 확인되지 않음\n수정 필요 “10월 31일” · 소재↔랜딩 페이지 표현 불일치 — '10월 31일' 가 랜딩 페이지 텍스트에서 확인되지 않음\n수정 필요 “업계 최저” · 상품 정보에서 근거를 찾을 수 없는 주장 — 상품 정보의 어느 항목을 근거로 하는지 표시되지 않은 주장\n수정 필요 “누구나 신청 가능” · 상품 정보에서 근거를 찾을 수 없는 주장 — 상품 정보의 어느 항목을 근거로 하는지 표시되지 않은 주장\n수정 필요 “10%” · 상품 정보의 조건이 빠짐 — 근거 F1('전 상품 10% 할인 쿠폰 (10월 31일까지, 1인 1회)')의 조건 '1인 1회'(1인 1회)이 광고 문구·고지 어디에도 같은 값으로 없음\n참고 “업계 최저” · 소재↔랜딩 페이지 표현 불일치 — 주장 '업계 최저' 의 핵심 어휘가 랜딩에서 확인되지 않음 (겹침 0%)\n수정 필요 “업계 최저 OO몰 가을 쿠폰! 지금 아니면 못 받는 조건” · 글자 수 초과 — headline 31자 > 제한 30자"
+    },
+    {
+      "scope": "server",
+      "check": "original remains revise, not approve",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "server",
+      "check": "free demo mode visible",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "server",
+      "check": "manual coupon recheck passes",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "server",
+      "check": "manual recheck has no restricted finding",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "server",
+      "check": "real evasion remains rejected",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "server",
+      "check": "real evasion quote preserved",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "server",
+      "check": "rejected candidate and remaining misses disclosed",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "server",
+      "check": "frozen before and candidate detection displayed",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "server",
+      "check": "synthetic policy limits and human denominator disclosed",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "server",
+      "check": "operational export excludes raw text by default",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "server",
+      "check": "no application exception",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "server",
+      "check": "no browser provider request",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "replay",
+      "check": "historical execution clearly labeled without new model calls",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "scope": "replay",
+      "check": "recorded and current policy versions remain separate",
+      "ok": true,
+      "detail": null
+    }
+  ],
+  "screens": [
+    "pages-version.png",
+    "pages-coupon.png",
+    "pages-coupon-recheck.png",
+    "pages-restricted-recheck.png",
+    "pages-evidence-strengthening.png",
+    "server-version.png",
+    "server-coupon.png",
+    "server-coupon-recheck.png",
+    "server-restricted-recheck.png",
+    "server-evidence-strengthening.png",
+    "replay-historical-mode.png"
+  ],
+  "errors": [],
+  "shared_review_actions": "not attempted",
+  "execution_constraint": "free example and its DEMO rechecks only",
+  "server_call_and_database_counters": "not observed; no credentials or server telemetry used",
+  "tls_verification": true,
+  "browser": "155.0.8059.39",
+  "finished_at": "2026-10-23T13:49:50.390663+00:00"
+}
