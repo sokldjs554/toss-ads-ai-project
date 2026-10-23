@@ -73,9 +73,18 @@ def main():
                 if time.monotonic()>deadline: raise AssertionError("deployed build mismatch")
                 page.wait_for_timeout(15000)
             check("server screen build matches requested commit", "빌드 "+args.expected_sha[:7] in page.inner_text("body"))
-            page.get_by_label("LIVE 검토 접근키", exact=True).fill(credential)
-            page.get_by_role("button", name="LIVE 검토 접속", exact=True).click()
-            page.get_by_role("button", name="LIVE 로그아웃", exact=True).wait_for()
+            try:
+                report["login_phase"]="waiting_for_access_key_input"
+                page.get_by_label("LIVE 검토 접근키", exact=True).fill(credential)
+                report["login_phase"]="submitting_access_key"
+                page.get_by_role("button", name="LIVE 검토 접속", exact=True).click()
+                report["login_phase"]="waiting_for_authenticated_view"
+                page.get_by_role("button", name="LIVE 로그아웃", exact=True).wait_for()
+            except Exception:
+                alerts = page.locator('[data-testid="stAlert"]').all_text_contents()
+                report["login_alerts"] = [a for a in alerts if not any(s in a for s in (key,token,other))]
+                save()
+                raise
             check("authenticated account explicitly marked automation", "계정 유형 automation" in page.inner_text("body"))
             return context, page
 

@@ -36,6 +36,14 @@ jobs:
           name: live-pilot-public-${{ github.run_id }}
           path: live-pilot-evidence/
           retention-days: 30
+      - name: Retrieve earlier free-browser failure evidence
+        if: always()
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: 39958312582
+          name: normalization-public-ui-39958312582-1
+          path: live-pilot-evidence/normalization-first
       - name: Preserve redacted synthetic evidence on the work branch
         if: always()
         env:
@@ -48,6 +56,7 @@ jobs:
           for file in live-pilot-evidence/*.png live-pilot-evidence/*.txt; do
             if [ -f "$file" ]; then cp "$file" "$target/"; fi
           done
+          if [ -d live-pilot-evidence/normalization-first ]; then cp -R live-pilot-evidence/normalization-first "$target/"; fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add "$target"
