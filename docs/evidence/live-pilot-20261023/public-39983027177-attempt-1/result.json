@@ -1,0 +1,90 @@
+{
+  "kind": "authenticated-deployed-live-pilot",
+  "expected_sha": "da250e7769379ee3840678af6ca39f7bbf1d6eab",
+  "started_at": "2026-10-23T16:00:30.590140+00:00",
+  "mode": "execute_frozen_inputs",
+  "human_participants": 0,
+  "synthetic": true,
+  "checks": [
+    {
+      "check": "Pages build matches requested commit",
+      "ok": true
+    },
+    {
+      "check": "Pages explicitly separates DEMO from authenticated LIVE server",
+      "ok": true
+    },
+    {
+      "check": "server screen build matches requested commit",
+      "ok": true
+    },
+    {
+      "check": "authenticated account explicitly marked automation",
+      "ok": true
+    },
+    {
+      "check": "rag-normal: frozen headline loaded",
+      "ok": true
+    },
+    {
+      "check": "operational export contains no original ad, prompts or credentials",
+      "ok": true
+    },
+    {
+      "check": "rag-normal: actual server calls recorded",
+      "ok": true
+    },
+    {
+      "check": "rag-normal: original code outcome matches frozen expectation",
+      "ok": true
+    },
+    {
+      "check": "rag-normal: bounded calls",
+      "ok": true
+    },
+    {
+      "check": "rag-normal: actual model id and usage ledger",
+      "ok": true
+    }
+  ],
+  "runs": [],
+  "screens": [
+    "pages-version-observed.png",
+    "pages-live-server-link.png",
+    "authenticated-home.png",
+    "rag-normal-result.png",
+    "failure-view.png"
+  ],
+  "status": "failed",
+  "browser": "155.0.8059.39",
+  "pages_observed_builds": [
+    "da250e7"
+  ],
+  "phase": "rag-normal:export",
+  "server_loads": [
+    {
+      "http_status": 200
+    },
+    {
+      "http_status": 200
+    },
+    {
+      "http_status": 200
+    },
+    {
+      "http_status": 200
+    },
+    {
+      "http_status": 200
+    },
+    {
+      "http_status": 200
+    }
+  ],
+  "login_phase": "waiting_for_authenticated_view",
+  "error_type": "TimeoutError",
+  "failure_alerts": [
+    "API·자동 브라우저 실행은 사람 사용으로 집계하지 않습니다. 이 파일럿에는 개인정보·실제 광고주 비밀 자료를 입력하지 마세요."
+  ],
+  "finished_at": "2026-10-23T16:04:53.888700+00:00"
+}
