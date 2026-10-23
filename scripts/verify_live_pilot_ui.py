@@ -28,7 +28,8 @@ def main():
     parser.add_argument("--verify-only", action="store_true")
     parser.add_argument("--secondary-account", action="store_true")
     parser.add_argument("--expected-prompt")
-    parser.add_argument("--passage-v3", action="store_true")
+    parser.add_argument("--passage-probes", "--passage-v3", dest="passage_v3", action="store_true")
+    parser.add_argument("--passage-plan", default="evals/live_pilot_passage_plan.json")
     args = parser.parse_args()
     if not re.fullmatch(r"[0-9a-f]{40}", args.expected_sha): raise ValueError("full expected commit required")
     key = os.environ.get("OPENAI_API_KEY", "")
@@ -165,9 +166,11 @@ def main():
             demo = public.new_page()
             deadline = time.monotonic()+600
             while True:
-                demo.goto("https://sokldjs554.github.io/toss-ads-ai-project/app/?view=LIVE%20검토&verify="+args.expected_sha, wait_until="domcontentloaded", timeout=90000)
+                demo.goto("https://sokldjs554.github.io/toss-ads-ai-project/app/?view=LIVE%20검토&verify="+args.expected_sha+"&navigation="+str(time.time_ns()), wait_until="domcontentloaded", timeout=90000)
                 demo.get_by_role("heading", name="LIVE 검토", exact=True).wait_for(timeout=240000)
                 report["pages_observed_builds"] = re.findall(r"빌드 ([0-9a-f]{7,40})", demo.inner_text("body"))
+                report.setdefault("pages_build_history", []).append({"at":datetime.now(timezone.utc).isoformat(),"builds":report["pages_observed_builds"]})
+                save()
                 if args.expected_sha[:7] in report["pages_observed_builds"] or time.monotonic()>deadline: break
                 demo.wait_for_timeout(15000)
             shot(demo,"pages-version-observed")
@@ -177,7 +180,8 @@ def main():
             shot(demo,"pages-live-server-link")
             public.close()
             if args.passage_v3:
-                plan=json.loads((ROOT/"evals/live_pilot_passage_plan.json").read_text())
+                plan=json.loads((ROOT/args.passage_plan).read_text())
+                pending_checks=[]
                 # Exactly the two precommitted probes. Repeated browser runs reuse
                 # the durable same-input result; no revised retry payloads.
                 for index, spec in enumerate(plan["cases"]):
@@ -219,9 +223,10 @@ def main():
                             page.get_by_text("검토 저장됨",exact=False).wait_for()
                         data=download(page)
                     report["runs"].append({"case_id":spec["id"],"evaluation_split":spec["split"],**data})
-                    check(spec["id"]+": actual bounded model and prompt",0<data["call_count"]<=4 and data["revisions"]<=2 and data["prompt_version"]==plan["prompt"] and all(c["model"]==plan["model"] for c in data["calls"]))
-                    check(spec["id"]+": frozen original code decision",data["original_code_decision"]==case["expected_code"])
-                    check(spec["id"]+": automation audit exactly once",len(data["audit"])==1 and data["audit"][0]["actor_kind"]=="automation")
+                    pending_checks.append((spec["id"]+": actual bounded model and prompt",0<data["call_count"]<=4 and data["revisions"]<=2 and data["prompt_version"]==plan["prompt"] and all(c["model"]==plan["model"] for c in data["calls"])))
+                    pending_checks.append((spec["id"]+": frozen original code decision",data["original_code_decision"]==case["expected_code"]))
+                    pending_checks.append((spec["id"]+": automation audit exactly once",len(data["audit"])==1 and data["audit"][0]["actor_kind"]=="automation"))
+                    if not args.verify_only: pending_checks.append((spec["id"]+": execution build matches deployment",data["build"]==args.expected_sha))
                     shot(page,spec["id"]+"-saved")
                     ctx.close()
                     ctx,page=login(credential)
@@ -233,8 +238,13 @@ def main():
                     ctx,page=login(other if index==0 else token)
                     check(spec["id"]+": other account cannot list receipt",data["request_id"] not in listed_ids(page))
                     ctx.close()
-                check("RAG v3 source-verified human handoff",any(r["path"]=="rag" and r["status"]=="human_review" for r in report["runs"]))
-                check("tools v3 revised/rechecked APPROVE human handoff",any(r["path"]=="tools" and r["status"]=="human_review" and r["decision"]=="APPROVE" and r["revisions"]>=1 for r in report["runs"]))
+                for label,okay in pending_checks:
+                    report["checks"].append({"check":label,"ok":bool(okay)})
+                    print(("PASS " if okay else "FAIL ")+label,flush=True)
+                save()
+                check("all fixed probe contracts",all(okay for _,okay in pending_checks))
+                check("RAG source-verified human handoff",any(r["path"]=="rag" and r["status"]=="human_review" for r in report["runs"]))
+                check("tools revised/rechecked APPROVE human handoff",any(r["path"]=="tools" and r["status"]=="human_review" and r["decision"]=="APPROVE" and r["revisions"]>=1 for r in report["runs"]))
                 report["status"]="passed"
                 return 0
             ctx,page=login(token)

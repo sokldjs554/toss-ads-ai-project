@@ -1,0 +1,36 @@
+.....FF                                                                  [100%]
+=================================== FAILURES ===================================
+___ test_provider_error_records_safe_class_status_and_allowlisted_code_only ____
+
+    def test_provider_error_records_safe_class_status_and_allowlisted_code_only():
+        class BadRequestError(Exception):
+            status_code = 400
+            body = {"code": "invalid_json_schema", "param": "response_format", "message": "private original and sk-secret"}
+        ledger = Ledger()
+        gateway = LiveGateway("fake", ledger, "credential", "request", client=sdk(BadRequestError("private original and sk-secret"), ledger))
+        with pytest.raises(BadRequestError): gateway(messages=[], stage="rag")
+        saved = ledger.events[-1]
+>       assert saved["error_type"] == "BadRequestError"
+               ^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'error_type'
+
+tests/test_live_pilot_gateway.py:60: KeyError
+_____ test_unrecognized_error_metadata_cannot_leak_arbitrary_provider_text _____
+
+    def test_unrecognized_error_metadata_cannot_leak_arbitrary_provider_text():
+        class CustomSecretName(Exception):
+            status_code = "private original"
+            body = {"code": "sk-secret", "param": "customer_ad_text"}
+        ledger = Ledger()
+        gateway = LiveGateway("fake", ledger, "credential", "request", client=sdk(CustomSecretName("secret"), ledger))
+        with pytest.raises(CustomSecretName): gateway(messages=[], stage="rag")
+        saved=ledger.events[-1]
+>       assert saved["error_type"] == "OtherError"
+               ^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'error_type'
+
+tests/test_live_pilot_gateway.py:75: KeyError
+=========================== short test summary info ============================
+FAILED tests/test_live_pilot_gateway.py::test_provider_error_records_safe_class_status_and_allowlisted_code_only
+FAILED tests/test_live_pilot_gateway.py::test_unrecognized_error_metadata_cannot_leak_arbitrary_provider_text
+2 failed, 5 passed in 0.28s

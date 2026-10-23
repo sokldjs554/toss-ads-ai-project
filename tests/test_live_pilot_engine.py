@@ -70,7 +70,7 @@ def test_provider_schema_binds_each_source_to_its_exact_retrieved_passage():
     for field,kind in (("policy_citation","policy"),("fact_citation","fact")):
         branches=schema["properties"][field]["anyOf"]
         choices=[schema["$defs"][b["$ref"].split("/")[-1]]["properties"] for b in branches]
-        assert {(c["source_id"]["enum"][0],c["quote"]["enum"][0]) for c in choices} == {(d["id"],d["text"]) for d in docs if d["kind"]==kind}
+        assert {(c["source_id"]["enum"][0],q) for c in choices for q in c["quote"]["enum"]} == {(d["id"],line) for d in docs if d["kind"]==kind for line in d["text"].splitlines() if line.strip()}
 
 
 def test_paraphrased_provider_quote_is_not_silently_replaced_with_source_text():
@@ -171,3 +171,15 @@ def test_model_approval_with_its_own_fix_finding_is_held():
     response = answer(docs)
     response["findings"] = [{"rule_id": "TA-SUPERLATIVE-01", "ad_quote": "업계 최저", "reason": "입증 없는 최상급"}]
     with pytest.raises(ReviewEvidenceError): validate_review(response, docs, copy)
+
+
+def test_provider_enum_quotes_are_control_free_exact_source_spans():
+    from agents.live_pilot import review_format
+    copy, product = inputs()
+    docs=retrieve(copy,product)
+    docs[-1]={**docs[-1], "text":"상품 설명\t조건 확인\n추가 근거"}
+    schema=review_format(docs)["json_schema"]["schema"]
+    for index,doc in enumerate(docs):
+        quotes=schema["$defs"][f"RetrievedPassage{index}"]["properties"]["quote"]["enum"]
+        assert quotes
+        assert all(q in doc["text"] and q.strip() and not any(ord(c)<32 or ord(c)==127 for c in q) for q in quotes)

@@ -34,9 +34,10 @@ jobs:
           release=json.load(open('evals/live_pilot_release.json'))
           args=['python','scripts/verify_live_pilot_ui.py','--expected-sha',release['expected_sha'],'--out','live-pilot-evidence']
           if release['verify_only']: args.append('--verify-only')
-          if release.get('passage_v3'): args.append('--passage-v3')
+          if release.get('passage_v3'): args.append('--passage-probes')
           if release.get('secondary_account'): args.append('--secondary-account')
           if release.get('expected_prompt'): args.extend(['--expected-prompt', release['expected_prompt']])
+          if release.get('passage_plan'): args.extend(['--passage-plan', release['passage_plan']])
           subprocess.run(args,check=True)
           PY
       - name: Free public regression on the same deployed build

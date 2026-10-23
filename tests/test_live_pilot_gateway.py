@@ -47,3 +47,31 @@ def test_oversize_request_never_reserves_or_calls_provider():
     gateway = LiveGateway("fake", ledger, "credential", "request", client=sdk(response(), ledger))
     with pytest.raises(ValueError): gateway(messages=[{"role":"user","content":"x"*100000}], stage="rag")
     assert ledger.events == []
+
+
+def test_provider_error_records_safe_class_status_and_allowlisted_code_only():
+    class BadRequestError(Exception):
+        status_code = 400
+        body = {"code": "invalid_json_schema", "param": "response_format", "message": "private original and sk-secret"}
+    ledger = Ledger()
+    gateway = LiveGateway("fake", ledger, "credential", "request", client=sdk(BadRequestError("private original and sk-secret"), ledger))
+    with pytest.raises(BadRequestError): gateway(messages=[], stage="rag")
+    saved = ledger.events[-1]
+    assert saved["error_type"] == "BadRequestError"
+    assert saved["http_status"] == 400 and saved["provider_code"] == "invalid_json_schema"
+    assert saved["provider_param"] == "response_format"
+    assert "private" not in str(saved) and "sk-secret" not in str(saved)
+    assert saved["cost_usd"] is None
+
+
+def test_unrecognized_error_metadata_cannot_leak_arbitrary_provider_text():
+    class CustomSecretName(Exception):
+        status_code = "private original"
+        body = {"code": ["sk-secret"], "param": {"customer_ad_text": "secret"}}
+    ledger = Ledger()
+    gateway = LiveGateway("fake", ledger, "credential", "request", client=sdk(CustomSecretName("secret"), ledger))
+    with pytest.raises(CustomSecretName): gateway(messages=[], stage="rag")
+    saved=ledger.events[-1]
+    assert saved["error_type"] == "OtherError"
+    assert not {"http_status", "provider_code", "provider_param"} & saved.keys()
+    assert "secret" not in str(saved).lower()

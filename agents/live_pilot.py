@@ -19,7 +19,7 @@ from core.schemas import AdCopy, ProductFacts, Severity
 from guardrails.output_guard import check
 from guardrails.policy import get_catalog
 
-PROMPT_VERSION = "live-rag-tools-3"
+PROMPT_VERSION = "live-rag-tools-4"
 MODEL = "gpt-4o-mini-2024-07-18"
 
 
@@ -65,10 +65,15 @@ def review_format(docs):
     refs = []
     for i, doc in enumerate(docs):
         name = f"RetrievedPassage{i}"
+        # The provider rejects control characters inside strict enum literals.
+        # Select contiguous original spans; never join or rewrite source text.
+        passages = [part for part in re.split(r"[\x00-\x1f\x7f]", doc["text"]) if part.strip()]
+        if not passages:
+            raise ReviewEvidenceError("empty_retrieved_source")
         schema["$defs"][name] = {
             "type": "object", "additionalProperties": False,
             "properties": {"source_id": {"type": "string", "enum": [doc["id"]]},
-                           "quote": {"type": "string", "enum": [doc["text"]]}},
+                           "quote": {"type": "string", "enum": passages}},
             "required": ["source_id", "quote"]}
         refs.append({"$ref": f"#/$defs/{name}"})
     for field, kind in (("policy_citation", "policy"), ("fact_citation", "fact")):
@@ -166,7 +171,8 @@ def _rag(copy, product, call, result):
         "Return a JSON object with recommendation APPROVE/REVISE/REJECT/HOLD, reason, "
         "policy_citation:{source_id,quote}, fact_citation:{source_id,quote}, additional_citations:[{source_id,quote}], "
         "findings:[{rule_id,ad_quote,reason}]. Select at least one policy and one product fact. "
-        "For each citation emit its exact full retrieved passage paired with that source ID, as required by the schema. "
+        "For each citation select an exact single-line source passage paired with that source ID, as offered by the schema. "
+        "Read the full source for context; do not join lines or alter the selected quotation. "
         "Do not paraphrase a quotation. Source membership alone does not prove a claim is supported. "
         "Each finding must cite a retrieved policy and exact ad substring. REVISE/REJECT require findings. "
         "APPROVE means no identified violation, not proof of real-world truth. If evidence is insufficient use HOLD. "

@@ -42,6 +42,21 @@ class LiveGateway:
             record.update(status="success", reason="")
             return choice.message.model_dump(include={"role", "content", "tool_calls"}, exclude_none=True)
         except Exception as exc:
+            name = type(exc).__name__
+            record["error_type"] = name if name in {
+                "BadRequestError", "AuthenticationError", "PermissionDeniedError", "NotFoundError",
+                "RateLimitError", "APIConnectionError", "APITimeoutError", "InternalServerError",
+                "APIStatusError", "ValueError", "TimeoutError", "ReadTimeout"} else "OtherError"
+            status = getattr(exc, "status_code", None)
+            if type(status) is int and 100 <= status <= 599:
+                record["http_status"] = status
+            body = getattr(exc, "body", None)
+            if isinstance(body, dict):
+                if isinstance(body.get("code"), str) and body["code"] in {"invalid_json_schema", "invalid_api_key", "rate_limit_exceeded",
+                                        "insufficient_quota", "context_length_exceeded", "model_not_found"}:
+                    record["provider_code"] = body["code"]
+                if isinstance(body.get("param"), str) and body["param"] in {"response_format", "model", "messages", "max_completion_tokens", "tools"}:
+                    record["provider_param"] = body["param"]
             if type(exc).__name__ in {"APITimeoutError", "TimeoutError", "ReadTimeout"}:
                 record["reason"] = "provider_timeout"
                 raise TimeoutError("provider_timeout") from None

@@ -1,0 +1,36 @@
+{
+  "frozen_before_execution": true,
+  "prompt": "live-rag-tools-4",
+  "model": "gpt-4o-mini-2024-07-18",
+  "maximum_new_requests": 2,
+  "maximum_api_calls": 5,
+  "expected_actual_cost_usd_below": 0.02,
+  "request_reservation_usd": 0.08,
+  "global_reservation_cap_usd": 1.5,
+  "account_cap_usd": 0.6,
+  "rationale": "One Actions diagnostic reproduced the provider rejection of newline enum literals. Two server probes after that fix, max5 provider calls; retain failed v3 request/reservation. Global cap remains1.50. Per-user cap0.60 allows one additional preserved-history request. Inputs and acceptance unchanged.",
+  "cases": [
+    {
+      "id": "control-tools-comparison",
+      "account": "automation-primary",
+      "parent": "3430a842-00b9-4678-a8ea-c0587d97e737",
+      "dataset": "evals/datasets/live_pilot_structured_holdout_20261023.json",
+      "split": "same original ad and product across v2/v3/v4; development comparison, not independent evaluation"
+    },
+    {
+      "id": "control-rag-probe",
+      "account": "automation-secondary",
+      "parent": null,
+      "path": "rag",
+      "headline": "스테인리스 텀블러 안내",
+      "body": "용량 300ml 스테인리스 텀블러를 소개합니다.",
+      "cta": "상품 보기",
+      "facts": [
+        "이 상품은 용량 300ml 스테인리스 텀블러입니다."
+      ],
+      "expected_code": "APPROVE",
+      "split": "same previously frozen input, now used in provider diagnostic; operational confirmation, not independent evaluation"
+    }
+  ],
+  "acceptance": "Record both outputs before checking: each uses prompt v4 and actual model, bounded calls, exactly one automation audit; RAG reaches verified-source human_review and tools revises/rechecks to APPROVE human_review. Any HOLD remains a failed completion, not a policy accuracy score. No changes to inputs/criteria after results."
+}

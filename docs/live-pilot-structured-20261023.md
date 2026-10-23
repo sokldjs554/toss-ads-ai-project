@@ -48,3 +48,13 @@ v3는 검색 결과 각각의 ID와 전체 인용문을 JSON Schema의 한 선�
 ### v3 이전 원장 대조
 
 [보존한 합성 입력·결과·호출 원장](evidence/live-pilot-20261023/pre-v3-synthetic-records.json), [오프라인 감사](evidence/live-pilot-20261023/pre-v3-audit/offline-audit.json), [사람 의미 검수표](evidence/live-pilot-20261023/pre-v3-audit/human-semantic-review.csv). 총 10요청·20 API 응답 성공·입력 22,898/출력 1,735 tokens·추정 $0.004477·누적 예약 $0.80. 응답 성공과 검토 완료는 다르다. 모든 원래 네 입력의 v1/v2 상품·광고 payload hash가 같으며 최종 판정은 4건 모두 동일했다. 사람 검수 칸은 전부 PENDING이다. 재현: `python scripts/audit_live_pilot_records.py docs/evidence/live-pilot-20261023/pre-v3-synthetic-records.json /tmp/live-audit`.
+
+## v3 제공자 계약 실패와 v4 수정
+
+v3 배포 `4cdf6c5`의 실제 도구 요청 `3430a842-00b9-4678-a8ea-c0587d97e737`은 수정·코드 재검사 후 마지막 제공자 요청이 실패했다. 3회 시도 중 2회 정상 응답, 마지막 1회는 사용량/비용 미확인이다. 자동 반려 기록과 예약 $0.08을 보존한다. 전체 Chrome 작업 [39994554675](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39994554675)은 실패이며, 별도의 무료 51개 회귀는 통과했다. Pages 확인이 첫 단계에서 약 10분 지연됐고, 원인이 캐시였다고 단정하지 않는다.
+
+[별도 진단 39996868624](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39996868624)는 Actions에서 공개 합성 입력으로 제공자를 정확히 1회 호출했다. 서버 사용·사람 사용에 합산하지 않는다. HTTP 400 `BadRequestError`: `Invalid schema for response_format ... In context=('properties', 'quote'),` 뒤에 줄바꿈 리터럴이 strict structured output에서 허용되지 않는다는 메시지를 받았다. 인증 오류 메시지·헤더·원문 전체는 기록하지 않는다. 이 실패도 비용을 0으로 추정하지 않고 미확인으로 보존한다.
+
+v4는 원문을 연결하거나 고쳐서 enum을 만들지 않는다. 제어문자로 나뉜 **원문 안의 연속된 구절**을 각 source ID에 묶은 선택지로 제공한다. 모델이 선택해 출력하며 Python이 source/quote 쌍과 광고 구절을 대조한다. 전체 검색 원문·해시는 그대로 남긴다. 제공자 오류 원장의 안전한 분류(예외 종류·HTTP 상태·허용된 코드/파라미터)도 보완하며 원문이나 임의 오류 메시지는 저장하지 않는다. 수정 전 제어문자 테스트 1실패/18통과, 오류 기록 테스트 2실패/5통과; 수정 후 관련 로컬 48통과.
+
+[v4 사전 고정 계획](../evals/live_pilot_control_plan.json)은 기존과 같은 광고·상품 근거 2건을 서버에서 검증한다(최대 5 API 호출). 앞선 진단 1회를 포함해 추가 최대 6회·예상 $0.02 미만. 이제 두 입력 모두 개발/운영 확인용이며 독립 holdout이 아니다. 실패 예약을 보존하면서 새 요청 1개를 더 허용하기 위해 계정 예약 상한만 $0.50→$0.60, 전역 $1.50·요청 $0.08·호출/수정 제한은 유지한다. v4 실행 결과는 아직 없다. UI 검증은 실패하더라도 두 입력의 결과를 가능한 범위에서 수집한 뒤 기존 완료 기준을 판정한다.
