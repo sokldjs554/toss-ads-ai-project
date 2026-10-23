@@ -1,0 +1,43 @@
+name: live-schema-diagnostic
+on:
+  push:
+    branches: [feat/live-rag-tools-20261023]
+    paths: [evals/live_schema_diagnostic.json]
+permissions:
+  contents: write
+concurrency:
+  group: preflight-live-schema-diagnostic
+  cancel-in-progress: false
+jobs:
+  diagnose-once:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - name: One synthetic schema diagnostic, no retry
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || secrets.OPEN_API_KEY }}
+        run: python scripts/diagnose_live_schema.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-schema-diagnostic-${{ github.run_id }}
+          path: live-schema-diagnostic/
+      - name: Preserve safe diagnostic on work branch
+        if: always()
+        env:
+          EVIDENCE_BRANCH: ${{ github.ref_name }}
+        run: |
+          if [ ! -f live-schema-diagnostic/result.json ]; then exit 0; fi
+          target="docs/evidence/live-pilot-20261023/schema-diagnostic-${{ github.run_id }}.json"
+          cp live-schema-diagnostic/result.json "$target"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add "$target"
+          git commit -m "evidence: preserve single provider schema diagnostic ${{ github.run_id }}"
+          git pull --rebase origin "$EVIDENCE_BRANCH"
+          git push origin "HEAD:refs/heads/$EVIDENCE_BRANCH"

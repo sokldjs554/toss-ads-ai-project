@@ -1,0 +1,1 @@
+{"calls":1,"model":"gpt-4o-mini-2024-07-18","input":"frozen passage-rag-new","scope":"Diagnose failed v3 provider contract; not a deployed service or independent evaluation run","expected_cost_below_usd":0.02,"automatic_retry":false,"prior_request":"3430a842-00b9-4678-a8ea-c0587d97e737"}
