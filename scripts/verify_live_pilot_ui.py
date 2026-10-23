@@ -187,8 +187,6 @@ def main():
                     report["runs"].append({"case_id":case["id"],**data})
                     shot(page,case["id"]+"-saved")
                     save()
-                check("RAG path actually completed with verified source membership",any(r["path"]=="rag" and r["status"]=="human_review" for r in report["runs"]))
-                check("tool path actually revised, rechecked and reached human handoff",any(r["path"]=="tools" and r["status"]=="human_review" and r["decision"]=="APPROVE" and r["revisions"]>=1 for r in report["runs"]))
                 manual=json.loads((ROOT/"evals/datasets/live_pilot_manual_20261023.json").read_text())
                 parent=next(r for r in report["runs"] if r["case_id"]==manual["parent_case"])
                 select(page,"내 저장 기록",parent["request_id"])
@@ -239,6 +237,11 @@ def main():
             check("second authenticated account cannot list first account records",page.get_by_role("combobox",name="내 저장 기록",exact=True).count()==0)
             shot(page,"isolated-second-account")
             ctx.close()
+            if not args.verify_only:
+                # Collect all frozen cases and persistence checks even if a
+                # workflow acceptance check fails. Keep the same expectations.
+                check("RAG path actually completed with verified source membership",any(r["path"]=="rag" and r["status"]=="human_review" for r in report["runs"]))
+                check("tool path actually revised, rechecked and reached human handoff",any(r["path"]=="tools" and r["status"]=="human_review" and r["decision"]=="APPROVE" and r["revisions"]>=1 for r in report["runs"]))
             report["status"]="passed"
         except Exception as exc:
             report["status"]="failed"
