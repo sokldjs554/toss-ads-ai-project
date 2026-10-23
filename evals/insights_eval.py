@@ -88,7 +88,7 @@ def dataset_meta(path: Path = DATASET_PATH) -> dict:
 def engine_fingerprint() -> str:
     """엔진(탐지·진단·액션)과 데이터 생성기 소스의 해시. 줄바꿈 방식에 영향받지 않게 정규화한다."""
     h = hashlib.sha256()
-    for rel in ("core/insight_engine.py", "core/insight_shift.py", "core/performance.py"):
+    for rel in ("core/insight_engine.py", "core/performance.py"):
         h.update((ROOT / rel).read_text(encoding="utf-8").replace("\r\n", "\n").encode("utf-8"))
     return h.hexdigest()[:16]
 
