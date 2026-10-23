@@ -107,9 +107,17 @@ def main():
             return context, page
 
         def select(page, label, option):
+            report["phase"] = "select:" + label
+            page.wait_for_function("""() => !document.querySelector(
+                '[data-stale="true"], [data-testid="stStatusWidgetRunningIcon"]')""")
             box=page.get_by_role("combobox",name=label,exact=True)
-            box.click()
+            # Streamlit's editable combobox need not open when its existing
+            # selected value is clicked. Reuse the proven team-review selector.
+            if box.input_value() == option: return
+            box.press("ArrowDown")
+            box.fill(option)
             page.get_by_role("option",name=option,exact=True).click()
+            expect(box).to_have_value(option)
 
         def download(page):
             button=page.get_by_role("button",name="LIVE 운영 기록 다운로드",exact=True)
@@ -170,6 +178,7 @@ def main():
                     if not page.get_by_text("검토 저장됨",exact=False).count():
                         review="승인" if data["decision"]=="APPROVE" and data["status"]=="human_review" else "반려"
                         select(page,"사람 검토 결과",review)
+                        report["phase"] = case["id"] + ":save_review"
                         page.get_by_label("검토 사유",exact=True).fill("합성 광고 자동 브라우저 검증. 실제 사람 판단이 아닙니다.")
                         page.get_by_role("button",name="검토 결과 저장",exact=True).click()
                         page.get_by_text("검토 저장됨",exact=False).wait_for()

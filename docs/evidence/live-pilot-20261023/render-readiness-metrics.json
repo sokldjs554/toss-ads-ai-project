@@ -1,0 +1,182 @@
+{
+  "scope": "Read-only Render diagnostics for blank browser page; sampled metrics do not prove root cause",
+  "resourceId": "srv-db9hb6lg1s2s738ndklg",
+  "timeRange": {
+    "start": "2026-10-23T15:45:00Z",
+    "end": "2026-10-23T16:00:00Z"
+  },
+  "metrics": [
+    {
+      "type": "cpu_usage",
+      "data": [
+        {
+          "labels": [
+            {
+              "field": "instance",
+              "value": "srv-db9hb6lg1s2s738ndklg-8hcxs"
+            },
+            {
+              "field": "service",
+              "value": "srv-db9hb6lg1s2s738ndklg"
+            },
+            {
+              "field": "resource",
+              "value": "srv-db9hb6lg1s2s738ndklg"
+            }
+          ],
+          "unit": "cpu",
+          "values": [
+            {
+              "timestamp": "2026-10-23T15:45:00Z",
+              "value": 0.0034699666
+            },
+            {
+              "timestamp": "2026-10-23T15:47:00Z",
+              "value": 0.01700046
+            },
+            {
+              "timestamp": "2026-10-23T15:49:00Z",
+              "value": 0.05508174
+            },
+            {
+              "timestamp": "2026-10-23T15:51:00Z",
+              "value": 0.008374891
+            },
+            {
+              "timestamp": "2026-10-23T15:53:00Z",
+              "value": 0.010289817
+            },
+            {
+              "timestamp": "2026-10-23T15:55:00Z",
+              "value": 0.003619025
+            },
+            {
+              "timestamp": "2026-10-23T15:57:00Z",
+              "value": 0.004662025
+            },
+            {
+              "timestamp": "2026-10-23T15:59:00Z",
+              "value": 0.0036315583
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "memory_usage",
+      "data": [
+        {
+          "labels": [
+            {
+              "field": "service",
+              "value": "srv-db9hb6lg1s2s738ndklg"
+            },
+            {
+              "field": "resource",
+              "value": "srv-db9hb6lg1s2s738ndklg"
+            },
+            {
+              "field": "instance",
+              "value": "srv-db9hb6lg1s2s738ndklg-8hcxs"
+            }
+          ],
+          "unit": "bytes",
+          "values": [
+            {
+              "timestamp": "2026-10-23T15:45:00Z",
+              "value": 71303170
+            },
+            {
+              "timestamp": "2026-10-23T15:47:00Z",
+              "value": 125177860
+            },
+            {
+              "timestamp": "2026-10-23T15:49:00Z",
+              "value": 232046600
+            },
+            {
+              "timestamp": "2026-10-23T15:51:00Z",
+              "value": 235962370
+            },
+            {
+              "timestamp": "2026-10-23T15:53:00Z",
+              "value": 233840640
+            },
+            {
+              "timestamp": "2026-10-23T15:55:00Z",
+              "value": 234696700
+            },
+            {
+              "timestamp": "2026-10-23T15:57:00Z",
+              "value": 234696700
+            },
+            {
+              "timestamp": "2026-10-23T15:59:00Z",
+              "value": 234696700
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "memory_limit",
+      "data": [
+        {
+          "labels": [
+            {
+              "field": "instance",
+              "value": "srv-db9hb6lg1s2s738ndklg-8hcxs"
+            },
+            {
+              "field": "service",
+              "value": "srv-db9hb6lg1s2s738ndklg"
+            },
+            {
+              "field": "resource",
+              "value": "srv-db9hb6lg1s2s738ndklg"
+            }
+          ],
+          "unit": "bytes",
+          "values": [
+            {
+              "timestamp": "2026-10-23T15:45:00Z",
+              "value": 536870900
+            },
+            {
+              "timestamp": "2026-10-23T15:47:00Z",
+              "value": 536870900
+            },
+            {
+              "timestamp": "2026-10-23T15:49:00Z",
+              "value": 536870900
+            },
+            {
+              "timestamp": "2026-10-23T15:51:00Z",
+              "value": 536870900
+            },
+            {
+              "timestamp": "2026-10-23T15:53:00Z",
+              "value": 536870900
+            },
+            {
+              "timestamp": "2026-10-23T15:55:00Z",
+              "value": 536870900
+            },
+            {
+              "timestamp": "2026-10-23T15:57:00Z",
+              "value": 536870900
+            },
+            {
+              "timestamp": "2026-10-23T15:59:00Z",
+              "value": 536870900
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "http_request_count",
+      "data": []
+    }
+  ]
+}
