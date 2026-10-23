@@ -1,0 +1,11 @@
+{
+  "four_inputs_commit": "d3e6db3",
+  "sha256": "34afa960c92e59cb9c9a8d16e140eafe094ba0974e6995db296d46e9d1ba0728",
+  "unchanged_bytes": true,
+  "manual_input_commit": "5c7abb8",
+  "manual_original_fields_unchanged": true,
+  "manual_added_metadata": [
+    "expected_automation_review"
+  ],
+  "gold_provenance": "AI-authored synthetic operational expectations; not human gold"
+}

@@ -56,7 +56,7 @@ def main():
         report["screens"].append(name+".png")
         save()
 
-    from playwright.sync_api import expect, sync_playwright
+    from playwright.sync_api import TimeoutError as BrowserTimeout, expect, sync_playwright
     with sync_playwright() as pw:
         browser = pw.chromium.launch(headless=True, **({"channel":"chrome"} if os.environ.get("PREFLIGHT_BROWSER_CHANNEL")=="chrome" else {}))
         report["browser"] = browser.version
@@ -65,12 +65,24 @@ def main():
             context = browser.new_context(viewport={"width":1440,"height":1100})
             page = context.new_page()
             page.set_default_timeout(90000)
+            report["phase"] = "server_readiness"
             # A browser-side provider call is forbidden; LIVE calls must be on Render.
             page.route(re.compile(r"https://api\.(openai|anthropic)\.com/.*"), lambda route: route.abort())
             deadline = time.monotonic()+600
+            load_attempts = 0
             while True:
-                page.goto(URL, wait_until="domcontentloaded", timeout=90000)
-                page.get_by_role("heading", name="LIVE 검토", exact=True).wait_for(timeout=180000)
+                load_attempts += 1
+                try:
+                    response = page.goto(URL, wait_until="domcontentloaded", timeout=90000)
+                    report.setdefault("server_loads", []).append({"http_status":response.status if response else None})
+                    page.get_by_role("heading", name="LIVE 검토", exact=True).wait_for(timeout=60000)
+                except BrowserTimeout:
+                    report.setdefault("server_load_errors", []).append({"attempt":load_attempts,"type":"page_readiness_timeout"})
+                    save()
+                    if load_attempts >= 3:
+                        shot(page,"server-readiness-failure")
+                        raise
+                    continue  # Read-only page load, never a provider request retry.
                 if "빌드 "+args.expected_sha[:7] in page.inner_text("body"): break
                 if time.monotonic()>deadline: raise AssertionError("deployed build mismatch")
                 page.wait_for_timeout(15000)
@@ -130,6 +142,7 @@ def main():
             cases=json.loads((ROOT/"evals/datasets/live_pilot_20261023.json").read_text())["cases"]
             if not args.verify_only:
                 for i,case in enumerate(cases):
+                    report["phase"] = case["id"] + ":load"
                     if i:
                         page.get_by_role("button",name="다른 광고 검토",exact=True).click()
                         page.get_by_role("button",name="LIVE 예시 불러오기",exact=True).wait_for()
@@ -142,8 +155,10 @@ def main():
                     # rerun. Visibility alone can read the previous (empty) value.
                     expect(page.get_by_label("LIVE 제목",exact=True)).to_have_value(case["headline"], timeout=90000)
                     check(case["id"]+": frozen headline loaded",page.get_by_label("LIVE 제목",exact=True).input_value()==case["headline"])
+                    report["phase"] = case["id"] + ":execute"
                     page.get_by_role("button",name="실제 LLM 실행",exact=True).click()
                     page.get_by_role("heading",name="저장된 LIVE 검토",exact=True).wait_for(timeout=240000)
+                    report["phase"] = case["id"] + ":export"
                     data=download(page)
                     check(case["id"]+": actual server calls recorded",data["call_count"]>0 and data["mode"]=="LIVE")
                     check(case["id"]+": original code outcome matches frozen expectation",data["original_code_decision"]==case["expected_code"])
@@ -219,6 +234,11 @@ def main():
         except Exception as exc:
             report["status"]="failed"
             report["error_type"]=type(exc).__name__
+            if "page" in locals():
+                alerts = page.locator('[data-testid="stAlert"]').all_text_contents()
+                report["failure_alerts"] = [a for a in alerts if not any(s in a for s in (key,token,other))]
+                try: shot(page,"failure-view")
+                except Exception: pass  # Preserve the original failure; never expose credentials.
             # Error messages can contain page input or credentials; retain type only.
             save()
             raise RuntimeError("browser_verification_failed; see redacted result.json") from None
