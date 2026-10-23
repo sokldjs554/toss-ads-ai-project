@@ -56,7 +56,7 @@ def main():
         report["screens"].append(name+".png")
         save()
 
-    from playwright.sync_api import sync_playwright
+    from playwright.sync_api import expect, sync_playwright
     with sync_playwright() as pw:
         browser = pw.chromium.launch(headless=True, **({"channel":"chrome"} if os.environ.get("PREFLIGHT_BROWSER_CHANNEL")=="chrome" else {}))
         report["browser"] = browser.version
@@ -138,7 +138,9 @@ def main():
                         page.wait_for_timeout(60000)
                     select(page,"합성 입력 예시",case["id"])
                     page.get_by_role("button",name="LIVE 예시 불러오기",exact=True).click()
-                    page.get_by_label("LIVE 제목",exact=True).wait_for()
+                    # The input already exists before Streamlit processes the preset
+                    # rerun. Visibility alone can read the previous (empty) value.
+                    expect(page.get_by_label("LIVE 제목",exact=True)).to_have_value(case["headline"], timeout=90000)
                     check(case["id"]+": frozen headline loaded",page.get_by_label("LIVE 제목",exact=True).input_value()==case["headline"])
                     page.get_by_role("button",name="실제 LLM 실행",exact=True).click()
                     page.get_by_role("heading",name="저장된 LIVE 검토",exact=True).wait_for(timeout=240000)

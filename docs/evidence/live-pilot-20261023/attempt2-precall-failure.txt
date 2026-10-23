@@ -1,0 +1,84 @@
+Run 39966158608 attempt 2; job 120507381603; artifact 12512673941.
+Actual calls remained 0. Authentication worked. Preset value assertion raced Streamlit rerun.
+Evidence commit failed on same-run path collision; immutable artifact retained by Actions.
+2026-10-23T15:45:18.3312682Z PASS Pages build matches requested commit
+2026-10-23T15:45:18.3371387Z PASS Pages explicitly separates DEMO from authenticated LIVE server
+2026-10-23T15:46:31.4568267Z PASS server screen build matches requested commit
+2026-10-23T15:46:35.3478498Z PASS authenticated account explicitly marked automation
+2026-10-23T15:46:35.6447777Z FAIL rag-normal: frozen headline loaded
+2026-10-23T15:46:35.7313822Z     raise RuntimeError("browser_verification_failed; see redacted result.json") from None
+2026-10-23T15:46:35.7327112Z RuntimeError: browser_verification_failed; see redacted result.json
+2026-10-23T15:46:36.1470131Z PASS pages: published source archive within limit
+2026-10-23T15:46:36.1489139Z PASS pages: archive build matches commit
+2026-10-23T15:46:36.1494217Z PASS pages: published source matches checkout: guardrails/normalize.py
+2026-10-23T15:46:36.1499637Z PASS pages: published source matches checkout: guardrails/lexical.py
+2026-10-23T15:46:36.1506187Z PASS pages: published source matches checkout: guardrails/policy.yaml
+2026-10-23T15:46:36.1511750Z PASS pages: published source matches checkout: agents/adjudicator.py
+2026-10-23T15:46:36.1517598Z PASS pages: published source matches checkout: agents/recheck.py
+2026-10-23T15:46:36.1522043Z PASS pages: published source matches checkout: agents/rewrite_check.py
+2026-10-23T15:46:36.1533960Z PASS pages: published source matches checkout: core/insight_engine.py
+2026-10-23T15:46:36.1539041Z PASS pages: published source matches checkout: llm/router.py
+2026-10-23T15:46:36.1542946Z PASS pages: published source matches checkout: llm/spending.py
+2026-10-23T15:46:36.1546966Z PASS pages: published source matches checkout: core/live_access.py
+2026-10-23T15:46:36.1560982Z PASS pages: published source matches checkout: observability/tracer.py
+2026-10-23T15:46:36.1566272Z PASS pages: published source matches checkout: ui/new_evals.py
+2026-10-23T15:46:36.1571031Z PASS pages: published source matches checkout: agents/live_pilot.py
+2026-10-23T15:46:36.1575432Z PASS pages: published source matches checkout: llm/live_pilot_gateway.py
+2026-10-23T15:46:36.1580675Z PASS pages: published source matches checkout: ops/live_pilot_store.py
+2026-10-23T15:46:36.1585925Z PASS pages: published source matches checkout: ui/live_pilot_view.py
+2026-10-23T15:46:50.1993999Z PASS pages: screen build matches deployed commit
+2026-10-23T15:46:54.6510052Z PASS pages: commerce coupon original rendered
+2026-10-23T15:46:54.6631086Z PASS pages: false restricted quote removed
+2026-10-23T15:46:54.6636448Z PASS pages: other policy findings retained
+2026-10-23T15:46:54.6773404Z PASS pages: original remains revise, not approve
+2026-10-23T15:46:54.6817725Z PASS pages: free demo mode visible
+2026-10-23T15:46:59.8387057Z PASS pages: manual coupon recheck passes
+2026-10-23T15:46:59.8427426Z PASS pages: manual recheck has no restricted finding
+2026-10-23T15:47:05.7048832Z PASS pages: real evasion remains rejected
+2026-10-23T15:47:05.7102875Z PASS pages: real evasion quote preserved
+2026-10-23T15:47:07.2529215Z PASS pages: rejected candidate and remaining misses disclosed
+2026-10-23T15:47:07.2533065Z PASS pages: frozen before and candidate detection displayed
+2026-10-23T15:47:07.2538107Z PASS pages: synthetic policy limits and human denominator disclosed
+2026-10-23T15:47:07.3852114Z PASS pages: no application exception
+2026-10-23T15:47:07.3856129Z PASS pages: no browser provider request
+2026-10-23T15:47:13.8916145Z PASS server: screen build matches deployed commit
+2026-10-23T15:47:25.6385166Z PASS server: commerce coupon original rendered
+2026-10-23T15:47:25.6484980Z PASS server: false restricted quote removed
+2026-10-23T15:47:25.6489035Z PASS server: other policy findings retained
+2026-10-23T15:47:25.6679483Z PASS server: original remains revise, not approve
+2026-10-23T15:47:25.6731929Z PASS server: free demo mode visible
+2026-10-23T15:47:33.3130277Z PASS server: manual coupon recheck passes
+2026-10-23T15:47:33.3172381Z PASS server: manual recheck has no restricted finding
+2026-10-23T15:47:42.6620004Z PASS server: real evasion remains rejected
+2026-10-23T15:47:42.6676612Z PASS server: real evasion quote preserved
+2026-10-23T15:47:43.7016692Z PASS server: rejected candidate and remaining misses disclosed
+2026-10-23T15:47:43.7049922Z PASS server: frozen before and candidate detection displayed
+2026-10-23T15:47:43.7061405Z PASS server: synthetic policy limits and human denominator disclosed
+2026-10-23T15:47:47.9179677Z PASS server: operational export excludes raw text by default
+2026-10-23T15:47:47.9224464Z PASS server: no application exception
+2026-10-23T15:47:47.9247285Z PASS server: no browser provider request
+2026-10-23T15:47:49.1834631Z PASS replay: historical execution clearly labeled without new model calls
+2026-10-23T15:47:49.2126443Z PASS replay: recorded and current policy versions remain separate
+2026-10-23T15:47:52.5438813Z CONFLICT (add/add): Merge conflict in docs/evidence/live-pilot-20261023/public-39966158608/free-current/pages-coupon-recheck.png
+2026-10-23T15:47:52.5441523Z CONFLICT (add/add): Merge conflict in docs/evidence/live-pilot-20261023/public-39966158608/free-current/pages-coupon-recheck.txt
+2026-10-23T15:47:52.5445926Z CONFLICT (add/add): Merge conflict in docs/evidence/live-pilot-20261023/public-39966158608/free-current/pages-coupon.png
+2026-10-23T15:47:52.5447866Z CONFLICT (add/add): Merge conflict in docs/evidence/live-pilot-20261023/public-39966158608/free-current/pages-coupon.txt
+2026-10-23T15:47:52.5449722Z CONFLICT (add/add): Merge conflict in docs/evidence/live-pilot-20261023/public-39966158608/free-current/pages-evidence-strengthening.txt
+2026-10-23T15:47:52.5453018Z CONFLICT (add/add): Merge conflict in docs/evidence/live-pilot-20261023/public-39966158608/free-current/pages-restricted-recheck.png
+2026-10-23T15:47:52.5454787Z CONFLICT (add/add): Merge conflict in docs/evidence/live-pilot-20261023/public-39966158608/free-current/pages-restricted-recheck.txt
+2026-10-23T15:47:52.5457869Z CONFLICT (add/add): Merge conflict in docs/evidence/live-pilot-20261023/public-39966158608/free-current/pages-version.png
+2026-10-23T15:47:52.5459485Z CONFLICT (add/add): Merge conflict in docs/evidence/live-pilot-20261023/public-39966158608/free-current/pages-version.txt
+2026-10-23T15:47:52.5461703Z CONFLICT (add/add): Merge conflict in docs/evidence/live-pilot-20261023/public-39966158608/free-current/result.json
+2026-10-23T15:47:52.5464641Z CONFLICT (add/add): Merge conflict in docs/evidence/live-pilot-20261023/public-39966158608/free-current/server-coupon-recheck.png
+2026-10-23T15:47:52.5466913Z CONFLICT (add/add): Merge conflict in docs/evidence/live-pilot-20261023/public-39966158608/free-current/server-coupon-recheck.txt
+2026-10-23T15:47:52.5469776Z CONFLICT (add/add): Merge conflict in docs/evidence/live-pilot-20261023/public-39966158608/free-current/server-coupon.png
+2026-10-23T15:47:52.5471415Z CONFLICT (add/add): Merge conflict in docs/evidence/live-pilot-20261023/public-39966158608/free-current/server-coupon.txt
+2026-10-23T15:47:52.5474620Z CONFLICT (add/add): Merge conflict in docs/evidence/live-pilot-20261023/public-39966158608/free-current/server-evidence-strengthening.png
+2026-10-23T15:47:52.5476542Z CONFLICT (add/add): Merge conflict in docs/evidence/live-pilot-20261023/public-39966158608/free-current/server-evidence-strengthening.txt
+2026-10-23T15:47:52.5478321Z CONFLICT (add/add): Merge conflict in docs/evidence/live-pilot-20261023/public-39966158608/free-current/server-operational-record.json
+2026-10-23T15:47:52.5481381Z CONFLICT (add/add): Merge conflict in docs/evidence/live-pilot-20261023/public-39966158608/free-current/server-restricted-recheck.png
+2026-10-23T15:47:52.5483086Z CONFLICT (add/add): Merge conflict in docs/evidence/live-pilot-20261023/public-39966158608/free-current/server-restricted-recheck.txt
+2026-10-23T15:47:52.5486118Z CONFLICT (add/add): Merge conflict in docs/evidence/live-pilot-20261023/public-39966158608/free-current/server-version.png
+2026-10-23T15:47:52.5487649Z CONFLICT (add/add): Merge conflict in docs/evidence/live-pilot-20261023/public-39966158608/free-current/server-version.txt
+2026-10-23T15:47:52.5489058Z CONFLICT (add/add): Merge conflict in docs/evidence/live-pilot-20261023/public-39966158608/result.json
+2026-10-23T15:47:52.5490221Z error: could not apply a832abb... evidence: preserve isolated live browser run 39966158608
