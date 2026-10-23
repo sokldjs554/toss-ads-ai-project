@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 import hashlib
 import io
 import json
+import os
 from pathlib import Path
 import re
 import time
@@ -73,7 +74,7 @@ def main():
         from playwright.sync_api import sync_playwright
 
         with sync_playwright() as pw:
-            browser = pw.chromium.launch(headless=True)
+            browser = pw.chromium.launch(headless=True, **({"channel":"chrome"} if os.environ.get("PREFLIGHT_BROWSER_CHANNEL")=="chrome" else {}))
             report["browser"] = browser.version
             for scope, url in (("pages", PAGES), ("server", NATIVE)):
                 ctx = browser.new_context(viewport={"width": 1440, "height": 1100})
@@ -125,7 +126,7 @@ def main():
                             field.fill(value)
                             field.press("Control+Enter" if multiline else "Enter")
                             if label == "제목" and previous:
-                                editor.get_by_text("이전에 검사한 문구", exact=True).wait_for(timeout=90000)
+                                editor.locator(".pf-ad .t").filter(has_text="이전에 검사한 문구").wait_for(timeout=90000)
                             page.wait_for_timeout(1000)
                         editor.get_by_role("button", name="수정한 문구 다시 검사", exact=True).click()
                         editor.get_by_text("검사한 문구", exact=True).wait_for(timeout=120000)
