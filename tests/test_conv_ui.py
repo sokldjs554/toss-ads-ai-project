@@ -311,6 +311,7 @@ def test_real_model_runs_only_after_both_confirmations_and_is_labelled(monkeypat
     def complete(self, req):
         seen["n"] += 1
         resp = prov.complete(req)
+        resp.model = self.model  # Controlled response must identify the configured paid model.
         resp.text = resp.parsed.model_dump_json() if resp.parsed is not None else ""
         return resp
 

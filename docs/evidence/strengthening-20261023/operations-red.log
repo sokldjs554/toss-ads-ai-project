@@ -1,0 +1,44 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_________ test_live_without_available_provider_cannot_substitute_demo __________
+
+    def test_live_without_available_provider_cannot_substitute_demo():
+        tracer = Tracer()
+        with tracer.trace("offline-live-boundary", mode="partial"):
+>           with pytest.raises(ProviderUnavailable):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE ProviderUnavailable
+
+tests/test_operational_boundaries.py:24: Failed
+___________ test_unavailable_live_recheck_holds_and_is_not_reusable ____________
+
+    def test_unavailable_live_recheck_holds_and_is_not_reusable():
+        tracer = Tracer()
+        router = unavailable_router(tracer)
+        result = recheck(AdCopy(variant_id="test", headline="상품 정보를 확인하세요", body="", cta=""),
+                         ProductFacts(name="synthetic"), set(), router.settings, router=router, tracer=tracer)
+>       assert result.report.final_decision.value == "HUMAN_REVIEW"
+E       AssertionError: assert 'APPROVE' == 'HUMAN_REVIEW'
+E         
+E         - HUMAN_REVIEW
+E         + APPROVE
+
+tests/test_operational_boundaries.py:33: AssertionError
+___ test_shared_operational_record_excludes_free_text_and_keeps_measurements ___
+
+    def test_shared_operational_record_excludes_free_text_and_keeps_measurements():
+        tracer = Tracer()
+        with tracer.trace("preflight", mode="partial", prompt_version="2026.10.4", policy_version="2026.10.7", product="PRIVATE PRODUCT") as trace:
+            with tracer.span("reviewer", kind="llm", provider="openai", model="gpt-4o", prompt_user="PRIVATE INPUT", response_text="PRIVATE OUTPUT",
+                             input_tokens=12, output_tokens=7, cost_usd=.003, cost_estimated=False) as span:
+                span.event("provider_error", type="Timeout", error="Bearer SECRET-KEY PRIVATE INPUT")
+>       public = trace.operational_record()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'Trace' object has no attribute 'operational_record'
+
+tests/test_operational_boundaries.py:44: AttributeError
+=========================== short test summary info ============================
+FAILED tests/test_operational_boundaries.py::test_live_without_available_provider_cannot_substitute_demo
+FAILED tests/test_operational_boundaries.py::test_unavailable_live_recheck_holds_and_is_not_reusable
+FAILED tests/test_operational_boundaries.py::test_shared_operational_record_excludes_free_text_and_keeps_measurements
+3 failed in 0.60s

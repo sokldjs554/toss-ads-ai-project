@@ -1,0 +1,1826 @@
+{
+  "input": "evals/datasets/insights_final_20261023.json",
+  "input_sha256": "7b6a216e3d2e1a80f960d319701a961025a7441fd080de7e233f4a8edd197a37",
+  "engine_fingerprint": "2137f46e0b2ad370",
+  "commit": "a545f601589e71fdf2ea92e69159bb17432caf0a",
+  "python": "3.12.14",
+  "execution": "deterministic synthetic; no provider calls; not human-reviewed truth",
+  "summary": {
+    "normal": {
+      "n": 24,
+      "tp": 0,
+      "fn": 0,
+      "fp": 0,
+      "tn": 24,
+      "withheld": 0,
+      "audit_problems": 0
+    },
+    "persistent_drop": {
+      "n": 24,
+      "tp": 10,
+      "fn": 14,
+      "fp": 0,
+      "tn": 0,
+      "withheld": 0,
+      "audit_problems": 0
+    },
+    "recovered": {
+      "n": 24,
+      "tp": 0,
+      "fn": 0,
+      "fp": 3,
+      "tn": 21,
+      "withheld": 0,
+      "audit_problems": 0
+    },
+    "continuing_trend": {
+      "n": 24,
+      "tp": 0,
+      "fn": 0,
+      "fp": 0,
+      "tn": 24,
+      "withheld": 0,
+      "audit_problems": 0
+    }
+  },
+  "cases": [
+    {
+      "id": "final23-00-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-00-persistent_drop",
+      "family": "persistent_drop",
+      "expected": true,
+      "outcome": "fn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-00-recovered",
+      "family": "recovered",
+      "expected": false,
+      "outcome": "fp",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-09-22"
+      ],
+      "incidents": [
+        {
+          "start": "2026-10-05",
+          "end": "2026-10-18",
+          "polarity": "worse",
+          "findings": [
+            {
+              "metric": "cvr",
+              "direction": "down",
+              "pct": -0.5479707851350535,
+              "score": 7.626125322086809,
+              "segment": "광고세트 세트A_20대",
+              "method": "joint_level_shift"
+            }
+          ]
+        }
+      ],
+      "actions": [
+        "check_tracking",
+        "check_landing",
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-00-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-01-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-01-persistent_drop",
+      "family": "persistent_drop",
+      "expected": true,
+      "outcome": "fn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-01-recovered",
+      "family": "recovered",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-01-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-02-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-02-persistent_drop",
+      "family": "persistent_drop",
+      "expected": true,
+      "outcome": "tp",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-09-29"
+      ],
+      "incidents": [
+        {
+          "start": "2026-10-05",
+          "end": "2026-10-18",
+          "polarity": "worse",
+          "findings": [
+            {
+              "metric": "cvr",
+              "direction": "down",
+              "pct": -0.6365381499832623,
+              "score": 9.510417188366917,
+              "segment": "광고세트 세트C_40대",
+              "method": "reference_forecast"
+            }
+          ]
+        }
+      ],
+      "actions": [
+        "check_landing",
+        "pause"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-02-recovered",
+      "family": "recovered",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-02-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-03-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-03-persistent_drop",
+      "family": "persistent_drop",
+      "expected": true,
+      "outcome": "fn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-03-recovered",
+      "family": "recovered",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-03-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-04-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-04-persistent_drop",
+      "family": "persistent_drop",
+      "expected": true,
+      "outcome": "tp",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-09-25"
+      ],
+      "incidents": [
+        {
+          "start": "2026-10-05",
+          "end": "2026-10-18",
+          "polarity": "worse",
+          "findings": [
+            {
+              "metric": "cvr",
+              "direction": "down",
+              "pct": -0.5163833452447926,
+              "score": 8.475816330879674,
+              "segment": "광고세트 세트B_30대",
+              "method": "reference_forecast"
+            }
+          ]
+        }
+      ],
+      "actions": [
+        "check_landing",
+        "pause"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-04-recovered",
+      "family": "recovered",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-04-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-05-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-05-persistent_drop",
+      "family": "persistent_drop",
+      "expected": true,
+      "outcome": "tp",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [
+        {
+          "start": "2026-10-05",
+          "end": "2026-10-18",
+          "polarity": "worse",
+          "findings": [
+            {
+              "metric": "cvr",
+              "direction": "down",
+              "pct": -0.6170447152978469,
+              "score": 15.278667713697054,
+              "segment": "광고세트 세트B_30대",
+              "method": "reference_forecast"
+            }
+          ]
+        }
+      ],
+      "actions": [
+        "check_tracking",
+        "check_landing",
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-05-recovered",
+      "family": "recovered",
+      "expected": false,
+      "outcome": "fp",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [
+        {
+          "start": "2026-10-08",
+          "end": "2026-10-17",
+          "polarity": "better",
+          "findings": [
+            {
+              "metric": "conversions",
+              "direction": "up",
+              "pct": 0.1975799149075208,
+              "score": 5.800266036968454,
+              "segment": "",
+              "method": "reference_forecast"
+            }
+          ]
+        }
+      ],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-05-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-06-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-06-persistent_drop",
+      "family": "persistent_drop",
+      "expected": true,
+      "outcome": "fn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-06-recovered",
+      "family": "recovered",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-06-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-07-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-07-persistent_drop",
+      "family": "persistent_drop",
+      "expected": true,
+      "outcome": "fn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-07-recovered",
+      "family": "recovered",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-07-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-08-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-08-persistent_drop",
+      "family": "persistent_drop",
+      "expected": true,
+      "outcome": "tp",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-09-28"
+      ],
+      "incidents": [
+        {
+          "start": "2026-10-05",
+          "end": "2026-10-18",
+          "polarity": "worse",
+          "findings": [
+            {
+              "metric": "cvr",
+              "direction": "down",
+              "pct": -0.6695875785918121,
+              "score": 9.908099480774979,
+              "segment": "광고세트 세트A_20대",
+              "method": "reference_forecast"
+            }
+          ]
+        }
+      ],
+      "actions": [
+        "check_tracking",
+        "check_landing",
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-08-recovered",
+      "family": "recovered",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-08-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-09-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-09-persistent_drop",
+      "family": "persistent_drop",
+      "expected": true,
+      "outcome": "fn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-09-recovered",
+      "family": "recovered",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-09-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-10-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-10-persistent_drop",
+      "family": "persistent_drop",
+      "expected": true,
+      "outcome": "tp",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-09-25"
+      ],
+      "incidents": [
+        {
+          "start": "2026-10-05",
+          "end": "2026-10-18",
+          "polarity": "worse",
+          "findings": [
+            {
+              "metric": "cvr",
+              "direction": "down",
+              "pct": -0.5160654682137464,
+              "score": 7.78791249205245,
+              "segment": "광고세트 세트B_30대",
+              "method": "joint_level_shift"
+            }
+          ]
+        }
+      ],
+      "actions": [
+        "check_landing",
+        "pause"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-10-recovered",
+      "family": "recovered",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-10-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-11-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-11-persistent_drop",
+      "family": "persistent_drop",
+      "expected": true,
+      "outcome": "tp",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [
+        {
+          "start": "2026-10-05",
+          "end": "2026-10-18",
+          "polarity": "worse",
+          "findings": [
+            {
+              "metric": "cvr",
+              "direction": "down",
+              "pct": -0.6127201530922479,
+              "score": 12.011118348565168,
+              "segment": "광고세트 세트D_관심사",
+              "method": "reference_forecast"
+            }
+          ]
+        }
+      ],
+      "actions": [
+        "check_tracking",
+        "check_landing",
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-11-recovered",
+      "family": "recovered",
+      "expected": false,
+      "outcome": "fp",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [
+        {
+          "start": "2026-10-08",
+          "end": "2026-10-18",
+          "polarity": "better",
+          "findings": [
+            {
+              "metric": "conversions",
+              "direction": "up",
+              "pct": 0.19940067317858023,
+              "score": 6.031297697208446,
+              "segment": "",
+              "method": "reference_forecast"
+            }
+          ]
+        }
+      ],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-11-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-12-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-12-persistent_drop",
+      "family": "persistent_drop",
+      "expected": true,
+      "outcome": "fn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-12-recovered",
+      "family": "recovered",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-12-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-13-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-13-persistent_drop",
+      "family": "persistent_drop",
+      "expected": true,
+      "outcome": "fn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-13-recovered",
+      "family": "recovered",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-13-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-14-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-14-persistent_drop",
+      "family": "persistent_drop",
+      "expected": true,
+      "outcome": "tp",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-09-23"
+      ],
+      "incidents": [
+        {
+          "start": "2026-10-05",
+          "end": "2026-10-18",
+          "polarity": "worse",
+          "findings": [
+            {
+              "metric": "cvr",
+              "direction": "down",
+              "pct": -0.5768910833565888,
+              "score": 10.107411166491117,
+              "segment": "광고세트 세트C_40대",
+              "method": "reference_forecast"
+            }
+          ]
+        }
+      ],
+      "actions": [
+        "check_landing",
+        "pause"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-14-recovered",
+      "family": "recovered",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-14-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-15-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-15-persistent_drop",
+      "family": "persistent_drop",
+      "expected": true,
+      "outcome": "fn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-15-recovered",
+      "family": "recovered",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-15-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-16-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-16-persistent_drop",
+      "family": "persistent_drop",
+      "expected": true,
+      "outcome": "fn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-16-recovered",
+      "family": "recovered",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-16-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-17-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-17-persistent_drop",
+      "family": "persistent_drop",
+      "expected": true,
+      "outcome": "tp",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [
+        {
+          "start": "2026-10-05",
+          "end": "2026-10-18",
+          "polarity": "worse",
+          "findings": [
+            {
+              "metric": "cvr",
+              "direction": "down",
+              "pct": -0.16732643640847467,
+              "score": 6.018973109713414,
+              "segment": "",
+              "method": "reference_forecast"
+            },
+            {
+              "metric": "cvr",
+              "direction": "down",
+              "pct": -0.647069879144015,
+              "score": 30.05200235562377,
+              "segment": "광고세트 세트B_30대",
+              "method": "reference_forecast"
+            },
+            {
+              "metric": "cvr",
+              "direction": "down",
+              "pct": -0.1594156761458848,
+              "score": 7.4032031347799165,
+              "segment": "기기 iOS",
+              "method": "reference_forecast"
+            }
+          ]
+        }
+      ],
+      "actions": [
+        "check_tracking",
+        "check_landing",
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-17-recovered",
+      "family": "recovered",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-17-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-18-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-18-persistent_drop",
+      "family": "persistent_drop",
+      "expected": true,
+      "outcome": "fn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-18-recovered",
+      "family": "recovered",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-18-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-19-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-19-persistent_drop",
+      "family": "persistent_drop",
+      "expected": true,
+      "outcome": "fn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-19-recovered",
+      "family": "recovered",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-19-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-20-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-20-persistent_drop",
+      "family": "persistent_drop",
+      "expected": true,
+      "outcome": "tp",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [
+        {
+          "start": "2026-10-05",
+          "end": "2026-10-18",
+          "polarity": "worse",
+          "findings": [
+            {
+              "metric": "cvr",
+              "direction": "down",
+              "pct": -0.5575348301647869,
+              "score": 7.012667258223791,
+              "segment": "광고세트 세트A_20대",
+              "method": "reference_forecast"
+            }
+          ]
+        }
+      ],
+      "actions": [
+        "check_tracking",
+        "check_landing",
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-20-recovered",
+      "family": "recovered",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-20-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-21-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-21-persistent_drop",
+      "family": "persistent_drop",
+      "expected": true,
+      "outcome": "fn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-21-recovered",
+      "family": "recovered",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-21-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-22-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-22-persistent_drop",
+      "family": "persistent_drop",
+      "expected": true,
+      "outcome": "fn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-22-recovered",
+      "family": "recovered",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-22-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-23-normal",
+      "family": "normal",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-23-persistent_drop",
+      "family": "persistent_drop",
+      "expected": true,
+      "outcome": "tp",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-09-29"
+      ],
+      "incidents": [
+        {
+          "start": "2026-10-05",
+          "end": "2026-10-18",
+          "polarity": "worse",
+          "findings": [
+            {
+              "metric": "cvr",
+              "direction": "down",
+              "pct": -0.579935451146885,
+              "score": 8.532385004356918,
+              "segment": "광고세트 세트D_관심사",
+              "method": "joint_level_shift"
+            }
+          ]
+        }
+      ],
+      "actions": [
+        "check_tracking",
+        "check_landing",
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-23-recovered",
+      "family": "recovered",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    },
+    {
+      "id": "final23-23-continuing_trend",
+      "family": "continuing_trend",
+      "expected": false,
+      "outcome": "tn",
+      "status": "ok",
+      "reference_window": [
+        "2026-09-07",
+        "2026-10-04"
+      ],
+      "incidents": [],
+      "actions": [
+        "keep_watching"
+      ],
+      "audit_problems": []
+    }
+  ]
+}

@@ -1,0 +1,5670 @@
+{
+ "dataset": "perf_holdout_20261020",
+ "dataset_path": "evals/datasets/perf_holdout_20261020.jsonl",
+ "data": "synthetic",
+ "command": "python -m evals.insights_eval --split all --dataset evals/datasets/perf_holdout_20261020.jsonl --out evals/reports/strengthening-20261023/historical80-after.json",
+ "engine_fingerprint": "39c1784e705fe10c",
+ "dataset_fingerprint": "329d0bb086d3abba",
+ "holdout_frozen_engine": "f2081dac655aed25",
+ "engine_changed_after_holdout": true,
+ "holdout_provenance_issues": [],
+ "holdout_role": "regression",
+ "engine_params": {
+  "recent_days": 14,
+  "baseline_days": 28,
+  "h_score": 5.0,
+  "h_single": 6.5,
+  "min_effect": 0.08,
+  "sigma_inflate": 1.3,
+  "seg_h_score": 6.0,
+  "supported_confidence": 0.75,
+  "likely_confidence": 0.45,
+  "candidate_confidence": 0.25,
+  "baseline_estimation_factor": 1.5707963267948966,
+  "comparison_adjustment": "sqrt(h^2 + 2*log(M)): M=2*series for the preceding reference; M=2*earlier_candidates*series for earlier references; series only when no earlier reference exists",
+  "segment_metrics": {
+   "creative": [
+    "ctr"
+   ],
+   "ad_set": [
+    "ctr",
+    "cvr"
+   ],
+   "device": [
+    "clicks",
+    "cvr"
+   ]
+  },
+  "reference_search": "prefixes of the preceding baseline; minimum 14 observed days and two observations per weekday; unchanged reporting window",
+  "older_reference_uncertainty": "includes slope uncertainty even when the selected trend is zero"
+ },
+ "splits": {
+  "holdout": {
+   "n_scenarios": 80,
+   "n_events": 40,
+   "n_controls": 40,
+   "n_resolvable": 32,
+   "n_ambiguous": 8,
+   "detection_recall": 0.9714,
+   "detection_recall_n": "34/35",
+   "detection_precision": 1.0,
+   "detection_precision_n": "35/35",
+   "control_false_alarm_rate": 0.0,
+   "control_false_alarm_n": "0/40",
+   "cause_top1": 0.9375,
+   "cause_top1_n": "30/32",
+   "cause_top3": 0.9375,
+   "cause_top3_n": "30/32",
+   "cause_any_in_top3": 0.9375,
+   "abstained_n": 2,
+   "overabstain_rate": 0.0625,
+   "ambiguous_not_asserted": 1.0,
+   "ambiguous_undetermined": 0.0,
+   "ambiguous_supported_n": 2,
+   "ambiguous_detected_n": 3,
+   "forbidden_proposals": 0,
+   "scenarios_with_forbidden": [],
+   "allowed_action_hit": 0.9625,
+   "unsupported_numbers": 0,
+   "audit_problems": 0,
+   "causal_overclaims": 0,
+   "perturbation_injected": 915,
+   "perturbation_caught": 915,
+   "perturbation_escaped": 0,
+   "perturbation_false_drops": 0,
+   "calibration": {
+    "bins": [
+     {
+      "bin": "후보(0.25~0.45)",
+      "n": 2,
+      "accuracy": 0.0
+     },
+     {
+      "bin": "우선 확인(0.45~0.75)",
+      "n": 7,
+      "accuracy": 0.8571
+     },
+     {
+      "bin": "근거 많음(0.75 이상)",
+      "n": 25,
+      "accuracy": 0.96
+     }
+    ],
+    "pairs": 34,
+    "note": "구간당 건수가 적어 불확실하다. 확신은 확률이 아니다."
+   }
+  }
+ },
+ "holdout_observations": [],
+ "scenarios": [
+  {
+   "id": "h26-p001",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "partial",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-06-01",
+    "2026-06-14"
+   ],
+   "reference_window": [
+    "2026-05-04",
+    "2026-05-31"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching",
+    "collect_more_data"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G2",
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p002",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-06-04",
+    "2026-06-17"
+   ],
+   "reference_window": [
+    "2026-05-07",
+    "2026-06-03"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 9,
+    "caught": 9,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p003",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-06-07",
+    "2026-06-20"
+   ],
+   "reference_window": [
+    "2026-05-10",
+    "2026-06-06"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p004",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-06-10",
+    "2026-06-23"
+   ],
+   "reference_window": [
+    "2026-05-13",
+    "2026-06-09"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p005",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "partial",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-06-13",
+    "2026-06-26"
+   ],
+   "reference_window": [
+    "2026-05-16",
+    "2026-06-12"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching",
+    "collect_more_data"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G2",
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p006",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "partial",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-06-10",
+    "2026-06-23"
+   ],
+   "reference_window": [
+    "2026-05-13",
+    "2026-06-09"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching",
+    "collect_more_data"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G2",
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 9,
+    "caught": 9,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p007",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-06-13",
+    "2026-06-26"
+   ],
+   "reference_window": [
+    "2026-05-16",
+    "2026-06-12"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p008",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-06-16",
+    "2026-06-29"
+   ],
+   "reference_window": [
+    "2026-05-19",
+    "2026-06-15"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p009",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-06-19",
+    "2026-07-02"
+   ],
+   "reference_window": [
+    "2026-05-22",
+    "2026-06-18"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p010",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "partial",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-06-22",
+    "2026-07-05"
+   ],
+   "reference_window": [
+    "2026-05-25",
+    "2026-06-21"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching",
+    "collect_more_data"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G2",
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p011",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-06-19",
+    "2026-07-02"
+   ],
+   "reference_window": [
+    "2026-05-22",
+    "2026-06-18"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 9,
+    "caught": 9,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p012",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-06-22",
+    "2026-07-05"
+   ],
+   "reference_window": [
+    "2026-05-25",
+    "2026-06-21"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p013",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-06-25",
+    "2026-07-08"
+   ],
+   "reference_window": [
+    "2026-05-28",
+    "2026-06-24"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p014",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-06-28",
+    "2026-07-11"
+   ],
+   "reference_window": [
+    "2026-05-31",
+    "2026-06-27"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p015",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-07-01",
+    "2026-07-14"
+   ],
+   "reference_window": [
+    "2026-06-03",
+    "2026-06-30"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p016",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-06-28",
+    "2026-07-11"
+   ],
+   "reference_window": [
+    "2026-05-31",
+    "2026-06-27"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 9,
+    "caught": 9,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p017",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-07-01",
+    "2026-07-14"
+   ],
+   "reference_window": [
+    "2026-06-03",
+    "2026-06-30"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p018",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-07-04",
+    "2026-07-17"
+   ],
+   "reference_window": [
+    "2026-06-06",
+    "2026-07-03"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p019",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-07-07",
+    "2026-07-20"
+   ],
+   "reference_window": [
+    "2026-06-09",
+    "2026-07-06"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p020",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-07-10",
+    "2026-07-23"
+   ],
+   "reference_window": [
+    "2026-06-12",
+    "2026-07-09"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p021",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-07-07",
+    "2026-07-20"
+   ],
+   "reference_window": [
+    "2026-06-09",
+    "2026-07-06"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 9,
+    "caught": 9,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p022",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-07-10",
+    "2026-07-23"
+   ],
+   "reference_window": [
+    "2026-06-12",
+    "2026-07-09"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p023",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-07-13",
+    "2026-07-26"
+   ],
+   "reference_window": [
+    "2026-06-15",
+    "2026-07-12"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p024",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-07-16",
+    "2026-07-29"
+   ],
+   "reference_window": [
+    "2026-06-18",
+    "2026-07-15"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p025",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-07-19",
+    "2026-08-01"
+   ],
+   "reference_window": [
+    "2026-06-21",
+    "2026-07-18"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p026",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-07-16",
+    "2026-07-29"
+   ],
+   "reference_window": [
+    "2026-06-18",
+    "2026-07-15"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 9,
+    "caught": 9,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p027",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-07-19",
+    "2026-08-01"
+   ],
+   "reference_window": [
+    "2026-06-21",
+    "2026-07-18"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p028",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-07-22",
+    "2026-08-04"
+   ],
+   "reference_window": [
+    "2026-06-24",
+    "2026-07-21"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p029",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-07-25",
+    "2026-08-07"
+   ],
+   "reference_window": [
+    "2026-06-27",
+    "2026-07-24"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p030",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-07-28",
+    "2026-08-10"
+   ],
+   "reference_window": [
+    "2026-06-30",
+    "2026-07-27"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p031",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-07-25",
+    "2026-08-07"
+   ],
+   "reference_window": [
+    "2026-06-27",
+    "2026-07-24"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 9,
+    "caught": 9,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p032",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-07-28",
+    "2026-08-10"
+   ],
+   "reference_window": [
+    "2026-06-30",
+    "2026-07-27"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p033",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-07-31",
+    "2026-08-13"
+   ],
+   "reference_window": [
+    "2026-07-03",
+    "2026-07-30"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p034",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-08-03",
+    "2026-08-16"
+   ],
+   "reference_window": [
+    "2026-07-06",
+    "2026-08-02"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p035",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-08-06",
+    "2026-08-19"
+   ],
+   "reference_window": [
+    "2026-07-09",
+    "2026-08-05"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p036",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-08-03",
+    "2026-08-16"
+   ],
+   "reference_window": [
+    "2026-07-06",
+    "2026-08-02"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 9,
+    "caught": 9,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p037",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-08-06",
+    "2026-08-19"
+   ],
+   "reference_window": [
+    "2026-07-09",
+    "2026-08-05"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p038",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-08-09",
+    "2026-08-22"
+   ],
+   "reference_window": [
+    "2026-07-12",
+    "2026-08-08"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p039",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-08-12",
+    "2026-08-25"
+   ],
+   "reference_window": [
+    "2026-07-15",
+    "2026-08-11"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p040",
+   "split": "holdout",
+   "family": "normal",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": true,
+   "status": "ok",
+   "truth_incidents": [],
+   "comparison_window": [
+    "2026-08-15",
+    "2026-08-28"
+   ],
+   "reference_window": [
+    "2026-07-18",
+    "2026-08-14"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p041",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "budget_cap",
+     "start": "2026-07-19",
+     "end": "2026-08-11"
+    }
+   ],
+   "comparison_window": [
+    "2026-07-29",
+    "2026-08-11"
+   ],
+   "reference_window": [
+    "2026-07-01",
+    "2026-07-20"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": true,
+   "engine_incidents": [
+    {
+     "start": "2026-07-29",
+     "end": "2026-08-11",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "supported"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "budget_cap"
+   ],
+   "ranked": [
+    [
+     "budget_cap",
+     0.917
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ],
+    [
+     "landing_issue",
+     0.2
+    ],
+    [
+     "bid_competition",
+     0.2
+    ]
+   ],
+   "top1": "budget_cap",
+   "top3": [
+    "budget_cap"
+   ],
+   "cause_states": [
+    "supported"
+   ],
+   "actions": [
+    "raise_budget"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G9"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 13,
+    "caught": 13,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p042",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "budget_cap",
+     "start": "2026-07-22",
+     "end": "2026-08-12"
+    }
+   ],
+   "comparison_window": [
+    "2026-07-30",
+    "2026-08-12"
+   ],
+   "reference_window": [
+    "2026-07-02",
+    "2026-07-16"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": true,
+   "engine_incidents": [
+    {
+     "start": "2026-07-30",
+     "end": "2026-08-12",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "supported"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "budget_cap"
+   ],
+   "ranked": [
+    [
+     "budget_cap",
+     1.0
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ],
+    [
+     "landing_issue",
+     0.2
+    ],
+    [
+     "bid_competition",
+     0.2
+    ]
+   ],
+   "top1": "budget_cap",
+   "top3": [
+    "budget_cap"
+   ],
+   "cause_states": [
+    "supported"
+   ],
+   "actions": [
+    "raise_budget"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G9"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 13,
+    "caught": 13,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p043",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "budget_cap",
+     "start": "2026-07-25",
+     "end": "2026-08-13"
+    }
+   ],
+   "comparison_window": [
+    "2026-07-31",
+    "2026-08-13"
+   ],
+   "reference_window": [
+    "2026-07-03",
+    "2026-07-30"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [
+    {
+     "start": "2026-08-03",
+     "end": "2026-08-08",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "supported"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "budget_cap"
+   ],
+   "ranked": [
+    [
+     "budget_cap",
+     0.917
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ],
+    [
+     "landing_issue",
+     0.2
+    ],
+    [
+     "bid_competition",
+     0.2
+    ]
+   ],
+   "top1": "budget_cap",
+   "top3": [
+    "budget_cap"
+   ],
+   "cause_states": [
+    "supported"
+   ],
+   "actions": [
+    "raise_budget"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G9"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 13,
+    "caught": 13,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p044",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "budget_cap",
+     "start": "2026-07-28",
+     "end": "2026-08-14"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-01",
+    "2026-08-14"
+   ],
+   "reference_window": [
+    "2026-07-04",
+    "2026-07-31"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [
+    {
+     "start": "2026-08-01",
+     "end": "2026-08-14",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "supported"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "budget_cap"
+   ],
+   "ranked": [
+    [
+     "budget_cap",
+     1.0
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ],
+    [
+     "landing_issue",
+     0.2
+    ],
+    [
+     "bid_competition",
+     0.2
+    ]
+   ],
+   "top1": "budget_cap",
+   "top3": [
+    "budget_cap"
+   ],
+   "cause_states": [
+    "supported"
+   ],
+   "actions": [
+    "raise_budget"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G9"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 13,
+    "caught": 13,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p045",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "budget_cap",
+     "start": "2026-07-31",
+     "end": "2026-08-15"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-02",
+    "2026-08-15"
+   ],
+   "reference_window": [
+    "2026-07-05",
+    "2026-08-01"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [
+    {
+     "start": "2026-08-02",
+     "end": "2026-08-15",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "supported"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "budget_cap"
+   ],
+   "ranked": [
+    [
+     "budget_cap",
+     1.0
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ],
+    [
+     "landing_issue",
+     0.2
+    ],
+    [
+     "bid_competition",
+     0.2
+    ]
+   ],
+   "top1": "budget_cap",
+   "top3": [
+    "budget_cap"
+   ],
+   "cause_states": [
+    "supported"
+   ],
+   "actions": [
+    "raise_budget"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G9"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 13,
+    "caught": 13,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p046",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "creative_fatigue",
+     "start": "2026-07-24",
+     "end": "2026-08-14"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-01",
+    "2026-08-14"
+   ],
+   "reference_window": [
+    "2026-07-04",
+    "2026-07-23"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": true,
+   "engine_incidents": [
+    {
+     "start": "2026-08-01",
+     "end": "2026-08-14",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "supported"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "creative_fatigue"
+   ],
+   "ranked": [
+    [
+     "creative_fatigue",
+     0.8
+    ],
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "landing_issue",
+     0.2
+    ],
+    [
+     "bid_competition",
+     0.111
+    ]
+   ],
+   "top1": "creative_fatigue",
+   "top3": [
+    "creative_fatigue"
+   ],
+   "cause_states": [
+    "supported"
+   ],
+   "actions": [
+    "replace_creative",
+    "add_creative"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G7"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 13,
+    "caught": 13,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p047",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "creative_fatigue",
+     "start": "2026-07-27",
+     "end": "2026-08-15"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-02",
+    "2026-08-15"
+   ],
+   "reference_window": [
+    "2026-07-05",
+    "2026-08-01"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [
+    {
+     "start": "2026-08-02",
+     "end": "2026-08-15",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "likely"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "creative_fatigue"
+   ],
+   "ranked": [
+    [
+     "creative_fatigue",
+     0.56
+    ],
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "landing_issue",
+     0.2
+    ],
+    [
+     "bid_competition",
+     0.2
+    ]
+   ],
+   "top1": "creative_fatigue",
+   "top3": [
+    "creative_fatigue"
+   ],
+   "cause_states": [
+    "likely"
+   ],
+   "actions": [
+    "replace_creative",
+    "add_creative"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G7"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 13,
+    "caught": 13,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p048",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "creative_fatigue",
+     "start": "2026-07-30",
+     "end": "2026-08-16"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-03",
+    "2026-08-16"
+   ],
+   "reference_window": [
+    "2026-07-06",
+    "2026-08-02"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [
+    {
+     "start": "2026-08-03",
+     "end": "2026-08-16",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "likely"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "creative_fatigue"
+   ],
+   "ranked": [
+    [
+     "creative_fatigue",
+     0.56
+    ],
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "landing_issue",
+     0.2
+    ],
+    [
+     "bid_competition",
+     0.2
+    ]
+   ],
+   "top1": "creative_fatigue",
+   "top3": [
+    "creative_fatigue"
+   ],
+   "cause_states": [
+    "likely"
+   ],
+   "actions": [
+    "replace_creative",
+    "add_creative"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G7"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 13,
+    "caught": 13,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p049",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "creative_fatigue",
+     "start": "2026-08-02",
+     "end": "2026-08-17"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-04",
+    "2026-08-17"
+   ],
+   "reference_window": [
+    "2026-07-07",
+    "2026-08-03"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [
+    {
+     "start": "2026-08-04",
+     "end": "2026-08-17",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "supported"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "creative_fatigue"
+   ],
+   "ranked": [
+    [
+     "creative_fatigue",
+     1.0
+    ],
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "landing_issue",
+     0.2
+    ],
+    [
+     "bid_competition",
+     0.2
+    ]
+   ],
+   "top1": "creative_fatigue",
+   "top3": [
+    "creative_fatigue"
+   ],
+   "cause_states": [
+    "supported"
+   ],
+   "actions": [
+    "replace_creative",
+    "add_creative"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G7"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 13,
+    "caught": 13,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p050",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "creative_fatigue",
+     "start": "2026-07-26",
+     "end": "2026-08-18"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-05",
+    "2026-08-18"
+   ],
+   "reference_window": [
+    "2026-07-08",
+    "2026-07-27"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": true,
+   "engine_incidents": [
+    {
+     "start": "2026-08-05",
+     "end": "2026-08-18",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "supported"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "creative_fatigue"
+   ],
+   "ranked": [
+    [
+     "creative_fatigue",
+     0.8
+    ],
+    [
+     "mix_shift",
+     0.778
+    ],
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "landing_issue",
+     0.15
+    ]
+   ],
+   "top1": "creative_fatigue",
+   "top3": [
+    "creative_fatigue",
+    "mix_shift"
+   ],
+   "cause_states": [
+    "supported"
+   ],
+   "actions": [
+    "review_segment_mix",
+    "replace_creative",
+    "add_creative"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G10",
+    "G7"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 13,
+    "caught": 13,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p051",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "tracking_break",
+     "start": "2026-07-29",
+     "end": "2026-08-17"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-04",
+    "2026-08-17"
+   ],
+   "reference_window": [
+    "2026-07-07",
+    "2026-08-03"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [
+    {
+     "start": "2026-08-04",
+     "end": "2026-08-17",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "supported"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "tracking_break"
+   ],
+   "ranked": [
+    [
+     "tracking_break",
+     1.0
+    ],
+    [
+     "landing_issue",
+     0.4
+    ],
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ]
+   ],
+   "top1": "tracking_break",
+   "top3": [
+    "tracking_break",
+    "landing_issue"
+   ],
+   "cause_states": [
+    "supported"
+   ],
+   "actions": [
+    "check_tracking"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G4"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 12,
+    "caught": 12,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p052",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "tracking_break",
+     "start": "2026-08-01",
+     "end": "2026-08-18"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-05",
+    "2026-08-18"
+   ],
+   "reference_window": [
+    "2026-07-08",
+    "2026-08-04"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [
+    {
+     "start": "2026-08-05",
+     "end": "2026-08-18",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "likely"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "tracking_break"
+   ],
+   "ranked": [
+    [
+     "tracking_break",
+     0.74
+    ],
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ],
+    [
+     "landing_issue",
+     0.2
+    ]
+   ],
+   "top1": "tracking_break",
+   "top3": [
+    "tracking_break"
+   ],
+   "cause_states": [
+    "likely"
+   ],
+   "actions": [
+    "check_tracking"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G4"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 12,
+    "caught": 12,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p053",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "tracking_break",
+     "start": "2026-08-04",
+     "end": "2026-08-19"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-06",
+    "2026-08-19"
+   ],
+   "reference_window": [
+    "2026-07-09",
+    "2026-08-05"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [
+    {
+     "start": "2026-08-06",
+     "end": "2026-08-19",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "supported"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "tracking_break"
+   ],
+   "ranked": [
+    [
+     "tracking_break",
+     1.0
+    ],
+    [
+     "landing_issue",
+     0.4
+    ],
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ]
+   ],
+   "top1": "tracking_break",
+   "top3": [
+    "tracking_break",
+    "landing_issue"
+   ],
+   "cause_states": [
+    "supported"
+   ],
+   "actions": [
+    "check_tracking"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G4"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 12,
+    "caught": 12,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p054",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "tracking_break",
+     "start": "2026-07-28",
+     "end": "2026-08-20"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-07",
+    "2026-08-20"
+   ],
+   "reference_window": [
+    "2026-07-10",
+    "2026-07-27"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": true,
+   "engine_incidents": [
+    {
+     "start": "2026-08-07",
+     "end": "2026-08-20",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "likely"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "tracking_break"
+   ],
+   "ranked": [
+    [
+     "tracking_break",
+     0.5
+    ],
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ],
+    [
+     "landing_issue",
+     0.2
+    ]
+   ],
+   "top1": "tracking_break",
+   "top3": [
+    "tracking_break"
+   ],
+   "cause_states": [
+    "likely"
+   ],
+   "actions": [
+    "check_tracking"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G4"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 12,
+    "caught": 12,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p055",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "tracking_break",
+     "start": "2026-07-31",
+     "end": "2026-08-21"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-08",
+    "2026-08-21"
+   ],
+   "reference_window": [
+    "2026-07-11",
+    "2026-08-01"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": true,
+   "engine_incidents": [
+    {
+     "start": "2026-08-08",
+     "end": "2026-08-21",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "likely"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "tracking_break"
+   ],
+   "ranked": [
+    [
+     "tracking_break",
+     0.74
+    ],
+    [
+     "landing_issue",
+     0.74
+    ],
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ]
+   ],
+   "top1": "tracking_break",
+   "top3": [
+    "tracking_break",
+    "landing_issue"
+   ],
+   "cause_states": [
+    "likely"
+   ],
+   "actions": [
+    "check_tracking",
+    "check_landing"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G4"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 12,
+    "caught": 12,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p056",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "landing_issue",
+     "start": "2026-08-03",
+     "end": "2026-08-20"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-07",
+    "2026-08-20"
+   ],
+   "reference_window": [
+    "2026-07-10",
+    "2026-08-02"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": true,
+   "engine_incidents": [
+    {
+     "start": "2026-08-07",
+     "end": "2026-08-20",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "undetermined"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "landing_issue"
+   ],
+   "ranked": [
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ],
+    [
+     "landing_issue",
+     0.2
+    ],
+    [
+     "bid_competition",
+     0.2
+    ]
+   ],
+   "top1": null,
+   "top3": [],
+   "cause_states": [
+    "undetermined"
+   ],
+   "actions": [
+    "check_tracking",
+    "check_landing",
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G5"
+   ],
+   "top1_correct": false,
+   "top3_correct": false,
+   "any_in_top3": false,
+   "abstained": true,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 12,
+    "caught": 12,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p057",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "landing_issue",
+     "start": "2026-08-06",
+     "end": "2026-08-21"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-08",
+    "2026-08-21"
+   ],
+   "reference_window": [
+    "2026-07-11",
+    "2026-08-07"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [
+    {
+     "start": "2026-08-08",
+     "end": "2026-08-21",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "supported"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "landing_issue"
+   ],
+   "ranked": [
+    [
+     "landing_issue",
+     1.0
+    ],
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ],
+    [
+     "bid_competition",
+     0.2
+    ]
+   ],
+   "top1": "landing_issue",
+   "top3": [
+    "landing_issue"
+   ],
+   "cause_states": [
+    "supported"
+   ],
+   "actions": [
+    "check_landing",
+    "pause"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G6"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 13,
+    "caught": 13,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p058",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "landing_issue",
+     "start": "2026-07-30",
+     "end": "2026-08-22"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-09",
+    "2026-08-22"
+   ],
+   "reference_window": [
+    "2026-07-12",
+    "2026-07-28"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": true,
+   "engine_incidents": [
+    {
+     "start": "2026-08-09",
+     "end": "2026-08-22",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "supported"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "landing_issue"
+   ],
+   "ranked": [
+    [
+     "landing_issue",
+     1.0
+    ],
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ],
+    [
+     "tracking_break",
+     0.2
+    ]
+   ],
+   "top1": "landing_issue",
+   "top3": [
+    "landing_issue"
+   ],
+   "cause_states": [
+    "supported"
+   ],
+   "actions": [
+    "check_landing",
+    "pause"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G6"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 13,
+    "caught": 13,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p059",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "landing_issue",
+     "start": "2026-08-02",
+     "end": "2026-08-23"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-10",
+    "2026-08-23"
+   ],
+   "reference_window": [
+    "2026-07-13",
+    "2026-08-01"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": true,
+   "engine_incidents": [
+    {
+     "start": "2026-08-10",
+     "end": "2026-08-23",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "supported"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "landing_issue"
+   ],
+   "ranked": [
+    [
+     "landing_issue",
+     1.0
+    ],
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ],
+    [
+     "bid_competition",
+     0.2
+    ]
+   ],
+   "top1": "landing_issue",
+   "top3": [
+    "landing_issue"
+   ],
+   "cause_states": [
+    "supported"
+   ],
+   "actions": [
+    "check_landing",
+    "pause"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G6"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 13,
+    "caught": 13,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p060",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "landing_issue",
+     "start": "2026-08-05",
+     "end": "2026-08-24"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-11",
+    "2026-08-24"
+   ],
+   "reference_window": [
+    "2026-07-14",
+    "2026-08-04"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": true,
+   "engine_incidents": [
+    {
+     "start": "2026-08-11",
+     "end": "2026-08-24",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "supported"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "landing_issue"
+   ],
+   "ranked": [
+    [
+     "landing_issue",
+     1.0
+    ],
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ],
+    [
+     "bid_competition",
+     0.2
+    ]
+   ],
+   "top1": "landing_issue",
+   "top3": [
+    "landing_issue"
+   ],
+   "cause_states": [
+    "supported"
+   ],
+   "actions": [
+    "check_landing"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G6"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 12,
+    "caught": 12,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p061",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "bid_competition",
+     "start": "2026-08-08",
+     "end": "2026-08-23"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-10",
+    "2026-08-23"
+   ],
+   "reference_window": [
+    "2026-07-13",
+    "2026-08-09"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [
+    {
+     "start": "2026-08-10",
+     "end": "2026-08-23",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "supported"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "bid_competition"
+   ],
+   "ranked": [
+    [
+     "bid_competition",
+     1.0
+    ],
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ],
+    [
+     "landing_issue",
+     0.2
+    ]
+   ],
+   "top1": "bid_competition",
+   "top3": [
+    "bid_competition"
+   ],
+   "cause_states": [
+    "supported"
+   ],
+   "actions": [
+    "raise_bid",
+    "add_creative"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G8"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 13,
+    "caught": 13,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p062",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "bid_competition",
+     "start": "2026-08-01",
+     "end": "2026-08-24"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-11",
+    "2026-08-24"
+   ],
+   "reference_window": [
+    "2026-07-14",
+    "2026-07-31"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": true,
+   "engine_incidents": [
+    {
+     "start": "2026-08-11",
+     "end": "2026-08-24",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "supported"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "bid_competition"
+   ],
+   "ranked": [
+    [
+     "bid_competition",
+     1.0
+    ],
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ],
+    [
+     "landing_issue",
+     0.2
+    ]
+   ],
+   "top1": "bid_competition",
+   "top3": [
+    "bid_competition"
+   ],
+   "cause_states": [
+    "supported"
+   ],
+   "actions": [
+    "raise_bid",
+    "add_creative"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G8"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 13,
+    "caught": 13,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p063",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "bid_competition",
+     "start": "2026-08-04",
+     "end": "2026-08-25"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-12",
+    "2026-08-25"
+   ],
+   "reference_window": [
+    "2026-07-15",
+    "2026-08-05"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": true,
+   "engine_incidents": [
+    {
+     "start": "2026-08-12",
+     "end": "2026-08-25",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "supported"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "bid_competition"
+   ],
+   "ranked": [
+    [
+     "bid_competition",
+     1.0
+    ],
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ],
+    [
+     "landing_issue",
+     0.2
+    ]
+   ],
+   "top1": "bid_competition",
+   "top3": [
+    "bid_competition"
+   ],
+   "cause_states": [
+    "supported"
+   ],
+   "actions": [
+    "raise_bid",
+    "add_creative"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G8"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 13,
+    "caught": 13,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p064",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "bid_competition",
+     "start": "2026-08-07",
+     "end": "2026-08-26"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-13",
+    "2026-08-26"
+   ],
+   "reference_window": [
+    "2026-07-16",
+    "2026-08-12"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [
+    {
+     "start": "2026-08-13",
+     "end": "2026-08-26",
+     "severity": "medium",
+     "polarity": "worse",
+     "cause_state": "undetermined"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "bid_competition"
+   ],
+   "ranked": [
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ],
+    [
+     "landing_issue",
+     0.2
+    ],
+    [
+     "bid_competition",
+     0.2
+    ]
+   ],
+   "top1": null,
+   "top3": [],
+   "cause_states": [
+    "undetermined"
+   ],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": false,
+   "avoid_rules": [
+    "G5"
+   ],
+   "top1_correct": false,
+   "top3_correct": false,
+   "any_in_top3": false,
+   "abstained": true,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 12,
+    "caught": 12,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p065",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "audience_saturation",
+     "start": "2026-08-03",
+     "end": "2026-08-26"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-13",
+    "2026-08-26"
+   ],
+   "reference_window": [
+    "2026-07-16",
+    "2026-08-03"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": true,
+   "engine_incidents": [
+    {
+     "start": "2026-08-13",
+     "end": "2026-08-26",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "supported"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "audience_saturation"
+   ],
+   "ranked": [
+    [
+     "audience_saturation",
+     0.818
+    ],
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ],
+    [
+     "landing_issue",
+     0.2
+    ]
+   ],
+   "top1": "audience_saturation",
+   "top3": [
+    "audience_saturation"
+   ],
+   "cause_states": [
+    "supported"
+   ],
+   "actions": [
+    "expand_audience",
+    "add_creative"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G7"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 13,
+    "caught": 13,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p066",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "audience_saturation",
+     "start": "2026-08-06",
+     "end": "2026-08-27"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-14",
+    "2026-08-27"
+   ],
+   "reference_window": [
+    "2026-07-17",
+    "2026-08-13"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [
+    {
+     "start": "2026-08-14",
+     "end": "2026-08-27",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "likely"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "audience_saturation"
+   ],
+   "ranked": [
+    [
+     "audience_saturation",
+     0.545
+    ],
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ],
+    [
+     "landing_issue",
+     0.2
+    ]
+   ],
+   "top1": "audience_saturation",
+   "top3": [
+    "audience_saturation"
+   ],
+   "cause_states": [
+    "likely"
+   ],
+   "actions": [
+    "expand_audience",
+    "add_creative"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G7"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 13,
+    "caught": 13,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p067",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "audience_saturation",
+     "start": "2026-08-09",
+     "end": "2026-08-28"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-15",
+    "2026-08-28"
+   ],
+   "reference_window": [
+    "2026-07-18",
+    "2026-08-14"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [
+    {
+     "start": "2026-08-15",
+     "end": "2026-08-28",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "supported"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "audience_saturation"
+   ],
+   "ranked": [
+    [
+     "audience_saturation",
+     0.818
+    ],
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ],
+    [
+     "landing_issue",
+     0.2
+    ]
+   ],
+   "top1": "audience_saturation",
+   "top3": [
+    "audience_saturation"
+   ],
+   "cause_states": [
+    "supported"
+   ],
+   "actions": [
+    "expand_audience",
+    "add_creative"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G7"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 13,
+    "caught": 13,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p068",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "audience_saturation",
+     "start": "2026-08-12",
+     "end": "2026-08-29"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-16",
+    "2026-08-29"
+   ],
+   "reference_window": [
+    "2026-07-19",
+    "2026-08-15"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [
+    {
+     "start": "2026-08-16",
+     "end": "2026-08-29",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "supported"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "audience_saturation"
+   ],
+   "ranked": [
+    [
+     "audience_saturation",
+     0.818
+    ],
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ],
+    [
+     "landing_issue",
+     0.2
+    ]
+   ],
+   "top1": "audience_saturation",
+   "top3": [
+    "audience_saturation"
+   ],
+   "cause_states": [
+    "supported"
+   ],
+   "actions": [
+    "expand_audience",
+    "add_creative"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G7"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 13,
+    "caught": 13,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p069",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "mix_shift",
+     "start": "2026-08-08",
+     "end": "2026-08-29"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-16",
+    "2026-08-29"
+   ],
+   "reference_window": [
+    "2026-07-19",
+    "2026-08-08"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": true,
+   "engine_incidents": [
+    {
+     "start": "2026-08-16",
+     "end": "2026-08-29",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "supported"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "mix_shift"
+   ],
+   "ranked": [
+    [
+     "mix_shift",
+     1.0
+    ],
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ],
+    [
+     "landing_issue",
+     0.2
+    ]
+   ],
+   "top1": "mix_shift",
+   "top3": [
+    "mix_shift"
+   ],
+   "cause_states": [
+    "supported"
+   ],
+   "actions": [
+    "review_segment_mix"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G10"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 12,
+    "caught": 12,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p070",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "mix_shift",
+     "start": "2026-08-11",
+     "end": "2026-08-30"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-17",
+    "2026-08-30"
+   ],
+   "reference_window": [
+    "2026-07-20",
+    "2026-08-16"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [
+    {
+     "start": "2026-08-17",
+     "end": "2026-08-30",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "supported"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "mix_shift"
+   ],
+   "ranked": [
+    [
+     "mix_shift",
+     1.0
+    ],
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ],
+    [
+     "landing_issue",
+     0.2
+    ]
+   ],
+   "top1": "mix_shift",
+   "top3": [
+    "mix_shift"
+   ],
+   "cause_states": [
+    "supported"
+   ],
+   "actions": [
+    "review_segment_mix"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G10"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 12,
+    "caught": 12,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p071",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "mix_shift",
+     "start": "2026-08-14",
+     "end": "2026-08-31"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-18",
+    "2026-08-31"
+   ],
+   "reference_window": [
+    "2026-07-21",
+    "2026-08-17"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [
+    {
+     "start": "2026-08-18",
+     "end": "2026-08-31",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "supported"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "mix_shift"
+   ],
+   "ranked": [
+    [
+     "mix_shift",
+     1.0
+    ],
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ],
+    [
+     "landing_issue",
+     0.2
+    ]
+   ],
+   "top1": "mix_shift",
+   "top3": [
+    "mix_shift"
+   ],
+   "cause_states": [
+    "supported"
+   ],
+   "actions": [
+    "review_segment_mix"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G10"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 12,
+    "caught": 12,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p072",
+   "split": "holdout",
+   "family": "clear_incident",
+   "ambiguous": false,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "mix_shift",
+     "start": "2026-08-17",
+     "end": "2026-09-01"
+    }
+   ],
+   "comparison_window": [
+    "2026-08-19",
+    "2026-09-01"
+   ],
+   "reference_window": [
+    "2026-07-22",
+    "2026-08-18"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [
+    {
+     "start": "2026-08-19",
+     "end": "2026-09-01",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "supported"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [
+    "mix_shift"
+   ],
+   "ranked": [
+    [
+     "mix_shift",
+     1.0
+    ],
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ],
+    [
+     "landing_issue",
+     0.2
+    ]
+   ],
+   "top1": "mix_shift",
+   "top3": [
+    "mix_shift"
+   ],
+   "cause_states": [
+    "supported"
+   ],
+   "actions": [
+    "review_segment_mix"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G10"
+   ],
+   "top1_correct": true,
+   "top3_correct": true,
+   "any_in_top3": true,
+   "abstained": false,
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 12,
+    "caught": 12,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p073",
+   "split": "holdout",
+   "family": "ambiguous_or_low_volume",
+   "ambiguous": true,
+   "detectable": false,
+   "is_control": false,
+   "status": "insufficient",
+   "truth_incidents": [
+    {
+     "kind": "tracking_break",
+     "start": "2026-08-26",
+     "end": "2026-09-14"
+    }
+   ],
+   "comparison_window": [
+    "2026-09-01",
+    "2026-09-14"
+   ],
+   "reference_window": [
+    "2026-08-04",
+    "2026-08-31"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [
+    false
+   ],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "collect_more_data",
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G1"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 9,
+    "caught": 9,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p074",
+   "split": "holdout",
+   "family": "ambiguous_or_low_volume",
+   "ambiguous": true,
+   "detectable": false,
+   "is_control": false,
+   "status": "insufficient",
+   "truth_incidents": [
+    {
+     "kind": "landing_issue",
+     "start": "2026-08-29",
+     "end": "2026-09-16"
+    }
+   ],
+   "comparison_window": [
+    "2026-09-03",
+    "2026-09-16"
+   ],
+   "reference_window": [
+    "2026-08-06",
+    "2026-09-02"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [
+    false
+   ],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "collect_more_data",
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G1"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 9,
+    "caught": 9,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p075",
+   "split": "holdout",
+   "family": "ambiguous_or_low_volume",
+   "ambiguous": true,
+   "detectable": false,
+   "is_control": false,
+   "status": "insufficient",
+   "truth_incidents": [
+    {
+     "kind": "budget_cap",
+     "start": "2026-08-29",
+     "end": "2026-09-18"
+    }
+   ],
+   "comparison_window": [
+    "2026-09-05",
+    "2026-09-18"
+   ],
+   "reference_window": [
+    "2026-08-08",
+    "2026-09-04"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [
+    false
+   ],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "collect_more_data",
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G1"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 9,
+    "caught": 9,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p076",
+   "split": "holdout",
+   "family": "ambiguous_or_low_volume",
+   "ambiguous": true,
+   "detectable": false,
+   "is_control": false,
+   "status": "partial",
+   "truth_incidents": [
+    {
+     "kind": "creative_fatigue",
+     "start": "2026-08-30",
+     "end": "2026-09-20"
+    }
+   ],
+   "comparison_window": [
+    "2026-09-07",
+    "2026-09-20"
+   ],
+   "reference_window": [
+    "2026-08-10",
+    "2026-09-06"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [
+    false
+   ],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching",
+    "collect_more_data"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G2",
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p077",
+   "split": "holdout",
+   "family": "ambiguous_or_low_volume",
+   "ambiguous": true,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "mix_shift",
+     "start": "2026-09-02",
+     "end": "2026-09-22"
+    }
+   ],
+   "comparison_window": [
+    "2026-09-09",
+    "2026-09-22"
+   ],
+   "reference_window": [
+    "2026-08-12",
+    "2026-09-08"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [],
+   "truth_detected": [
+    false
+   ],
+   "engine_incident_tp": [],
+   "main_causes": [],
+   "ranked": [],
+   "top1": null,
+   "top3": [],
+   "cause_states": [],
+   "actions": [
+    "keep_watching"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G3"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 11,
+    "caught": 11,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p078",
+   "split": "holdout",
+   "family": "ambiguous_or_low_volume",
+   "ambiguous": true,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "audience_saturation",
+     "start": "2026-09-04",
+     "end": "2026-09-24"
+    }
+   ],
+   "comparison_window": [
+    "2026-09-11",
+    "2026-09-24"
+   ],
+   "reference_window": [
+    "2026-08-14",
+    "2026-09-06"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": true,
+   "engine_incidents": [
+    {
+     "start": "2026-09-11",
+     "end": "2026-09-24",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "likely"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [],
+   "ranked": [
+    [
+     "audience_saturation",
+     0.545
+    ],
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ],
+    [
+     "landing_issue",
+     0.2
+    ]
+   ],
+   "top1": "audience_saturation",
+   "top3": [
+    "audience_saturation"
+   ],
+   "cause_states": [
+    "likely"
+   ],
+   "actions": [
+    "expand_audience",
+    "add_creative"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": false,
+   "avoid_rules": [
+    "G7"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 13,
+    "caught": 13,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p079",
+   "split": "holdout",
+   "family": "ambiguous_or_low_volume",
+   "ambiguous": true,
+   "detectable": true,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "budget_cap",
+     "start": "2026-09-06",
+     "end": "2026-09-26"
+    }
+   ],
+   "comparison_window": [
+    "2026-09-13",
+    "2026-09-26"
+   ],
+   "reference_window": [
+    "2026-08-16",
+    "2026-09-05"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": true,
+   "engine_incidents": [
+    {
+     "start": "2026-09-13",
+     "end": "2026-09-26",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "supported"
+    }
+   ],
+   "truth_detected": [
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [],
+   "ranked": [
+    [
+     "budget_cap",
+     0.833
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ],
+    [
+     "landing_issue",
+     0.2
+    ],
+    [
+     "bid_competition",
+     0.2
+    ]
+   ],
+   "top1": "budget_cap",
+   "top3": [
+    "budget_cap"
+   ],
+   "cause_states": [
+    "supported"
+   ],
+   "actions": [
+    "raise_budget"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": false,
+   "avoid_rules": [
+    "G9"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 13,
+    "caught": 13,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  },
+  {
+   "id": "h26-p080",
+   "split": "holdout",
+   "family": "ambiguous_or_low_volume",
+   "ambiguous": true,
+   "detectable": false,
+   "is_control": false,
+   "status": "ok",
+   "truth_incidents": [
+    {
+     "kind": "tracking_break",
+     "start": "2026-09-15",
+     "end": "2026-09-17"
+    },
+    {
+     "kind": "landing_issue",
+     "start": "2026-09-15",
+     "end": "2026-09-17"
+    }
+   ],
+   "comparison_window": [
+    "2026-09-15",
+    "2026-09-28"
+   ],
+   "reference_window": [
+    "2026-08-18",
+    "2026-09-14"
+   ],
+   "reference_candidates": 15,
+   "used_earlier_reference": false,
+   "engine_incidents": [
+    {
+     "start": "2026-09-15",
+     "end": "2026-09-17",
+     "severity": "high",
+     "polarity": "worse",
+     "cause_state": "supported"
+    }
+   ],
+   "truth_detected": [
+    true,
+    true
+   ],
+   "engine_incident_tp": [
+    true
+   ],
+   "main_causes": [],
+   "ranked": [
+    [
+     "tracking_break",
+     1.0
+    ],
+    [
+     "landing_issue",
+     0.4
+    ],
+    [
+     "budget_cap",
+     0.2
+    ],
+    [
+     "creative_fatigue",
+     0.2
+    ]
+   ],
+   "top1": "tracking_break",
+   "top3": [
+    "tracking_break",
+    "landing_issue"
+   ],
+   "cause_states": [
+    "supported"
+   ],
+   "actions": [
+    "check_tracking"
+   ],
+   "forbidden_hits": [],
+   "allowed_hit": true,
+   "avoid_rules": [
+    "G4"
+   ],
+   "report": {
+    "unsupported_numbers": 0,
+    "audit_problems": 0,
+    "problem_reasons": [],
+    "causal_overclaims": 0
+   },
+   "perturbation": {
+    "injected": 12,
+    "caught": 12,
+    "escaped": 0,
+    "false_drops": 0,
+    "escaped_kinds": []
+   }
+  }
+ ],
+ "holdout_observations_note": "",
+ "limitations": [
+  "시나리오는 우리가 만든 합성 데이터이고 생성기와 진단 규칙을 같은 사람이 설계했다(순환 위험). holdout 은 이를 줄이려는 시도일 뿐 실제 광고 데이터의 정확도가 아니다.",
+  "모델 문장화의 품질은 측정하지 않았다(대역·템플릿·주입 시험만).",
+  "근거 일치 점수는 원인이 맞을 확률이 아니다. 집계 관측 자료로는 원인을 단정할 수 없다. 구간별 정답률은 건수가 적어 불확실하다.",
+  "탐지 점수는 기준선과 추세의 추정 오차 및 비교 수를 보정한 근사값이다. 자기상관·급격한 분산 변화·외부 충격 아래의 오류 확률을 보장하지 않는다.",
+  "이전 기준 기간 탐색은 표시한 최근 기간과 과거의 차이를 찾는다. 선택한 기준 기간의 끝이나 표시 구간의 시작이 실제 사건 시작일이라는 뜻은 아니다.",
+  "ambiguous_not_asserted는 실제 보고서 문장의 원인 과장 검사를 뜻한다. 모호한 원인을 잘 가렸다는 지표가 아니며 supported 건수와 탐지 여부를 함께 봐야 한다.",
+  "주입 시험은 우리가 떠올린 실패 유형만 센다."
+ ],
+ "generated_at": "2026-10-23"
+}

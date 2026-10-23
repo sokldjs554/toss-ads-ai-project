@@ -1,0 +1,32 @@
+........................................................................ [ 19%]
+........................................................................ [ 38%]
+.............................................F.......................... [ 57%]
+........................................................................ [ 77%]
+........................................................................ [ 96%]
+.............                                                            [100%]
+=================================== FAILURES ===================================
+_ test_saved_live_failure_preserves_supported_text_and_restores_its_evidence[h26-p056-summary-E25] _
+
+saved_outputs = ({'h26-p001': {'headline': '이번 기간은 5개 지표에서 이상 구간이 없었고, 전환 관련 해석은 보류합니다.', 'summary': '6월 1일부터 6월 14일까지 살펴본 기간에서 점검한 5개...pause', 'raise_bid', 'raise_budget', 'replace_creative'], 'is_control': True}, frozen_engine='f2081dac655aed25'), ...})
+case_id = 'h26-p056', field = 'summary', evidence_id = 'E25'
+
+    @pytest.mark.parametrize("case_id,field,evidence_id", [
+        ("h26-p056", "summary", "E25"),
+        ("h26-p077", "headline", "E02"),
+    ])
+    def test_saved_live_failure_preserves_supported_text_and_restores_its_evidence(saved_outputs, case_id, field, evidence_id):
+        saved, scenarios = saved_outputs
+        report = _replay(saved[case_id], scenarios[case_id])
+    
+        assert ins.audit_report(report) == []
+        assert report.unsupported_numbers == 0
+>       assert getattr(report, field) == saved[case_id][field]
+E       AssertionError: assert '8월 7일부터 8월 2... 추적 점검을 권합니다.' == '이전 기준 기간은 7월...을 단정하기 어렵습니다.'
+E         
+E         - 이전 기준 기간은 7월 10일~8월 5일 27일이며, 최근 비교 구간은 8월 7일~8월 20일 14일입니다. 최근 구간에서 전환율은 3.51%로 기대 6.03%보다 낮았고, 전환당 비용은 13,655원으로 기대 7,951원보다 높았습니다. 다만 가장 높은 가설도 근거 일치 점수가 20.0%로 우선 확인 기준 45%에 못 미쳐, 원인을 단정하기 어렵습니다.
+E         + 8월 7일부터 8월 20일까지 성과가 기대와 달랐습니다. 원인은 정하기 어렵습니다. 먼저 전환 추적 점검을 권합니다.
+
+tests/test_insights_live_regressions.py:58: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_insights_live_regressions.py::test_saved_live_failure_preserves_supported_text_and_restores_its_evidence[h26-p056-summary-E25]
+1 failed, 372 passed in 132.80s (0:02:12)

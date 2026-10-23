@@ -1,6 +1,7 @@
 # Render 블루프린트 — 공개 데모 (무료 웹 서비스 1개, 관리형 리소스 없음).
 # API 키를 넣지 않으면 DEMO 모드(결정적 모의 모델)로 뜬다. 실제 모델로 쓰려면 Render 대시보드에서
-# OPENAI_API_KEY / ANTHROPIC_API_KEY 를 환경변수로 추가하면 된다.
+# OPENAI_API_KEY / ANTHROPIC_API_KEY 및 32자 이상 PREFLIGHT_LIVE_ACCESS_TOKEN이 필요하다.
+# 접근키 없이 서버 비용을 쓰는 호출은 중단한다. 사용자별 누적 할당량/SSO는 별도 운영 준비 사항이다.
 # 무료 인스턴스는 15분 무접속이면 잠들고, 다시 깨는 데 30초~1분이 걸린다.
 services:
   - type: web

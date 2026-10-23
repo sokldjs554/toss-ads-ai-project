@@ -1,0 +1,33 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+___ test_default_provider_is_never_called_if_worst_case_request_exceeds_cap ____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f6d80905be0>
+
+    def test_default_provider_is_never_called_if_worst_case_request_exceeds_cap(monkeypatch):
+        provider = real_factory(monkeypatch)
+        router = Router(Settings.from_env(openai_api_key="fake",anthropic_api_key="",force_demo=False,run_budget_usd=.001))
+>       with pytest.raises(BudgetExceeded):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE BudgetExceeded
+
+tests/test_live_spending.py:19: Failed
+_________ test_failed_default_provider_keeps_reservation_before_retry __________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f6d80906b70>
+
+    def test_failed_default_provider_keeps_reservation_before_retry(monkeypatch):
+        provider = real_factory(monkeypatch, errors=[Timeout("offline")])
+        router = Router(Settings.from_env(openai_api_key="fake",anthropic_api_key="",force_demo=False,run_budget_usd=.02))
+        req=LLMRequest(task=Task.REVIEW,system="",user="",max_tokens=500)
+        with pytest.raises(Exception):
+            router.complete(req)
+>       with pytest.raises(BudgetExceeded):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE BudgetExceeded
+
+tests/test_live_spending.py:30: Failed
+=========================== short test summary info ============================
+FAILED tests/test_live_spending.py::test_default_provider_is_never_called_if_worst_case_request_exceeds_cap
+FAILED tests/test_live_spending.py::test_failed_default_provider_keeps_reservation_before_retry
+2 failed in 0.14s

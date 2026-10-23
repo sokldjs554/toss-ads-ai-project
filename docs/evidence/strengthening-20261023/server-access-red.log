@@ -1,0 +1,21 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+___ test_server_funded_live_request_requires_configured_matching_access_key ____
+
+    def test_server_funded_live_request_requires_configured_matching_access_key():
+>       from core.live_access import require_server_access
+E       ModuleNotFoundError: No module named 'core.live_access'
+
+tests/test_server_model_access.py:10: ModuleNotFoundError
+_____ test_demo_and_personally_funded_request_do_not_use_server_authority ______
+
+    def test_demo_and_personally_funded_request_do_not_use_server_authority():
+        from dataclasses import replace
+>       from core.live_access import require_server_access
+E       ModuleNotFoundError: No module named 'core.live_access'
+
+tests/test_server_model_access.py:20: ModuleNotFoundError
+=========================== short test summary info ============================
+FAILED tests/test_server_model_access.py::test_server_funded_live_request_requires_configured_matching_access_key
+FAILED tests/test_server_model_access.py::test_demo_and_personally_funded_request_do_not_use_server_authority
+2 failed in 0.05s

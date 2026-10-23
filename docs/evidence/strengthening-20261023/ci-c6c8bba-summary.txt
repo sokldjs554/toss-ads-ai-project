@@ -1,0 +1,13 @@
+Source: https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/39930678240
+Commit: c6c8bba6866f1e5d87f574773b08f9b6ee685195
+Extracted test summaries (full log retained by Actions):
+2026-10-23T09:17:42.4434868Z 54 passed in 6.64s
+2026-10-23T09:24:59.0038798Z FAILED tests/test_conv_ui.py::test_real_model_runs_only_after_both_confirmations_and_is_labelled - assert (2 >= 1 and 0.0 > 0)
+2026-10-23T09:24:59.0040265Z FAILED tests/test_round3_ui.py::test_same_rewrite_text_gets_the_same_conclusion_from_the_pipeline_check_and_the_ui_recheck[\ub300\ucd9c] - assert (0 == 1)
+2026-10-23T09:24:59.0042127Z FAILED tests/test_round3_ui.py::test_same_rewrite_text_gets_the_same_conclusion_from_the_pipeline_check_and_the_ui_recheck[] - assert (0 == 1)
+2026-10-23T09:24:59.0043793Z FAILED tests/test_round3_ui.py::test_confirmation_is_cleared_right_after_a_paid_run_and_the_next_tick_is_kept - assert (0 == 1)
+2026-10-23T09:24:59.0046283Z FAILED tests/test_round3_ui.py::test_a_run_that_was_not_started_does_not_consume_the_confirmation - streamlit.testing.v1.errors.AppTestError: Cannot update a disabled button widget (key='run_button'). A browser user cannot interact with a disabled widget.
+2026-10-23T09:24:59.0048412Z FAILED tests/test_round3_ui.py::test_trace_viewer_hides_the_text_of_a_rewrite_that_failed_recheck - assert (0 == 1)
+2026-10-23T09:24:59.0049810Z FAILED tests/test_round3_ui.py::test_trace_viewer_still_shows_a_rewrite_that_passed_recheck - assert (0 == 1)
+2026-10-23T09:24:59.0051270Z FAILED tests/test_round4_ui.py::test_trace_viewer_hides_the_tail_of_a_multi_paragraph_failed_rewrite - assert (0 == 1)
+2026-10-23T09:24:59.0052652Z 8 failed, 4444 passed in 409.14s (0:06:49)

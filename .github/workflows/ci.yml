@@ -36,6 +36,14 @@ jobs:
         env:
           PREFLIGHT_FORCE_DEMO: "1"
         run: python -m evals.run --dataset golden --no-llm --gate
+      - name: Frozen synthetic policy evidence (report known misses; no paid calls)
+        env:
+          PREFLIGHT_FORCE_DEMO: "1"
+          OPENAI_API_KEY: ""
+          ANTHROPIC_API_KEY: ""
+        run: |
+          PYTHONPATH=. python scripts/evaluate_policy_final.py
+          git diff --exit-code -- evals/reports/strengthening-20261023/policy-final.json evals/reports/strengthening-20261023/policy-human-review.csv
       - name: adversarial regression set (harvested by red team) — deterministic layer must approve none
         env:
           PREFLIGHT_FORCE_DEMO: "1"

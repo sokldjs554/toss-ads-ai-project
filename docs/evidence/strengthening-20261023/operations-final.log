@@ -1,0 +1,82 @@
+....F......                                                              [100%]
+=================================== FAILURES ===================================
+__________________ test_missing_usage_is_not_treated_as_free ___________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f6c796b56d0>
+
+    def test_missing_usage_is_not_treated_as_free(monkeypatch):
+        provider=real_factory(monkeypatch,behavior=lambda req:LLMResponse(text="",provider="openai",model="gpt-4o",cost_estimated=True))
+        router=Router(Settings.from_env(openai_api_key="fake",anthropic_api_key="",force_demo=False,run_budget_usd=.02))
+        req=LLMRequest(task=Task.REVIEW,system="",user="",max_tokens=500)
+        for _ in range(2):
+            with pytest.raises(BudgetExceeded):
+>               router.complete(req)
+
+tests/test_live_spending.py:58: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <llm.router.Router object at 0x7f6c796b5790>
+req = LLMRequest(task=<Task.REVIEW: 'review'>, system='', user='', schema=None, max_tokens=500, temperature=0.7, context={}, label='', images=[])
+
+    def complete(self, req: LLMRequest) -> LLMResponse:
+        chain = self.chain_for(req.task)
+        tried: list[str] = []
+        errors: list[str] = []
+        label = req.label or f"llm:{req.task.value}"
+        with self.tracer.span(label, kind="llm", task=req.task.value, chain=chain) as span:
+            span.set(prompt_system=req.system, prompt_user=req.user, schema=req.schema.__name__ if req.schema else None,
+                     constrained=req.constrained, max_tokens=req.max_tokens)
+            if req.images:  # 이미지 바이트는 처리 기록에 넣지 않는다 — 이름·종류·크기·해시만
+                import hashlib
+    
+                span.set(images=[{"name": i.name, "mime": i.mime, "bytes": i.size, "sha256": hashlib.sha256(i.data).hexdigest()[:16]} for i in req.images])
+            for name in chain:
+                provider = self.providers[name]
+                breaker = self.breakers[name]
+                if breaker.is_open:
+                    errors.append(f"{name}: circuit open")
+                    span.event("skip_provider", provider=name, reason="circuit_open")
+                    continue
+                tried.append(name)
+                try:
+                    resp = self._call(provider, req, span)
+                    breaker.success()
+                    resp.fallback_chain = tried
+                    self._record(span, resp, tried)
+                    return resp
+                except BudgetExceeded:
+                    span.status = "error"
+                    raise
+                except SchemaMismatch as e:
+                    # 창의 제공자가 형식을 어겼다 → 구조화 제공자에게 수리 (FM-01). 수리도 실패하면 다음 제공자.
+                    span.event("schema_mismatch", provider=name, error=str(e)[:200])
+                    repaired = self._try_repair(req, e.raw_text, span, exclude=name)
+                    if repaired is not None:
+                        repaired.fallback_chain = tried + ["repair"]
+                        repaired.repaired = True
+                        repaired.origin_provider = name
+                        self._record(span, repaired, repaired.fallback_chain)
+                        span.status = "fallback"
+                        return repaired
+                    errors.append(f"{name}: schema mismatch")
+                except ModelRefusal as e:
+                    span.event("refusal", provider=name, detail=str(e)[:200])
+                    errors.append(f"{name}: refusal")
+                except TruncatedOutput as e:
+                    span.event("truncated", provider=name)
+                    errors.append(f"{name}: truncated ({e})")
+                except _TRANSIENT as e:
+                    breaker.failure()
+                    span.event("provider_error", provider=name, type=type(e).__name__, error=str(e)[:200])
+                    errors.append(f"{name}: {type(e).__name__}: {str(e)[:160]}")
+                except LLMError as e:
+                    errors.append(f"{name}: {type(e).__name__}: {e}")
+                    span.event("provider_error", provider=name, type=type(e).__name__, error=str(e)[:200])
+            span.status = "error"
+>           raise ProviderUnavailable("모든 제공자 실패 → " + "; ".join(errors))
+E           llm.errors.ProviderUnavailable: 모든 제공자 실패 → openai: ProviderError: unexpected TypeError: LLMResponse.__init__() missing 1 required positional argument: 'parsed'
+
+llm/router.py:196: ProviderUnavailable
+=========================== short test summary info ============================
+FAILED tests/test_live_spending.py::test_missing_usage_is_not_treated_as_free
+1 failed, 10 passed in 0.43s

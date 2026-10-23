@@ -63,7 +63,8 @@ def main():
         with zipfile.ZipFile(io.BytesIO(payload)) as archive:
             check("pages", "archive build matches commit", archive.read("build_info.txt").decode().strip() == args.expected_sha[:7])
             for name in ("guardrails/normalize.py", "guardrails/lexical.py", "guardrails/policy.yaml",
-                         "agents/adjudicator.py", "agents/recheck.py", "agents/rewrite_check.py"):
+                         "agents/adjudicator.py", "agents/recheck.py", "agents/rewrite_check.py", "core/insight_engine.py",
+                         "llm/router.py", "llm/spending.py", "core/live_access.py", "observability/tracer.py", "ui/new_evals.py"):
                 deployed = archive.read(name)
                 check("pages", "published source matches checkout: " + name,
                       deployed == (ROOT / name).read_bytes(), hashlib.sha256(deployed).hexdigest())
@@ -136,6 +137,17 @@ def main():
                     check(scope, "real evasion quote preserved", "다! 단 계" in editor.locator("mark").all_text_contents())
                     editor.get_by_text("검사한 문구", exact=True).scroll_into_view_if_needed()
                     shot(page, scope, "restricted-recheck")
+                    page.get_by_text("품질 확인", exact=True).first.click()
+                    heading = page.get_by_role("heading", name="2026-10-23 검증 보강 · 채택하지 않은 탐지기 후보")
+                    heading.wait_for(timeout=180000)
+                    heading.scroll_into_view_if_needed()
+                    body = page.inner_text("body")
+                    check(scope, "rejected candidate and remaining misses disclosed", "배포하지 않았습니다" in body and "7/12 미탐" in body)
+                    check(scope, "frozen before and candidate detection displayed", "11/24" in body and "10/24" in body)
+                    check(scope, "synthetic policy limits and human denominator disclosed", "16건 중 4건" in body and "21/28" in body and "AI 정확도가 아닙니다" in body)
+                    shot(page, scope, "evidence-strengthening")
+                    if scope == "server":
+                        check(scope, "operational export excludes raw text by default", page.get_by_role("button", name="운영 기록 JSON 내보내기 (원문 제외)").count() == 1)
                     check(scope, "no application exception", page.locator('[data-testid="stException"]').count() == 0)
                     check(scope, "no browser provider request", not blocked)
                 except Exception as exc:

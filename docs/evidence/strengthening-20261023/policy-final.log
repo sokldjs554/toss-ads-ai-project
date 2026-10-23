@@ -1,0 +1,68 @@
+{
+  "input_sha256": "33b19fc27fd4a6c9f00c7a272211581627298e4b143ebb47435d9266367524c8",
+  "policy": "2026.10.7",
+  "execution": "No model calls; deterministic rules, DEMO reviewer, injected unavailable provider. Human gold validation pending.",
+  "rules_only": {
+    "n": 24,
+    "unsafe_pass": {
+      "k": 4,
+      "n": 16
+    },
+    "unnecessary_reject": {
+      "k": 0,
+      "n": 8
+    },
+    "unnecessary_revision": {
+      "k": 0,
+      "n": 8
+    },
+    "hold": {
+      "k": 0,
+      "n": 24
+    },
+    "exact_draft_label": {
+      "k": 20,
+      "n": 24
+    }
+  },
+  "demo_combined": {
+    "n": 24,
+    "unsafe_pass": {
+      "k": 4,
+      "n": 16
+    },
+    "unnecessary_reject": {
+      "k": 0,
+      "n": 8
+    },
+    "unnecessary_revision": {
+      "k": 0,
+      "n": 8
+    },
+    "hold": {
+      "k": 0,
+      "n": 24
+    },
+    "exact_draft_label": {
+      "k": 20,
+      "n": 24
+    }
+  },
+  "fixed_edit_violations": {
+    "k": 0,
+    "n": 24,
+    "note": "Authored neutral edits, not model rewrites"
+  },
+  "outage": {
+    "held": 19,
+    "blocked": 5,
+    "unsafe_approve": 0,
+    "successful_calls": 0,
+    "n": 24
+  },
+  "evidence": {
+    "quoted": 13,
+    "quote_missing_in_source": 0,
+    "semantic_validity": "pending human review; existence is not entailment"
+  }
+}

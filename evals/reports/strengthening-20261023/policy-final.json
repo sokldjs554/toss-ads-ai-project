@@ -1,0 +1,478 @@
+{
+  "input_sha256": "33b19fc27fd4a6c9f00c7a272211581627298e4b143ebb47435d9266367524c8",
+  "policy": "2026.10.7",
+  "execution": "No model calls; deterministic rules, DEMO reviewer, injected unavailable provider. Human gold validation pending.",
+  "rules_only": {
+    "n": 24,
+    "unsafe_pass": {
+      "k": 4,
+      "n": 16
+    },
+    "unnecessary_reject": {
+      "k": 0,
+      "n": 8
+    },
+    "unnecessary_revision": {
+      "k": 0,
+      "n": 8
+    },
+    "hold": {
+      "k": 0,
+      "n": 24
+    },
+    "exact_draft_label": {
+      "k": 20,
+      "n": 24
+    }
+  },
+  "demo_combined": {
+    "n": 24,
+    "unsafe_pass": {
+      "k": 4,
+      "n": 16
+    },
+    "unnecessary_reject": {
+      "k": 0,
+      "n": 8
+    },
+    "unnecessary_revision": {
+      "k": 0,
+      "n": 8
+    },
+    "hold": {
+      "k": 0,
+      "n": 24
+    },
+    "exact_draft_label": {
+      "k": 20,
+      "n": 24
+    }
+  },
+  "fixed_edit_violations": {
+    "k": 0,
+    "n": 24,
+    "note": "Authored neutral edits, not model rewrites"
+  },
+  "outage": {
+    "held": 19,
+    "blocked": 5,
+    "unsafe_approve": 0,
+    "successful_calls": 0,
+    "n": 24
+  },
+  "evidence": {
+    "quoted": 13,
+    "quote_missing_in_source": 0,
+    "semantic_validity": "pending human review; existence is not entailment"
+  },
+  "rows": [
+    {
+      "id": "P23-01",
+      "family": "normal",
+      "label": "APPROVE",
+      "rules_only": "APPROVE",
+      "demo_combined": "APPROVE",
+      "outage_final": "HUMAN_REVIEW",
+      "outage_failed": true,
+      "outage_reusable": false,
+      "outage_successful_calls": 0,
+      "fixed_edit_final": "APPROVE",
+      "evidence": []
+    },
+    {
+      "id": "P23-02",
+      "family": "normal",
+      "label": "APPROVE",
+      "rules_only": "APPROVE",
+      "demo_combined": "APPROVE",
+      "outage_final": "HUMAN_REVIEW",
+      "outage_failed": true,
+      "outage_reusable": false,
+      "outage_successful_calls": 0,
+      "fixed_edit_final": "APPROVE",
+      "evidence": []
+    },
+    {
+      "id": "P23-03",
+      "family": "normal",
+      "label": "APPROVE",
+      "rules_only": "APPROVE",
+      "demo_combined": "APPROVE",
+      "outage_final": "HUMAN_REVIEW",
+      "outage_failed": true,
+      "outage_reusable": false,
+      "outage_successful_calls": 0,
+      "fixed_edit_final": "APPROVE",
+      "evidence": []
+    },
+    {
+      "id": "P23-04",
+      "family": "normal",
+      "label": "APPROVE",
+      "rules_only": "APPROVE",
+      "demo_combined": "APPROVE",
+      "outage_final": "HUMAN_REVIEW",
+      "outage_failed": true,
+      "outage_reusable": false,
+      "outage_successful_calls": 0,
+      "fixed_edit_final": "APPROVE",
+      "evidence": []
+    },
+    {
+      "id": "P23-05",
+      "family": "number_condition",
+      "label": "REVISE",
+      "rules_only": "REVISE",
+      "demo_combined": "REVISE",
+      "outage_final": "HUMAN_REVIEW",
+      "outage_failed": true,
+      "outage_reusable": false,
+      "outage_successful_calls": 0,
+      "fixed_edit_final": "APPROVE",
+      "evidence": [
+        {
+          "rule": "GRND-NUM-01",
+          "quote": "37000원",
+          "exists": true,
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "P23-06",
+      "family": "number_condition",
+      "label": "REVISE",
+      "rules_only": "REVISE",
+      "demo_combined": "REVISE",
+      "outage_final": "HUMAN_REVIEW",
+      "outage_failed": true,
+      "outage_reusable": false,
+      "outage_successful_calls": 0,
+      "fixed_edit_final": "APPROVE",
+      "evidence": [
+        {
+          "rule": "GRND-NUM-01",
+          "quote": "35%",
+          "exists": true,
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "P23-07",
+      "family": "number_condition",
+      "label": "REVISE",
+      "rules_only": "REVISE",
+      "demo_combined": "REVISE",
+      "outage_final": "HUMAN_REVIEW",
+      "outage_failed": true,
+      "outage_reusable": false,
+      "outage_successful_calls": 0,
+      "fixed_edit_final": "APPROVE",
+      "evidence": [
+        {
+          "rule": "GRND-COND-02",
+          "quote": "2일 이내",
+          "exists": true,
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "P23-08",
+      "family": "number_condition",
+      "label": "REVISE",
+      "rules_only": "REVISE",
+      "demo_combined": "REVISE",
+      "outage_final": "HUMAN_REVIEW",
+      "outage_failed": true,
+      "outage_reusable": false,
+      "outage_successful_calls": 0,
+      "fixed_edit_final": "APPROVE",
+      "evidence": [
+        {
+          "rule": "GRND-NUM-01",
+          "quote": "9000원",
+          "exists": true,
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "P23-09",
+      "family": "unsupported",
+      "label": "REVISE",
+      "rules_only": "REVISE",
+      "demo_combined": "REVISE",
+      "outage_final": "HUMAN_REVIEW",
+      "outage_failed": true,
+      "outage_reusable": false,
+      "outage_successful_calls": 0,
+      "fixed_edit_final": "APPROVE",
+      "evidence": [
+        {
+          "rule": "TA-SUPERLATIVE-01",
+          "quote": "업계 최저",
+          "exists": true,
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "P23-10",
+      "family": "unsupported",
+      "label": "REVISE",
+      "rules_only": "REVISE",
+      "demo_combined": "REVISE",
+      "outage_final": "HUMAN_REVIEW",
+      "outage_failed": true,
+      "outage_reusable": false,
+      "outage_successful_calls": 0,
+      "fixed_edit_final": "APPROVE",
+      "evidence": [
+        {
+          "rule": "TA-SUPERLATIVE-01",
+          "quote": "국내 최초",
+          "exists": true,
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "P23-11",
+      "family": "unsupported",
+      "label": "REVISE",
+      "rules_only": "REVISE",
+      "demo_combined": "REVISE",
+      "outage_final": "HUMAN_REVIEW",
+      "outage_failed": true,
+      "outage_reusable": false,
+      "outage_successful_calls": 0,
+      "fixed_edit_final": "APPROVE",
+      "evidence": [
+        {
+          "rule": "TA-URGENCY-01",
+          "quote": "지금 아니면",
+          "exists": true,
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "P23-12",
+      "family": "unsupported",
+      "label": "REJECT",
+      "rules_only": "REJECT",
+      "demo_combined": "REJECT",
+      "outage_final": "REJECT",
+      "outage_failed": true,
+      "outage_reusable": false,
+      "outage_successful_calls": 0,
+      "fixed_edit_final": "APPROVE",
+      "evidence": [
+        {
+          "rule": "TA-COMPARE-01",
+          "quote": "경쟁사보다 저렴",
+          "exists": true,
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "P23-13",
+      "family": "normalization_evasion",
+      "label": "REJECT",
+      "rules_only": "REJECT",
+      "demo_combined": "REJECT",
+      "outage_final": "REJECT",
+      "outage_failed": true,
+      "outage_reusable": false,
+      "outage_successful_calls": 0,
+      "fixed_edit_final": "APPROVE",
+      "evidence": [
+        {
+          "rule": "TA-RESTRICTED-01",
+          "quote": "다 . 단 계",
+          "exists": true,
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "P23-14",
+      "family": "normalization_evasion",
+      "label": "REJECT",
+      "rules_only": "REJECT",
+      "demo_combined": "REJECT",
+      "outage_final": "REJECT",
+      "outage_failed": true,
+      "outage_reusable": false,
+      "outage_successful_calls": 0,
+      "fixed_edit_final": "APPROVE",
+      "evidence": [
+        {
+          "rule": "TA-RESTRICTED-01",
+          "quote": "피 라 미 드",
+          "exists": true,
+          "verified": true
+        },
+        {
+          "rule": "FIN-DISCLOSE-INV-01",
+          "quote": "",
+          "exists": false,
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "P23-15",
+      "family": "normalization_evasion",
+      "label": "REJECT",
+      "rules_only": "REJECT",
+      "demo_combined": "REJECT",
+      "outage_final": "REJECT",
+      "outage_failed": true,
+      "outage_reusable": false,
+      "outage_successful_calls": 0,
+      "fixed_edit_final": "APPROVE",
+      "evidence": [
+        {
+          "rule": "TA-RESTRICTED-01",
+          "quote": "유 사 수 신",
+          "exists": true,
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "P23-16",
+      "family": "normalization_evasion",
+      "label": "REJECT",
+      "rules_only": "REJECT",
+      "demo_combined": "REJECT",
+      "outage_final": "REJECT",
+      "outage_failed": true,
+      "outage_reusable": false,
+      "outage_successful_calls": 0,
+      "fixed_edit_final": "APPROVE",
+      "evidence": [
+        {
+          "rule": "TA-RESTRICTED-01",
+          "quote": "사설 카 지 노",
+          "exists": true,
+          "verified": true
+        },
+        {
+          "rule": "TA-GAMBLING-01",
+          "quote": "카 지 노",
+          "exists": true,
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "P23-17",
+      "family": "normal_grounded",
+      "label": "APPROVE",
+      "rules_only": "APPROVE",
+      "demo_combined": "APPROVE",
+      "outage_final": "HUMAN_REVIEW",
+      "outage_failed": true,
+      "outage_reusable": false,
+      "outage_successful_calls": 0,
+      "fixed_edit_final": "APPROVE",
+      "evidence": []
+    },
+    {
+      "id": "P23-18",
+      "family": "normal_grounded",
+      "label": "APPROVE",
+      "rules_only": "APPROVE",
+      "demo_combined": "APPROVE",
+      "outage_final": "HUMAN_REVIEW",
+      "outage_failed": true,
+      "outage_reusable": false,
+      "outage_successful_calls": 0,
+      "fixed_edit_final": "APPROVE",
+      "evidence": []
+    },
+    {
+      "id": "P23-19",
+      "family": "normal_grounded",
+      "label": "APPROVE",
+      "rules_only": "APPROVE",
+      "demo_combined": "APPROVE",
+      "outage_final": "HUMAN_REVIEW",
+      "outage_failed": true,
+      "outage_reusable": false,
+      "outage_successful_calls": 0,
+      "fixed_edit_final": "APPROVE",
+      "evidence": []
+    },
+    {
+      "id": "P23-20",
+      "family": "normal_grounded",
+      "label": "APPROVE",
+      "rules_only": "APPROVE",
+      "demo_combined": "APPROVE",
+      "outage_final": "HUMAN_REVIEW",
+      "outage_failed": true,
+      "outage_reusable": false,
+      "outage_successful_calls": 0,
+      "fixed_edit_final": "APPROVE",
+      "evidence": []
+    },
+    {
+      "id": "P23-21",
+      "family": "insufficient_evidence",
+      "label": "REVISE",
+      "rules_only": "APPROVE",
+      "demo_combined": "APPROVE",
+      "outage_final": "HUMAN_REVIEW",
+      "outage_failed": true,
+      "outage_reusable": false,
+      "outage_successful_calls": 0,
+      "fixed_edit_final": "APPROVE",
+      "evidence": []
+    },
+    {
+      "id": "P23-22",
+      "family": "insufficient_evidence",
+      "label": "REVISE",
+      "rules_only": "APPROVE",
+      "demo_combined": "APPROVE",
+      "outage_final": "HUMAN_REVIEW",
+      "outage_failed": true,
+      "outage_reusable": false,
+      "outage_successful_calls": 0,
+      "fixed_edit_final": "APPROVE",
+      "evidence": []
+    },
+    {
+      "id": "P23-23",
+      "family": "insufficient_evidence",
+      "label": "REVISE",
+      "rules_only": "APPROVE",
+      "demo_combined": "APPROVE",
+      "outage_final": "HUMAN_REVIEW",
+      "outage_failed": true,
+      "outage_reusable": false,
+      "outage_successful_calls": 0,
+      "fixed_edit_final": "APPROVE",
+      "evidence": []
+    },
+    {
+      "id": "P23-24",
+      "family": "insufficient_evidence",
+      "label": "REVISE",
+      "rules_only": "APPROVE",
+      "demo_combined": "APPROVE",
+      "outage_final": "HUMAN_REVIEW",
+      "outage_failed": true,
+      "outage_reusable": false,
+      "outage_successful_calls": 0,
+      "fixed_edit_final": "APPROVE",
+      "evidence": []
+    }
+  ]
+}

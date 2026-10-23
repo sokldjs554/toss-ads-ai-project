@@ -396,6 +396,24 @@ def render() -> None:
     st.markdown("대화형 설정·상품 페이지 읽기·이미지 검사·소재 퀄리티·성과 리포트를 **이 프로젝트가 만든 합성 사례**로 재어 저장해 둔 결과입니다. "
                 "**개발용**은 로직을 만들며 본 데이터라 점수가 높게 나오고, **최종 확인용**은 각 기능의 로직을 고정한 뒤 처음 평가한 기록입니다. 이후 수정과 재검사는 해당 기능의 설명에서 구분합니다. "
                 "라벨은 작성자가 달았고 독립 검증은 없으며, 실제 광고 데이터의 정확도가 아닙니다. 규칙 검사와 실제 모델 호출 결과는 나눠 표시합니다.")
+    before = _load("strengthening-20261023/final96-before.json")
+    candidate = _load("strengthening-20261023/final96-after.json")
+    policy = _load("strengthening-20261023/policy-final.json")
+    if before and candidate and policy:
+        st.markdown("### 2026-10-23 검증 보강 · 채택하지 않은 탐지기 후보")
+        b, c = before["summary"], candidate["summary"]
+        bfp = sum(v["fp"] for v in b.values())
+        cfp = sum(v["fp"] for v in c.values())
+        controls = sum(v["n"] for k,v in b.items() if k != "persistent_drop")
+        _table([
+            ("새 합성 자료의 지속 하락 탐지", _frac(b["persistent_drop"]["tp"], b["persistent_drop"]["n"]), _frac(c["persistent_drop"]["tp"], c["persistent_drop"]["n"])),
+            ("변화 없는·지속 추세·회복 대조의 잘못된 알림", _frac(bfp, controls), _frac(cfp, controls)),
+        ], first="현재 배포 엔진", second="배포에서 제외한 후보")
+        st.warning("후보는 개발 대조에서 개선됐지만 새 자료에서 악화되어 배포하지 않았습니다. 기존 지속 하락 7/12 미탐은 해결되지 않았습니다.")
+        st.caption("입력·정답·채점 기준을 실행 전에 고정한 AI 작성 합성 자료입니다. 같은 생성기를 쓰며 독립적인 사람 정답 검증은 없습니다. 실제 광고 성능이 아닙니다.")
+        bad = policy["rules_only"]["unsafe_pass"]
+        st.markdown(f"새 정책 대조: 규칙 검사와 DEMO 모두 수정·반려가 필요한 초안 정답 {bad['n']}건 중 {bad['k']}건을 통과시켰습니다. 실제 모델은 이번 평가에서 호출하지 않았습니다.")
+        st.caption("정책 정답은 사람 확인 대기입니다. 기존 사람 응답 56개는 28쌍에 대한 평가자 2명의 응답이며, 선택 일치 21/28에는 공동 보류 1쌍이 포함됩니다. AI 정확도가 아닙니다.")
     _live()
     for title, fn in SECTIONS:
         with st.expander(title):

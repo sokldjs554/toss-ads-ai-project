@@ -24,6 +24,7 @@ from ui.trace_redact import AD_HIDDEN, REWRITE_HIDDEN, redact_trace_dict, redact
 ROOT = Path(__file__).resolve().parents[1]
 APP = str(ROOT / "app.py")
 FAKE_KEY = "sk-test-FAKE-KEY-never-shown-0123456789"
+FAKE_ACCESS = "test-only-server-access-0123456789abcdef"
 
 
 # ───────────── 공통 도구 ─────────────
@@ -31,6 +32,7 @@ def _env(monkeypatch, *, live: bool, budget: str | None = None) -> None:
     monkeypatch.setenv("PREFLIGHT_FORCE_DEMO", "0" if live else "1")
     monkeypatch.setenv("OPENAI_API_KEY", FAKE_KEY if live else "")
     monkeypatch.setenv("ANTHROPIC_API_KEY", "")
+    monkeypatch.setenv("PREFLIGHT_LIVE_ACCESS_TOKEN", FAKE_ACCESS)
     if budget is not None:
         monkeypatch.setenv("PREFLIGHT_RUN_BUDGET_USD", budget)
 
@@ -41,6 +43,7 @@ def _openai(monkeypatch, handlers: dict | None = None) -> TaskScriptedProvider:
 
     def complete(self, req):
         resp = prov.complete(req)
+        resp.model = self.model  # Exercise the default provider's verified model/usage contract.
         if resp.parsed is not None and resp.text in ("", "{}"):
             resp.text = resp.parsed.model_dump_json(indent=2)   # 실제 제공자처럼 응답 원문(JSON)이 처리 기록에 남게 한다
         return resp
@@ -61,7 +64,9 @@ def _no_model_calls(monkeypatch) -> dict:
 
 
 def _fresh() -> AppTest:
-    return AppTest.from_file(APP, default_timeout=180)
+    at = AppTest.from_file(APP, default_timeout=180)
+    at.session_state["live_access_key"] = FAKE_ACCESS
+    return at
 
 
 def _texts(at) -> str:
@@ -141,6 +146,20 @@ def _live_run(monkeypatch, handlers, *, budget: str | None = None) -> AppTest:
     assert not at.exception, [str(e.value) for e in at.exception]
     assert len(at.session_state["runs"]) == 1 and at.session_state["runs"][0]["mode"] != "demo"
     return at
+
+
+def test_server_funded_ui_denies_wrong_access_before_provider_call(monkeypatch):
+    _env(monkeypatch, live=True)
+    seen = _no_model_calls(monkeypatch)
+    at = _fresh()
+    at.session_state["live_access_key"] = "wrong-test-access"
+    at.run()
+    _coupon_form(at)
+    at.checkbox(key="confirm_live_run").check().run()
+    at.button(key="run_button").click().run()
+    assert not at.exception and seen["n"] == 0
+    assert len(at.session_state["runs"]) == 0
+    assert "모델 실행 접근키가 필요합니다" in _texts(at)
 
 
 def _recheck_with(at: AppTest, vid: str, rewrite) -> object:
