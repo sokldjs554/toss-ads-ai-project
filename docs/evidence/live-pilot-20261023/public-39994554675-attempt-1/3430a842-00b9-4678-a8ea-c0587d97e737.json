@@ -1,0 +1,66 @@
+{
+  "request_id": "3430a842-00b9-4678-a8ea-c0587d97e737",
+  "created_at": "2026-10-23T17:33:40.556468+00:00",
+  "finished_at": "2026-10-23T17:33:49.195840+00:00",
+  "build": "4cdf6c59543b11c7101e832f10e5f6a726f4778d",
+  "reserved_usd": 0.08,
+  "call_count": 3,
+  "calls": [
+    {
+      "sequence": 1,
+      "started_at": "2026-10-23T17:33:43.857859+00:00",
+      "stage": "rewrite_tools",
+      "model": "gpt-4o-mini-2024-07-18",
+      "reason": "",
+      "status": "success",
+      "cost_usd": 9.8e-05,
+      "latency_ms": 2759.1,
+      "input_tokens": 468,
+      "output_tokens": 47,
+      "requested_model": "gpt-4o-mini-2024-07-18"
+    },
+    {
+      "sequence": 2,
+      "started_at": "2026-10-23T17:33:46.688579+00:00",
+      "stage": "rewrite_tools",
+      "model": "gpt-4o-mini-2024-07-18",
+      "reason": "",
+      "status": "success",
+      "cost_usd": 8.4e-05,
+      "latency_ms": 1173.3,
+      "input_tokens": 537,
+      "output_tokens": 6,
+      "requested_model": "gpt-4o-mini-2024-07-18"
+    },
+    {
+      "sequence": 3,
+      "started_at": "2026-10-23T17:33:48.038870+00:00",
+      "stage": "rag",
+      "model": null,
+      "reason": "provider_failure",
+      "status": "failed",
+      "cost_usd": null,
+      "latency_ms": 1083.5,
+      "requested_model": "gpt-4o-mini-2024-07-18"
+    }
+  ],
+  "actor_kind": "automation",
+  "mode": "LIVE",
+  "path": "tools",
+  "status": "hold",
+  "decision": "HUMAN_REVIEW",
+  "reason": "provider_or_storage_failure",
+  "code_decision": "APPROVE",
+  "original_code_decision": "REVISE",
+  "prompt_version": "live-rag-tools-3",
+  "policy_version": "2026.10.7",
+  "revisions": 1,
+  "review_decision": "reject",
+  "audit": [
+    {
+      "at": "2026-10-23T17:33:55.642909+00:00",
+      "decision": "reject",
+      "actor_kind": "automation"
+    }
+  ]
+}

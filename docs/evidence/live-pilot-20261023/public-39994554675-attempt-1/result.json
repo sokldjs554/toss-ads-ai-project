@@ -1,0 +1,132 @@
+{
+  "kind": "authenticated-deployed-live-pilot",
+  "expected_sha": "4cdf6c59543b11c7101e832f10e5f6a726f4778d",
+  "started_at": "2026-10-23T17:22:59.184320+00:00",
+  "mode": "execute_frozen_inputs",
+  "human_participants": 0,
+  "synthetic": true,
+  "checks": [
+    {
+      "check": "Pages build matches requested commit",
+      "ok": true
+    },
+    {
+      "check": "Pages explicitly separates DEMO from authenticated LIVE server",
+      "ok": true
+    },
+    {
+      "check": "server screen build matches requested commit",
+      "ok": true
+    },
+    {
+      "check": "authenticated account explicitly marked automation",
+      "ok": true
+    },
+    {
+      "check": "operational export contains no original ad, prompts or credentials",
+      "ok": true
+    },
+    {
+      "check": "operational export contains no original ad, prompts or credentials",
+      "ok": true
+    },
+    {
+      "check": "passage-tools-comparison: actual bounded model and prompt",
+      "ok": false
+    }
+  ],
+  "runs": [
+    {
+      "case_id": "passage-tools-comparison",
+      "evaluation_split": "development comparison: formerly v2 heldout, used to diagnose v3; not independent v3 evaluation",
+      "request_id": "3430a842-00b9-4678-a8ea-c0587d97e737",
+      "created_at": "2026-10-23T17:33:40.556468+00:00",
+      "finished_at": "2026-10-23T17:33:49.195840+00:00",
+      "build": "4cdf6c59543b11c7101e832f10e5f6a726f4778d",
+      "reserved_usd": 0.08,
+      "call_count": 3,
+      "calls": [
+        {
+          "sequence": 1,
+          "started_at": "2026-10-23T17:33:43.857859+00:00",
+          "stage": "rewrite_tools",
+          "model": "gpt-4o-mini-2024-07-18",
+          "reason": "",
+          "status": "success",
+          "cost_usd": 9.8e-05,
+          "latency_ms": 2759.1,
+          "input_tokens": 468,
+          "output_tokens": 47,
+          "requested_model": "gpt-4o-mini-2024-07-18"
+        },
+        {
+          "sequence": 2,
+          "started_at": "2026-10-23T17:33:46.688579+00:00",
+          "stage": "rewrite_tools",
+          "model": "gpt-4o-mini-2024-07-18",
+          "reason": "",
+          "status": "success",
+          "cost_usd": 8.4e-05,
+          "latency_ms": 1173.3,
+          "input_tokens": 537,
+          "output_tokens": 6,
+          "requested_model": "gpt-4o-mini-2024-07-18"
+        },
+        {
+          "sequence": 3,
+          "started_at": "2026-10-23T17:33:48.038870+00:00",
+          "stage": "rag",
+          "model": null,
+          "reason": "provider_failure",
+          "status": "failed",
+          "cost_usd": null,
+          "latency_ms": 1083.5,
+          "requested_model": "gpt-4o-mini-2024-07-18"
+        }
+      ],
+      "actor_kind": "automation",
+      "mode": "LIVE",
+      "path": "tools",
+      "status": "hold",
+      "decision": "HUMAN_REVIEW",
+      "reason": "provider_or_storage_failure",
+      "code_decision": "APPROVE",
+      "original_code_decision": "REVISE",
+      "prompt_version": "live-rag-tools-3",
+      "policy_version": "2026.10.7",
+      "revisions": 1,
+      "review_decision": "reject",
+      "audit": [
+        {
+          "at": "2026-10-23T17:33:55.642909+00:00",
+          "decision": "reject",
+          "actor_kind": "automation"
+        }
+      ]
+    }
+  ],
+  "screens": [
+    "pages-version-observed.png",
+    "pages-live-server-link.png",
+    "failure-view.png"
+  ],
+  "status": "failed",
+  "automation_account": "primary",
+  "browser": "155.0.8059.39",
+  "pages_observed_builds": [
+    "4cdf6c5"
+  ],
+  "phase": "select:사람 검토 결과",
+  "server_loads": [
+    {
+      "http_status": 200
+    }
+  ],
+  "login_phase": "waiting_for_authenticated_view",
+  "error_type": "AssertionError",
+  "failure_alerts": [
+    "API·자동 브라우저 실행은 사람 사용으로 집계하지 않습니다. 이 파일럿에는 개인정보·실제 광고주 비밀 자료를 입력하지 마세요.",
+    "검토 저장됨 · reject · automation"
+  ],
+  "finished_at": "2026-10-23T17:33:58.588032+00:00"
+}
