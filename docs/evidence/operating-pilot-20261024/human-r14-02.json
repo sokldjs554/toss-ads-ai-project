@@ -13,7 +13,8 @@
       "2026-10-24"
     ],
     "earlier_dates_mode": "User explicitly confirms actual-model LIVE review on October22,23,24; not DEMO.",
-    "duration_interpretation": "24-minute self-reported interval, not instrumented active task duration or demonstrated time savings"
+    "duration_interpretation": "24-minute self-reported interval, not instrumented active task duration or demonstrated time savings",
+    "usage_date_confirmation_status": "completed_by_explicit_user_confirmation"
   },
   "server_scope": {
     "account": "human-pilot",
@@ -32,8 +33,8 @@
     "edit_count": 3
   },
   "limitations": [
-    "User explicitly reports actual-model LIVE usage on October22,23,24. Present human-pilot journal shows all six requests on October24 Asia/Seoul; this discrepancy is unresolved and must remain explicit.",
-    "Do not alter original timestamps or present three days of LIVE operation as verified.",
+    "Usage on October22,23,24 is confirmed by the user. The available six-request human-pilot journal independently documents October24 Asia/Seoul only; these evidence scopes remain distinct.",
+    "Original timestamps are preserved. Completion of user confirmation does not mean all three dates were independently verified in server logs.",
     "Current request remains REVISE; semantic false-positive suspicion unresolved.",
     "Reconnect confirmation is user report; DB review persistence and JSON agreement are independently checked metadata."
   ],
