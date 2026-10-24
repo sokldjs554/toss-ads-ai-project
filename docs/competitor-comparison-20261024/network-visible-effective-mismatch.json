@@ -1,0 +1,16 @@
+{
+  "at_utc": "2026-10-24T06:16:34.469802+00:00",
+  "url": "https://ahrefs.com/writing-tools/google-ads-generator",
+  "exit_code": 56,
+  "stdout": "HTTP/1.1 403 Forbidden\ncontent-length: 16\ncontent-type: text/plain\ndate: Sat, 24 Oct 2026 06:16:34 GMT\nserver: envoy\nconnection: close\n\n",
+  "stderr": "curl: (56) CONNECT tunnel failed, response 403\n",
+  "observed_revision": "98",
+  "observations_current": true,
+  "custom_allowed_hosts": [],
+  "local_policy_contains_ahrefs": false,
+  "user_screenshot": "Internet access enabled; package managers preset; one additional domain ahrefs.com visibly listed.",
+  "finding": "Visible configuration and the current task effective policy disagree. Root cause not established.",
+  "retained_diagnostics": "not_found",
+  "new_model_calls": 0,
+  "proxy_preserved": true
+}
