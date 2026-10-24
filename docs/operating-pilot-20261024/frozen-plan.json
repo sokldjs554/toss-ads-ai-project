@@ -1,0 +1,16 @@
+{
+  "frozen_before_new_model_execution": true,
+  "new_live_requests_observed": 0,
+  "time_comparison_rows_observed": 0,
+  "model": "gpt-4o-mini-2024-07-18",
+  "live_max_new_requests": 3,
+  "live_max_provider_attempts": 12,
+  "live_max_additional_reserved_usd": "0.24",
+  "live_rough_estimate_usd": "0.003-0.01, planning estimate only; unknown failure charges remain unknown",
+  "files": {
+    "docs/operating-pilot-20261024/live-session-inputs.json": "a9c7fd0acc494860015f79790bd2557fa043f62b0ed854ae1a8986ee20b4b515",
+    "docs/evidence/strengthening-20261023/participant-inputs.json": "e369b715ee6befb688b8615f8ae3909a04e9506b964addadd4ed77df6ce9ae37",
+    "docs/evidence/strengthening-20261023/human-workflow-measurement.csv": "17c3db1d71dcf43b65d4249370cf628d9eccf0316d5c77f3cc3322bb8a13a71b",
+    "evals/reports/strengthening-20261023/policy-human-review.csv": "bebcf0bfe4106eaf27378c17b7bd908c38485635c492bda197de58eef6b0b151"
+  }
+}

@@ -114,9 +114,25 @@ class LiveStore:
     def finish_call(self, token, request_id, sequence, record):
         from psycopg.types.json import Jsonb
         # Strict operational allowlist. No prompts, response bodies or SDK error text.
-        allowed = {"status", "reason", "model", "requested_model", "input_tokens", "output_tokens", "cost_usd", "latency_ms"}
+        allowed = {"status", "reason", "model", "requested_model", "input_tokens", "output_tokens", "cost_usd", "latency_ms",
+                   "error_type", "http_status", "provider_code", "provider_param"}
         if set(record) - allowed:
             raise PilotDenied("invalid metric")
+        # The gateway emits safe classifications, never arbitrary SDK text.
+        # Validate again at the persistence boundary; allowing a key alone is insufficient.
+        diagnostic_values = {
+            "error_type": {"BadRequestError", "AuthenticationError", "PermissionDeniedError", "NotFoundError",
+                           "RateLimitError", "APIConnectionError", "APITimeoutError", "InternalServerError",
+                           "APIStatusError", "ValueError", "TimeoutError", "ReadTimeout", "OtherError"},
+            "provider_code": {"invalid_json_schema", "invalid_api_key", "rate_limit_exceeded",
+                              "insufficient_quota", "context_length_exceeded", "model_not_found"},
+            "provider_param": {"response_format", "model", "messages", "max_completion_tokens", "tools"},
+        }
+        for field, values in diagnostic_values.items():
+            if field in record and (not isinstance(record[field], str) or record[field] not in values):
+                raise PilotDenied("invalid diagnostic")
+        if "http_status" in record and (type(record["http_status"]) is not int or not 100 <= record["http_status"] <= 599):
+            raise PilotDenied("invalid diagnostic")
         with self._transaction(token) as (conn, actor):
             self._owned(conn, actor, request_id, lock=True)
             changed = conn.execute("UPDATE calls SET record=%s,finished_at=now() WHERE request_id=%s AND sequence=%s AND finished_at IS NULL", (Jsonb(record), request_id, sequence))

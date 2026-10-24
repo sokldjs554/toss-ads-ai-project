@@ -1,0 +1,121 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_______ test_gateway_failure_survives_real_store_and_reconnect[timeout] ________
+
+store = <ops.live_pilot_store.LiveStore object at 0x7f6f685ac860>
+failure = 'timeout'
+
+    @pytest.mark.parametrize("failure", ["timeout", "schema", "unknown"])
+    def test_gateway_failure_survives_real_store_and_reconnect(store, failure):
+        """Provider diagnostics must not be rejected by the real journal boundary."""
+        from types import SimpleNamespace as NS
+        from llm.live_pilot_gateway import LiveGateway
+        from agents.live_pilot import run_workflow
+        from core.schemas import AdCopy, Fact, ProductFacts, ProductCategory
+        class BadRequestError(Exception):
+            status_code = 400
+            body = {"code": "invalid_json_schema", "param": "response_format", "message": "private original"}
+        error = {"timeout": TimeoutError("private original"), "schema": BadRequestError("private original"),
+                 "unknown": RuntimeError("private original")}[failure]
+        def create(**kwargs):
+            raise error
+        request = str(uuid4())
+        store.begin("a"*64, request, {"path":"rag", "failure":failure}, "drill")
+        gateway = LiveGateway("fake", store, "a"*64, request,
+                              client=NS(chat=NS(completions=NS(create=create))))
+        copy = AdCopy(headline="상품 안내", body="300ml 텀블러입니다.", cta="상품 보기")
+        product = ProductFacts(name="합성 텀블러", category=ProductCategory.ECOMMERCE, facts=[Fact(id="F1", text="300ml 텀블러입니다.")])
+        result = run_workflow("rag", copy, product, gateway)
+        store.finish("a"*64, request, result)
+        row = LiveStore(store.database_url, schema=store.schema).get("a"*64, request)
+        assert result["status"] == "hold"
+>       assert result["reason"] == ("provider_timeout" if failure == "timeout" else "provider_or_storage_failure")
+E       AssertionError: assert 'provider_or_storage_failure' == 'provider_timeout'
+E         
+E         - provider_timeout
+E         + provider_or_storage_failure
+
+tests/test_live_pilot_store.py:138: AssertionError
+________ test_gateway_failure_survives_real_store_and_reconnect[schema] ________
+
+store = <ops.live_pilot_store.LiveStore object at 0x7f6f66d013d0>
+failure = 'schema'
+
+    @pytest.mark.parametrize("failure", ["timeout", "schema", "unknown"])
+    def test_gateway_failure_survives_real_store_and_reconnect(store, failure):
+        """Provider diagnostics must not be rejected by the real journal boundary."""
+        from types import SimpleNamespace as NS
+        from llm.live_pilot_gateway import LiveGateway
+        from agents.live_pilot import run_workflow
+        from core.schemas import AdCopy, Fact, ProductFacts, ProductCategory
+        class BadRequestError(Exception):
+            status_code = 400
+            body = {"code": "invalid_json_schema", "param": "response_format", "message": "private original"}
+        error = {"timeout": TimeoutError("private original"), "schema": BadRequestError("private original"),
+                 "unknown": RuntimeError("private original")}[failure]
+        def create(**kwargs):
+            raise error
+        request = str(uuid4())
+        store.begin("a"*64, request, {"path":"rag", "failure":failure}, "drill")
+        gateway = LiveGateway("fake", store, "a"*64, request,
+                              client=NS(chat=NS(completions=NS(create=create))))
+        copy = AdCopy(headline="상품 안내", body="300ml 텀블러입니다.", cta="상품 보기")
+        product = ProductFacts(name="합성 텀블러", category=ProductCategory.ECOMMERCE, facts=[Fact(id="F1", text="300ml 텀블러입니다.")])
+        result = run_workflow("rag", copy, product, gateway)
+        store.finish("a"*64, request, result)
+        row = LiveStore(store.database_url, schema=store.schema).get("a"*64, request)
+        assert result["status"] == "hold"
+        assert result["reason"] == ("provider_timeout" if failure == "timeout" else "provider_or_storage_failure")
+        assert row["call_count"] == 1 and row["reserved_usd"] == .08
+        recorded = row["calls"][0]
+>       assert recorded["status"] == "failed" and recorded["cost_usd"] is None
+E       AssertionError: assert ('outcome_unknown' == 'failed'
+E         
+E         - failed
+E         + outcome_unknown)
+
+tests/test_live_pilot_store.py:141: AssertionError
+_______ test_gateway_failure_survives_real_store_and_reconnect[unknown] ________
+
+store = <ops.live_pilot_store.LiveStore object at 0x7f6f66d093a0>
+failure = 'unknown'
+
+    @pytest.mark.parametrize("failure", ["timeout", "schema", "unknown"])
+    def test_gateway_failure_survives_real_store_and_reconnect(store, failure):
+        """Provider diagnostics must not be rejected by the real journal boundary."""
+        from types import SimpleNamespace as NS
+        from llm.live_pilot_gateway import LiveGateway
+        from agents.live_pilot import run_workflow
+        from core.schemas import AdCopy, Fact, ProductFacts, ProductCategory
+        class BadRequestError(Exception):
+            status_code = 400
+            body = {"code": "invalid_json_schema", "param": "response_format", "message": "private original"}
+        error = {"timeout": TimeoutError("private original"), "schema": BadRequestError("private original"),
+                 "unknown": RuntimeError("private original")}[failure]
+        def create(**kwargs):
+            raise error
+        request = str(uuid4())
+        store.begin("a"*64, request, {"path":"rag", "failure":failure}, "drill")
+        gateway = LiveGateway("fake", store, "a"*64, request,
+                              client=NS(chat=NS(completions=NS(create=create))))
+        copy = AdCopy(headline="상품 안내", body="300ml 텀블러입니다.", cta="상품 보기")
+        product = ProductFacts(name="합성 텀블러", category=ProductCategory.ECOMMERCE, facts=[Fact(id="F1", text="300ml 텀블러입니다.")])
+        result = run_workflow("rag", copy, product, gateway)
+        store.finish("a"*64, request, result)
+        row = LiveStore(store.database_url, schema=store.schema).get("a"*64, request)
+        assert result["status"] == "hold"
+        assert result["reason"] == ("provider_timeout" if failure == "timeout" else "provider_or_storage_failure")
+        assert row["call_count"] == 1 and row["reserved_usd"] == .08
+        recorded = row["calls"][0]
+>       assert recorded["status"] == "failed" and recorded["cost_usd"] is None
+E       AssertionError: assert ('outcome_unknown' == 'failed'
+E         
+E         - failed
+E         + outcome_unknown)
+
+tests/test_live_pilot_store.py:141: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_live_pilot_store.py::test_gateway_failure_survives_real_store_and_reconnect[timeout]
+FAILED tests/test_live_pilot_store.py::test_gateway_failure_survives_real_store_and_reconnect[schema]
+FAILED tests/test_live_pilot_store.py::test_gateway_failure_survives_real_store_and_reconnect[unknown]
+3 failed, 8 deselected in 0.75s
