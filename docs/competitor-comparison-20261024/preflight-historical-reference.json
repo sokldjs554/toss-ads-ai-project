@@ -1,0 +1,59 @@
+{
+  "mode": "historical rules-only and DEMO; NOT a new LIVE comparator execution",
+  "source": "evals/reports/strengthening-20261023/policy-final.json",
+  "rows": [
+    {
+      "id": "P23-05",
+      "family": "number_condition",
+      "label": "REVISE",
+      "rules_only": "REVISE",
+      "demo_combined": "REVISE",
+      "outage_final": "HUMAN_REVIEW",
+      "outage_failed": true,
+      "outage_reusable": false,
+      "outage_successful_calls": 0,
+      "fixed_edit_final": "APPROVE",
+      "evidence": [
+        {
+          "rule": "GRND-NUM-01",
+          "quote": "37000원",
+          "exists": true,
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "P23-09",
+      "family": "unsupported",
+      "label": "REVISE",
+      "rules_only": "REVISE",
+      "demo_combined": "REVISE",
+      "outage_final": "HUMAN_REVIEW",
+      "outage_failed": true,
+      "outage_reusable": false,
+      "outage_successful_calls": 0,
+      "fixed_edit_final": "APPROVE",
+      "evidence": [
+        {
+          "rule": "TA-SUPERLATIVE-01",
+          "quote": "업계 최저",
+          "exists": true,
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "P23-17",
+      "family": "normal_grounded",
+      "label": "APPROVE",
+      "rules_only": "APPROVE",
+      "demo_combined": "APPROVE",
+      "outage_final": "HUMAN_REVIEW",
+      "outage_failed": true,
+      "outage_reusable": false,
+      "outage_successful_calls": 0,
+      "fixed_edit_final": "APPROVE",
+      "evidence": []
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+service,case_id,task,status,actual_model_output,input_equal,output_path,displayed_model,latency_ms,cost,quality_score,blocker
+Google Ads conversational experience,P23-05,review,not_executed,false,,,,,,,environment_connect_403; account eligibility unconfirmed; Korean not listed
+Google Ads conversational experience,P23-09,review,not_executed,false,,,,,,,environment_connect_403; account eligibility unconfirmed; Korean not listed
+Google Ads conversational experience,P23-17,review,not_executed,false,,,,,,,environment_connect_403; account eligibility unconfirmed; Korean not listed
+Adobe GenStudio,P23-05,review,not_executed,false,,,,,,,environment_connect_403; product entitlement unconfirmed
+Adobe GenStudio,P23-09,review,not_executed,false,,,,,,,environment_connect_403; product entitlement unconfirmed
+Adobe GenStudio,P23-17,review,not_executed,false,,,,,,,environment_connect_403; product entitlement unconfirmed
+Ahrefs Google Ads generator,P23-05,generation,not_executed,false,,,,,,,executor domain not permitted; interactive runtime not available
+Ahrefs Google Ads generator,P23-09,generation,not_executed,false,,,,,,,executor domain not permitted; interactive runtime not available
+Ahrefs Google Ads generator,P23-17,generation,not_executed,false,,,,,,,executor domain not permitted; interactive runtime not available

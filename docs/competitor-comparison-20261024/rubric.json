@@ -1,0 +1,41 @@
+{
+  "reference_labels_status": "Existing AI-draft labels, human review pending; preserved unchanged",
+  "cases": [
+    {
+      "id": "P23-05",
+      "draft_label": "REVISE",
+      "basis": "Advertised numeric condition differs from supplied fact.",
+      "human_review": "pending"
+    },
+    {
+      "id": "P23-09",
+      "draft_label": "REVISE",
+      "basis": "Unsubstantiated superiority/urgency; project policy TA-SUPERLATIVE/URGENCY/COMPARE; human applicability review pending.",
+      "human_review": "pending"
+    },
+    {
+      "id": "P23-17",
+      "draft_label": "APPROVE",
+      "basis": "Exact stated condition has supplied factual support.",
+      "human_review": "pending"
+    }
+  ],
+  "measures": {
+    "review": "unsafe approval / unnecessary revise-or-reject / hold; denominator only comparable review outputs",
+    "generation": "unsupported facts / numeric mismatch / preservation of supported price; evaluate every returned variant",
+    "citations": "source existence and semantic support separately; unsupported citation feature is N/A",
+    "access": "blocked access is not a model failure",
+    "latency": "tool wall time only, not human productivity",
+    "cost": "record known price or unknown; displayed free != measured provider cost"
+  },
+  "execution_policy": {
+    "attempts_per_case": 1,
+    "cherry_picking": false,
+    "regenerate_after_bad_result": false,
+    "translate_korean_case": false,
+    "credentials_in_evidence": false,
+    "publish_ads": false,
+    "paid_purchase": false,
+    "new_preflight_live_calls": 0
+  }
+}

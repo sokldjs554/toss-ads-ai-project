@@ -1,0 +1,17 @@
+{
+  "frozen_at_utc": "2026-10-24T05:45:06.923717+00:00",
+  "main_commit": "3f7833509636fc3d0056905b290b4d687e7630c1",
+  "evidence_baseline": "4fd34f62cc2143e8e4bf4089c45f2c894b6d6980",
+  "actual_competitor_model_runs": 0,
+  "new_preflight_live_runs": 0,
+  "status": "protocol frozen; official-document comparison and access probes completed; runtime comparison blocked",
+  "case_ids": [
+    "P23-05",
+    "P23-09",
+    "P23-17"
+  ],
+  "files": {
+    "inputs.json": "244cde30ebb2d1abf37759a7e062f80e3773464584c3df9e3bdfb67c68b9551a",
+    "rubric.json": "b172698a5c153db10d5f1f442e1d731c809f44686719d16797ff634b2f746388"
+  }
+}
