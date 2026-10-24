@@ -159,7 +159,12 @@ def main():
 
         def listed_ids(page):
             box=page.get_by_role("combobox",name="내 저장 기록",exact=True)
-            if not box.count(): return []
+            if args.verify_only:
+                # Both verification accounts have persisted runs. Text inputs
+                # can hydrate before Streamlit's selectbox; count() cannot
+                # distinguish that transient state from an empty history.
+                box.wait_for(state="visible")
+            elif not box.count(): return []
             box.press("ArrowDown")
             box.fill("")
             page.get_by_role("option").first.wait_for()

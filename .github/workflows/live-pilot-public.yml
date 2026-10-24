@@ -24,6 +24,10 @@ jobs:
           mkdir -p "$HOME/.local/share/fonts"
           curl --fail --silent --show-error --location 'https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/OTF/Korean/NotoSansCJKkr-Regular.otf' --output "$HOME/.local/share/fonts/NotoSansCJKkr-Regular.otf"
           fc-cache -f
+      - name: Reproduce delayed history widget before and after verifier fix
+        run: |
+          git fetch --depth=1 origin main
+          python scripts/check_live_history_readiness.py
       - name: Real authenticated server workflow or read-only redeploy verification
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || secrets.OPEN_API_KEY }}

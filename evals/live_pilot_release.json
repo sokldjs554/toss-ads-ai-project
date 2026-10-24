@@ -6,5 +6,5 @@
   "secondary_account": false,
   "expected_prompt": "live-rag-tools-4",
   "scope": "Read-only final redeploy verification; no model Run pressed; preserve all prior automatic records",
-  "verification_attempt": 20
+  "verification_attempt": 21
 }
