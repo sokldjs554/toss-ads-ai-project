@@ -1,0 +1,24 @@
+{
+  "commit": "117d996e01b6a50d933a90f096238a4ab2160fd2",
+  "run_id": 40006303517,
+  "job_id": 120594967378,
+  "conclusion": "success",
+  "passed": 4496,
+  "failed": 0,
+  "skipped": 0,
+  "errors": 0,
+  "seconds": 407.95,
+  "overlapping_gates_not_additive": {
+    "postgres": 54,
+    "live": 34
+  },
+  "provider_calls": 0,
+  "same_commit_pre_main_ci": {
+    "run_id": 40004896102,
+    "passed": 4496,
+    "failed": 0,
+    "skipped": 0,
+    "errors": 0,
+    "seconds": 415.31
+  }
+}

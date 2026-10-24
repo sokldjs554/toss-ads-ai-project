@@ -1,0 +1,12 @@
+{
+  "final_main_commit": "117d996e01b6a50d933a90f096238a4ab2160fd2",
+  "checked_at_utc": "2026-10-24T00:04:29.597228+00:00",
+  "automatic_full_record_matches": 13,
+  "automatic_before_count": 13,
+  "automatic_after_count": 13,
+  "automatic_provider_attempts_unchanged": 27,
+  "person_full_record_digest_matches": 2,
+  "person_approved_records": 2,
+  "person_provider_attempts_unchanged": 4,
+  "method": "Automation full JSON equality; human database content digest equality for full runs/calls/audit before and after deploy. MD5 used only for content comparison, not security/tamper assurance. Human raw copy and reason not exported."
+}

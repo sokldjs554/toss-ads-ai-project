@@ -1,0 +1,108 @@
+{
+  "baseline_commit": "7767dcbe288fd9ceaf6b9fdc021f7ac4450ad388",
+  "final_main_commit": "117d996e01b6a50d933a90f096238a4ab2160fd2",
+  "actual_execution_commit": "b0f110cc48fb3b522f4b6545145b1c34209a5b4a",
+  "ci": {
+    "commit": "117d996e01b6a50d933a90f096238a4ab2160fd2",
+    "run_id": 40006303517,
+    "job_id": 120594967378,
+    "conclusion": "success",
+    "passed": 4496,
+    "failed": 0,
+    "skipped": 0,
+    "errors": 0,
+    "seconds": 407.95,
+    "overlapping_gates_not_additive": {
+      "postgres": 54,
+      "live": 34
+    },
+    "provider_calls": 0,
+    "same_commit_pre_main_ci": {
+      "run_id": 40004896102,
+      "passed": 4496,
+      "failed": 0,
+      "skipped": 0,
+      "errors": 0,
+      "seconds": 415.31
+    }
+  },
+  "pages": {
+    "run_id": 40006303514,
+    "status": "success",
+    "url": "https://sokldjs554.github.io/toss-ads-ai-project/app/"
+  },
+  "render": {
+    "deploy_id": "dep-dbdqnsgu01pc73dq6r90",
+    "status": "live",
+    "finished_at": "2026-10-23T18:49:19.966754Z",
+    "url": "https://preflight-toss-ads.onrender.com/"
+  },
+  "final_browser": {
+    "run_id": 40043022326,
+    "mode": "verify_only",
+    "conclusion": "success",
+    "live_checks": {
+      "passed": 33,
+      "failed": 0
+    },
+    "free_checks": {
+      "passed": 51,
+      "failed": 0
+    },
+    "new_provider_calls": 0,
+    "screen_versions_match": true,
+    "verifier_commit": "47474aa7c93f484c55fd82250cc8c4099b0f4296",
+    "evidence_commit": "7d100136f2439e61ed9937efba501096aab49a42"
+  },
+  "actual_browser": {
+    "run_id": 39999144241,
+    "conclusion": "success",
+    "live_checks": {
+      "passed": 35,
+      "failed": 0
+    },
+    "free_checks": {
+      "passed": 51,
+      "failed": 0
+    },
+    "provider_calls": 4
+  },
+  "persistence": {
+    "final_main_commit": "117d996e01b6a50d933a90f096238a4ab2160fd2",
+    "checked_at_utc": "2026-10-24T00:04:29.597228+00:00",
+    "automatic_full_record_matches": 13,
+    "automatic_before_count": 13,
+    "automatic_after_count": 13,
+    "automatic_provider_attempts_unchanged": 27,
+    "person_full_record_digest_matches": 2,
+    "person_approved_records": 2,
+    "person_provider_attempts_unchanged": 4,
+    "method": "Automation full JSON equality; human database content digest equality for full runs/calls/audit before and after deploy. MD5 used only for content comparison, not security/tamper assurance. Human raw copy and reason not exported."
+  },
+  "provider_scope": "Server automation 13 requests/27 attempts, human 2 requests/4 attempts; plus 1 failed Actions schema diagnostic: 32 attempts, 30 successes, 2 failures. Final read-only browser makes no new provider calls.",
+  "known_usage": {
+    "input_tokens": 44901,
+    "output_tokens": 2671,
+    "estimated_usd": "0.008338",
+    "unknown_cost_attempts": 2
+  },
+  "human_status": {
+    "participants": 1,
+    "guided_synthetic_tasks": 2,
+    "approve_audits": 2,
+    "basis": "User self-report and server audit; account actor_kind remains person_unverified; not independent evaluation",
+    "calls": 4,
+    "success": 4,
+    "failed": 0,
+    "estimated_usd": "0.001855",
+    "reconnect": "User reported both execution records persisted after logout/reconnect; later approve audits separately verified and preserved across redeploy"
+  },
+  "screens_base": "https://github.com/sokldjs554/toss-ads-ai-project/tree/7d100136f2439e61ed9937efba501096aab49a42/docs/evidence/live-pilot-20261023/public-40043022326-attempt-1",
+  "human_execution_commit": "b94aadb0d99736a9a6060012e658d1c925663b0f",
+  "prior_failed_browser": {
+    "run_id": 40006533331,
+    "cause": "Verifier treated not-yet-hydrated history selector as empty history",
+    "regression": "history-readiness.json reproduces old empty result and fixed persisted receipt in actual isolated browser",
+    "scope": "Verifier-only change remains on evidence branch; application commit unchanged"
+  }
+}
