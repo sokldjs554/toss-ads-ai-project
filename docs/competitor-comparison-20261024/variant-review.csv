@@ -1,0 +1,16 @@
+case_id,batch_id,variant,text_sha256,prices_won,contains_wrong_37000,contains_29000,short_evidence,analysis,assessor,human_review
+P23-05,A,1,dba22eae9537022815c6b91182380ae67280a252f7076700c92e94af92b5d2c8,29000원,False,True,품질 좋은 상품을 저렴하게,subjective_or_unspecified_claim_requires_review,AI qualitative analysis; not independent human gold,pending
+P23-05,A,2,6047dfb41cc45d8c0578c94d797c277a0ce3a0897f51a6c5df7d52f98db351c9,29000원,False,True,특별 할인,concrete_unsupported_claim,AI qualitative analysis; not independent human gold,pending
+P23-05,A,3,f562cd19946ac8f9aa4c7572b4cdaa019fc008e3edb2492258baad8d04a059e6,29000원,False,True,최고의 선택,subjective_or_unspecified_claim_requires_review,AI qualitative analysis; not independent human gold,pending
+P23-05,A,4,ca245ef3630954b56e1fb325bcfc0f975a0c6b36e067066dd8684bedd9aa621e,29000원,False,True,믿을 수 있는 품질,subjective_or_unspecified_claim_requires_review,AI qualitative analysis; not independent human gold,pending
+P23-05,A,5,de56e04e94968b301f18d64986bc81fb83e149c8db133827bfda2c17a9f62064,29000원,False,True,특별한 상품,subjective_or_unspecified_claim_requires_review,AI qualitative analysis; not independent human gold,pending
+P23-09,B,1,0d0ad336a65517b004cb7a635d8b223cc91aebecd30d03e4a5d55e8d6a23009b,,False,False,품질 보장,concrete_unsupported_claim,AI qualitative analysis; not independent human gold,pending
+P23-09,B,2,90326d1e54547adcb17cb46458f0f648352771978abe8e35edcd61ca80b4b88d,,False,False,믿을 수 있는 가격,subjective_or_unspecified_claim_requires_review,AI qualitative analysis; not independent human gold,pending
+P23-09,B,3,357bc239f9da53aa0d98a7c1360d92352ae16a8cb786581eafb5e970e164d108,,False,False,가격과 품질 모두 만족,subjective_or_unspecified_claim_requires_review,AI qualitative analysis; not independent human gold,pending
+P23-09,B,4,f64f8aad9d98292f24be90a694c9d45fe4acedb3fa587fc1a962139ed56f47a9,,False,False,최상의 상품,subjective_or_unspecified_claim_requires_review,AI qualitative analysis; not independent human gold,pending
+P23-09,B,5,02a2f2e07fd8c53a1711128d438a72f0bcf7049c13bdfa0c3e0e4672c7781f54,,False,False,가격과 조건을 확인,no_issue_identified,AI qualitative analysis; not independent human gold,pending
+P23-17,C,1,fb78726796f9037758fb90c21608ccbd81d4a2b003441d957de6222be8badb37,29000원,False,True,품질과 가격 모두 만족,subjective_or_unspecified_claim_requires_review,AI qualitative analysis; not independent human gold,pending
+P23-17,C,2,c244f4e950619725e5304d7c46bee304786ce65880141d818bd795fc9469d041,29000원,False,True,프리미엄 상품,subjective_or_unspecified_claim_requires_review,AI qualitative analysis; not independent human gold,pending
+P23-17,C,3,6b6c8a6101aa3fa8dca850fcdba786d6015f298c20cc1b00dc2b3d7ba3403ace,29000원,False,True,한정 수량,concrete_unsupported_claim,AI qualitative analysis; not independent human gold,pending
+P23-17,C,4,1de0b2bc4616422fd7af296dfcdd44d7ed0c185ca18dbdc8571d37068dcc64bb,29000원,False,True,최고의 선택,subjective_or_unspecified_claim_requires_review,AI qualitative analysis; not independent human gold,pending
+P23-17,C,5,a58b56836f19bf14b18d31038910a2e0146c325b2dcae5bbaeb0700ed24d9c39,29000원,False,True,특별한 혜택,subjective_or_unspecified_claim_requires_review,AI qualitative analysis; not independent human gold,pending

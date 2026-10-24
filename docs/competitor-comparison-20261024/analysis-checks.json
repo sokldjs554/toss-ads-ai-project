@@ -1,0 +1,59 @@
+{
+  "at_utc": "2026-10-24T06:52:03.262172+00:00",
+  "scope": "Data consistency checks only; not model quality or product regression tests",
+  "checks": [
+    {
+      "check": "15 unique exported variants",
+      "passed": true
+    },
+    {
+      "check": "cumulative export ordering A / B+A / C+B+A",
+      "passed": true
+    },
+    {
+      "check": "original private file hash google-ads-generator-20261024-154204.txt",
+      "passed": true
+    },
+    {
+      "check": "original private file hash google-ads-generator-20261024-154542.txt",
+      "passed": true
+    },
+    {
+      "check": "original private file hash google-ads-generator-20261024-154617.txt",
+      "passed": true
+    },
+    {
+      "check": "every review row maps to original variant hash",
+      "passed": true
+    },
+    {
+      "check": "10 of 10 price-case variants contain29000",
+      "passed": true
+    },
+    {
+      "check": "37000 absent in all15 outputs",
+      "passed": true
+    },
+    {
+      "check": "original superlative absent in all5 P23-09 outputs",
+      "passed": true
+    },
+    {
+      "check": "3 concrete unsupported,11 require review,1 no issue identified",
+      "passed": true
+    },
+    {
+      "check": "3 user-executed observations,6 unexecuted",
+      "passed": true
+    },
+    {
+      "check": "frozen input and rubric unchanged",
+      "passed": true
+    },
+    {
+      "check": "all 15 judgments explicitly AI draft and human pending",
+      "passed": true
+    }
+  ],
+  "paid_calls": 0
+}

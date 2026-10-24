@@ -1,0 +1,100 @@
+{
+  "service": "Ahrefs Free AI Google Ads Copy Generator; not Google Ads conversational experience",
+  "evidence_kind": "User-performed web generation; uploaded text exports; not assistant browser or provider telemetry",
+  "user_confirmation": "Ahrefs; frozen P23-05 then P23-09 then P23-17; exact inputs; one generation each",
+  "generation_actions": 3,
+  "provider_api_calls": "unknown",
+  "unique_batches": 3,
+  "variants_per_batch": 5,
+  "unique_variants": 15,
+  "exported_variant_occurrences": 30,
+  "duplicates_not_counted": 15,
+  "files": [
+    {
+      "file": "google-ads-generator-20261024-154204.txt",
+      "bytes": 553,
+      "sha256": "fc9d14508f847fe45482aa1f7aad26e0b7c204847eabb450c87fc99c68e8fc56",
+      "block_order": [
+        "A"
+      ],
+      "header_language": "Korean",
+      "header_tone": "Formal"
+    },
+    {
+      "file": "google-ads-generator-20261024-154542.txt",
+      "bytes": 956,
+      "sha256": "4bcbfcdc63330c18bbb24ebc2acf7908d7b59e609ed4b83bcb0e9980e1f87b96",
+      "block_order": [
+        "B",
+        "A"
+      ],
+      "header_language": "Korean",
+      "header_tone": "Formal"
+    },
+    {
+      "file": "google-ads-generator-20261024-154617.txt",
+      "bytes": 1623,
+      "sha256": "6403dc5e1faa8b0bb597acc550346c8a25b6d43815bd062f0203fe415180df46",
+      "block_order": [
+        "C",
+        "B",
+        "A"
+      ],
+      "header_language": "Korean",
+      "header_tone": "Formal"
+    }
+  ],
+  "case_mapping_basis": "Exact sequence and inputs confirmed by user; exports contain outputs, not request bodies",
+  "cases": [
+    {
+      "case_id": "P23-05",
+      "batch_id": "A",
+      "variants": 5,
+      "price_29000_count": 5,
+      "wrong_price_37000_count": 0,
+      "concrete_unsupported_claim_count": 1,
+      "concrete_unsupported_claim_variant": 2,
+      "concrete_unsupported_claim_excerpt": "특별 할인"
+    },
+    {
+      "case_id": "P23-09",
+      "batch_id": "B",
+      "variants": 5,
+      "price_29000_count": 0,
+      "wrong_price_37000_count": 0,
+      "concrete_unsupported_claim_count": 1,
+      "concrete_unsupported_claim_variant": 1,
+      "concrete_unsupported_claim_excerpt": "품질 보장"
+    },
+    {
+      "case_id": "P23-17",
+      "batch_id": "C",
+      "variants": 5,
+      "price_29000_count": 5,
+      "wrong_price_37000_count": 0,
+      "concrete_unsupported_claim_count": 1,
+      "concrete_unsupported_claim_variant": 3,
+      "concrete_unsupported_claim_excerpt": "한정 수량"
+    }
+  ],
+  "aggregate": {
+    "price_fact_cases": 2,
+    "price_variants": 10,
+    "price_29000_present": 10,
+    "wrong_price_37000_present": 0,
+    "concrete_unsupported_claim_variants": 3,
+    "all_variants_denominator": 15,
+    "subjective_or_unspecified_claims_needing_review": 11,
+    "no_issue_identified_by_ai": 1
+  },
+  "displayed_model_version": "not included in export",
+  "tokens": "unknown",
+  "provider_latency": "unknown",
+  "user_time_saving": "not measured",
+  "billing": "No charge evidence in exports; product advertised free; actual provider cost unknown",
+  "new_assistant_provider_calls": 0,
+  "new_preflight_live_calls": 0,
+  "human_quality_review": "pending; execution confirmation is not independent correctness labeling",
+  "scope": "One service; three public AI-authored synthetic development cases; same-page cumulative exports; not independent outputs or a production benchmark",
+  "privacy": "Raw exports preserved privately; public report includes file hashes and selected short excerpts only"
+}

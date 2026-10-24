@@ -5,6 +5,6 @@ Google Ads conversational experience,P23-17,review,not_executed,false,,,,,,,envi
 Adobe GenStudio,P23-05,review,not_executed,false,,,,,,,environment_connect_403; product entitlement unconfirmed
 Adobe GenStudio,P23-09,review,not_executed,false,,,,,,,environment_connect_403; product entitlement unconfirmed
 Adobe GenStudio,P23-17,review,not_executed,false,,,,,,,environment_connect_403; product entitlement unconfirmed
-Ahrefs Google Ads generator,P23-05,generation,not_executed,false,,,,,,,executor domain not permitted; interactive runtime not available
-Ahrefs Google Ads generator,P23-09,generation,not_executed,false,,,,,,,executor domain not permitted; interactive runtime not available
-Ahrefs Google Ads generator,P23-17,generation,not_executed,false,,,,,,,executor domain not permitted; interactive runtime not available
+Ahrefs Google Ads generator,P23-05,generation,user_executed_export_analyzed,user_submitted_generation_export,user_confirmed_not_logged,ahrefs-user-run-summary.json; variant-review.csv,not_in_export,unknown,unknown,not_an_accuracy_score,assistant_environment_blocked; user_browser_execution_completed
+Ahrefs Google Ads generator,P23-09,generation,user_executed_export_analyzed,user_submitted_generation_export,user_confirmed_not_logged,ahrefs-user-run-summary.json; variant-review.csv,not_in_export,unknown,unknown,not_an_accuracy_score,assistant_environment_blocked; user_browser_execution_completed
+Ahrefs Google Ads generator,P23-17,generation,user_executed_export_analyzed,user_submitted_generation_export,user_confirmed_not_logged,ahrefs-user-run-summary.json; variant-review.csv,not_in_export,unknown,unknown,not_an_accuracy_score,assistant_environment_blocked; user_browser_execution_completed
