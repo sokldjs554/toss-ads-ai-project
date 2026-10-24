@@ -137,11 +137,14 @@ def test_gateway_failure_survives_real_store_and_reconnect(store, failure):
     assert result["status"] == "hold"
     assert result["reason"] == ("provider_timeout" if failure == "timeout" else "provider_or_storage_failure")
     assert row["call_count"] == 1 and row["reserved_usd"] == .08
+    assert row["result"] == result
     recorded = row["calls"][0]
     assert recorded["status"] == "failed" and recorded["cost_usd"] is None
+    assert recorded["reason"] == ("provider_timeout" if failure == "timeout" else "provider_failure")
     assert recorded["error_type"] == {"timeout":"TimeoutError", "schema":"BadRequestError", "unknown":"OtherError"}[failure]
     if failure == "schema":
         assert recorded["http_status"] == 400 and recorded["provider_code"] == "invalid_json_schema"
+        assert recorded["provider_param"] == "response_format"
     assert "private original" not in str(row)
     with pytest.raises(PilotDenied): store.review("a"*64, request, "approve", "must not approve")
 
