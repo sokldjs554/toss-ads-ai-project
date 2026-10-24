@@ -1,0 +1,25 @@
+{
+  "user_report": "Changed domain permission to all",
+  "spec_revision": "100",
+  "observed_spec_revision": "100",
+  "observations_current": true,
+  "observed_mode": "restricted",
+  "observed_state": "enforced",
+  "observed_custom_allowed_hosts": [],
+  "ahrefs_in_effective_policy": false,
+  "probe_at_utc": "2026-10-24T06:21:08Z",
+  "command": [
+    "curl",
+    "--head",
+    "--silent",
+    "--show-error",
+    "--max-time",
+    "20",
+    "https://ahrefs.com/writing-tools/google-ads-generator"
+  ],
+  "exit_code": 56,
+  "error": "CONNECT tunnel failed, response 403",
+  "assessment": "Reported UI setting is not reflected in current execution policy. Root cause is not established; no supported mutation tool available to this agent.",
+  "new_competitor_model_calls": 0,
+  "policy_bypass": false
+}
