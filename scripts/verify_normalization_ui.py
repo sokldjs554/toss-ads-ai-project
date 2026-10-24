@@ -147,7 +147,7 @@ def main():
                     heading.wait_for(timeout=180000)
                     heading.scroll_into_view_if_needed()
                     body = page.inner_text("body")
-                    check(scope, "rejected candidate and remaining misses disclosed", "배포하지 않았습니다" in body and "7/12 미탐" in body)
+                    check(scope, "rejected candidate and remaining misses disclosed", "배포하지 않았습니다" in body and "기존 지속 하락 12건 중 7건을 놓치는 문제는 해결되지 않았습니다." in body)
                     check(scope, "frozen before and candidate detection displayed", "11/24" in body and "10/24" in body)
                     check(scope, "synthetic policy limits and human denominator disclosed", "16건 중 4건" in body and "21/28" in body and "AI 정확도가 아닙니다" in body)
                     shot(page, scope, "evidence-strengthening")
