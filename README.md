@@ -73,7 +73,7 @@ Ahrefs 무료 광고 생성기를 본인이 3회 실행했습니다. 중복을 �
 | 대화형 캠페인 설정 | `agents/conversation.py`, `agents/planner.py` | 기존 합성 입력 평가·실제 호출 기록. 현업 효과는 미측정 |
 | 성과 인사이트 | `core/insight_engine.py`, `agents/insights.py` | 합성 시나리오, 지속 하락을 놓친 사례 유지 |
 | 광고 문구·이미지 | `agents/copywriter.py`, `agents/vision.py`, `core/banner.py` | 문구 생성, 이미지 속 글자 검사, SVG 배치. 이미지 생성 모델·영상은 없음 |
-| 두 LLM 활용 방식의 배포·사용 | RAG 및 실제 function call 수정 루프 | 본인 단기 파일럿. 채용팀의 production 요건 충족을 보장하지 않음 |
+| 두 LLM 활용 방식의 배포·사용 | RAG 및 실제 function call 수정 루프 | 배포 서버에서 본인 1명이 합성 광고 6건을 검토하고 판단·사유 저장 |
 
 ## 기여
 
