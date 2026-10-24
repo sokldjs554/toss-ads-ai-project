@@ -1,0 +1,310 @@
+{
+  "kind": "authenticated-deployed-live-pilot",
+  "expected_sha": "3f7833509636fc3d0056905b290b4d687e7630c1",
+  "started_at": "2026-10-24T05:09:36.426024+00:00",
+  "mode": "verify_only",
+  "human_participants": 0,
+  "synthetic": true,
+  "checks": [
+    {
+      "check": "Pages build matches requested commit",
+      "ok": true
+    },
+    {
+      "check": "Pages explicitly separates DEMO from authenticated LIVE server",
+      "ok": true
+    },
+    {
+      "check": "server screen build matches requested commit",
+      "ok": true
+    },
+    {
+      "check": "authenticated account explicitly marked automation",
+      "ok": true
+    },
+    {
+      "check": "operational export contains no original ad, prompts or credentials",
+      "ok": true
+    },
+    {
+      "check": "control-tools-comparison: persisted requested-prompt receipt available",
+      "ok": true
+    },
+    {
+      "check": "server screen build matches requested commit",
+      "ok": true
+    },
+    {
+      "check": "authenticated account explicitly marked automation",
+      "ok": true
+    },
+    {
+      "check": "operational export contains no original ad, prompts or credentials",
+      "ok": true
+    },
+    {
+      "check": "control-tools-comparison: fresh session preserves receipt without new call",
+      "ok": true
+    },
+    {
+      "check": "server screen build matches requested commit",
+      "ok": true
+    },
+    {
+      "check": "authenticated account explicitly marked automation",
+      "ok": true
+    },
+    {
+      "check": "control-tools-comparison: other account cannot list receipt",
+      "ok": true
+    },
+    {
+      "check": "server screen build matches requested commit",
+      "ok": true
+    },
+    {
+      "check": "authenticated account explicitly marked automation",
+      "ok": true
+    },
+    {
+      "check": "operational export contains no original ad, prompts or credentials",
+      "ok": true
+    },
+    {
+      "check": "control-rag-probe: persisted requested-prompt receipt available",
+      "ok": true
+    },
+    {
+      "check": "server screen build matches requested commit",
+      "ok": true
+    },
+    {
+      "check": "authenticated account explicitly marked automation",
+      "ok": true
+    },
+    {
+      "check": "operational export contains no original ad, prompts or credentials",
+      "ok": true
+    },
+    {
+      "check": "control-rag-probe: fresh session preserves receipt without new call",
+      "ok": true
+    },
+    {
+      "check": "server screen build matches requested commit",
+      "ok": true
+    },
+    {
+      "check": "authenticated account explicitly marked automation",
+      "ok": true
+    },
+    {
+      "check": "control-rag-probe: other account cannot list receipt",
+      "ok": true
+    },
+    {
+      "check": "control-tools-comparison: actual bounded model and prompt",
+      "ok": true
+    },
+    {
+      "check": "control-tools-comparison: frozen original code decision",
+      "ok": true
+    },
+    {
+      "check": "control-tools-comparison: automation audit exactly once",
+      "ok": true
+    },
+    {
+      "check": "control-rag-probe: actual bounded model and prompt",
+      "ok": true
+    },
+    {
+      "check": "control-rag-probe: frozen original code decision",
+      "ok": true
+    },
+    {
+      "check": "control-rag-probe: automation audit exactly once",
+      "ok": true
+    },
+    {
+      "check": "all fixed probe contracts",
+      "ok": true
+    },
+    {
+      "check": "RAG source-verified human handoff",
+      "ok": true
+    },
+    {
+      "check": "tools revised/rechecked APPROVE human handoff",
+      "ok": true
+    }
+  ],
+  "runs": [
+    {
+      "case_id": "control-tools-comparison",
+      "evaluation_split": "same original ad and product across v2/v3/v4; development comparison, not independent evaluation",
+      "request_id": "548b397b-a695-43e9-9fae-beb779b126d1",
+      "created_at": "2026-10-23T17:57:05.081000+00:00",
+      "finished_at": "2026-10-23T17:57:22.658069+00:00",
+      "build": "b0f110cc48fb3b522f4b6545145b1c34209a5b4a",
+      "reserved_usd": 0.08,
+      "call_count": 3,
+      "calls": [
+        {
+          "sequence": 1,
+          "started_at": "2026-10-23T17:57:13.766656+00:00",
+          "stage": "rewrite_tools",
+          "model": "gpt-4o-mini-2024-07-18",
+          "reason": "",
+          "status": "success",
+          "cost_usd": 9.8e-05,
+          "latency_ms": 3003.4,
+          "input_tokens": 468,
+          "output_tokens": 47,
+          "requested_model": "gpt-4o-mini-2024-07-18"
+        },
+        {
+          "sequence": 2,
+          "started_at": "2026-10-23T17:57:17.080358+00:00",
+          "stage": "rewrite_tools",
+          "model": "gpt-4o-mini-2024-07-18",
+          "reason": "",
+          "status": "success",
+          "cost_usd": 8.4e-05,
+          "latency_ms": 1275.1,
+          "input_tokens": 537,
+          "output_tokens": 6,
+          "requested_model": "gpt-4o-mini-2024-07-18"
+        },
+        {
+          "sequence": 3,
+          "started_at": "2026-10-23T17:57:19.269446+00:00",
+          "stage": "rag",
+          "model": "gpt-4o-mini-2024-07-18",
+          "reason": "",
+          "status": "success",
+          "cost_usd": 0.00085,
+          "latency_ms": 2801.4,
+          "input_tokens": 4774,
+          "output_tokens": 223,
+          "requested_model": "gpt-4o-mini-2024-07-18"
+        }
+      ],
+      "actor_kind": "automation",
+      "mode": "LIVE",
+      "path": "tools",
+      "status": "human_review",
+      "decision": "APPROVE",
+      "reason": "person_review_required",
+      "code_decision": "APPROVE",
+      "original_code_decision": "REVISE",
+      "prompt_version": "live-rag-tools-4",
+      "policy_version": "2026.10.7",
+      "revisions": 1,
+      "review_decision": "approve",
+      "audit": [
+        {
+          "at": "2026-10-23T17:57:32.280102+00:00",
+          "decision": "approve",
+          "actor_kind": "automation"
+        }
+      ]
+    },
+    {
+      "case_id": "control-rag-probe",
+      "evaluation_split": "same previously frozen input, now used in provider diagnostic; operational confirmation, not independent evaluation",
+      "request_id": "fc4cca3e-a635-4d35-9aa8-602979de7146",
+      "created_at": "2026-10-23T17:58:12.777781+00:00",
+      "finished_at": "2026-10-23T17:58:15.510529+00:00",
+      "build": "b0f110cc48fb3b522f4b6545145b1c34209a5b4a",
+      "reserved_usd": 0.08,
+      "call_count": 1,
+      "calls": [
+        {
+          "sequence": 1,
+          "started_at": "2026-10-23T17:58:13.057532+00:00",
+          "stage": "rag",
+          "model": "gpt-4o-mini-2024-07-18",
+          "reason": "",
+          "status": "success",
+          "cost_usd": 0.000792,
+          "latency_ms": 2357.7,
+          "input_tokens": 4608,
+          "output_tokens": 168,
+          "requested_model": "gpt-4o-mini-2024-07-18"
+        }
+      ],
+      "actor_kind": "automation",
+      "mode": "LIVE",
+      "path": "rag",
+      "status": "human_review",
+      "decision": "APPROVE",
+      "reason": "person_review_required",
+      "code_decision": "APPROVE",
+      "original_code_decision": "APPROVE",
+      "prompt_version": "live-rag-tools-4",
+      "policy_version": "2026.10.7",
+      "revisions": 0,
+      "review_decision": "approve",
+      "audit": [
+        {
+          "at": "2026-10-23T17:58:20.665150+00:00",
+          "decision": "approve",
+          "actor_kind": "automation"
+        }
+      ]
+    }
+  ],
+  "screens": [
+    "pages-version-observed-version.png",
+    "pages-version-observed.png",
+    "pages-live-server-link-version.png",
+    "pages-live-server-link.png",
+    "control-tools-comparison-saved-version.png",
+    "control-tools-comparison-saved-tool.png",
+    "control-tools-comparison-saved.png",
+    "control-tools-comparison-reconnected-version.png",
+    "control-tools-comparison-reconnected.png",
+    "control-rag-probe-saved-version.png",
+    "control-rag-probe-saved.png",
+    "control-rag-probe-reconnected-version.png",
+    "control-rag-probe-reconnected.png"
+  ],
+  "status": "passed",
+  "automation_account": "primary",
+  "browser": "155.0.8059.39",
+  "pages_observed_builds": [
+    "3f78335"
+  ],
+  "pages_build_history": [
+    {
+      "at": "2026-10-24T05:09:50.186475+00:00",
+      "builds": [
+        "3f78335"
+      ]
+    }
+  ],
+  "phase": "server_readiness",
+  "server_loads": [
+    {
+      "http_status": 200
+    },
+    {
+      "http_status": 200
+    },
+    {
+      "http_status": 200
+    },
+    {
+      "http_status": 200
+    },
+    {
+      "http_status": 200
+    },
+    {
+      "http_status": 200
+    }
+  ],
+  "login_phase": "waiting_for_authenticated_view",
+  "finished_at": "2026-10-24T05:11:42.356947+00:00"
+}
