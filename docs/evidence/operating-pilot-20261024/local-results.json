@@ -1,0 +1,47 @@
+{
+  "base_commit": "117d996e01b6a50d933a90f096238a4ab2160fd2",
+  "fix_commit": "fe3e054c145400bd4815079aa2c5d6a2761c7269",
+  "provider_calls": 0,
+  "database": "temporary local postgres16, random test schemas, container removed after tests",
+  "red": {
+    "failed": 3,
+    "passed": 0,
+    "skipped": 0,
+    "deselected": 8
+  },
+  "targeted_final": {
+    "passed": 48,
+    "failed": 0,
+    "skipped": 0,
+    "errors": 0
+  },
+  "full_local": {
+    "passed": 4494,
+    "failed": 1,
+    "errors": 10,
+    "skipped": 0,
+    "seconds": 407.16,
+    "scope": "Before review added assertions, same production implementation",
+    "cause": "Playwright chromium_headless_shell-1161 executable not installed; all 11 browser failures/errors preserved in full-local.log"
+  },
+  "measurement_apptest": {
+    "cases": [
+      "P23-01",
+      "P23-05"
+    ],
+    "observed_decisions": [
+      "APPROVE",
+      "REVISE"
+    ],
+    "exact_copy_and_facts_asserted": true,
+    "mode": "DEMO",
+    "paid_calls": 0,
+    "ui_exceptions": 0,
+    "not_deployed_browser": true
+  },
+  "environment": {
+    "docker_initial": "local socket operation not permitted in sandbox; approved isolated Docker command succeeded",
+    "main_git_push": "could not read Username for https://github.com; GitHub connector performed non-forced expected-SHA update",
+    "proxy_removed_or_bypassed": false
+  }
+}

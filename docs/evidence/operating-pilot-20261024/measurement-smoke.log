@@ -1,0 +1,6 @@
+2026-10-24 03:43:53.191 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-10-24 03:43:54.373 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+mode demo categories ['ecommerce'] reports 3 rejected []
+observed {'headline': '가을 상품 안내', 'facts': '', 'decision': 'APPROVE', 'mode': 'demo', 'cost': 0.0, 'exceptions': 0}
+mode demo categories ['ecommerce'] reports 3 rejected []
+observed {'headline': '판매가 37000원', 'facts': '판매가 29000원', 'decision': 'REVISE', 'mode': 'demo', 'cost': 0.0, 'exceptions': 0}

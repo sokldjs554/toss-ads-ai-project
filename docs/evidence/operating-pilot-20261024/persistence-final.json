@@ -1,0 +1,12 @@
+{
+  "deployment_commit": "fe3e054c145400bd4815079aa2c5d6a2761c7269",
+  "render_deploy": "dep-dbe2klek1f9s73ensr3g",
+  "before_records": 15,
+  "after_records": 15,
+  "unchanged_records": 15,
+  "unchanged_automatic": 13,
+  "unchanged_human": 2,
+  "before_provider_attempts": 31,
+  "after_provider_attempts": 31,
+  "scope": "Read-only full runs/calls/audit content digests; no original text or review reasons exported. MD5 is content comparison only, not tamper/security assurance."
+}

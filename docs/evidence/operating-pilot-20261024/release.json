@@ -1,0 +1,70 @@
+{
+  "baseline_commit": "117d996e01b6a50d933a90f096238a4ab2160fd2",
+  "deployment_commit": "fe3e054c145400bd4815079aa2c5d6a2761c7269",
+  "ci": {
+    "run_id": 40059745769,
+    "job_id": 120770465309,
+    "passed": 4505,
+    "failed": 0,
+    "skipped": 0,
+    "errors": 0,
+    "seconds": 419.27,
+    "provider_calls": 0,
+    "pytest_summary": "2026-10-24T03:55:36.8653935Z 4505 passed in 419.27s (0:06:59)",
+    "same_commit_pre_main_run": {
+      "run_id": 40059290907,
+      "job_id": 120769089951,
+      "passed": 4505,
+      "failed": 0,
+      "skipped": 0,
+      "errors": 0,
+      "seconds": 232.36
+    },
+    "conclusion": "success"
+  },
+  "pages": {
+    "run_id": 40059745705,
+    "status": "success"
+  },
+  "render": {
+    "deploy_id": "dep-dbe2klek1f9s73ensr3g",
+    "status": "live",
+    "finished_at_utc": "2026-10-24T03:48:39.622758Z"
+  },
+  "browser": {
+    "run_id": 40059764846,
+    "status": "success",
+    "live_checks": {
+      "passed": 33,
+      "failed": 0
+    },
+    "free_checks": {
+      "passed": 51,
+      "failed": 0
+    },
+    "new_provider_calls": 0,
+    "observed_build_both": "fe3e054",
+    "mode": "verify_only",
+    "evidence_commit": "bf344ec"
+  },
+  "persistence": {
+    "deployment_commit": "fe3e054c145400bd4815079aa2c5d6a2761c7269",
+    "render_deploy": "dep-dbe2klek1f9s73ensr3g",
+    "before_records": 15,
+    "after_records": 15,
+    "unchanged_records": 15,
+    "unchanged_automatic": 13,
+    "unchanged_human": 2,
+    "before_provider_attempts": 31,
+    "after_provider_attempts": 31,
+    "scope": "Read-only full runs/calls/audit content digests; no original text or review reasons exported. MD5 is content comparison only, not tamper/security assurance."
+  },
+  "new_provider_calls": 0,
+  "new_human_usage_observed": 0,
+  "limitations": [
+    "Three planned LIVE sessions not yet performed",
+    "DEMO time comparison not yet performed; human gold/participants needed",
+    "Competitor runtime comparison not performed",
+    "No commercial/long-term impact or hiring eligibility claim"
+  ]
+}
