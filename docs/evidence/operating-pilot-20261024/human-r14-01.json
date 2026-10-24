@@ -1,0 +1,139 @@
+{
+  "checked_date_kst": "2026-10-24",
+  "participant": "existing applicant; no new participant",
+  "case_id": "R14-01",
+  "logical_tasks_completed": 1,
+  "server_requests": 2,
+  "request_roles": {
+    "input_error": "785a71a6-3fbc-4c51-be68-253d0036cd3b",
+    "corrected": "9090cb49-62f0-4846-86db-1c652c4aacae"
+  },
+  "user_report": {
+    "start": "2026-10-24T13:28:00+09:00",
+    "finish": "2026-10-24T13:35:00+09:00",
+    "reported_window_minutes": 7,
+    "active_time_measured": false,
+    "reconnect_preserved": true,
+    "basis": "User self-report; not independently observed browser reconnect",
+    "limitation": "Initial erroneous request ran at13:17 KST, outside reported window; not whole task duration or time savings"
+  },
+  "plan_input_checks": {
+    "headline_matches_plan": true,
+    "body_matches_plan": true,
+    "cta_matches_plan": true,
+    "disclosures_empty": true,
+    "facts_match_plan": true,
+    "model_recommendation": "APPROVE"
+  },
+  "requests": [
+    {
+      "request_id": "785a71a6-3fbc-4c51-be68-253d0036cd3b",
+      "created_at": "2026-10-24T04:17:35.754Z",
+      "finished_at": "2026-10-24T04:17:44.440Z",
+      "build": "fe3e054c145400bd4815079aa2c5d6a2761c7269",
+      "path": "rag",
+      "parent_request_id": null,
+      "call_count": 1,
+      "reserved_usd": "0.08",
+      "status": "human_review",
+      "decision": "REVISE",
+      "code_decision": "REVISE",
+      "reason": "person_review_required",
+      "human_decision": "edit",
+      "audit": [
+        {
+          "at": "2026-10-24T04:32:06.040317+00:00",
+          "decision": "edit",
+          "actor_kind": "person_unverified",
+          "reason_present": true
+        }
+      ],
+      "calls": [
+        {
+          "stage": "rag",
+          "record": {
+            "model": "gpt-4o-mini-2024-07-18",
+            "reason": "",
+            "status": "success",
+            "cost_usd": 0.000817,
+            "latency_ms": 4010.7,
+            "input_tokens": 4686,
+            "output_tokens": 191,
+            "requested_model": "gpt-4o-mini-2024-07-18"
+          },
+          "sequence": 1
+        }
+      ]
+    },
+    {
+      "request_id": "9090cb49-62f0-4846-86db-1c652c4aacae",
+      "created_at": "2026-10-24T04:34:37.957Z",
+      "finished_at": "2026-10-24T04:34:42.050Z",
+      "build": "fe3e054c145400bd4815079aa2c5d6a2761c7269",
+      "path": "rag",
+      "parent_request_id": "785a71a6-3fbc-4c51-be68-253d0036cd3b",
+      "call_count": 1,
+      "reserved_usd": "0.08",
+      "status": "human_review",
+      "decision": "APPROVE",
+      "code_decision": "APPROVE",
+      "reason": "person_review_required",
+      "human_decision": "approve",
+      "audit": [
+        {
+          "at": "2026-10-24T04:34:57.55234+00:00",
+          "decision": "approve",
+          "actor_kind": "person_unverified",
+          "reason_present": true
+        }
+      ],
+      "calls": [
+        {
+          "stage": "rag",
+          "record": {
+            "model": "gpt-4o-mini-2024-07-18",
+            "reason": "",
+            "status": "success",
+            "cost_usd": 0.000791,
+            "latency_ms": 3721.5,
+            "input_tokens": 4603,
+            "output_tokens": 167,
+            "requested_model": "gpt-4o-mini-2024-07-18"
+          },
+          "sequence": 1
+        }
+      ]
+    }
+  ],
+  "cost": {
+    "provider_calls": 2,
+    "success": 2,
+    "failed": 0,
+    "input_tokens": 9289,
+    "output_tokens": 358,
+    "known_estimated_usd": "0.001608",
+    "reserved_usd": "0.16"
+  },
+  "budget_snapshot": {
+    "requests": 17,
+    "reserved_usd": "1.36",
+    "provider_attempts": 33,
+    "human_requests": 4,
+    "human_reserved_usd": "0.32"
+  },
+  "remaining_new_requests": 1,
+  "cohort": {
+    "human_participants": 1,
+    "human_logical_tasks_total": 3,
+    "human_server_requests_total": 4,
+    "human_audits_total": 4,
+    "human_approvals_total": 3,
+    "human_edits_total": 1,
+    "human_usage_dates_kst": [
+      "2026-10-24"
+    ],
+    "historical_preference_reviewers": 2,
+    "historical_preference_responses": 56
+  },
+  "privacy": "No human review note text or credentials exported; actor_kind remains person_unverified"
+}
