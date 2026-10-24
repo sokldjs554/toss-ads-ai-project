@@ -99,16 +99,19 @@ def test_durable_user_and_global_reservation_limits(store):
     with psycopg.connect(store.database_url) as conn:
         for name, token in (("third", "c"*64), ("fourth", "d"*64)):
             conn.execute(sql.SQL("INSERT INTO {}.accounts(id,token_hash,kind) VALUES(%s,%s,'automation')").format(sql.Identifier(store.schema)), (name, token_digest(token)))
-    for token, count in (("a"*64, 7), ("b"*64, 7), ("c"*64, 4)):
+    for token, count in (("a"*64, 7), ("b"*64, 7), ("c"*64, 5)):
         for i in range(count):
             store.begin(token, str(uuid4()), {"path":"rag", "sample":i}, "build123")
             with psycopg.connect(store.database_url) as conn:
                 conn.execute(sql.SQL("UPDATE {}.runs SET created_at=now()-interval '2 minutes'").format(sql.Identifier(store.schema)))
         # First two accounts are stopped at $0.56 by the $0.60 user cap;
-        # the third is stopped by the $1.50 global cap at $1.44 total.
+        # the third is stopped by the approved $1.52 global cap at $1.52 total.
         with pytest.raises(PilotDenied): store.begin(token, str(uuid4()), {"path":"rag", "sample":8}, "build123")
-    # 18 reservations total $1.44; the 19th would exceed $1.50.
+    # The approved 19th reservation is allowed; the 20th is denied.
     with pytest.raises(PilotDenied): store.begin("d"*64, str(uuid4()), {"path":"rag"}, "build123")
+    with psycopg.connect(store.database_url) as conn:
+        count, reserved = conn.execute(sql.SQL("SELECT count(*), sum(reserved_usd) FROM {}.runs").format(sql.Identifier(store.schema))).fetchone()
+    assert count == 19 and str(reserved) == "1.52"
 
 
 @pytest.mark.parametrize("failure", ["timeout", "schema", "unknown"])
