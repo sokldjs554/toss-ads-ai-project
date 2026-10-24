@@ -109,3 +109,52 @@ def test_durable_user_and_global_reservation_limits(store):
         with pytest.raises(PilotDenied): store.begin(token, str(uuid4()), {"path":"rag", "sample":8}, "build123")
     # 18 reservations total $1.44; the 19th would exceed $1.50.
     with pytest.raises(PilotDenied): store.begin("d"*64, str(uuid4()), {"path":"rag"}, "build123")
+
+
+@pytest.mark.parametrize("failure", ["timeout", "schema", "unknown"])
+def test_gateway_failure_survives_real_store_and_reconnect(store, failure):
+    """Provider diagnostics must not be rejected by the real journal boundary."""
+    from types import SimpleNamespace as NS
+    from llm.live_pilot_gateway import LiveGateway
+    from agents.live_pilot import run_workflow
+    from core.schemas import AdCopy, Fact, ProductFacts, ProductCategory
+    class BadRequestError(Exception):
+        status_code = 400
+        body = {"code": "invalid_json_schema", "param": "response_format", "message": "private original"}
+    error = {"timeout": TimeoutError("private original"), "schema": BadRequestError("private original"),
+             "unknown": RuntimeError("private original")}[failure]
+    def create(**kwargs):
+        raise error
+    request = str(uuid4())
+    store.begin("a"*64, request, {"path":"rag", "failure":failure}, "drill")
+    gateway = LiveGateway("fake", store, "a"*64, request,
+                          client=NS(chat=NS(completions=NS(create=create))))
+    copy = AdCopy(headline="상품 안내", body="300ml 텀블러입니다.", cta="상품 보기")
+    product = ProductFacts(name="합성 텀블러", category=ProductCategory.ECOMMERCE, facts=[Fact(id="F1", text="300ml 텀블러입니다.")])
+    result = run_workflow("rag", copy, product, gateway)
+    store.finish("a"*64, request, result)
+    row = LiveStore(store.database_url, schema=store.schema).get("a"*64, request)
+    assert result["status"] == "hold"
+    assert result["reason"] == ("provider_timeout" if failure == "timeout" else "provider_or_storage_failure")
+    assert row["call_count"] == 1 and row["reserved_usd"] == .08
+    recorded = row["calls"][0]
+    assert recorded["status"] == "failed" and recorded["cost_usd"] is None
+    assert recorded["error_type"] == {"timeout":"TimeoutError", "schema":"BadRequestError", "unknown":"OtherError"}[failure]
+    if failure == "schema":
+        assert recorded["http_status"] == 400 and recorded["provider_code"] == "invalid_json_schema"
+    assert "private original" not in str(row)
+    with pytest.raises(PilotDenied): store.review("a"*64, request, "approve", "must not approve")
+
+
+@pytest.mark.parametrize("field,value", [
+    ("error_type", "private original"), ("provider_code", "private original"),
+    ("provider_param", "private original"), ("http_status", True),
+    ("http_status", 999), ("message", "private original"),
+])
+def test_diagnostic_fields_reject_arbitrary_text_before_persistence(store, field, value):
+    request = str(uuid4())
+    store.begin("a"*64, request, {"path":"rag"}, "drill")
+    store.start_call("a"*64, request, "rag")
+    with pytest.raises(PilotDenied):
+        store.finish_call("a"*64, request, 1, {"status":"failed", field:value})
+    assert store.get("a"*64, request)["calls"][0]["status"] == "outcome_unknown"

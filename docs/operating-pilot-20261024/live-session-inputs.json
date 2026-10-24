@@ -1,0 +1,49 @@
+{
+  "version": "repeat-pilot-1",
+  "synthetic": true,
+  "purpose": "guided operational use, not independent accuracy evaluation",
+  "cases": [
+    {
+      "id": "R14-01",
+      "planned_date_kst": "2026-10-24",
+      "path": "rag",
+      "product": "합성 보온병",
+      "category": "커머스",
+      "headline": "보온병 용량 안내",
+      "body": "용량 450ml 스테인리스 보온병입니다.",
+      "cta": "상품 보기",
+      "facts": [
+        "이 상품은 용량 450ml 스테인리스 보온병입니다."
+      ],
+      "disclosures": []
+    },
+    {
+      "id": "R14-02",
+      "planned_date_kst": "2026-10-30",
+      "path": "tools",
+      "product": "합성 생활용품 할인",
+      "category": "커머스",
+      "headline": "생활용품 구매 혜택",
+      "body": "20,000원 이상 구매 시 7% 할인됩니다.",
+      "cta": "조건 확인",
+      "facts": [
+        "생활용품은 70,000원 이상 구매 시 7% 할인됩니다."
+      ],
+      "disclosures": []
+    },
+    {
+      "id": "R14-03",
+      "planned_date_kst": "2026-11-06",
+      "path": "tools",
+      "product": "합성 수납함 할인",
+      "category": "커머스",
+      "headline": "수납함 할인 안내",
+      "body": "수납함은 최대 30% 할인됩니다.",
+      "cta": "상품 보기",
+      "facts": [
+        "수납함은 최대 10% 할인됩니다."
+      ],
+      "disclosures": []
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+incident_id,kind_real_or_drill,detected_at_kst,request_id,build,symptom,safe_error_class,impact_requests,response_action,recovered_at_kst,recovery_evidence,unknown_cost_calls,resolved,remaining_limit

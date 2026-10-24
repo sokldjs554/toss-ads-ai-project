@@ -1,0 +1,40 @@
+{
+  "checked_date_kst": "2026-10-24",
+  "read_only": true,
+  "scope": "Dedicated LIVE pilot schema only; no tokens, payloads or review notes queried",
+  "accounts": [
+    {
+      "id": "automation-primary",
+      "kind": "automation",
+      "active": true,
+      "expires_at": "2026-11-22T12:44:15.444Z",
+      "requests": 7,
+      "reserved_usd": "0.56",
+      "calls": 17
+    },
+    {
+      "id": "automation-secondary",
+      "kind": "automation",
+      "active": true,
+      "expires_at": "2026-11-22T12:44:15.444Z",
+      "requests": 6,
+      "reserved_usd": "0.48",
+      "calls": 10
+    },
+    {
+      "id": "human-pilot",
+      "kind": "person_unverified",
+      "active": true,
+      "expires_at": "2026-11-22T12:44:15.444Z",
+      "requests": 2,
+      "reserved_usd": "0.16",
+      "calls": 4
+    }
+  ],
+  "global_cap_usd": 1.5,
+  "per_account_cap_usd": 0.6,
+  "per_request_reservation_usd": 0.08,
+  "new_requests_available_at_check": 3,
+  "planned_additional_max_reservation_usd": 0.24,
+  "new_paid_calls_in_preparation": 0
+}
