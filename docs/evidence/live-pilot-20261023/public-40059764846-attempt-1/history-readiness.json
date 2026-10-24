@@ -1,0 +1,12 @@
+{
+  "kind": "isolated-browser-delayed-widget",
+  "provider_calls": 0,
+  "before_wrong_empty": true,
+  "after_persisted_receipt_found": true,
+  "observed": {
+    "before": [],
+    "after": [
+      "persisted-receipt"
+    ]
+  }
+}
