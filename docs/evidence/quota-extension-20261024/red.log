@@ -1,0 +1,42 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_______________ test_durable_user_and_global_reservation_limits ________________
+
+store = <ops.live_pilot_store.LiveStore object at 0x7f8b8c0e5c70>
+
+    def test_durable_user_and_global_reservation_limits(store):
+        import psycopg
+        from psycopg import sql
+        with psycopg.connect(store.database_url) as conn:
+            for name, token in (("third", "c"*64), ("fourth", "d"*64)):
+                conn.execute(sql.SQL("INSERT INTO {}.accounts(id,token_hash,kind) VALUES(%s,%s,'automation')").format(sql.Identifier(store.schema)), (name, token_digest(token)))
+        for token, count in (("a"*64, 7), ("b"*64, 7), ("c"*64, 5)):
+            for i in range(count):
+>               store.begin(token, str(uuid4()), {"path":"rag", "sample":i}, "build123")
+
+tests/test_live_pilot_store.py:104: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+ops/live_pilot_store.py:85: in begin
+    request_id = self._reserve(conn, actor, request_id, digest, payload, build)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <ops.live_pilot_store.LiveStore object at 0x7f8b8c0e5c70>
+conn = <psycopg.Connection [BAD] at 0x7f8b8b386210>
+actor = {'id': 'third', 'kind': 'automation'}
+request_id = 'e9a09caa-fc03-45e4-859c-19fabf6ff753'
+digest = '7500a83fc48ff6142ea72098057dfbc1075b408603419b26b9aa304f1d3d6acd'
+payload = {'path': 'rag', 'sample': 4}, build = 'build123'
+
+    def _reserve(self, conn, actor, request_id, digest, payload, build):
+        from psycopg.types.json import Jsonb
+        # Caller holds the global budget transaction lock.
+        reserved = conn.execute("SELECT coalesce(sum(reserved_usd),0), coalesce(sum(reserved_usd) FILTER(WHERE account_id=%s),0), count(*) FILTER(WHERE account_id=%s AND created_at>now()-interval '1 minute') FROM runs", (actor["id"], actor["id"])).fetchone()
+        if float(reserved[0]) + .08 > 1.500001 or float(reserved[1]) + .08 > .600001:
+>           raise PilotDenied("파일럿의 누적 비용 예약 한도에 도달했습니다.")
+E           ops.live_pilot_store.PilotDenied: 파일럿의 누적 비용 예약 한도에 도달했습니다.
+
+ops/live_pilot_store.py:94: PilotDenied
+=========================== short test summary info ============================
+FAILED tests/test_live_pilot_store.py::test_durable_user_and_global_reservation_limits
+1 failed, 16 deselected in 0.89s
