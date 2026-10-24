@@ -1,0 +1,57 @@
+{
+  "source": "user-uploaded LIVE operational export plus read-only server metadata comparison",
+  "original_file": "live-2c194714-6a3c-4912-a485-e434e08b4044.json",
+  "original_sha256": "a92d8dc4e134e3182b603d9a0a7198fe2b22e1081f828f361400cf6eb03510df",
+  "original_bytes": 1873,
+  "user_report": {
+    "time_window_local": "14:00–14:24",
+    "timezone_interpretation": "Asia/Seoul, consistent with prior session; user did not restate timezone",
+    "reconnect_persisted": true,
+    "reported_usage_dates": [
+      "2026-10-22",
+      "2026-10-23",
+      "2026-10-24"
+    ],
+    "earlier_dates_mode": "User explicitly confirms actual-model LIVE review on October22,23,24; not DEMO.",
+    "duration_interpretation": "24-minute self-reported interval, not instrumented active task duration or demonstrated time savings"
+  },
+  "server_scope": {
+    "account": "human-pilot",
+    "request_count": 6,
+    "distinct_run_dates_utc": [
+      "2026-10-23",
+      "2026-10-24"
+    ],
+    "distinct_run_dates_asia_seoul": [
+      "2026-10-24"
+    ],
+    "oldest_run_utc": "2026-10-23T18:18:39.840671+00:00",
+    "oldest_run_asia_seoul": "2026-10-24T03:18:39.840671+09:00",
+    "human_review_count": 6,
+    "approve_count": 3,
+    "edit_count": 3
+  },
+  "limitations": [
+    "User explicitly reports actual-model LIVE usage on October22,23,24. Present human-pilot journal shows all six requests on October24 Asia/Seoul; this discrepancy is unresolved and must remain explicit.",
+    "Do not alter original timestamps or present three days of LIVE operation as verified.",
+    "Current request remains REVISE; semantic false-positive suspicion unresolved.",
+    "Reconnect confirmation is user report; DB review persistence and JSON agreement are independently checked metadata."
+  ],
+  "verified_summary": {
+    "request_id": "2c194714-6a3c-4912-a485-e434e08b4044",
+    "build": "3f7833509636fc3d0056905b290b4d687e7630c1",
+    "mode": "LIVE",
+    "path": "tools",
+    "decision": "REVISE",
+    "code_decision": "APPROVE",
+    "review_decision": "edit",
+    "call_count": 3,
+    "revisions": 1,
+    "successful_provider_calls": 3,
+    "failed_provider_calls": 0,
+    "input_tokens": 5843,
+    "output_tokens": 327,
+    "estimated_cost_usd": "0.001072"
+  },
+  "privacy": "Original upload remains private. This file contains selected operational metadata, totals and user confirmation only; no original ad, product facts, review note, prompts, provider payloads, credentials or full export."
+}
