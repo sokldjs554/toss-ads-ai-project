@@ -38,6 +38,13 @@
   <h1>✅ Preflight — 광고가 올라가기 전에 확인이 필요한 구절을 먼저 찾습니다</h1>
   <p class="sub">상품 정보로 광고안을 만들고, 확인이 필요한 구절을 이유와 함께 보여 주고, 수정 제안을 다시 검사하며, 판단이 어려우면 담당자 확인으로 넘깁니다. 개인 프로젝트이며 어느 회사의 실제 심사도 아닙니다.</p>
 
+  <div class="note" style="margin:0 0 20px">
+    <b>2026-10-24 확인된 사용 범위</b><br>
+    본인 1명 · LIVE 요청 6건 · 판단 저장 6건(승인 3·수정 필요 3). RAG와 실제 도구 호출 경로를 사용했습니다.
+    합성 광고의 단기 파일럿이며 정책 정확도와 상용 효과를 입증한 결과는 아닙니다.
+    <a href="https://github.com/sokldjs554/toss-ads-ai-project/blob/main/docs/CURRENT_STATUS.md">현재 상태·근거·남은 한계</a>
+  </div>
+
   <div class="grid">
     <a class="card" href="./app/">
       <span class="tag blue">직접 써보기 · 브라우저에서 실행</span>
@@ -51,10 +58,16 @@
       <p>캠페인 대화, 이미지 검사, 성과 보고서, 광고 문구 비교와 생성 흐름을 실제 모델로 실행한 기록입니다. 첫 실행의 실패와 수정 후 같은 입력의 결과, 호출 수와 비용을 함께 확인하세요. 기록을 보는 동안 새 비용은 발생하지 않습니다.</p>
       <span class="go">품질 확인에서 보기 →</span>
     </a>
+    <a class="card wide" href="https://preflight-toss-ads.onrender.com/?view=LIVE%20검토">
+      <span class="tag blue">실제 RAG·도구 호출 · 접근키 필요</span>
+      <h2>서버 LIVE 검토</h2>
+      <p>검색 근거와 수정안을 읽고 판단·사유를 저장하는 경로입니다. 운영자가 발급한 앱 접근키로 접속합니다. 기존 기록 조회는 새 호출이나 비용을 만들지 않습니다. 새 실행에는 예약 한도 확인이 필요합니다.</p>
+      <span class="go">서버 열기 →</span>
+    </a>
     <a class="card wide" href="./replay/">
       <span class="tag green">실제 모델 결과 · GPT-4o 실행 기록 재생</span>
-      <h2>실제 실행 기록</h2>
-      <p>GitHub Actions 에서 실제 GPT-4o 로 돌린 5개 사례의 처리 기록(단계·비용·판정 근거)과 1차→5차 평가 결과(문제 있는 광고 통과 다섯 번 모두 0건, 문제없는 광고에 수정 요청 14건 중 5→1건(1~4차)과 5차 13건 중 0건(라벨 1건 수정으로 분모 변경), 확신 보정 오차 0.14→0.06, 처음 보는 holdout 12건 포함)를 그대로 보여 줍니다.</p>
+      <h2>과거 GPT-4o 실행 기록</h2>
+      <p>이전 정책·프롬프트로 실행한 GPT-4o 5개 사례와 단계별 평가를 재생합니다. 현재 LIVE 모델의 새 결과가 아닙니다. 실패 원본, 분모 변경과 실험 조건을 당시 기록 그대로 확인할 수 있습니다.</p>
       <span class="go">열기 →</span>
     </a>
   </div>

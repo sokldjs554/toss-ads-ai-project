@@ -409,7 +409,7 @@ def render() -> None:
             ("새 합성 자료의 지속 하락 탐지", _frac(b["persistent_drop"]["tp"], b["persistent_drop"]["n"]), _frac(c["persistent_drop"]["tp"], c["persistent_drop"]["n"])),
             ("변화 없는·지속 추세·회복 대조의 잘못된 알림", _frac(bfp, controls), _frac(cfp, controls)),
         ], first="현재 배포 엔진", second="배포에서 제외한 후보")
-        st.warning("후보는 개발 대조에서 개선됐지만 새 자료에서 악화되어 배포하지 않았습니다. 기존 지속 하락 7/12 미탐은 해결되지 않았습니다.")
+        st.warning("후보는 개발 대조에서 개선됐지만 새 자료에서 악화되어 배포하지 않았습니다. 기존 지속 하락 12건 중 7건을 놓치는 문제는 해결되지 않았습니다.")
         st.caption("입력·정답·채점 기준을 실행 전에 고정한 AI 작성 합성 자료입니다. 같은 생성기를 쓰며 독립적인 사람 정답 검증은 없습니다. 실제 광고 성능이 아닙니다.")
         bad = policy["rules_only"]["unsafe_pass"]
         st.markdown(f"새 정책 대조: 규칙 검사와 DEMO 모두 수정·반려가 필요한 초안 정답 {bad['n']}건 중 {bad['k']}건을 통과시켰습니다. 실제 모델은 이번 평가에서 호출하지 않았습니다.")

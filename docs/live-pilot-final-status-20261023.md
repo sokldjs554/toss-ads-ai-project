@@ -1,5 +1,6 @@
 # LIVE 보완 결과 — 실제 두 경로와 본인 1명의 제한적 사용 확인
 
+> 이 문서는 당시 실행의 기록입니다. 최신 본인 사용 6건과 판단 6건, 현재 알려진 한계는 [현재 상태](CURRENT_STATUS.md)를 확인하세요. 과거 수치·실패 원본은 변경하지 않았습니다.
 기준 커밋 `7767dcbe288fd9ceaf6b9fdc021f7ac4450ad388`. 실제 두 경로 검증 코드/배포: **`b0f110cc48fb3b522f4b6545145b1c34209a5b4a`**, 프롬프트 `live-rag-tools-4`, 정책 `2026.10.7`. 문서 갱신 뒤의 최종 화면 버전·재배포 보존 증거는 [작업 브랜치의 후속 증거](https://github.com/sokldjs554/toss-ads-ai-project/tree/feat/live-rag-tools-20261023/docs/evidence/live-pilot-20261023)와 최종 인계문에서 확인한다. 실행 빌드와 이후 조회 화면 빌드는 구분한다.
 
 ## 실제로 확인한 두 방식

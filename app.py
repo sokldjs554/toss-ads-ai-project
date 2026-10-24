@@ -20,6 +20,7 @@ from llm.router import Router
 from observability.tracer import Tracer
 from ui import cases, ops_hub, performance_view, quality, theme, workbench
 from ui.labels import DISCLAIMER, PROJECT_NAME
+from ui.project_status import render as render_project_status
 
 st.set_page_config(page_title=f"{PROJECT_NAME} · 광고 검사", page_icon="✅", layout="wide", initial_sidebar_state="collapsed")
 theme.inject()
@@ -92,6 +93,8 @@ if nav is None:
     st.session_state["_nav_reset"] = st.session_state.get("_nav_last", VIEWS[0])
     st.rerun()
 st.session_state["_nav_last"] = nav
+
+render_project_status()
 
 if not IN_BROWSER and (SERVER_STATUS["openai"] or SERVER_STATUS["anthropic"]):
     with st.expander("서버 모델 실행 접근"):
