@@ -1,0 +1,8 @@
+{
+  "chromium": "151.0.7922.173",
+  "local_browser_ready": true,
+  "proxy_preserved": true,
+  "competitor_page_opened": false,
+  "initial_sandbox_failure": "TargetClosedError; crashpad socket setsockopt Operation not permitted",
+  "retry": "Approved sandbox escalation for local about:blank launch only; proxy and domain policy retained"
+}
