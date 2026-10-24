@@ -1,0 +1,15 @@
+{
+  "at_utc": "2026-10-24T06:03:08.100018+00:00",
+  "command": [
+    "curl",
+    "--head",
+    "--silent",
+    "--show-error",
+    "--max-time",
+    "20",
+    "https://ahrefs.com/writing-tools/google-ads-generator"
+  ],
+  "exit_code": 56,
+  "stdout": "HTTP/1.1 403 Forbidden\ncontent-length: 16\ncontent-type: text/plain\ndate: Sat, 24 Oct 2026 06:03:07 GMT\nserver: envoy\nconnection: close\n\n",
+  "stderr": "curl: (56) CONNECT tunnel failed, response 403\n"
+}

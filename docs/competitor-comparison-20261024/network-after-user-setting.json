@@ -1,0 +1,14 @@
+{
+  "user_report": "Network settings changed",
+  "spec_revision": "96",
+  "observed_spec_revision": "96",
+  "observations_current": true,
+  "network_state": "enforced",
+  "mode": "restricted",
+  "custom_allowed_hosts": [],
+  "ahrefs_in_effective_allowed_hosts": false,
+  "interpretation": "New revision96 is observed, but current permitted destinations do not include ahrefs.com. No inference about what UI setting the user edited. Actual CONNECT403 probe saved separately.",
+  "proxy_removed": false,
+  "bypass_attempted": false,
+  "new_model_calls": 0
+}
