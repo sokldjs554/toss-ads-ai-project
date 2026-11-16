@@ -34,7 +34,21 @@ python -m pytest -o addopts='' -q tests/test_live_pilot_engine.py tests/test_liv
 
 화면은 `st.chat_input(max_chars=1000)`을 사용하고 대화 로직은 전달받은 원문이 1,000자를 초과할 때만 별도 잘림 경고를 만든다. 현재 AppTest 경로에서는 이미 1,000자로 제한된 입력이 전달되므로 테스트가 요구하는 별도 경고가 발생하지 않는다. 입력 뒤쪽의 999만원이 예산에 반영되는 문제는 관찰되지 않았다. 과거 배포 버전의 동일한 동작이나 실제 브라우저 입력을 재확인한 것은 아니다.
 
-이번에는 동작을 바꾸거나 테스트 기대값을 느슨하게 만들어 통과시키지 않았다. 의존성 버전과 테스트의 기대를 같은 환경에서 재검토해야 할 항목으로 남긴다. README의 개발 의존성·DB·브라우저 준비 안내는 보완했다.
+제품 코드나 테스트 기대값은 수정하지 않았다. 아래에서 이전 성공 환경과 대조한 의존성 고정 결과를 추가한다. 최초 실패 로그는 그대로 보존했다.
+
+## 재현 환경 수정과 재검사
+
+새 PR의 [첫 CI](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/43922762974)는 `ubuntu-latest`가 Ubuntu 26.04로 바뀌어 `Playwright does not support chromium on ubuntu26.04-x64`로 브라우저 설치 단계에서 중단됐다. 해당 실행에서 PostgreSQL restricted API와 LIVE isolated storage gate는 통과했지만 전체 테스트는 시작되지 않았다.
+
+이전 성공 [CI](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/40076009819)의 작업 로그는 Ubuntu 24.04, Streamlit 1.66.1, Playwright 1.51.0을 기록한다. 이번 보완은 `.github/workflows/ci.yml`의 실행 OS를 `ubuntu-24.04`, `requirements.txt`의 Streamlit을 `1.66.1`로 고정했다. 모델·정책·제품 로직·테스트 기대값을 변경하지 않았다. 이 고정은 새 환경으로의 자동 이동을 막으며, 다음 버전 갱신 때 동일 UI/브라우저 검사를 다시 실행해야 한다.
+
+Streamlit 1.66.1로 재설치한 뒤 대화 UI 전체 **25개 통과, 10.35초**([로그](preflight-pinned-ui.log)). 핵심 로직 162개와 대화 UI 25개를 함께 실행해 **187개 통과, 25.08초**([로그](preflight-pinned-focused.log)). 새 코드 테스트가 아닌 기존 검사 그대로다.
+
+```bash
+python -m pytest -o addopts='' -q tests/test_live_pilot_engine.py tests/test_live_pilot_gateway.py tests/test_grounding.py tests/test_injection.py tests/test_output_guard.py tests/test_conv_ui.py
+```
+
+환경 고정 커밋 `25e29f00beb59a891e31b5ec634cdd583e7d048e`의 [전체 CI 재실행](https://github.com/sokldjs554/toss-ads-ai-project/actions/runs/43923706177)은 이 문서 작성 시 실행 중이었다. 전체 CI 성공 여부는 해당 실행의 최종 상태와 구분한다. 187개 부분 통과를 전체 통과로 바꾸지 않는다.
 
 ## 배포·LIVE 상태
 
@@ -45,4 +59,4 @@ python -m pytest -o addopts='' -q tests/test_live_pilot_engine.py tests/test_liv
 
 ## 변경 범위
 
-README의 검토 안내 링크, 개발 의존성·격리 DB·Chromium 실행 안내, [IT AI 검토 문서](../../it-ai-review-guide.md), 이 검증 기록만 추가/수정했다. 제품 코드·정책·모델·기존 평가 자료는 동일하다. [증거 파일 해시](sha256.json).
+README의 검토 안내 링크, 개발 의존성·격리 DB·Chromium 실행 안내, [IT AI 검토 문서](../../it-ai-review-guide.md), 이 검증 기록을 추가/수정했다. 재현 문제를 해결하기 위해 CI OS와 Streamlit 버전을 고정했다. 제품 코드·정책·모델·기존 평가 자료는 동일하다. [증거 파일 해시](sha256.json).

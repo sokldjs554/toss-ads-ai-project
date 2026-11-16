@@ -1,9 +1,11 @@
 {
+  "README.md": "29942eacaee96541d8d76089cd01d342713ee2796b69d1895e9d9ce444207174",
   "preflight-focused-serial.log": "47037323ab5908bc9f533b28088db5df745f2aaff2ceb77db064105caad1351a",
-  "preflight-pytest.log": "a6e19673d42082b27c966a345c679fd0863f3d134bdfb91194f7421938892a58",
-  "README.md": "4aeb5b0ee0fc87dbb79b09c33dbb04f233b88f3317dcb393589aa5ae6193ade3",
-  "preflight-versions.json": "45b7dc66b8d307fd67c5938885d71e7af388252e58fb0073cf7506e30ac94cf1",
+  "preflight-focused-tests.log": "0c6b8cd6f07489f1786f0f4c16ff6f1d03dc3a12c461b8c0a9e6c575cc7e0352",
   "preflight-input-diagnostic.log": "0b2d33e8c021798fbf258dc30a3b215e1a3bfb8b21a4791d546cf2c41c3c64cc",
-  "public-http.json": "ed8ebaacccae53f1a237f40d7f29b432061fb623b3284dcac07792043d55707e",
-  "preflight-focused-tests.log": "0c6b8cd6f07489f1786f0f4c16ff6f1d03dc3a12c461b8c0a9e6c575cc7e0352"
+  "preflight-pinned-focused.log": "0c52e2c00f36c0bc49c756673b9f5abb24c3687831e5027bde91025ef8c2af19",
+  "preflight-pinned-ui.log": "e09291b01dc3a2ae67fee336da77094b5180a25126ac68ca4a42623dc5d91373",
+  "preflight-pytest.log": "a6e19673d42082b27c966a345c679fd0863f3d134bdfb91194f7421938892a58",
+  "preflight-versions.json": "45b7dc66b8d307fd67c5938885d71e7af388252e58fb0073cf7506e30ac94cf1",
+  "public-http.json": "ed8ebaacccae53f1a237f40d7f29b432061fb623b3284dcac07792043d55707e"
 }
