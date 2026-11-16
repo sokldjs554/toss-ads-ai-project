@@ -1,0 +1,25 @@
+........................................................................ [ 44%]
+........................................................................ [ 88%]
+..............F...                                                       [100%]
+=================================== FAILURES ===================================
+_ test_output_guard_is_bounded_on_a_disclosure_made_of_one_banned_phrase[100000-\uc644\uce58] _
+
+phrase = '완치', n = 100000
+
+    @pytest.mark.parametrize("phrase", ["원금보장", "대박", "치료", "로또", "토토", "완치", "손실 걱정 없", "리딩방"])
+    @pytest.mark.parametrize("n", [20_000, 100_000])
+    def test_output_guard_is_bounded_on_a_disclosure_made_of_one_banned_phrase(phrase, n):
+        """같은 금지 문구가 수만 번 반복돼도 3초 안에 끝나고, 읽지 못한 뒷부분이 있다는 알림(수정 필요)도 함께 낸다."""
+        text = (phrase * (n // len(phrase) + 1))[:n]
+        t0 = time.perf_counter()
+        r = output_guard.check(AdCopy(headline="7일 무료 체험", body="체험 중 해지 가능", cta="시작", disclosures=[text]), PRODUCT,
+                               {"app", "investment", "loan", "ecommerce", "other"}, "", [])
+>       assert time.perf_counter() - t0 < 3.0
+E       assert (51877.036756348 - 51873.542679358) < 3.0
+E        +  where 51877.036756348 = <built-in function perf_counter>()
+E        +    where <built-in function perf_counter> = time.perf_counter
+
+tests/test_output_guard.py:33: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_output_guard.py::test_output_guard_is_bounded_on_a_disclosure_made_of_one_banned_phrase[100000-\uc644\uce58]
+1 failed, 161 passed in 19.82s

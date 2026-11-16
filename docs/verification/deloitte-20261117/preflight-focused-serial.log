@@ -1,0 +1,31 @@
+........................................................................ [ 44%]
+........................................................................ [ 88%]
+..................F                                                      [100%]
+=================================== FAILURES ===================================
+_____________________ test_long_input_is_cut_and_reported ______________________
+
+app = AppTest(
+    _script_path='/tmp/tmplir71xa8/5a630b6d92b686ed98c24a30a3da421e',
+    default_timeout=60,
+    _session_st...    0: ChatInput(key='chat_input', placeholder='예: 20대 직장인 대상 신용대출, 월 300만원, 신청 전환이에요')
+            }
+        )
+    }
+)
+
+    def test_long_input_is_cut_and_reported(app):
+        at = say(app.run(), "쇼핑몰 구매 전환 월 200만원이에요. " + "참고로 저희는 아주 오래된 가게입니다. " * 60 + "아 그리고 월 999만원으로 바꿔줘")
+        st = at.session_state["chat_state"]
+>       assert st.slots["monthly_budget_krw"].value == 2_000_000 and "1,000자까지만 읽어요" in visible(at)
+E       assert (2000000 == 2000000 and '1,000자까지만 읽어요' in '## 대화로 광고 설정\n목표와 예산을 말로 알려 주세요. 모자란 것만 하나씩 여쭤보고, 필요한 정보가 모이면 캠페인 구성을 미리 보여 드려요.\n<span class="pf-mode">예시 실행 — 규칙 기반... 최근 30일 광고 클릭 유저(광고 반응 가져오기)</div></div>\n구성 이유와 가정\n아래 버튼을 누르면 광고 작업 화면의 입력칸이 이 내용으로 채워져요. 확인되지 않은 조건은 넣지 않아요.\n상세 기록')
+E        +  where 2000000 = Slot(value=2000000, status='confirmed', evidence=[Evidence(quote='월 200만원', turn=1)], source='rule', note='', alternatives=[], needs_confirmation=False, weak=False, conflict_turn=0, confirmed_items=[]).value
+E        +  and   '## 대화로 광고 설정\n목표와 예산을 말로 알려 주세요. 모자란 것만 하나씩 여쭤보고, 필요한 정보가 모이면 캠페인 구성을 미리 보여 드려요.\n<span class="pf-mode">예시 실행 — 규칙 기반... 최근 30일 광고 클릭 유저(광고 반응 가져오기)</div></div>\n구성 이유와 가정\n아래 버튼을 누르면 광고 작업 화면의 입력칸이 이 내용으로 채워져요. 확인되지 않은 조건은 넣지 않아요.\n상세 기록' = visible(AppTest(\n    _script_path='/tmp/tmplir71xa8/5a630b6d92b686ed98c24a30a3da421e',\n    default_timeout=60,\n    _session_st...    0: ChatInput(key='chat_input', placeholder='예: 20대 직장인 대상 신용대출, 월 300만원, 신청 전환이에요')\n            }\n        )\n    }\n))
+
+tests/test_conv_ui.py:213: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+2026-11-17 02:48:33.312 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+------------------------------ Captured log setup ------------------------------
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+=========================== short test summary info ============================
+FAILED tests/test_conv_ui.py::test_long_input_is_cut_and_reported - assert (2...
+1 failed, 162 passed in 18.52s
