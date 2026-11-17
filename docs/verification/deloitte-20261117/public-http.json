@@ -1,0 +1,55 @@
+{
+  "at_utc": "2026-11-16T17:38:23.173878+00:00",
+  "tls_verification": true,
+  "results": [
+    {
+      "url": "https://quarterguard.onrender.com/health",
+      "status": "000",
+      "exit_code": 28,
+      "error": "curl: (28) Operation timed out after 25004 milliseconds with 0 bytes received\n",
+      "body_prefix": ""
+    },
+    {
+      "url": "https://quarterguard.onrender.com/",
+      "status": "000",
+      "exit_code": 28,
+      "error": "curl: (28) Operation timed out after 25001 milliseconds with 0 bytes received\n",
+      "body_prefix": ""
+    },
+    {
+      "url": "https://sokldjs554.github.io/toss-ads-ai-project/app/",
+      "status": "200",
+      "exit_code": 0,
+      "error": "",
+      "body_prefix": "<!doctype html>\n<html lang=\"ko\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<link rel=\"icon\" href=\"data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%233182F6%27/%3E%3Cpath d=%27M18 34l10 10 18-22%27 fill=%27none%27 stroke=%27%23fff%27 stroke-width=%277%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E\">\n<title>Preflight Studio — 브라우저 실행판</title>\n<meta name=\"description"
+    },
+    {
+      "url": "https://preflight-toss-ads.onrender.com/_stcore/health",
+      "status": "000",
+      "exit_code": 28,
+      "error": "curl: (28) Operation timed out after 25001 milliseconds with 0 bytes received\n",
+      "body_prefix": ""
+    },
+    {
+      "url": "https://sokldjs554.github.io/harbinger/live.html",
+      "status": "200",
+      "exit_code": 0,
+      "error": "",
+      "body_prefix": "<!doctype html>\n<html lang=\"ko\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><meta name=\"referrer\" content=\"no-referrer\"><meta http-equiv=\"refresh\" content=\"0; url=https://13.236.137.0/console/\"><link rel=\"canonical\" href=\"https://13.236.137.0/console/\"><title>harbinger · AWS 실제 계산 데모</title></head><body><p><a href=\"https://13.236.137.0/console/\">AWS 실제 계산 데모 열기</a></p><p>합성 학습 모델로 CSV 업로드와 새 계산을 지원합니다.</p></body></html>\n"
+    },
+    {
+      "url": "https://13.236.137.0/health",
+      "status": "000",
+      "exit_code": 60,
+      "error": "curl: (60) SSL: no alternative certificate subject name matches target ipv4 address '13.236.137.0'\nMore details here: https://curl.se/docs/sslcerts.html\n\ncurl failed to verify the legitimacy of the server and therefore could not\nestablish a secure connection to it. To learn more about this situation and\nhow to fix it, please visit the webpage mentioned above.\n",
+      "body_prefix": ""
+    },
+    {
+      "url": "https://sokldjs554.github.io/tabletrace/",
+      "status": "200",
+      "exit_code": 0,
+      "error": "",
+      "body_prefix": "<!doctype html>\n<html lang=\"ko\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<title>TableTrace — 표·문서 근거 검증 워크벤치</title>\n<meta name=\"description\" content=\"한국어 표와 영어 화학 문서를 읽고, 답변의 근거 셀·문장과 계산 과정을 검증하는 언어모델 연구 워크벤치\">\n<link rel=\"icon\" href=\"data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Crect width=%2716%27 height=%2716%27 rx=%273%27 fill=%27%232b5c8a%27/%3E%3Cpath d=%27M3 5h10M3 8h10M3 11h6%27 stroke=%27%23fff%27 stroke-width=%271.6%27/%3E%3C/svg"
+    }
+  ]
+}

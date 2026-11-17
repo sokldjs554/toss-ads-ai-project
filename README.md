@@ -8,6 +8,8 @@
 
 [무료 데모](https://sokldjs554.github.io/toss-ads-ai-project/app/) · [서버 LIVE 검토](https://preflight-toss-ads.onrender.com/?view=LIVE%20검토) · [현재 확인된 범위](docs/CURRENT_STATUS.md) · [최종 사용·원자료](https://github.com/sokldjs554/toss-ads-ai-project/blob/c51d574eaf7a0fc90c09f01ed8e996a57fce98a8/docs/final-handoff-20261024.md)
 
+[IT AI 엔지니어 검토 안내](docs/it-ai-review-guide.md): RAG·도구 호출·저장·비용 제어의 코드와 실행 근거, 무료 데모와 실제 모델 사용의 차이를 한곳에서 확인합니다.
+
 ![실제 앱의 예시 실행 화면](docs/screenshots/demo.gif)
 
 위 영상은 무료 DEMO의 과거 실제 조작 화면입니다. 모델 단계는 대역이며 새 모델 호출을 보여 주는 영상이 아닙니다.
@@ -88,10 +90,9 @@ Python 3.11 이상에서 실행합니다. 실제 모델·DB 자격증명은 서�
 ```bash
 pip install -r requirements.txt
 PREFLIGHT_FORCE_DEMO=1 streamlit run app.py
-python -m pytest -q
 ```
 
-전체 테스트의 격리 PostgreSQL·Chromium 준비는 [.github/workflows/ci.yml](.github/workflows/ci.yml)을 따릅니다. 운영 DB를 테스트 대상으로 쓰지 않습니다.
+테스트는 `python -m pip install -r requirements-dev.txt`로 개발 의존성을 설치한 뒤 실행합니다. 전체 테스트의 격리 PostgreSQL·Chromium 준비와 `python -m pytest -o addopts='' -q -ra` 명령은 [.github/workflows/ci.yml](.github/workflows/ci.yml)을 따릅니다. 운영 DB를 테스트 대상으로 쓰지 않습니다. DB 없는 일부 검사 통과를 전체 저장·동시성 검증으로 표현하지 않습니다.
 
 - `agents/live_pilot.py`: 검색·인용 검증·도구 루프·최종 결합
 - `guardrails/grounding.py`: 숫자·조건의 값과 뜻 대조
