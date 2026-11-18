@@ -8,6 +8,8 @@
 
 [무료 데모](https://sokldjs554.github.io/toss-ads-ai-project/app/) · [서버 LIVE 검토](https://preflight-toss-ads.onrender.com/?view=LIVE%20검토) · [현재 확인된 범위](docs/CURRENT_STATUS.md) · [최종 사용·원자료](https://github.com/sokldjs554/toss-ads-ai-project/blob/c51d574eaf7a0fc90c09f01ed8e996a57fce98a8/docs/final-handoff-20261024.md)
 
+**제가 맡은 검토**  상품 근거를 읽고 자동 수정안을 실제로 쓸 수 있는지 확인하려고 검토 범위와 우선순위를 정했습니다. 제 계정에서 합성 광고로 LIVE 요청 6건을 실행해 승인 3건·수정 필요 3건의 이유를 저장하고 재접속 후 기록을 확인했습니다. 서비스 구현·자동 테스트·배포에는 AI 개발 도구를 활용했습니다. [검토 범위와 역할](docs/CURRENT_STATUS.md) · [사용·판단 기록](https://github.com/sokldjs554/toss-ads-ai-project/blob/c51d574eaf7a0fc90c09f01ed8e996a57fce98a8/docs/final-handoff-20261024.md)
+
 [IT AI 엔지니어 검토 안내](docs/it-ai-review-guide.md): RAG·도구 호출·저장·비용 제어의 코드와 실행 근거, 무료 데모와 실제 모델 사용의 차이를 한곳에서 확인합니다.
 
 ![실제 앱의 예시 실행 화면](docs/screenshots/demo.gif)
